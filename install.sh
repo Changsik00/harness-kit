@@ -13,7 +13,7 @@
 #   ./install.sh /path/to/project      # 지정 디렉토리에 설치
 #   ./install.sh --dry-run             # 실제 변경 없이 계획만 출력
 #   ./install.sh --force               # 기존 파일 백업 없이 덮어쓰기
-#   ./install.sh --stack=nestjs        # 스택 자동 감지 무시하고 강제 지정
+#   ./install.sh --stack=nodejs        # 스택 자동 감지 무시하고 강제 지정 (nodejs|generic)
 #   ./install.sh --no-hooks            # hooks 설치 생략
 #   ./install.sh --yes                 # 확인 프롬프트 생략
 #
@@ -117,9 +117,8 @@ detect_stack() {
   if [ -n "$FORCE_STACK" ]; then
     echo "$FORCE_STACK"; return
   fi
-  if [ -f "$TARGET/nest-cli.json" ]; then
-    echo "nestjs"; return
-  fi
+  # NestJS, Next.js, Vite, Bun 등 모든 JS/TS 프로젝트는 nodejs 어댑터로.
+  # 어댑터 내부에서 패키지 매니저(pnpm/yarn/bun/npm) 를 자동 감지함.
   if [ -f "$TARGET/package.json" ]; then
     echo "nodejs"; return
   fi

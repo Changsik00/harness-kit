@@ -226,13 +226,39 @@ export HARNESS_TEST_WINDOW_MIN=60    # 기본 30
 
 위치: `<kit>/stacks/*.sh` → 설치 시 `<target>/scripts/harness/lib/stack.sh` 로 복사
 
-| 스택 | 감지 | 명령 |
+| 스택 | 감지 | 동작 |
 |---|---|---|
-| `nestjs` | `nest-cli.json` 존재 | `npm test`, `npm run lint`, `npm run test:e2e`, `tsc --noEmit` |
-| `nodejs` | `package.json` 존재 | `npm test`, `npm run lint`, `npm run build` |
+| `nodejs` | `package.json` 존재 | 패키지 매니저 자동 감지 후 `<pm> test` / `<pm> run lint` / `<pm> run build` 등 |
 | `generic` | 그 외 | placeholder (사용자가 직접 채워야 함) |
 
-신규 스택 추가 시:
+### nodejs 어댑터의 패키지 매니저 자동 감지
+
+런타임에 매번 재감지합니다 (사용자가 마이그레이션하면 키트도 자동으로 따라옴).
+
+| 우선순위 | 감지 방법 | 결과 |
+|:---:|---|---|
+| 1 | `package.json` 의 `"packageManager"` 필드 (corepack 표준) | 명시된 PM |
+| 2 | `pnpm-lock.yaml` 존재 | `pnpm` |
+| 3 | `yarn.lock` 존재 | `yarn` |
+| 4 | `bun.lockb` 존재 | `bun` |
+| 5 | `package-lock.json` 존재 | `npm` |
+| 6 | (그 외) | `npm` (fallback) |
+
+### nodejs 어댑터가 export 하는 변수
+
+| 변수 | 값 예시 (pnpm) |
+|---|---|
+| `HARNESS_PKG_MANAGER` | `pnpm` |
+| `HARNESS_BIN_RUNNER` | `pnpm exec` (npm 은 `npx`, bun 은 `bunx`, yarn 은 `yarn`) |
+| `HARNESS_TEST_CMD` | `pnpm test` |
+| `HARNESS_LINT_CMD` | `pnpm run lint` |
+| `HARNESS_BUILD_CMD` | `pnpm run build` |
+| `HARNESS_TYPECHECK_CMD` | `pnpm exec tsc --noEmit` |
+| `HARNESS_TEST_INTEGRATION_CMD` | `pnpm run test:e2e` (있으면) 또는 `pnpm test` |
+| `HARNESS_TEST_FILE_GLOB` | `*.{test,spec}.{js,ts,jsx,tsx,mjs,cjs}` |
+| `HARNESS_INTEGRATION_TEST_FILE_GLOB` | `*.{e2e-spec,e2e}.{js,ts}` |
+
+### 신규 스택 추가 시
 1. `stacks/<name>.sh` 에 `HARNESS_*` 변수들 export
 2. `install.sh` 의 `detect_stack()` 에 감지 로직 추가
 3. install 시 `--stack=<name>` 로 강제 지정 가능
