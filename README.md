@@ -3,7 +3,7 @@
 > **Claude Code 를 위한 SDD (Spec-Driven Development) 거버넌스 부트스트랩 툴킷**
 > 한 번 만들어두고, 다음 프로젝트에서는 한 줄로 같은 하네스를 깐다.
 
-[![version](https://img.shields.io/badge/version-0.1.0-blue)](./VERSION)
+[![version](https://img.shields.io/badge/version-0.2.0-blue)](./VERSION)
 [![target](https://img.shields.io/badge/target-macOS%20%2B%20Claude%20Code-green)](#-대상-환경-target-platform)
 [![status](https://img.shields.io/badge/status-alpha-orange)](#-현재-진행-상태)
 
@@ -56,7 +56,7 @@ brew install bash jq git
 이 저장소가 `~/Project/ai/claude` 에 있다고 가정합니다.
 
 ```bash
-cat ~/Project/ai/claude/VERSION    # 0.1.0
+cat ~/Project/ai/claude/VERSION    # 0.2.0
 ```
 
 ### 2. 대상 프로젝트에 install
