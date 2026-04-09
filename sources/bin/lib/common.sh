@@ -32,7 +32,8 @@ sdd_find_root() {
 
 SDD_ROOT="$(sdd_find_root)" || die "프로젝트 루트를 찾지 못했습니다 (.claude/state/current.json 또는 agent/constitution.md 필요)"
 SDD_STATE="$SDD_ROOT/.claude/state/current.json"
-SDD_BACKLOG="$SDD_ROOT/backlog/phases"
+SDD_BACKLOG="$SDD_ROOT/backlog"     # phase 정의 (todo list)
+SDD_SPECS="$SDD_ROOT/specs"          # 실제 spec 작업 (work log)
 SDD_AGENT="$SDD_ROOT/agent"
 SDD_TEMPLATES="$SDD_ROOT/agent/templates"
 

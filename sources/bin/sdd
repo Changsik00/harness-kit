@@ -154,22 +154,23 @@ phase_new() {
   local slug="${1:-}"
   [ -z "$slug" ] && die "사용법: sdd phase new <slug>"
   sdd_slug_ok "$slug" || die "slug 형식 오류: 소문자/숫자/하이픈 (예: payment-stability)"
+  # slug 는 phase.md 의 제목으로만 사용. 디렉토리 이름은 phase-{N} (slug 없음).
 
-  # 다음 phase 번호
+  # 다음 phase 번호 (backlog/phase-{N}/ 패턴 스캔)
   local next=1
   if [ -d "$SDD_BACKLOG" ]; then
     local n
-    n=$(find "$SDD_BACKLOG" -maxdepth 1 -type d -name 'PHASE-*' 2>/dev/null \
-        | sed 's|.*/PHASE-||;s|-.*||' | sort -n | tail -1)
+    n=$(find "$SDD_BACKLOG" -maxdepth 1 -type d -name 'phase-*' 2>/dev/null \
+        | sed 's|.*/phase-||' | sort -n | tail -1)
     [ -n "$n" ] && next=$((n+1))
   fi
 
-  local id="PHASE-${next}-${slug}"
+  local id="phase-${next}"
   local dir="$SDD_BACKLOG/$id"
   [ -d "$dir" ] && die "이미 존재: $dir"
 
-  log "phase 생성: $id"
-  mkdir -p "$dir/specs"
+  log "phase 생성: $id  (제목: $slug)"
+  mkdir -p "$dir"
   # phase.md 템플릿 복사 + 치환
   if [ -f "$SDD_TEMPLATES/phase.md" ]; then
     sed "s/{N}/$next/g; s/{slug}/$slug/g" "$SDD_TEMPLATES/phase.md" > "$dir/phase.md"
@@ -179,7 +180,7 @@ phase_new() {
   fi
   # integration-tests.md placeholder
   cat > "$dir/integration-tests.md" <<EOF
-# $id — Integration Tests
+# $id — Integration Tests ($slug)
 
 > 본 phase 의 통합 테스트 시나리오를 작성하세요. 모든 시나리오 PASS 가 phase Done 조건입니다.
 
@@ -208,18 +209,21 @@ phase_list() {
     echo "${C_DIM}phase 없음. sdd phase new <slug> 로 시작하세요.${C_RST}"
     return
   fi
-  printf "%-40s %-10s %s\n" "Phase" "Specs" "(active)"
-  echo "--------------------------------------------------------------"
+  printf "%-15s %-10s %s\n" "Phase" "Specs" "(active)"
+  echo "----------------------------------------"
   local active
   active="$(state_get phase)"
-  for d in "$SDD_BACKLOG"/PHASE-*; do
+  local d
+  for d in "$SDD_BACKLOG"/phase-*; do
     [ -d "$d" ] || continue
-    local id n marker
+    local id n marker pn
     id="$(basename "$d")"
-    n=$(find "$d/specs" -maxdepth 1 -type d -name 'SPEC-*' 2>/dev/null | wc -l | tr -d ' ')
+    pn="${id#phase-}"
+    # specs/spec-{pn}-* 카운트
+    n=$(find "$SDD_SPECS" -maxdepth 1 -type d -name "spec-${pn}-*" 2>/dev/null | wc -l | tr -d ' ')
     marker=""
     [ "$id" = "$active" ] && marker="${C_GRN}*${C_RST}"
-    printf "%-40s %-10s %s\n" "$id" "$n" "$marker"
+    printf "%-15s %-10s %s\n" "$id" "$n" "$marker"
   done
 }
 
@@ -228,10 +232,12 @@ phase_show() {
   [ -z "$id" ] || [ "$id" = "null" ] && die "active phase 없음. sdd phase new <slug>"
   local dir="$SDD_BACKLOG/$id"
   [ -d "$dir" ] || die "phase 디렉토리 없음: $dir"
+  local pn="${id#phase-}"
   echo "${C_BLD}$id${C_RST}"
   echo "  경로: $dir"
   echo "  Specs:"
-  for s in "$dir/specs"/SPEC-*; do
+  local s
+  for s in "$SDD_SPECS"/spec-${pn}-*; do
     [ -d "$s" ] || continue
     echo "    - $(basename "$s")"
   done
@@ -255,29 +261,29 @@ spec_new() {
   [ -z "$slug" ] && die "사용법: sdd spec new <slug>"
   sdd_slug_ok "$slug" || die "slug 형식 오류: 소문자/숫자/하이픈"
 
-  local phase_id phase_dir
+  local phase_id
   phase_id="$(state_get phase)"
   [ -z "$phase_id" ] || [ "$phase_id" = "null" ] && die "active phase 없음. sdd phase new <slug> 먼저"
-  phase_dir="$SDD_BACKLOG/$phase_id"
-  [ -d "$phase_dir/specs" ] || mkdir -p "$phase_dir/specs"
 
-  # phase 번호 추출
+  # phase 번호 추출 (phase-{N} → N)
   local phase_n
-  phase_n="$(echo "$phase_id" | sed 's/^PHASE-//;s/-.*//')"
+  phase_n="${phase_id#phase-}"
 
-  # 다음 spec 번호 (해당 phase 안에서)
+  mkdir -p "$SDD_SPECS"
+
+  # 다음 spec 번호 (해당 phase 안에서, specs/spec-{N}-{NNN}-* 패턴 스캔)
   local next=1
   local last
-  last=$(find "$phase_dir/specs" -maxdepth 1 -type d -name "SPEC-${phase_n}-*" 2>/dev/null \
-         | sed "s|.*/SPEC-${phase_n}-||;s|-.*||" | sort -n | tail -1)
+  last=$(find "$SDD_SPECS" -maxdepth 1 -type d -name "spec-${phase_n}-*" 2>/dev/null \
+         | sed "s|.*/spec-${phase_n}-||;s|-.*||" | sort -n | tail -1)
   if [ -n "$last" ]; then
     next=$((10#$last + 1))
   fi
   local seq
   seq=$(printf '%03d' "$next")
 
-  local id="SPEC-${phase_n}-${seq}-${slug}"
-  local dir="$phase_dir/specs/$id"
+  local id="spec-${phase_n}-${seq}-${slug}"
+  local dir="$SDD_SPECS/$id"
   [ -d "$dir" ] && die "이미 존재: $dir"
 
   log "spec 생성: $id"
@@ -303,6 +309,7 @@ spec_new() {
   echo "  2. $dir/plan.md 작성"
   echo "  3. $dir/task.md 작성"
   echo "  4. 사용자 검토 후 ${C_CYN}sdd plan accept${C_RST}"
+  echo "  5. 첫 task: ${C_CYN}git checkout -b $id${C_RST}"
 }
 
 spec_list() {
@@ -313,33 +320,23 @@ spec_list() {
     esac
   done
 
-  local active
+  [ -d "$SDD_SPECS" ] || { echo "${C_DIM}spec 없음. sdd spec new <slug>${C_RST}"; return; }
+
+  local active glob s id marker
   active="$(state_get spec)"
 
-  local phase_dirs=()
   if [ -n "$phase_filter" ]; then
-    # PHASE-N-* glob
-    local g
-    for g in "$SDD_BACKLOG"/PHASE-${phase_filter}-*; do
-      [ -d "$g" ] && phase_dirs+=("$g")
-    done
+    glob="$SDD_SPECS/spec-${phase_filter}-*"
   else
-    local p
-    for p in "$SDD_BACKLOG"/PHASE-*; do
-      [ -d "$p" ] && phase_dirs+=("$p")
-    done
+    glob="$SDD_SPECS/spec-*"
   fi
 
-  local pd s id marker
-  for pd in "${phase_dirs[@]}"; do
-    [ -d "$pd/specs" ] || continue
-    for s in "$pd/specs"/SPEC-*; do
-      [ -d "$s" ] || continue
-      id="$(basename "$s")"
-      marker=""
-      [ "$id" = "$active" ] && marker=" ${C_GRN}*${C_RST}"
-      printf "  %s%s\n" "$id" "$marker"
-    done
+  for s in $glob; do
+    [ -d "$s" ] || continue
+    id="$(basename "$s")"
+    marker=""
+    [ "$id" = "$active" ] && marker=" ${C_GRN}*${C_RST}"
+    printf "  %s%s\n" "$id" "$marker"
   done
 }
 
@@ -382,7 +379,7 @@ plan_accept() {
   for f in plan task; do
     [ -s "$spec_dir/$f.md" ] || die "$f.md 가 비어있음: $spec_dir/$f.md"
     # 템플릿 그대로면 placeholder 토큰이 그대로 남아 있음
-    if grep -qE '\{phaseN\}|\{seq\}|\{slug\}|<한글 제목>|<한 줄 설명>|<제목>' "$spec_dir/$f.md"; then
+    if grep -qE '<한글 제목>|<한 줄 설명>|<제목>' "$spec_dir/$f.md"; then
       die "$f.md 가 아직 템플릿 placeholder 상태입니다. 내용을 채운 후 다시 시도하세요."
     fi
   done
@@ -477,12 +474,12 @@ cmd_archive() {
   # archive commit (사용자 동의 가정 — 본 명령은 실행 단계)
   local spec_id
   spec_id="$(state_get spec)"
-  local seq phase_n
-  phase_n="$(echo "$spec_id" | sed 's/^SPEC-//;s/-.*//')"
-  seq="$(echo "$spec_id" | sed "s/^SPEC-${phase_n}-//;s/-.*//")"
+  # spec-{phaseN}-{seq}-{slug} → spec-{phaseN}-{seq}
+  local scope
+  scope="$(echo "$spec_id" | awk -F- '{print $1"-"$2"-"$3}')"
   log "git add ..."
   git -C "$SDD_ROOT" add "$spec_dir/walkthrough.md" "$spec_dir/pr_description.md"
-  git -C "$SDD_ROOT" commit -m "docs(SPEC-${phase_n}-${seq}): archive walkthrough and pr description"
+  git -C "$SDD_ROOT" commit -m "docs(${scope}): archive walkthrough and pr description"
   ok "archive commit 완료"
 }
 

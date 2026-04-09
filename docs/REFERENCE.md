@@ -59,7 +59,7 @@
 |---|---|
 | `sdd spec new <slug>` | active phase 안에 새 SPEC 생성 (5종 템플릿 복사) |
 | `sdd spec list [--phase=N]` | spec 목록 |
-| `sdd spec show [SPEC-N-NNN]` | spec 상세 (생략 시 active) |
+| `sdd spec show [spec-N-NNN-slug]` | spec 상세 (생략 시 active) |
 
 ### plan
 | 명령 | 설명 |
@@ -166,18 +166,23 @@ export HARNESS_TEST_WINDOW_MIN=60    # 기본 30
 │   │   └── check-test-passed.sh
 │   └── lib/stack.sh                    # 스택 어댑터 (install 시 선택된 것)
 │
-├── backlog/phases/                     # phase > spec 산출물 (git 추적)
-│   └── PHASE-{N}-{slug}/
-│       ├── phase.md
-│       ├── integration-tests.md
-│       ├── walkthrough.md              # phase 완료 시
-│       └── specs/
-│           └── SPEC-{N}-{NNN}-{slug}/
-│               ├── spec.md
-│               ├── plan.md
-│               ├── task.md
-│               ├── walkthrough.md
-│               └── pr_description.md
+├── backlog/                            # phase 정의 = TODO list (git 추적)
+│   ├── phase-1/
+│   │   ├── phase.md
+│   │   ├── integration-tests.md
+│   │   └── walkthrough.md              # phase 완료 시
+│   ├── phase-2/
+│   └── ...
+│
+├── specs/                              # 실제 SPEC 작업 = work log (평면, git 추적)
+│   ├── spec-1-001-{slug}/
+│   │   ├── spec.md
+│   │   ├── plan.md
+│   │   ├── task.md
+│   │   ├── walkthrough.md
+│   │   └── pr_description.md
+│   ├── spec-1-002-{slug}/
+│   └── spec-2-001-{slug}/
 │
 └── CLAUDE.md                           # 사용자 내용 + HARNESS-KIT 블록
 ```
@@ -190,8 +195,8 @@ export HARNESS_TEST_WINDOW_MIN=60    # 기본 30
 {
   "kitVersion": "0.1.0",
   "stack": "nestjs",
-  "phase": "PHASE-1-payment-stability",
-  "spec": "SPEC-1-001-webhook-lock-fail-throw",
+  "phase": "phase-1",
+  "spec": "spec-1-001-webhook-lock-fail-throw",
   "branch": null,
   "planAccepted": false,
   "lastTestPass": "2026-04-09T10:30:00Z",
@@ -274,8 +279,8 @@ export HARNESS_TEST_WINDOW_MIN=60    # 기본 30
 | **One Task = One Commit** | constitution §7 |
 | **No Test, No Commit** | constitution §8.1 |
 | **main 브랜치 직접 작업 금지** | constitution §9.1 |
-| **commit subject 포맷** | `<type>(SPEC-{phaseN}-{seq}): <description>` (constitution §9.2) |
-| **branch 포맷** | `feature/SPEC-{phaseN}-{seq}-{slug}` |
+| **commit subject 포맷** | `<type>(spec-{phaseN}-{seq}): <description>` (모두 소문자, constitution §9.2) |
+| **branch 포맷** | `spec-{phaseN}-{seq}-{slug}` (브랜치 = spec 디렉토리, `feature/` prefix 없음) |
 | **모든 산출물 한국어** | constitution §4.4 |
 
 ---

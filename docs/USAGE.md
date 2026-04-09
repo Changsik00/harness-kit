@@ -73,7 +73,7 @@ Claude Code 안:   /align
 ```
 
 이 명령은:
-- `backlog/phases/PHASE-1-payment-stability/` 디렉토리 생성
+- `backlog/phase-1/` 디렉토리 생성 (slug 는 phase.md 제목으로만 사용)
 - `phase.md` 템플릿 복사 (한국어 골격)
 - `integration-tests.md` 골격 생성
 - `.claude/state/current.json` 의 active phase 갱신
@@ -92,7 +92,7 @@ Claude Code 안:   /align
 
 이 명령은:
 - 자동으로 다음 SPEC 번호 부여 (현재 phase 안에서)
-- `backlog/phases/PHASE-1-payment-stability/specs/SPEC-1-001-webhook-lock-fail-throw/` 생성
+- `specs/spec-1-001-webhook-lock-fail-throw/` 생성 (소문자, 평면 배치)
 - 5종 템플릿 복사: `spec.md`, `plan.md`, `task.md`, `walkthrough.md`, `pr_description.md`
 - active spec 갱신, `planAccepted=false`
 
@@ -132,7 +132,7 @@ Plan Accept 후 에이전트는 task.md 의 첫 task 부터 다음을 반복:
 3. **Implement** — 최소 코드
 4. **Test Pass** — TDD green
 5. **`./scripts/harness/bin/sdd test passed`** — 테스트 통과 시각 기록
-6. **Commit** — `<type>(SPEC-1-001): description`
+6. **Commit** — `<type>(spec-1-001): description` (모두 소문자)
 7. **`./scripts/harness/bin/sdd task done <num>`** — task.md 갱신
 8. **사용자에게 보고 + 다음 task 진행 신호 대기**
 
@@ -152,7 +152,7 @@ Plan Accept 후 에이전트는 task.md 의 첫 task 부터 다음을 반복:
 
 ```bash
 ./scripts/harness/bin/sdd archive            # archive commit 생성
-git push -u origin feature/SPEC-1-001-webhook-lock-fail-throw
+git push -u origin spec-1-001-webhook-lock-fail-throw
 ./scripts/harness/bin/sdd plan reset
 ```
 

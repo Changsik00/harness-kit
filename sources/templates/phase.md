@@ -1,12 +1,13 @@
-# PHASE-{N}-{slug}: <한글 제목>
+# phase-{N}: <한글 제목>
 
 > Phase 는 전략적으로 묶인 SPEC 들의 그룹입니다. 한 비즈니스 가치 또는 한 위험 영역을 다룹니다.
+> 본 문서는 phase 의 *계획* 입니다 (`backlog/` 아래에 위치). 실제 SPEC 작업은 `specs/spec-{N}-{seq}-{slug}/` 에 별도로 진행됩니다.
 
 ## 📋 메타
 
 | 항목 | 값 |
 |---|---|
-| **Phase ID** | `PHASE-{N}-{slug}` |
+| **Phase ID** | `phase-{N}` |
 | **상태** | Planning / In Progress / Done |
 | **시작일** | YYYY-MM-DD |
 | **목표 종료일** | YYYY-MM-DD |
@@ -25,24 +26,25 @@
 2. <기준 2> — 예: 웹훅 처리 SLA p99 < 5초
 3. <기준 3> — 예: integration-tests.md 의 모든 시나리오 PASS
 
-## 🧩 포함된 SPECs
+## 🧩 포함된 SPECs (todo list)
 
-| SPEC ID | 제목 | 상태 | PR |
-|---|---|---|---|
-| `SPEC-{N}-001` | <제목> | Planning / Active / Merged | (URL or N/A) |
-| `SPEC-{N}-002` | <제목> | ... | ... |
+> 본 표는 phase 의 *작업 백로그* 입니다. SPEC 이 시작/완료되면 상태를 갱신하세요.
+> 실제 SPEC 산출물은 `specs/spec-{N}-{seq}-{slug}/` 에 있습니다.
 
-> Phase 진행 중 SPEC 이 추가될 수 있습니다. 그 경우 본 문서의 표를 갱신합니다.
+| SPEC ID | 제목 | 우선순위 | 상태 | 디렉토리 |
+|---|---|:---:|---|---|
+| `spec-{N}-001` | <제목> | P0/P1/P2 | Backlog/Planning/Active/Merged | `specs/spec-{N}-001-{slug}/` |
+| `spec-{N}-002` | <제목> | ... | ... | `specs/spec-{N}-002-{slug}/` |
 
 ## 🔗 의존성
 
-- **선행 Phase**: <PHASE-X 또는 없음>
+- **선행 Phase**: <phase-X 또는 없음>
 - **외부 시스템**: <예: StepPay API, MySQL 8.0+, Redis 6+>
 - **영향받는 모듈**: <리스트>
 
 ## 🧪 통합 테스트 전략 (필수)
 
-> 상세한 시나리오는 `integration-tests.md` 에 작성합니다.
+> 상세 시나리오는 `integration-tests.md` 에 작성합니다.
 > 본 섹션은 요약과 실행 방법만 명시합니다.
 
 ### 테스트 환경
@@ -52,12 +54,12 @@
 ### 실행 방법
 ```bash
 # 본 phase 의 통합 테스트 모두 실행
-bin/sdd phase test {N}
+npm run test:e2e
 ```
 
 ### 통과 기준
 - 모든 시나리오가 PASS
-- 결과 로그가 `walkthrough.md` 에 첨부됨
+- 결과 로그가 phase 의 `walkthrough.md` 에 첨부됨
 
 ## 📝 위험 요소 및 완화
 

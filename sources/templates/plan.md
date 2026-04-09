@@ -1,8 +1,8 @@
-# Implementation Plan: SPEC-{phaseN}-{seq}
+# Implementation Plan: spec-{phaseN}-{seq}
 
 ## 📋 Branch Strategy
 
-- 신규 브랜치: `feature/SPEC-{phaseN}-{seq}-{slug}`
+- 신규 브랜치: `spec-{phaseN}-{seq}-{slug}` (브랜치 이름 = spec 디렉토리 이름, `feature/` prefix 없음)
 - 시작 지점: `main` (또는 명시된 base)
 - 첫 task 가 브랜치 생성을 수행함
 

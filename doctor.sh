@@ -54,7 +54,7 @@ echo ""
 
 # ========== 2. 디렉토리 구조 ==========
 echo "[2/6] 디렉토리 구조"
-for d in agent agent/templates .claude/commands .claude/state scripts/harness/bin scripts/harness/hooks scripts/harness/lib backlog/phases; do
+for d in agent agent/templates .claude/commands .claude/state scripts/harness/bin scripts/harness/hooks scripts/harness/lib backlog specs; do
   if [ -d "$TARGET/$d" ]; then
     check_pass "$d"
   else

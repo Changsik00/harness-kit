@@ -24,7 +24,7 @@ description: SDD 세션 정렬 — constitution 로드 + 컨텍스트 점검 + �
 ```bash
 git branch --show-current
 git log -3 --oneline
-ls backlog/phases/ 2>/dev/null
+ls backlog/ 2>/dev/null
 ls specs/ 2>/dev/null
 cat backlog/queue.md 2>/dev/null
 ```

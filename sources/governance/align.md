@@ -13,7 +13,7 @@
 - 없다면 폴백:
   - `git branch --show-current`
   - `git log -3 --oneline`
-  - `ls backlog/phases/` 와 `ls specs/` (있는 경우)
+  - `ls backlog/` 와 `ls specs/` (있는 경우)
   - `cat backlog/queue.md` (있는 경우)
 
 ## 3. 행동 모드 잠금 (Behavior Lock)

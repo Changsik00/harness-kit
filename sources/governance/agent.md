@@ -23,7 +23,7 @@ The Agent acts as a delegated senior engineer.
 Upon activation (typically via `/align`), the Agent MUST:
 1. Read `agent/constitution.md` and `agent/agent.md`.
 2. Run `bin/sdd status` (if available) or fall back to `git branch --show-current` + `git log -3 --oneline`.
-3. Inspect active work in `backlog/phases/`, `specs/`, and `backlog/queue.md`.
+3. Inspect active work in `backlog/`, `specs/`, and `backlog/queue.md`.
 4. Summarize current state to the User: active PHASE, active SPEC, branch, plan-accept flag, last test result.
 5. Ask **ONE** question: "어떤 컨텍스트로 진행할까요?"
 
@@ -45,20 +45,29 @@ Once SDD is selected:
 
 ### 4.1 Phase & Spec Folder Layout (Mandatory)
 
+`backlog/` 와 `specs/` 는 **형제 디렉토리**이며 역할이 분리되어 있다:
+- `backlog/` = phase 단위 *계획* (TODO list 성향)
+- `specs/`  = 실제 *진행/완료* 된 SPEC 산출물 (work log)
+
 ```
-backlog/
-└── phases/
-    └── PHASE-{N}-{slug}/
-        ├── phase.md                  # phase definition
-        ├── integration-tests.md      # phase-level integration test plan
-        ├── walkthrough.md            # filled at phase completion
-        └── specs/
-            └── SPEC-{N}-{seq}-{slug}/
-                ├── spec.md
-                ├── plan.md
-                ├── task.md
-                ├── walkthrough.md
-                └── pr_description.md
+backlog/                          # phase 정의 (계획)
+├── phase-1/
+│   ├── phase.md                  # 배경/목표/spec todo 표
+│   ├── integration-tests.md      # phase 단위 통합 테스트 계획
+│   └── walkthrough.md            # phase 완료 시 작성 (옵션)
+├── phase-2/
+└── ...
+
+specs/                            # 실제 작업 (평면 배치)
+├── spec-1-001-{slug}/
+│   ├── spec.md
+│   ├── plan.md
+│   ├── task.md
+│   ├── walkthrough.md
+│   └── pr_description.md
+├── spec-1-002-{slug}/
+├── spec-2-001-{slug}/
+└── ...
 ```
 
 ### 4.2 Template Enforcement
@@ -66,12 +75,13 @@ The Agent MUST read templates from `agent/templates/` before writing any artifac
 
 | Artifact | Template | Output Path |
 |---|---|---|
-| Phase | `agent/templates/phase.md` | `backlog/phases/PHASE-{N}-{slug}/phase.md` |
-| Spec | `agent/templates/spec.md` | `.../SPEC-{N}-{seq}-{slug}/spec.md` |
-| Plan | `agent/templates/plan.md` | `.../SPEC-{N}-{seq}-{slug}/plan.md` |
-| Task | `agent/templates/task.md` | `.../SPEC-{N}-{seq}-{slug}/task.md` |
-| Walkthrough | `agent/templates/walkthrough.md` | `.../SPEC-{N}-{seq}-{slug}/walkthrough.md` |
-| PR Description | `agent/templates/pr_description.md` | `.../SPEC-{N}-{seq}-{slug}/pr_description.md` |
+| Phase | `agent/templates/phase.md` | `backlog/phase-{N}/phase.md` |
+| Phase Integration Tests | (자유 양식) | `backlog/phase-{N}/integration-tests.md` |
+| Spec | `agent/templates/spec.md` | `specs/spec-{N}-{seq}-{slug}/spec.md` |
+| Plan | `agent/templates/plan.md` | `specs/spec-{N}-{seq}-{slug}/plan.md` |
+| Task | `agent/templates/task.md` | `specs/spec-{N}-{seq}-{slug}/task.md` |
+| Walkthrough | `agent/templates/walkthrough.md` | `specs/spec-{N}-{seq}-{slug}/walkthrough.md` |
+| PR Description | `agent/templates/pr_description.md` | `specs/spec-{N}-{seq}-{slug}/pr_description.md` |
 
 ### 4.3 Hard Stop for Review
 After writing `spec.md`, `plan.md`, and `task.md`, the Agent MUST:
@@ -82,7 +92,7 @@ After writing `spec.md`, `plan.md`, and `task.md`, the Agent MUST:
 ## 5. Plan & Task Strategy
 
 A Plan is a binding execution contract. It MUST follow the `plan.md` template exactly and include:
-- **Branch Strategy**: The first task MUST create a feature branch (`feature/SPEC-{phaseN}-{seq}-{slug}`).
+- **Branch Strategy**: The first task MUST create a feature branch named exactly the same as the spec directory: `spec-{phaseN}-{seq}-{slug}`. **No `feature/` prefix.**
 - **Task Granularity**: Each Task MUST represent one logical unit of work (one commit).
 - **TDD Integration**: Each task MUST include specific test expectations using the project's stack-appropriate test command.
 - **Korean Requirement**: All explanatory text (Strategy, Context, Descriptions) MUST be in **Korean**. Code, file paths, and standard technical terms MAY remain in English.
@@ -122,14 +132,14 @@ When passing a task with `[-]`, the Agent MUST:
 
 ### 6.3 Commit & Hand-off Enforcement
 - **Pre-Push Validation**: Run the project's full test suite locally before pushing.
-- **Commit Title Format** (mandatory): `<type>(SPEC-{phaseN}-{seq}): <description>` (lowercase type and description).
+- **Commit Title Format** (mandatory): `<type>(spec-{phaseN}-{seq}): <description>` (all lowercase).
   - Types: `feat`, `fix`, `refactor`, `test`, `docs`, `chore`, `style`, `perf`, `build`, `ci`.
-  - Example: `feat(SPEC-1-001): introduce row-level lock for stock decrement`.
+  - Example: `feat(spec-1-001): introduce row-level lock for stock decrement`.
 - **Walkthrough & Description Protocol**:
     1. **READ Template**: `agent/templates/walkthrough.md` and `agent/templates/pr_description.md`.
     2. **WRITE in Korean**: Fill all sections.
     3. **Archive**: Commit `walkthrough.md` and `pr_description.md` inside the SPEC directory before pushing.
-    4. **Push**: `git push -u origin feature/SPEC-{phaseN}-{seq}-{slug}`.
+    4. **Push**: `git push -u origin spec-{phaseN}-{seq}-{slug}` (브랜치 이름 = spec 디렉토리 이름).
     5. **Hand-off**: Notify the User. PR creation is the User's responsibility on the hosted git UI.
 
 ### 6.4 Tool Resolution & Fallback Strategy
@@ -186,5 +196,5 @@ Unlike implementation specs, Research Specs are considered Done when:
 3. **Recommendation**: A clear "Go / No-Go" decision is documented.
 
 ### 9.2 Deliverables
-- **Research Report**: `.../SPEC-{N}-{seq}-{slug}/report.md` (replaces `spec.md` for research-only specs)
+- **Research Report**: `specs/spec-{N}-{seq}-{slug}/report.md` (replaces `spec.md` for research-only specs)
 - **POC Code**: under `scripts/research/` or referenced commits.

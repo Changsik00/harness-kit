@@ -124,15 +124,29 @@ Claude Code 안에서:
 │   │   └── check-test-passed.sh    #    No Test, No Commit
 │   └── lib/stack.sh                #    자동 감지된 스택 어댑터
 │
-├── backlog/phases/                 # ← 작업 산출물 (git 추적)
-│   └── PHASE-{N}-{slug}/
-│       ├── phase.md, integration-tests.md
-│       └── specs/SPEC-{N}-{NNN}-{slug}/
-│           ├── spec.md, plan.md, task.md
-│           └── walkthrough.md, pr_description.md
+├── backlog/                        # ← phase 정의 (TODO list 성향, git 추적)
+│   ├── phase-1/
+│   │   ├── phase.md                #    배경/목표/spec 표
+│   │   └── integration-tests.md    #    phase 통합 테스트 계획
+│   ├── phase-2/
+│   └── ...
+│
+├── specs/                          # ← 실제 SPEC 작업 (work log, 평면 배치)
+│   ├── spec-1-001-{slug}/
+│   │   ├── spec.md, plan.md, task.md
+│   │   └── walkthrough.md, pr_description.md
+│   ├── spec-1-002-{slug}/
+│   ├── spec-2-001-{slug}/
+│   └── ...
 │
 └── CLAUDE.md                       # ← HARNESS-KIT 블록 추가 (사용자 내용 보존)
 ```
+
+> **명명 규칙 (전부 소문자, 하이픈 구분)**
+> - Phase ID: `phase-{N}` — `backlog/phase-{N}/`
+> - Spec ID:  `spec-{phaseN}-{seq}` — `specs/spec-{phaseN}-{seq}-{slug}/`
+> - **Branch**: `spec-{phaseN}-{seq}-{slug}` (브랜치 = spec 디렉토리 이름, **`feature/` prefix 없음**)
+> - **Commit**: `<type>(spec-{phaseN}-{seq}): <설명>` (예: `feat(spec-1-001): webhook 락 실패 시 throw`)
 
 ### 사용자 보존 (멱등성)
 - `.claude/settings.json` 의 기존 `permissions`, `env` 같은 키는 **합쳐짐 (union)**, hooks 만 키트가 권위
@@ -153,26 +167,27 @@ Claude Code 안에서:
 Claude Code (모델):
 ```bash
 $ ./scripts/harness/bin/sdd phase new payment-stability
-[sdd] phase 생성: PHASE-1-payment-stability
-✓ 생성 완료: backlog/phases/PHASE-1-payment-stability
-✓ active phase 설정: PHASE-1-payment-stability
+[sdd] phase 생성: phase-1  (제목: payment-stability)
+✓ 생성 완료: backlog/phase-1
+✓ active phase 설정: phase-1
 ```
 
-이어서 모델이 `phase.md` 를 사용자와 함께 작성합니다 (배경, 목표, 성공 기준, 포함될 SPEC 목록 등). **이 시점은 PLANNING 모드** — 코드 편집 불가.
+이어서 모델이 `backlog/phase-1/phase.md` 를 사용자와 함께 작성합니다 (배경, 목표, 성공 기준, 포함될 SPEC 목록 등). **이 시점은 PLANNING 모드** — 코드 편집 불가.
 
 ### Scene 2 — 첫 SPEC 만들기
 
 ```bash
 $ ./scripts/harness/bin/sdd spec new webhook-lock-fail-throw
-[sdd] spec 생성: SPEC-1-001-webhook-lock-fail-throw
-✓ 생성 완료: backlog/phases/PHASE-1-payment-stability/specs/SPEC-1-001-webhook-lock-fail-throw
-✓ active spec 설정: SPEC-1-001-webhook-lock-fail-throw
+[sdd] spec 생성: spec-1-001-webhook-lock-fail-throw
+✓ 생성 완료: specs/spec-1-001-webhook-lock-fail-throw
+✓ active spec 설정: spec-1-001-webhook-lock-fail-throw
 
 다음 단계:
   1. spec.md 작성
   2. plan.md 작성
   3. task.md 작성
   4. 사용자 검토 후 sdd plan accept
+  5. 첫 task: git checkout -b spec-1-001-webhook-lock-fail-throw
 ```
 
 모델이 spec.md / plan.md / task.md 를 한국어로 작성. plan.md 의 핵심 주장:
@@ -181,7 +196,7 @@ $ ./scripts/harness/bin/sdd spec new webhook-lock-fail-throw
 
 ### Scene 3 — Plan Accept (실행 모드 진입)
 
-사용자가 plan.md / task.md 를 검토 후:
+사용자가 `specs/spec-1-001-webhook-lock-fail-throw/{spec,plan,task}.md` 를 검토 후:
 ```
 /plan-accept
 ```
@@ -189,7 +204,7 @@ $ ./scripts/harness/bin/sdd spec new webhook-lock-fail-throw
 모델:
 ```bash
 $ ./scripts/harness/bin/sdd plan accept
-✓ Plan Accepted: SPEC-1-001-webhook-lock-fail-throw
+✓ Plan Accepted: spec-1-001-webhook-lock-fail-throw
   hook (check-plan-accept) 가 production 코드 편집을 통과시킵니다.
   이제 task.md 의 첫 task 부터 Strict Loop 진행하세요.
 ```
@@ -199,22 +214,22 @@ $ ./scripts/harness/bin/sdd plan accept
 모델: *"좋아, 첫 task 는 테스트 작성이지. 바로 시작..."*
 
 ```bash
-$ git commit -m "test(SPEC-1-001): add failing test"
+$ git commit -m "test(spec-1-001): add failing test"
 ```
 
 ```
 ❌ [hook:block] main 브랜치 직접 작업 금지 (constitution §9.1)
    현재 브랜치: main
-   명령:        git commit -m "test(SPEC-1-001): add failing test"
+   명령:        git commit -m "test(spec-1-001): add failing test"
    해결: feature 브랜치 생성 후 다시 시도
-          git checkout -b feature/SPEC-{N}-{NNN}-{slug}
+          git checkout -b spec-{N}-{NNN}-{slug}
 ```
 
 모델: *"아 main 이었네요. 브랜치 만들고 다시 진행하겠습니다."*
 
 ```bash
-$ git checkout -b feature/SPEC-1-001-webhook-lock-fail-throw
-$ git commit -m "test(SPEC-1-001): add failing test for lock fallback"
+$ git checkout -b spec-1-001-webhook-lock-fail-throw
+$ git commit -m "test(spec-1-001): add failing test for lock fallback"
 ✓ commit 통과
 ```
 
@@ -223,7 +238,7 @@ $ git commit -m "test(SPEC-1-001): add failing test for lock fallback"
 ```bash
 # Task 1-2: 테스트 작성 (Red)
 $ pnpm test -- webhooks.service       # FAIL ✗
-$ git commit -m "test(SPEC-1-001): add failing test for lock fallback"
+$ git commit -m "test(spec-1-001): add failing test for lock fallback"
 $ ./scripts/harness/bin/sdd test passed
 $ ./scripts/harness/bin/sdd task done 1
 ✓ task #1 완료 마킹
@@ -231,7 +246,7 @@ $ ./scripts/harness/bin/sdd task done 1
 # Task 1-3: 구현 (Green)
 # webhooks.service.ts:44 한 줄 수정
 $ pnpm test -- webhooks.service       # PASS ✓
-$ git commit -m "fix(SPEC-1-001): throw on lock acquisition failure"
+$ git commit -m "fix(spec-1-001): throw on lock acquisition failure"
 $ ./scripts/harness/bin/sdd test passed
 $ ./scripts/harness/bin/sdd task done 2
 ```
@@ -249,15 +264,16 @@ $ ./scripts/harness/bin/sdd archive --check
 $ ./scripts/harness/bin/sdd archive
 [sdd] git add ...
 ✓ archive commit 완료
+# 결과 commit: docs(spec-1-001): archive walkthrough and pr description
 
-$ git push -u origin feature/SPEC-1-001-webhook-lock-fail-throw
+$ git push -u origin spec-1-001-webhook-lock-fail-throw
 
 $ ./scripts/harness/bin/sdd plan reset
 ✓ Plan Accept 해제. 다음 spec 을 위해 깨끗한 상태로 전환됨.
 ```
 
 모델:
-> ✅ Push 완료. PR 본문에 `pr_description.md` 를 그대로 복사해서 hosted git UI 에서 PR 만들어 주세요.
+> ✅ Push 완료. PR 본문에 `specs/spec-1-001-webhook-lock-fail-throw/pr_description.md` 를 그대로 복사해서 hosted git UI 에서 PR 만들어 주세요.
 
 ---
 
@@ -279,7 +295,7 @@ $ ./scripts/harness/bin/sdd plan reset
 │  │  1. 테스트 작성 (Fail)                                │        │
 │  │  2. 구현 (Pass)                                      │        │
 │  │  3. sdd test passed                                  │        │
-│  │  4. git commit -m "<type>(SPEC-N-NNN): ..."          │        │
+│  │  4. git commit -m "<type>(spec-N-NNN): ..."          │        │
 │  │  5. sdd task done <num>                              │        │
 │  │  6. 사용자에게 보고 → 대기                             │        │
 │  └──────────────────────────────────────────────────────┘        │

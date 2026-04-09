@@ -1,6 +1,6 @@
-# <type>(SPEC-{phaseN}-{seq}): <한 줄 설명>
+# <type>(spec-{phaseN}-{seq}): <한 줄 설명>
 
-> 첫 줄은 commit subject 와 정확히 일치해야 합니다 (`type(SPEC-...): description`).
+> 첫 줄은 commit subject 와 정확히 일치해야 합니다 (`type(spec-...): description`).
 > hosted git UI 에 그대로 붙여넣기 좋도록 작성합니다.
 
 ## 📋 Summary
@@ -14,7 +14,7 @@
 - [x] <항목 3>
 
 ### Phase 컨텍스트
-- **Phase**: `PHASE-{phaseN}-{slug}`
+- **Phase**: `phase-{phaseN}`
 - **본 SPEC 의 역할**: <Phase 목표 달성에 어떤 기여를 하는가>
 
 ## 🎯 Key Review Points
@@ -68,6 +68,6 @@
 
 ## 🔗 관련 자료
 
-- Phase: `backlog/phases/PHASE-{phaseN}-{slug}/phase.md`
-- Walkthrough: `backlog/phases/PHASE-{phaseN}-{slug}/specs/SPEC-{phaseN}-{seq}-{slug}/walkthrough.md`
+- Phase: `backlog/phase-{phaseN}/phase.md`
+- Walkthrough: `specs/spec-{phaseN}-{seq}-{slug}/walkthrough.md`
 - 관련 ADR (있다면): `docs/decisions/ADR-NNN-...md`

@@ -150,8 +150,8 @@ ${C_BLU}━━━━━━━━━━━━━━━━━━━━━━━━
   - scripts/harness/bin/                (sdd 메타 명령)
   - scripts/harness/hooks/              (hook 스크립트)
   - scripts/harness/lib/                (헬퍼 라이브러리 + stack)
-  - backlog/phases/                     (phase 디렉토리)
-  - specs/                              (spec 디렉토리, 선택)
+  - backlog/                            (phase 정의 = todo list)
+  - specs/                              (실제 spec 작업 = work log)
 
 머지/추가할 파일:
   - .claude/settings.json               (jq 머지)
@@ -219,7 +219,7 @@ do_mkdir "$TARGET/.claude/state"
 do_mkdir "$TARGET/scripts/harness/bin/lib"
 do_mkdir "$TARGET/scripts/harness/hooks"
 do_mkdir "$TARGET/scripts/harness/lib"
-do_mkdir "$TARGET/backlog/phases"
+do_mkdir "$TARGET/backlog"
 do_mkdir "$TARGET/specs"
 
 # ============================================================

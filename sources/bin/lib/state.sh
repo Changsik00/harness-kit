@@ -38,6 +38,7 @@ state_dump() {
 }
 
 # 현재 phase 디렉토리 경로 (없으면 빈 문자열)
+# phase 는 "phase-{N}" 형식, 디렉토리는 backlog/phase-{N}/
 state_phase_dir() {
   local p
   p="$(state_get phase)"
@@ -46,10 +47,10 @@ state_phase_dir() {
 }
 
 # 현재 spec 디렉토리 경로
+# spec 은 "spec-{phaseN}-{seq}-{slug}" 형식, 디렉토리는 specs/spec-{phaseN}-{seq}-{slug}/
 state_spec_dir() {
-  local s p
-  p="$(state_get phase)"
+  local s
   s="$(state_get spec)"
-  [ -z "$p" ] || [ -z "$s" ] || [ "$p" = "null" ] || [ "$s" = "null" ] && return 1
-  echo "$SDD_BACKLOG/$p/specs/$s"
+  [ -z "$s" ] || [ "$s" = "null" ] && return 1
+  echo "$SDD_SPECS/$s"
 }

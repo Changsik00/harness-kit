@@ -1,4 +1,4 @@
-# Task List: SPEC-{phaseN}-{seq}
+# Task List: spec-{phaseN}-{seq}
 
 > 모든 task 는 한 commit 에 대응합니다 (One Task = One Commit).
 > 매 commit 직후 본 파일의 체크박스를 갱신해야 합니다.
@@ -17,18 +17,18 @@
 ## Task 1: <한글 제목>
 
 ### 1-1. 브랜치 생성
-- [ ] `git checkout -b feature/SPEC-{phaseN}-{seq}-<slug>`
+- [ ] `git checkout -b spec-{phaseN}-{seq}-<slug>` (브랜치 이름 = spec 디렉토리 이름, `feature/` prefix 없음)
 - [ ] Commit: 없음 (브랜치 생성만)
 
 ### 1-2. 테스트 작성 (TDD Red)
 - [ ] 테스트 케이스 작성: `<test/path/to/test.spec.*>`
 - [ ] 테스트 실행 → Fail 확인
-- [ ] Commit: `test(SPEC-{phaseN}-{seq}): add failing test for ...`
+- [ ] Commit: `test(spec-{phaseN}-{seq}): add failing test for ...`
 
 ### 1-3. 구현 (TDD Green)
 - [ ] 코드 구현: `<src/path/to/file.*>`
 - [ ] 테스트 실행 → Pass 확인
-- [ ] Commit: `feat(SPEC-{phaseN}-{seq}): implement ...`
+- [ ] Commit: `feat(spec-{phaseN}-{seq}): implement ...`
 
 ---
 
@@ -36,7 +36,7 @@
 
 ### 2-1. <단계>
 - [ ] ...
-- [ ] Commit: `<type>(SPEC-{phaseN}-{seq}): ...`
+- [ ] Commit: `<type>(spec-{phaseN}-{seq}): ...`
 
 ---
 
@@ -49,8 +49,8 @@
 - [ ] (Integration Test Required = yes 인 경우) 통합 테스트 실행 → PASS
 - [ ] **walkthrough.md 작성** (증거 로그)
 - [ ] **pr_description.md 작성** (템플릿 준수)
-- [ ] **Archive Commit**: `docs(SPEC-{phaseN}-{seq}): archive walkthrough and pr description`
-- [ ] **Push**: `git push -u origin feature/SPEC-{phaseN}-{seq}-<slug>`
+- [ ] **Archive Commit**: `docs(spec-{phaseN}-{seq}): archive walkthrough and pr description`
+- [ ] **Push**: `git push -u origin spec-{phaseN}-{seq}-<slug>`
 - [ ] **사용자 알림**: 푸시 완료 + PR 생성 요청 (PR 은 사용자가 hosted git UI 에서 생성)
 
 ---

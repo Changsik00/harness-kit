@@ -1,11 +1,12 @@
-# SPEC-{phaseN}-{seq}: <한글 제목>
+# spec-{phaseN}-{seq}: <한글 제목>
 
 ## 📋 메타
 
 | 항목 | 값 |
 |---|---|
-| **Spec ID** | `SPEC-{phaseN}-{seq}` |
-| **Phase** | `PHASE-{phaseN}-{slug}` |
+| **Spec ID** | `spec-{phaseN}-{seq}` |
+| **Phase** | `phase-{phaseN}` |
+| **Branch** | `spec-{phaseN}-{seq}-{slug}` |
 | **상태** | Planning / Plan Accepted / In Progress / Done |
 | **타입** | Feature / Fix / Refactor / Research |
 | **Integration Test Required** | yes / no |
@@ -50,5 +51,5 @@
 - [ ] 모든 단위 테스트 PASS
 - [ ] (Integration Test Required = yes 인 경우) 선언된 통합 테스트 PASS
 - [ ] `walkthrough.md` 와 `pr_description.md` 작성 및 archive commit
-- [ ] feature 브랜치 push 완료
+- [ ] `spec-{phaseN}-{seq}-{slug}` 브랜치 push 완료
 - [ ] 사용자 검토 요청 알림 완료

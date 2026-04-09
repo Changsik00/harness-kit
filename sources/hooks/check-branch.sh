@@ -29,7 +29,7 @@ if [ "$branch" = "main" ] || [ "$branch" = "master" ]; then
     "현재 브랜치: $branch" \
     "명령:        $cmd" \
     "해결: feature 브랜치 생성 후 다시 시도" \
-    "       git checkout -b feature/SPEC-{N}-{NNN}-{slug}"
+    "       git checkout -b spec-{phaseN}-{seq}-{slug}"
 fi
 
 exit 0

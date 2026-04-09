@@ -35,7 +35,7 @@ Before any Spec, Plan, or execution:
 ### 4.1 Spec Rules
 - **One Spec = One Pull Request.**
 - If the scope exceeds a single PR, the Spec MUST be split, and overflow moved to the Backlog.
-- Every Spec MUST belong to a Phase. Orphan Specs are forbidden (use `PHASE-0-misc` if no logical home exists).
+- Every Spec MUST belong to a Phase. Orphan Specs are forbidden (use `phase-0` if no logical home exists).
 
 ### 4.2 Plan Rules
 - A Plan is an execution contract. No execution is allowed without an approved Plan.
@@ -50,20 +50,27 @@ Before any Spec, Plan, or execution:
 - **Language Requirement**: All artifacts MUST be written in **Korean** (except for code, file paths, and standard technical terms) to ensure clear communication with the User.
 - **Quality Bar**: Each artifact MUST be rich enough to be self-contained for review. Vague placeholders are not acceptable in finalized artifacts.
 
-## 5. Identifier System
+## 5. Identifier System (lowercase, hyphen-separated)
 
 ### 5.1 Phase Identifier
-- Format: `PHASE-{N}-{slug}` where `N` is a positive integer.
-- Examples: `PHASE-1-payment-stability`, `PHASE-2-observability`.
+- Format: `phase-{N}` where `N` is a positive integer.
+- Examples: `phase-1`, `phase-2`.
+- Descriptive name lives only inside `phase.md`'s title, not in the ID/directory.
 
 ### 5.2 Spec Identifier
-- Format: `SPEC-{phaseN}-{seq}` where `phaseN` matches the parent phase number and `seq` is a 3-digit number reset per phase.
-- Examples: `SPEC-1-001`, `SPEC-1-002`, `SPEC-2-001`.
+- Format: `spec-{phaseN}-{seq}` where `phaseN` matches the parent phase number and `seq` is a 3-digit number reset per phase.
+- Examples: `spec-1-001`, `spec-1-002`, `spec-2-001`.
 - A Spec ID is immutable once assigned.
 
-### 5.3 Branch Naming
-- Feature branch: `feature/SPEC-{phaseN}-{seq}-{slug}`.
-- Example: `feature/SPEC-1-001-stock-row-locking`.
+### 5.3 Directory Layout
+- Phase: `backlog/phase-{N}/` (planning + integration test plan)
+- Spec:  `specs/spec-{phaseN}-{seq}-{slug}/` (actual work artifacts)
+- Note: `backlog/` and `specs/` are sibling directories — `backlog/` is the *plan*, `specs/` is the *progress log*.
+
+### 5.4 Branch Naming
+- Branch name = spec directory name. **No `feature/` prefix.**
+- Format: `spec-{phaseN}-{seq}-{slug}`
+- Example: `spec-1-001-stock-row-locking`
 
 ## 6. Execution Delegation
 
@@ -103,9 +110,9 @@ Once a Plan is explicitly accepted (Plan Accept), the Agent is authorized to:
 
 ### 9.2 Commit Protocol
 - **Pre-Push Validation**: The Agent MUST execute the project's local test suite and confirm it passes before pushing a feature branch for review.
-- **Commit Title Format**: MUST follow `<type>(SPEC-{phaseN}-{seq}): <description>` (lowercase type and description).
+- **Commit Title Format**: MUST follow `<type>(spec-{phaseN}-{seq}): <description>` (all lowercase).
   - Allowed types: `feat`, `fix`, `refactor`, `test`, `docs`, `chore`, `style`, `perf`, `build`, `ci`.
-  - Example: `feat(SPEC-1-001): introduce row-level lock for stock decrement`.
+  - Example: `feat(spec-1-001): introduce row-level lock for stock decrement`.
 - **Pull Request Creation**: PR creation is delegated to the User (via the project's hosted git platform UI). The Agent's responsibility ends at pushing the feature branch and archiving `walkthrough.md` / `pr_description.md` under the SPEC directory.
 
 ## 10. Backlog Law

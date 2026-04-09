@@ -36,12 +36,14 @@ $HARNESS_TEST_INTEGRATION_CMD || { echo "integration test 실패"; exit 1; }
 
 ## 3. Archive Commit
 
-walkthrough.md 와 pr_description.md 를 한 commit 으로 archive:
+`sdd archive` 가 walkthrough.md / pr_description.md 를 한 commit 으로 묶어줍니다:
 
 ```bash
-git add backlog/phases/PHASE-{N}-*/specs/SPEC-{N}-{NNN}-*/walkthrough.md
-git add backlog/phases/PHASE-{N}-*/specs/SPEC-{N}-{NNN}-*/pr_description.md
-git commit -m "docs(SPEC-{N}-{NNN}): archive walkthrough and pr description"
+./scripts/harness/bin/sdd archive
+# 위 명령은 내부에서:
+#   git add specs/spec-{phaseN}-{seq}-{slug}/walkthrough.md
+#   git add specs/spec-{phaseN}-{seq}-{slug}/pr_description.md
+#   git commit -m "docs(spec-{phaseN}-{seq}): archive walkthrough and pr description"
 ```
 
 ## 4. Push 확인 (사용자 승인 필요)
@@ -50,10 +52,10 @@ git commit -m "docs(SPEC-{N}-{NNN}): archive walkthrough and pr description"
 
 > "다음 커밋들을 origin 으로 push 할까요?"
 
-사용자가 명시적으로 승인하면:
+사용자가 명시적으로 승인하면 (브랜치 이름 = spec 디렉토리 이름, `feature/` prefix 없음):
 
 ```bash
-git push -u origin feature/SPEC-{N}-{NNN}-{slug}
+git push -u origin spec-{phaseN}-{seq}-{slug}
 ```
 
 ## 5. PR 생성 안내
@@ -61,13 +63,13 @@ git push -u origin feature/SPEC-{N}-{NNN}-{slug}
 push 후 사용자에게 hosted git UI 에서 PR 을 생성하라고 안내합니다. PR 본문은 방금 archive 한 `pr_description.md` 를 그대로 복사하면 됩니다.
 
 ```
-✅ Push 완료: feature/SPEC-{N}-{NNN}-{slug}
+✅ Push 완료: spec-{phaseN}-{seq}-{slug}
 
 다음 단계 (사용자):
-1. <hosted git URL>/pull-requests/new?source=feature/SPEC-{N}-{NNN}-{slug}
-2. PR 본문에 backlog/phases/.../specs/SPEC-{N}-{NNN}-*/pr_description.md 내용 복사
+1. <hosted git URL>/pull-requests/new?source=spec-{phaseN}-{seq}-{slug}
+2. PR 본문에 specs/spec-{phaseN}-{seq}-{slug}/pr_description.md 내용 복사
 3. 리뷰어 지정
-4. 머지 후 phase.md 의 SPEC 표 갱신 (Status: Merged)
+4. 머지 후 backlog/phase-{phaseN}/phase.md 의 SPEC 표 갱신 (Status: Merged)
 ```
 
 ## 6. State 업데이트
