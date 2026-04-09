@@ -1,0 +1,51 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git status)",
+      "Bash(git status:*)",
+      "Bash(git branch)",
+      "Bash(git branch:*)",
+      "Bash(git log:*)",
+      "Bash(git diff:*)",
+      "Bash(git show:*)",
+      "Bash(ls)",
+      "Bash(ls:*)",
+      "Bash(pwd)",
+      "Bash(scripts/harness/bin/sdd:*)",
+      "Bash(./scripts/harness/bin/sdd:*)",
+      "Bash(scripts/harness/hooks/*)"
+    ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "scripts/harness/hooks/check-branch.sh"
+          }
+        ]
+      },
+      {
+        "matcher": "Edit|Write|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "scripts/harness/hooks/check-plan-accept.sh"
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "scripts/harness/bin/sdd status --brief 2>/dev/null || true"
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,35 +1,54 @@
-# Spec-XXX: <Title>
+# SPEC-{phaseN}-{seq}: <한글 제목>
 
-## 📋 배경 및 문제 정의 (Background & Problem)
+## 📋 메타
+
+| 항목 | 값 |
+|---|---|
+| **Spec ID** | `SPEC-{phaseN}-{seq}` |
+| **Phase** | `PHASE-{phaseN}-{slug}` |
+| **상태** | Planning / Plan Accepted / In Progress / Done |
+| **타입** | Feature / Fix / Refactor / Research |
+| **Integration Test Required** | yes / no |
+| **작성일** | YYYY-MM-DD |
+| **소유자** | <name> |
+
+## 📋 배경 및 문제 정의
 
 ### 현재 상황
-<!-- Korean: Why is this needed? What is the current state? -->
-<!-- Example: 현재 시스템은 X 방식이어서 Y 상황에서 Z 문제가 발생함. -->
+<!-- 현재 시스템/코드가 어떤 상태이고, 무엇이 동작하고 있는가? -->
 
 ### 문제점
-<!-- Korean: What are the specific pain points? -->
-<!-- Example: 이로 인해 검색 결과의 연관성이 떨어지고 사용성이 저하됨. -->
+<!-- 구체적으로 어떤 통증이 있는가? 어떤 사고/위험이 있었거나 가능한가? -->
 
-### 해결 방안
-<!-- Korean: How does this spec address the problem? -->
-<!-- Example: 3-Layer 아키텍처를 도입하여 의사결정 과정을 시각화하고 필터링을 강화함. -->
+### 해결 방안 (요약)
+<!-- 본 SPEC 이 어떤 접근으로 문제를 해결하는가? 1~3 문장 -->
 
-## 📊 개념도 (Conceptual Architecture)
+## 📊 개념도 (선택)
+
 ```mermaid
-<!-- Provide a visual overview if applicable -->
+%% Mermaid 다이어그램 (있으면 좋음)
 ```
 
-## 🎯 요구사항 (Requirements)
+## 🎯 요구사항
 
 ### Functional Requirements
-1. <Requirement 1>
-2. <Requirement 2>
+1. <요구사항 1>
+2. <요구사항 2>
 
 ### Non-Functional Requirements
-1. <Performance/Security/Etc>
-2. Docker Image Size < X MB
+1. <성능/보안/호환성 등>
+2. <예: 기존 API 와의 backward compatibility>
+
+## 🚫 Out of Scope
+
+<!-- 이 SPEC 에서 *명시적으로 다루지 않는* 것들. 범위 폭주 방지. -->
+- <항목 1>
+- <항목 2>
 
 ## ✅ Definition of Done
-1. <Condition 1> - e.g. All Integration Tests Pass
-2. <Condition 2> - e.g. Documentation Updated
-3. Test Coverage > X%
+
+- [ ] 모든 단위 테스트 PASS
+- [ ] (Integration Test Required = yes 인 경우) 선언된 통합 테스트 PASS
+- [ ] `walkthrough.md` 와 `pr_description.md` 작성 및 archive commit
+- [ ] feature 브랜치 push 완료
+- [ ] 사용자 검토 요청 알림 완료

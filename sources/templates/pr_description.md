@@ -1,47 +1,73 @@
-# <type>(spec-XXX): <description>
+# <type>(SPEC-{phaseN}-{seq}): <한 줄 설명>
+
+> 첫 줄은 commit subject 와 정확히 일치해야 합니다 (`type(SPEC-...): description`).
+> hosted git UI 에 그대로 붙여넣기 좋도록 작성합니다.
 
 ## 📋 Summary
 
 ### 배경 및 목적
-<!-- 왜 이 작업이 필요한지, 어떤 문제를 해결하는지 작성 -->
+<!-- 왜 이 작업이 필요한지, 어떤 문제를 해결하는지 -->
 
 ### 주요 변경 사항
-<!-- Before / After 비교 또는 주요 개선 사항 요약 -->
-- [x] Item A
-- [x] Item B
+- [x] <Before/After 또는 주요 개선 사항 1>
+- [x] <항목 2>
+- [x] <항목 3>
+
+### Phase 컨텍스트
+- **Phase**: `PHASE-{phaseN}-{slug}`
+- **본 SPEC 의 역할**: <Phase 목표 달성에 어떤 기여를 하는가>
 
 ## 🎯 Key Review Points
-<!-- 리뷰어가 집중해야 할 설계 변경점이나 로직 -->
-1. **Module A**: 리팩토링된 상속 구조 확인 필요
-2. **State Graph**: 새로운 순환 연지 및 조건부 분기 로직
+
+<!-- 리뷰어가 집중해야 할 핵심 변경점/로직 -->
+
+1. **<핵심 영역 1>**: <왜 주의 깊게 봐야 하는지>
+2. **<핵심 영역 2>**: <어떤 결정이 중요한지>
 
 ## 🧪 Verification
 
-### Automated Tests
+### 자동 테스트
 ```bash
-# Exact command running the tests
-uv run pytest ...
+# 본 SPEC 의 단위 테스트 실행 명령
 ```
-**테스트 결과 요약:**
-- ✅ `test_A`: 통과
-- ✅ `test_B`: 통과
 
-### Manual Verification (Scenarios)
-1. **시나리오 1**: <동작 설명> -> <결과 확인>
-2. **시나리오 2**: <동작 설명> -> <결과 확인>
+**결과 요약**:
+- ✅ `<test name>`: 통과
+- ✅ `<test name>`: 통과
+
+### (해당 시) 통합 테스트
+```bash
+# 통합 테스트 실행 명령
+```
+
+### 수동 검증 시나리오
+1. **시나리오 1**: <동작> → <결과>
+2. **시나리오 2**: <동작> → <결과>
 
 ## 📦 Files Changed
 
 ### 🆕 New Files
-- `path/to/new_file.py`: <Description>
+- `<path/to/new_file>`: <설명>
 
 ### 🛠 Modified Files
-- `path/to/file.py` (+XX, -YY): <Brief change log>
+- `<path/to/file>` (+XX, -YY): <간단 변경 요약>
 
-**Total:** X files changed
+### 🗑 Deleted Files
+- `<path/to/old_file>`: <삭제 사유>
+
+**Total**: X files changed
 
 ## ✅ Definition of Done
-- [x] 모든 단위/통합 테스트 통과
-- [x] `walkthrough.md` 작성 및 아카이브 완료
-- [x] `pr_description.md` 작성 및 아카이브 완료
-- [x] Ruff lint 및 format 확인 완료
+
+- [x] 모든 단위 테스트 통과
+- [x] (해당 시) 통합 테스트 통과
+- [x] `walkthrough.md` archive commit 완료
+- [x] `pr_description.md` archive commit 완료
+- [x] lint / type check 통과
+- [x] 사용자 검토 요청 알림 완료
+
+## 🔗 관련 자료
+
+- Phase: `backlog/phases/PHASE-{phaseN}-{slug}/phase.md`
+- Walkthrough: `backlog/phases/PHASE-{phaseN}-{slug}/specs/SPEC-{phaseN}-{seq}-{slug}/walkthrough.md`
+- 관련 ADR (있다면): `docs/decisions/ADR-NNN-...md`
