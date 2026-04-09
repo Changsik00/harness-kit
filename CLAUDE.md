@@ -1,5 +1,16 @@
 # harness-kit — Claude Code 작업 가이드
 
+## 대상 환경 (고정)
+
+| | |
+|---|---|
+| **OS** | macOS (1차 타깃) — Sonoma+, Apple Silicon / Intel |
+| **AI 호스트** | Claude Code 전용 |
+| **Shell** | zsh 사용자 환경, 모든 스크립트는 `bash` shebang |
+| **필수 도구** | `bash 4.0+`, `jq`, `git` (모두 Homebrew 로 설치) |
+
+> 다른 OS / 다른 AI 호스트는 본 키트의 1차 지원 범위가 아닙니다. Linux 는 best-effort.
+
 ## 이 프로젝트는 무엇인가
 
 `harness-kit` 은 **Claude Code 용 SDD 거버넌스 부트스트랩 툴킷**입니다.

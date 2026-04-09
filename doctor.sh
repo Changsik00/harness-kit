@@ -30,11 +30,26 @@ echo "${C_BLU}harness-kit doctor${C_RST}  ($TARGET)"
 echo "${C_BLU}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${C_RST}"
 echo ""
 
-# ========== 1. 외부 의존성 ==========
-echo "[1/6] 외부 의존성"
+# ========== 1. 외부 의존성 + 환경 ==========
+echo "[1/6] 외부 의존성 + 환경"
+case "$(uname -s)" in
+  Darwin) check_pass "OS = macOS (1차 타깃)" ;;
+  Linux)  check_warn  "OS = Linux (best-effort)" ;;
+  *)      check_warn  "OS = $(uname -s) (미지원)" ;;
+esac
 command -v git >/dev/null && check_pass "git" || check_fail "git 없음"
 command -v jq  >/dev/null && check_pass "jq"  || check_fail "jq 없음 (brew install jq / apt install jq)"
-command -v bash >/dev/null && check_pass "bash" || check_fail "bash 없음"
+if command -v bash >/dev/null; then
+  bv=$(bash --version | head -1 | grep -oE '[0-9]+\.[0-9]+' | head -1)
+  bv_major="${bv%%.*}"
+  if [ "${bv_major:-0}" -ge 4 ]; then
+    check_pass "bash $bv"
+  else
+    check_warn "bash $bv (4.0+ 권장 — brew install bash)"
+  fi
+else
+  check_fail "bash 없음"
+fi
 echo ""
 
 # ========== 2. 디렉토리 구조 ==========

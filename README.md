@@ -5,6 +5,29 @@
 
 **Version**: 0.1.0 (alpha — 자기 자신을 만드는 중)
 
+## 🎯 대상 환경 (Target Platform)
+
+본 키트는 **macOS + Claude Code** 조합을 1차 타깃으로 설계되었습니다.
+
+| 항목 | 지원 | 비고 |
+|---|:---:|---|
+| **OS — macOS** | ✅ 1차 | 14+ (Sonoma) 에서 검증, Apple Silicon / Intel 모두 |
+| **OS — Linux** | △ best-effort | bash 4.0+, jq, git 만 있으면 동작 가능성 높음 (미검증) |
+| **OS — Windows** | ❌ 미지원 | WSL2 안에서는 Linux 와 동일 (best-effort) |
+| **Shell** | zsh / bash | 모든 스크립트는 `#!/usr/bin/env bash`. zsh 에서도 호출 가능 |
+| **AI 호스트** | **Claude Code** | `.claude/` 디렉토리 구조, 슬래시 커맨드, hook, settings.json 형식에 의존 |
+| **다른 AI 호스트** | ❌ | Cursor / Cline / Continue 등은 별도 어댑터 필요 (로드맵 외) |
+
+### 필수 의존성 (macOS 기준)
+
+```bash
+# 모두 Homebrew 로 설치 가능
+brew install jq git bash
+# bash 는 macOS 기본이 3.2 라 4.0+ 필요 (Homebrew 권장)
+```
+
+> 본 README 와 모든 문서의 명령 예시는 **macOS + zsh + Homebrew** 환경을 가정합니다.
+
 ---
 
 ## 무엇을 하는 키트인가

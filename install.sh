@@ -1,6 +1,13 @@
 #!/usr/bin/env bash
 # harness-kit installer
 #
+# 대상 환경 (Target Platform):
+#   - macOS (1차 타깃, Sonoma+ / Apple Silicon & Intel)
+#   - Linux (best-effort, 미검증)
+#   - Windows: WSL2 안에서만, 그 외 미지원
+# AI 호스트:
+#   - Claude Code 전용 (.claude/ 구조 + slash commands + hooks 의존)
+#
 # Usage:
 #   ./install.sh                       # 현재 디렉토리에 설치
 #   ./install.sh /path/to/project      # 지정 디렉토리에 설치
@@ -10,9 +17,8 @@
 #   ./install.sh --no-hooks            # hooks 설치 생략
 #   ./install.sh --yes                 # 확인 프롬프트 생략
 #
-# 환경:
+# 필수 의존성 (macOS 기준 — brew install ...):
 #   bash 4.0+, jq, git
-#   macOS / Linux
 
 set -euo pipefail
 
@@ -84,6 +90,20 @@ log "대상 위치: $TARGET"
 
 if ! command -v jq >/dev/null 2>&1; then
   die "jq 가 필요합니다. macOS: brew install jq / Linux: apt install jq"
+fi
+
+# OS 안내 (1차 타깃 = macOS)
+case "$(uname -s)" in
+  Darwin) ;;  # 1차 타깃, 메시지 없음
+  Linux)  warn "Linux 환경: best-effort 지원 (1차 타깃은 macOS). 동작 이상 발견 시 보고 부탁." ;;
+  *)      warn "비표준 OS ($(uname -s)): 동작이 보장되지 않습니다." ;;
+esac
+
+# bash 버전 (macOS 기본 bash 3.2 는 일부 문법 미지원 — Homebrew bash 권장)
+bash_major="${BASH_VERSION%%.*}"
+if [ "${bash_major:-0}" -lt 4 ]; then
+  warn "bash $BASH_VERSION 사용 중. macOS 기본 bash 는 3.2 라 일부 기능에 문제 가능."
+  warn "  권장: brew install bash"
 fi
 
 if [ ! -d "$TARGET/.git" ]; then
