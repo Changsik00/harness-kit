@@ -1,6 +1,56 @@
 {
   "permissions": {
     "allow": [
+      "Read(**)",
+      "Glob",
+      "Grep",
+
+      "Edit",
+      "Write",
+      "MultiEdit",
+
+      "Bash(ls)",
+      "Bash(ls:*)",
+      "Bash(pwd)",
+      "Bash(cd:*)",
+      "Bash(echo:*)",
+      "Bash(printf:*)",
+      "Bash(date)",
+      "Bash(date:*)",
+      "Bash(env)",
+      "Bash(env:*)",
+      "Bash(which:*)",
+      "Bash(test:*)",
+      "Bash(true)",
+      "Bash(false)",
+
+      "Bash(cat:*)",
+      "Bash(head:*)",
+      "Bash(tail:*)",
+      "Bash(wc:*)",
+      "Bash(sort:*)",
+      "Bash(uniq:*)",
+      "Bash(diff:*)",
+      "Bash(file:*)",
+      "Bash(find:*)",
+      "Bash(grep:*)",
+      "Bash(rg:*)",
+      "Bash(fd:*)",
+      "Bash(jq:*)",
+      "Bash(yq:*)",
+      "Bash(sed:*)",
+      "Bash(awk:*)",
+      "Bash(tr:*)",
+      "Bash(cut:*)",
+      "Bash(xargs:*)",
+
+      "Bash(mkdir:*)",
+      "Bash(touch:*)",
+      "Bash(cp:*)",
+      "Bash(mv:*)",
+      "Bash(ln:*)",
+      "Bash(chmod:*)",
+
       "Bash(git status)",
       "Bash(git status:*)",
       "Bash(git branch)",
@@ -8,12 +58,51 @@
       "Bash(git log:*)",
       "Bash(git diff:*)",
       "Bash(git show:*)",
-      "Bash(ls)",
-      "Bash(ls:*)",
-      "Bash(pwd)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git checkout:*)",
+      "Bash(git switch:*)",
+      "Bash(git restore:*)",
+      "Bash(git stash:*)",
+      "Bash(git pull:*)",
+      "Bash(git fetch:*)",
+      "Bash(git remote:*)",
+      "Bash(git tag:*)",
+      "Bash(git push:*)",
+
+      "Bash(npm:*)",
+      "Bash(pnpm:*)",
+      "Bash(yarn:*)",
+      "Bash(bun:*)",
+      "Bash(npx:*)",
+      "Bash(bunx:*)",
+
       "Bash(scripts/harness/bin/sdd:*)",
       "Bash(./scripts/harness/bin/sdd:*)",
-      "Bash(scripts/harness/hooks/*)"
+      "Bash(scripts/harness/hooks/*)",
+      "Bash(./scripts/harness/hooks/*)",
+      "Bash(scripts/harness/doctor.sh:*)",
+      "Bash(./scripts/harness/doctor.sh:*)"
+    ],
+    "deny": [
+      "Bash(sudo:*)",
+      "Bash(rm -rf /:*)",
+      "Bash(rm -rf /*:*)",
+      "Bash(rm -rf ~:*)",
+      "Bash(rm -rf $HOME:*)",
+      "Bash(:(){ :|:& };:)",
+      "Bash(git push --force:*)",
+      "Bash(git push -f:*)",
+      "Bash(git push --force-with-lease:*)",
+      "Bash(git reset --hard:*)",
+      "Bash(git clean -f:*)",
+      "Bash(git clean -fd:*)",
+      "Bash(git clean -fdx:*)",
+      "Bash(git rebase --onto:*)",
+      "Bash(curl * | bash:*)",
+      "Bash(curl * | sh:*)",
+      "Bash(wget * | bash:*)",
+      "Bash(wget * | sh:*)"
     ]
   },
   "hooks": {
@@ -24,6 +113,10 @@
           {
             "type": "command",
             "command": "scripts/harness/hooks/check-branch.sh"
+          },
+          {
+            "type": "command",
+            "command": "scripts/harness/hooks/check-test-passed.sh"
           }
         ]
       },
