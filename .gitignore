@@ -1,0 +1,20 @@
+# OS
+.DS_Store
+Thumbs.db
+
+# Editors
+.vscode/
+.idea/
+*.swp
+
+# Build / temp
+dist/
+*.tmp
+*.bak
+
+# Test artifacts
+tests/fixtures/_run/
+tests/fixtures/_target/
+
+# Local Claude state (when this kit is dogfooded onto itself)
+.claude/state/
