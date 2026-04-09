@@ -62,10 +62,12 @@ Before any Spec, Plan, or execution:
 - Examples: `spec-1-001`, `spec-1-002`, `spec-2-001`.
 - A Spec ID is immutable once assigned.
 
-### 5.3 Directory Layout
-- Phase: `backlog/phase-{N}/` (planning + integration test plan)
-- Spec:  `specs/spec-{phaseN}-{seq}-{slug}/` (actual work artifacts)
-- Note: `backlog/` and `specs/` are sibling directories — `backlog/` is the *plan*, `specs/` is the *progress log*.
+### 5.3 Layout (Flat)
+- Queue dashboard: `backlog/queue.md` (sdd-managed)
+- Phase definition: `backlog/phase-{N}.md` (single file per phase, contains spec table + integration tests + ADR refs)
+- Spec work: `specs/spec-{phaseN}-{seq}-{slug}/` (actual artifacts)
+- ADR: `docs/decisions/ADR-{NNN}-{slug}.md`
+- Note: `backlog/` and `specs/` are sibling directories — `backlog/` is the *plan*, `specs/` is the *progress log*. Phase definition lives as a *single flat file* in `backlog/`, not a subdirectory.
 
 ### 5.4 Branch Naming
 - Branch name = spec directory name. **No `feature/` prefix.**
@@ -99,7 +101,7 @@ Once a Plan is explicitly accepted (Plan Accept), the Agent is authorized to:
 - Declared integration tests MUST pass before SPEC archive.
 
 ### 8.3 Phase-level (Integration Tests, Mandatory)
-- A PHASE is considered Done only when all its SPECs are merged AND the phase-level integration test plan (`integration-tests.md`) passes end-to-end.
+- A PHASE is considered Done only when all its SPECs are merged AND the phase-level integration test scenarios (inline in `backlog/phase-{N}.md`) pass end-to-end.
 - The phase walkthrough MUST attach integration test evidence.
 
 ## 9. Git Law (Strict Enforcement)

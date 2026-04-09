@@ -3,7 +3,7 @@
 > **Claude Code 를 위한 SDD (Spec-Driven Development) 거버넌스 부트스트랩 툴킷**
 > 한 번 만들어두고, 다음 프로젝트에서는 한 줄로 같은 하네스를 깐다.
 
-[![version](https://img.shields.io/badge/version-0.2.0-blue)](./VERSION)
+[![version](https://img.shields.io/badge/version-0.3.0-blue)](./VERSION)
 [![target](https://img.shields.io/badge/target-macOS%20%2B%20Claude%20Code-green)](#-대상-환경-target-platform)
 [![status](https://img.shields.io/badge/status-alpha-orange)](#-현재-진행-상태)
 
@@ -56,7 +56,7 @@ brew install bash jq git
 이 저장소가 `~/Project/ai/claude` 에 있다고 가정합니다.
 
 ```bash
-cat ~/Project/ai/claude/VERSION    # 0.2.0
+cat ~/Project/ai/claude/VERSION    # 0.3.0
 ```
 
 ### 2. 대상 프로젝트에 install
@@ -124,29 +124,37 @@ Claude Code 안에서:
 │   │   └── check-test-passed.sh    #    No Test, No Commit
 │   └── lib/stack.sh                #    자동 감지된 스택 어댑터
 │
-├── backlog/                        # ← phase 정의 (TODO list 성향, git 추적)
-│   ├── phase-1/
-│   │   ├── phase.md                #    배경/목표/spec 표
-│   │   └── integration-tests.md    #    phase 통합 테스트 계획
-│   ├── phase-2/
+├── backlog/                        # ← phase 정의 = TODO list (평면 파일, git 추적)
+│   ├── queue.md                    #    대시보드: 진행 중/대기/완료 phase 한눈에 (sdd 자동 갱신)
+│   ├── phase-1.md                  #    phase 1 의 모든 spec 표 + 통합 테스트 + ADR 참조
+│   ├── phase-2.md
 │   └── ...
 │
 ├── specs/                          # ← 실제 SPEC 작업 (work log, 평면 배치)
 │   ├── spec-1-001-{slug}/
-│   │   ├── spec.md, plan.md, task.md
+│   │   ├── spec.md                 #    phase-1.md 의 spec-1-001 항목을 *구체화*
+│   │   ├── plan.md, task.md
 │   │   └── walkthrough.md, pr_description.md
 │   ├── spec-1-002-{slug}/
 │   ├── spec-2-001-{slug}/
 │   └── ...
 │
+├── docs/decisions/                 # ← ADR (phase-x.md / spec.md 가 link 참조)
+│   ├── ADR-001-{slug}.md
+│   └── ADR-002-{slug}.md
+│
 └── CLAUDE.md                       # ← HARNESS-KIT 블록 추가 (사용자 내용 보존)
 ```
 
 > **명명 규칙 (전부 소문자, 하이픈 구분)**
-> - Phase ID: `phase-{N}` — `backlog/phase-{N}/`
+> - Phase ID: `phase-{N}` — `backlog/phase-{N}.md` (단일 파일)
 > - Spec ID:  `spec-{phaseN}-{seq}` — `specs/spec-{phaseN}-{seq}-{slug}/`
 > - **Branch**: `spec-{phaseN}-{seq}-{slug}` (브랜치 = spec 디렉토리 이름, **`feature/` prefix 없음**)
 > - **Commit**: `<type>(spec-{phaseN}-{seq}): <설명>` (예: `feat(spec-1-001): webhook 락 실패 시 throw`)
+>
+> **두 단계 분리**:
+> - `backlog/phase-N.md` 의 spec 항목 = *요점 1줄 + 방향성 1~2줄 + 참조 (ADR 등)*
+> - `specs/spec-N-NNN-{slug}/spec.md` = 그 항목을 *깊게 구체화* (배경, 다이어그램, DoD)
 
 ### 사용자 보존 (멱등성)
 - `.claude/settings.json` 의 기존 `permissions`, `env` 같은 키는 **합쳐짐 (union)**, hooks 만 키트가 권위
@@ -168,11 +176,17 @@ Claude Code (모델):
 ```bash
 $ ./scripts/harness/bin/sdd phase new payment-stability
 [sdd] phase 생성: phase-1  (제목: payment-stability)
-✓ 생성 완료: backlog/phase-1
+✓ 생성 완료: backlog/phase-1.md
 ✓ active phase 설정: phase-1
+
+다음 단계:
+  1. backlog/phase-1.md 의 SPEC 표 + 시나리오 채우기
+  2. sdd spec new <slug> 로 첫 spec 시작
 ```
 
-이어서 모델이 `backlog/phase-1/phase.md` 를 사용자와 함께 작성합니다 (배경, 목표, 성공 기준, 포함될 SPEC 목록 등). **이 시점은 PLANNING 모드** — 코드 편집 불가.
+이어서 모델이 `backlog/phase-1.md` 를 사용자와 함께 작성합니다 (배경, 목표, 성공 기준, spec 표는 사람이 요점/방향성만, 통합 테스트 시나리오 인라인). **이 시점은 PLANNING 모드** — 코드 편집 불가.
+
+`backlog/queue.md` 도 자동 생성되어 phase-1 이 "진행 중" 으로 등록됩니다.
 
 ### Scene 2 — 첫 SPEC 만들기
 
@@ -181,16 +195,20 @@ $ ./scripts/harness/bin/sdd spec new webhook-lock-fail-throw
 [sdd] spec 생성: spec-1-001-webhook-lock-fail-throw
 ✓ 생성 완료: specs/spec-1-001-webhook-lock-fail-throw
 ✓ active spec 설정: spec-1-001-webhook-lock-fail-throw
-
-다음 단계:
-  1. spec.md 작성
-  2. plan.md 작성
-  3. task.md 작성
-  4. 사용자 검토 후 sdd plan accept
-  5. 첫 task: git checkout -b spec-1-001-webhook-lock-fail-throw
+✓ phase 파일 spec 표 자동 갱신: backlog/phase-1.md
 ```
 
-모델이 spec.md / plan.md / task.md 를 한국어로 작성. plan.md 의 핵심 주장:
+`backlog/phase-1.md` 의 spec 표 (마커 영역) 에 자동으로 한 행이 추가됩니다:
+
+```markdown
+<!-- sdd:specs:start -->
+| ID | 슬러그 | 우선순위 | 상태 | 디렉토리 |
+|---|---|:---:|---|---|
+| `spec-1-001` | webhook-lock-fail-throw | P? | Active | `specs/spec-1-001-webhook-lock-fail-throw/` |
+<!-- sdd:specs:end -->
+```
+
+`backlog/queue.md` 의 active 섹션도 진행률이 갱신됩니다. 그 다음 모델이 `specs/spec-1-001-webhook-lock-fail-throw/{spec,plan,task}.md` 를 한국어로 작성. plan.md 의 핵심 주장:
 
 > *"`webhooks.service.ts:44` 의 `if (!token) return fn();` 폴백을 `throw` 로 바꾼다. 다중 Pod 환경에서 Redis 락 실패 시 그냥 진행하던 것을 자연스러운 재시도 흐름으로 전환."*
 
@@ -304,7 +322,7 @@ $ ./scripts/harness/bin/sdd plan reset
 │      ↓                                                           │
 │  사용자가 hosted git UI 에서 PR 생성                              │
 │      ↓                                                           │
-│  Phase 의 모든 SPEC merge 후 → integration-tests 실행 → Phase Done│
+│  Phase 의 모든 SPEC merge 후 → phase-N.md 통합 테스트 실행 → Done│
 └─────────────────────────────────────────────────────────────────┘
 ```
 
@@ -324,7 +342,9 @@ $ ./scripts/harness/bin/sdd plan reset
 | 명령 | 설명 |
 |---|---|
 | `sdd status [--brief\|--verbose\|--json]` | 현재 상태 (사람용 색상 / 한 줄 / 자세히 / JSON) |
-| `sdd phase new <slug>` | 새 PHASE + phase.md + integration-tests.md |
+| `sdd phase new <slug>` | 새 `backlog/phase-{N}.md` (단일 파일) + queue.md 갱신 |
+| `sdd phase done [N]` | phase 완료 처리 (queue 의 done 으로 이동) |
+| `sdd queue` | `backlog/queue.md` 출력 (대시보드) |
 | `sdd phase list \| show` | 모든 phase / 상세 |
 | `sdd spec new <slug>` | active phase 안에 새 SPEC + 5종 템플릿 |
 | `sdd spec list \| show` | spec 목록 / 상세 |

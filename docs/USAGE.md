@@ -73,9 +73,10 @@ Claude Code 안:   /align
 ```
 
 이 명령은:
-- `backlog/phase-1/` 디렉토리 생성 (slug 는 phase.md 제목으로만 사용)
+- `backlog/phase-1.md` 단일 파일 생성 (slug 는 phase 제목으로만 사용)
 - `phase.md` 템플릿 복사 (한국어 골격)
-- `integration-tests.md` 골격 생성
+- `backlog/queue.md` 자동 생성/갱신 (대시보드)
+- 통합 테스트 시나리오는 `phase-1.md` 의 인라인 섹션에 작성
 - `.claude/state/current.json` 의 active phase 갱신
 
 생성 후 **사용자가 직접** `phase.md` 를 채웁니다. 배경/목표/성공 기준/포함된 SPEC 목록/의존성 등.
@@ -165,7 +166,7 @@ PR 은 hosted git UI 에서 사용자가 직접 생성. 본문은 `pr_descriptio
 해당 phase 의 모든 SPEC 이 merged 되면:
 
 1. `phase.md` 의 SPEC 표 갱신 (Status: Merged)
-2. `integration-tests.md` 의 모든 시나리오 실행 → PASS 확인
+2. `backlog/phase-N.md` 의 통합 테스트 시나리오 모두 실행 → PASS 확인
 3. `walkthrough.md` (phase 단위) 작성 — 통합 테스트 결과 첨부
 4. 사용자 최종 승인
 

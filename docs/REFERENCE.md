@@ -50,7 +50,9 @@
 ### phase
 | 명령 | 설명 |
 |---|---|
-| `sdd phase new <slug>` | 새 PHASE 디렉토리 + phase.md + integration-tests.md 생성, active 설정 |
+| `sdd phase new <slug>` | 새 `backlog/phase-{N}.md` 단일 파일 생성, queue.md 갱신, active 설정 |
+| `sdd phase done [N]` | phase 를 완료 처리 (queue.md 의 done 으로 이동) |
+| `sdd queue` | `backlog/queue.md` 출력 (대시보드) |
 | `sdd phase list` | 모든 phase 와 spec 수, active 표시 |
 | `sdd phase show [N]` | phase 상세 (N 생략 시 active) |
 
@@ -166,23 +168,24 @@ export HARNESS_TEST_WINDOW_MIN=60    # 기본 30
 │   │   └── check-test-passed.sh
 │   └── lib/stack.sh                    # 스택 어댑터 (install 시 선택된 것)
 │
-├── backlog/                            # phase 정의 = TODO list (git 추적)
-│   ├── phase-1/
-│   │   ├── phase.md
-│   │   ├── integration-tests.md
-│   │   └── walkthrough.md              # phase 완료 시
-│   ├── phase-2/
+├── backlog/                            # phase 정의 = 평면 파일 (git 추적)
+│   ├── queue.md                        #   대시보드 (sdd 자동 갱신)
+│   ├── phase-1.md                      #   phase 1: spec 표 + 통합 테스트 + ADR 참조
+│   ├── phase-2.md
 │   └── ...
 │
 ├── specs/                              # 실제 SPEC 작업 = work log (평면, git 추적)
 │   ├── spec-1-001-{slug}/
-│   │   ├── spec.md
+│   │   ├── spec.md                     #   phase-1.md 의 spec-1-001 항목을 *구체화*
 │   │   ├── plan.md
 │   │   ├── task.md
 │   │   ├── walkthrough.md
 │   │   └── pr_description.md
 │   ├── spec-1-002-{slug}/
 │   └── spec-2-001-{slug}/
+│
+├── docs/decisions/                     # ADR (phase-x.md / spec.md 가 link 참조)
+│   └── ADR-{NNN}-{slug}.md
 │
 └── CLAUDE.md                           # 사용자 내용 + HARNESS-KIT 블록
 ```

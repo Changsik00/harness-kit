@@ -43,24 +43,22 @@ Once SDD is selected:
 - **Documentation**: All Agent-generated documentation (Phases, Specs, Plans, Tasks, Walkthroughs, PR descriptions) MUST be written in **Korean** for user clarity.
 - **No Early Execution**: NO production code changes or commits until a Plan is explicitly accepted.
 
-### 4.1 Phase & Spec Folder Layout (Mandatory)
+### 4.1 Layout (Flat — One File Per Phase)
 
-`backlog/` 와 `specs/` 는 **형제 디렉토리**이며 역할이 분리되어 있다:
-- `backlog/` = phase 단위 *계획* (TODO list 성향)
-- `specs/`  = 실제 *진행/완료* 된 SPEC 산출물 (work log)
+`backlog/` 와 `specs/` 는 **형제 디렉토리** 이며 역할이 분리되어 있다:
+- `backlog/` = phase 단위 *계획* (대시보드 + 업무 지도)
+- `specs/`   = 실제 *진행/완료* 된 spec 산출물 (work log)
 
 ```
-backlog/                          # phase 정의 (계획)
-├── phase-1/
-│   ├── phase.md                  # 배경/목표/spec todo 표
-│   ├── integration-tests.md      # phase 단위 통합 테스트 계획
-│   └── walkthrough.md            # phase 완료 시 작성 (옵션)
-├── phase-2/
+backlog/
+├── queue.md            # 대시보드: 진행 중 / 대기 / 완료 phase 한눈에
+├── phase-1.md          # phase 1 의 모든 spec 을 한 파일에 (요점 + 방향성 + 통합 테스트 + ADR 참조)
+├── phase-2.md
 └── ...
 
-specs/                            # 실제 작업 (평면 배치)
+specs/                  # 실제 작업 (평면 배치)
 ├── spec-1-001-{slug}/
-│   ├── spec.md
+│   ├── spec.md         # phase-1.md 의 spec-1-001 항목을 *구체화*
 │   ├── plan.md
 │   ├── task.md
 │   ├── walkthrough.md
@@ -68,20 +66,33 @@ specs/                            # 실제 작업 (평면 배치)
 ├── spec-1-002-{slug}/
 ├── spec-2-001-{slug}/
 └── ...
+
+docs/decisions/         # ADR (phase-x.md / spec.md 에서 참조)
+├── ADR-001-{slug}.md
+└── ADR-002-{slug}.md
 ```
+
+> **두 단계의 분리**:
+> - `backlog/phase-N.md` 에서는 spec 마다 *요점 1줄 + 방향성 1~2줄 + 참조 링크* 만 적는다.
+> - `specs/spec-N-NNN-{slug}/spec.md` 에서는 그 spec 을 *깊게* 구체화한다 (배경, 다이어그램, DoD).
 
 ### 4.2 Template Enforcement
 The Agent MUST read templates from `agent/templates/` before writing any artifact:
 
 | Artifact | Template | Output Path |
 |---|---|---|
-| Phase | `agent/templates/phase.md` | `backlog/phase-{N}/phase.md` |
-| Phase Integration Tests | (자유 양식) | `backlog/phase-{N}/integration-tests.md` |
+| Queue | `agent/templates/queue.md` | `backlog/queue.md` (sdd 가 자동 관리) |
+| Phase | `agent/templates/phase.md` | `backlog/phase-{N}.md` |
 | Spec | `agent/templates/spec.md` | `specs/spec-{N}-{seq}-{slug}/spec.md` |
 | Plan | `agent/templates/plan.md` | `specs/spec-{N}-{seq}-{slug}/plan.md` |
 | Task | `agent/templates/task.md` | `specs/spec-{N}-{seq}-{slug}/task.md` |
 | Walkthrough | `agent/templates/walkthrough.md` | `specs/spec-{N}-{seq}-{slug}/walkthrough.md` |
 | PR Description | `agent/templates/pr_description.md` | `specs/spec-{N}-{seq}-{slug}/pr_description.md` |
+
+### 4.3 sdd 자동 갱신 (Marker-based)
+다음 마커가 들어 있는 영역은 `bin/sdd` 가 자동 갱신한다 — 사람이 수동 편집하지 말 것:
+- `backlog/queue.md`: `<!-- sdd:active:start --> ~ <!-- sdd:active:end -->` 등
+- `backlog/phase-{N}.md`: `<!-- sdd:specs:start --> ~ <!-- sdd:specs:end -->` (spec 표)
 
 ### 4.3 Hard Stop for Review
 After writing `spec.md`, `plan.md`, and `task.md`, the Agent MUST:

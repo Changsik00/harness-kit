@@ -231,7 +231,7 @@ for f in constitution.md agent.md align.md; do
 done
 
 log "템플릿 복사"
-for f in phase.md spec.md plan.md task.md walkthrough.md pr_description.md; do
+for f in queue.md phase.md spec.md plan.md task.md walkthrough.md pr_description.md; do
   do_cp "$KIT_DIR/sources/templates/$f" "$TARGET/agent/templates/$f"
 done
 

@@ -68,7 +68,7 @@ echo "[3/6] 거버넌스 + 템플릿"
 for f in agent/constitution.md agent/agent.md agent/align.md; do
   [ -f "$TARGET/$f" ] && check_pass "$f" || check_fail "$f 없음"
 done
-for f in phase.md spec.md plan.md task.md walkthrough.md pr_description.md; do
+for f in queue.md phase.md spec.md plan.md task.md walkthrough.md pr_description.md; do
   [ -f "$TARGET/agent/templates/$f" ] && check_pass "agent/templates/$f" || check_fail "agent/templates/$f 없음"
 done
 echo ""

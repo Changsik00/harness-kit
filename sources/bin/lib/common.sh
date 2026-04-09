@@ -42,3 +42,50 @@ sdd_slug_ok() {
   local s="$1"
   echo "$s" | grep -qE '^[a-z][a-z0-9-]{1,40}$'
 }
+
+# ─────────────────────────────────────────────────────────
+# Marker section helpers
+# 마커 형식: <!-- sdd:<name>:start --> ... <!-- sdd:<name>:end -->
+# ─────────────────────────────────────────────────────────
+
+# 마커 사이에 한 줄 append (end 마커 직전)
+sdd_marker_append() {
+  local file="$1" name="$2" line="$3"
+  [ -f "$file" ] || die "파일 없음: $file"
+  local start="<!-- sdd:${name}:start -->"
+  local end="<!-- sdd:${name}:end -->"
+  awk -v s="$start" -v e="$end" -v ln="$line" '
+    $0 == e { print ln; print; next }
+    { print }
+  ' "$file" > "$file.tmp" && mv "$file.tmp" "$file"
+}
+
+# 마커 사이를 지정 콘텐츠로 교체 (멀티라인 가능)
+sdd_marker_replace() {
+  local file="$1" name="$2" content="$3"
+  [ -f "$file" ] || die "파일 없음: $file"
+  local start="<!-- sdd:${name}:start -->"
+  local end="<!-- sdd:${name}:end -->"
+  awk -v s="$start" -v e="$end" -v c="$content" '
+    BEGIN { in_section = 0 }
+    $0 == s { print; print c; in_section = 1; next }
+    $0 == e { in_section = 0; print; next }
+    !in_section { print }
+  ' "$file" > "$file.tmp" && mv "$file.tmp" "$file"
+}
+
+# 마커 사이의 한 줄을 다른 한 줄로 교체 (정확 매치)
+# 매치 못 찾으면 아무 변경 없음
+sdd_marker_update_row() {
+  local file="$1" name="$2" needle="$3" newline="$4"
+  [ -f "$file" ] || die "파일 없음: $file"
+  local start="<!-- sdd:${name}:start -->"
+  local end="<!-- sdd:${name}:end -->"
+  awk -v s="$start" -v e="$end" -v needle="$needle" -v newline="$newline" '
+    BEGIN { in_section = 0 }
+    $0 == s { in_section = 1; print; next }
+    $0 == e { in_section = 0; print; next }
+    in_section && index($0, needle) > 0 { print newline; next }
+    { print }
+  ' "$file" > "$file.tmp" && mv "$file.tmp" "$file"
+}
