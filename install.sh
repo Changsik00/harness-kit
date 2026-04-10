@@ -12,10 +12,9 @@
 #   ./install.sh                       # 현재 디렉토리에 설치
 #   ./install.sh /path/to/project      # 지정 디렉토리에 설치
 #   ./install.sh --dry-run             # 실제 변경 없이 계획만 출력
-#   ./install.sh --force               # 기존 파일 백업 없이 덮어쓰기
+#   ./install.sh --force               # 확인 프롬프트 없이 진행
 #   ./install.sh --stack=nodejs        # 스택 자동 감지 무시하고 강제 지정 (nodejs|generic)
 #   ./install.sh --no-hooks            # hooks 설치 생략
-#   ./install.sh --no-backup           # 백업 생성 생략
 #   ./install.sh --yes                 # 확인 프롬프트 생략
 #
 # 필수 의존성 (macOS 기준 — brew install ...):
@@ -46,7 +45,6 @@ TARGET=""
 DRY_RUN=0
 FORCE=0
 NO_HOOKS=0
-NO_BACKUP=0
 ASSUME_YES=0
 FORCE_STACK=""
 
@@ -55,7 +53,6 @@ for arg in "$@"; do
     --dry-run) DRY_RUN=1 ;;
     --force)   FORCE=1 ;;
     --no-hooks) NO_HOOKS=1 ;;
-    --no-backup) NO_BACKUP=1 ;;
     --yes|-y)  ASSUME_YES=1 ;;
     --stack=*) FORCE_STACK="${arg#--stack=}" ;;
     -h|--help)
@@ -163,7 +160,6 @@ ${C_BLU}━━━━━━━━━━━━━━━━━━━━━━━━
 
 스택: $STACK
 모드: $([ $DRY_RUN -eq 1 ] && echo 'DRY RUN (실제 변경 없음)' || echo '실제 설치')
-백업: $(if [ $FORCE -eq 1 ]; then echo '없음 (--force)'; elif [ $NO_BACKUP -eq 1 ]; then echo '없음 (--no-backup)'; else echo '있음 (.harness-backup-TIMESTAMP/, 최근 3개 유지)'; fi)
 Hooks: $([ $NO_HOOKS -eq 1 ] && echo '설치 안 함' || echo '설치')
 
 EOF
@@ -192,48 +188,8 @@ do_cp()    { do_run "cp -f '$1' '$2'"; }
 do_cp_r()  { do_run "cp -rf '$1' '$2'"; }
 
 # ============================================================
-# 7. 백업
+# 7. (백업 제거됨 — git history 가 보호하므로 불필요)
 # ============================================================
-TS="$(date +%Y%m%d-%H%M%S)"
-BACKUP_DIR="$TARGET/.harness-backup-$TS"
-
-if [ $FORCE -eq 0 ] && [ $NO_BACKUP -eq 0 ] && [ $DRY_RUN -eq 0 ]; then
-  needs_backup=0
-  for p in agent .claude/commands .claude/settings.json scripts/harness CLAUDE.md; do
-    if [ -e "$TARGET/$p" ]; then needs_backup=1; break; fi
-  done
-
-  # git-clean 감지: 워킹 트리가 clean이면 백업 스킵 (git history가 보호)
-  if [ $needs_backup -eq 1 ] && git -C "$TARGET" rev-parse --git-dir >/dev/null 2>&1; then
-    if [ -z "$(git -C "$TARGET" status --porcelain 2>/dev/null)" ]; then
-      log "git 워킹 트리가 clean → 백업 스킵 (git history 가 보호)"
-      needs_backup=0
-    fi
-  fi
-
-  if [ $needs_backup -eq 1 ]; then
-    log "기존 파일 발견 → 백업: $BACKUP_DIR"
-    mkdir -p "$BACKUP_DIR"
-    for p in agent .claude scripts/harness CLAUDE.md; do
-      [ -e "$TARGET/$p" ] && cp -rf "$TARGET/$p" "$BACKUP_DIR/" 2>/dev/null || true
-    done
-    ok "백업 완료"
-
-    # 보존 정책: 최근 N개만 유지 (기본 3)
-    keep="${HARNESS_BACKUP_KEEP:-3}"
-    old_backups=$(ls -dt "$TARGET"/.harness-backup-* 2>/dev/null | tail -n +$((keep + 1)))
-    if [ -n "$old_backups" ]; then
-      log "백업 보존 정책: 최근 ${keep}개만 유지, 오래된 백업 삭제:"
-      echo "$old_backups" | while IFS= read -r d; do
-        log "  삭제: $(basename "$d")"
-        rm -rf "$d"
-      done
-      ok "오래된 백업 정리 완료"
-    fi
-  fi
-elif [ $NO_BACKUP -eq 1 ] && [ $DRY_RUN -eq 0 ]; then
-  log "백업 스킵 (--no-backup)"
-fi
 
 # ============================================================
 # 8. 디렉토리 생성
@@ -405,7 +361,6 @@ else
       echo ""
       echo "# harness-kit"
       echo ".claude/state/"
-      echo ".harness-backup-*/"
     } >> "$GI"
   fi
   ok ".gitignore 갱신"
