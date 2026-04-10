@@ -10,6 +10,7 @@
 HOOK_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=_lib.sh
 source "$HOOK_DIR/_lib.sh"
+hook_resolve_mode "TEST_PASSED" "warn"
 
 # 임계 시간 (분). 환경변수로 조정 가능.
 WINDOW_MIN="${HARNESS_TEST_WINDOW_MIN:-30}"

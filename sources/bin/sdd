@@ -49,12 +49,16 @@ sdd — harness-kit 메타 명령
   archive [--check]             walkthrough/pr_description 작성 검증 (--check 시 변경 없음)
                                 통과 시 docs(spec-N-NNN): archive ... commit 생성
 
+  hooks [status]                hook 모드 현황 출력
+  hooks block|warn|off <name>  특정 hook 모드 전환 안내
+
   help                          이 도움말
   version                       키트 버전
 
 환경변수:
-  HARNESS_HOOK_MODE   warn (기본) / block / off
-  HARNESS_TEST_WINDOW_MIN   기본 30 (test passed 만료 분)
+  HARNESS_HOOK_MODE               글로벌 모드: warn (기본) / block / off
+  HARNESS_HOOK_MODE_{NAME}        per-hook 모드 (BRANCH, PLAN_ACCEPT, TEST_PASSED)
+  HARNESS_TEST_WINDOW_MIN         기본 30 (test passed 만료 분)
 
 문서:
   agent/constitution.md   거버넌스 규약
@@ -612,6 +616,70 @@ cmd_archive() {
 # ============================================================
 # 진입점
 # ============================================================
+# hooks
+# ============================================================
+cmd_hooks() {
+  local sub="${1:-status}"; shift || true
+
+  # hook 목록과 기본 모드
+  local -a HOOK_NAMES=("BRANCH" "PLAN_ACCEPT" "TEST_PASSED")
+  local -a HOOK_DEFAULTS=("block" "warn" "warn")
+  local -a HOOK_FILES=("check-branch.sh" "check-plan-accept.sh" "check-test-passed.sh")
+
+  case "$sub" in
+    status|"")
+      printf "\n${C_BLD}Hook 모드 현황${C_RST}\n\n"
+      printf "  %-20s %-10s %-10s %s\n" "Hook" "현재" "기본" "환경변수"
+      printf "  %-20s %-10s %-10s %s\n" "----" "----" "----" "--------"
+      local i=0
+      while [ $i -lt ${#HOOK_NAMES[@]} ]; do
+        local name="${HOOK_NAMES[$i]}"
+        local default="${HOOK_DEFAULTS[$i]}"
+        local per_hook_var="HARNESS_HOOK_MODE_${name}"
+        local per_hook_val
+        eval "per_hook_val=\${$per_hook_var:-}"
+        local global="${HARNESS_HOOK_MODE:-}"
+        local current
+        if [ -n "$per_hook_val" ]; then
+          current="$per_hook_val"
+        elif [ -n "$global" ]; then
+          current="$global"
+        else
+          current="$default"
+        fi
+        local color="$C_DIM"
+        [ "$current" = "block" ] && color="$C_RED"
+        [ "$current" = "warn" ] && color="$C_YLW"
+        printf "  %-20s ${color}%-10s${C_RST} %-10s %s\n" "${HOOK_FILES[$i]}" "$current" "$default" "$per_hook_var"
+        i=$((i + 1))
+      done
+      printf "\n${C_DIM}  글로벌: HARNESS_HOOK_MODE=${HARNESS_HOOK_MODE:-<미설정>}${C_RST}\n"
+      printf "${C_DIM}  전환: export HARNESS_HOOK_MODE_<NAME>=block|warn|off${C_RST}\n\n"
+      ;;
+    block|warn|off)
+      local target="${1:-}"
+      if [ -z "$target" ]; then
+        echo "사용법: sdd hooks $sub <hook-name>"
+        echo "  hook-name: BRANCH, PLAN_ACCEPT, TEST_PASSED"
+        exit 1
+      fi
+      local TARGET
+      TARGET="$(printf '%s' "$target" | tr '[:lower:]' '[:upper:]' | tr '-' '_')"
+      echo "다음 명령으로 설정하세요:"
+      echo ""
+      echo "  export HARNESS_HOOK_MODE_${TARGET}=${sub}"
+      echo ""
+      echo "영구 적용: .zshrc 또는 .claude/settings.json 의 env 섹션에 추가"
+      ;;
+    *)
+      err "알 수 없는 hooks 서브명령: $sub"
+      echo "사용법: sdd hooks [status|block|warn|off] [hook-name]"
+      exit 1
+      ;;
+  esac
+}
+
+# ============================================================
 main() {
   local cmd="${1:-help}"; shift || true
   case "$cmd" in
@@ -625,6 +693,7 @@ main() {
     test)    cmd_test "$@" ;;
     archive) cmd_archive "$@" ;;
     queue)   cmd_queue "$@" ;;
+    hooks)   cmd_hooks "$@" ;;
     *)       err "알 수 없는 명령: $cmd"; cmd_help; exit 1 ;;
   esac
 }
