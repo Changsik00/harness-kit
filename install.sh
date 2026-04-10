@@ -15,8 +15,8 @@
 #   ./install.sh --force               # 확인 프롬프트 없이 진행
 #   ./install.sh --stack=nodejs        # 스택 자동 감지 무시하고 강제 지정 (nodejs|generic)
 #   ./install.sh --no-hooks            # hooks 설치 생략
-#   ./install.sh --shell=zsh           # shebang 을 zsh 로 교체 (macOS 기본 셸)
-#   ./install.sh --yes                 # 확인 프롬프트 생략
+#   ./install.sh --shell=zsh           # 셸 선택 프롬프트 스킵, zsh 로 강제 (CI/자동화용)
+#   ./install.sh --yes                 # 모든 프롬프트 생략 (셸은 환경에 맞게 자동 선택)
 #
 # 필수 의존성 (macOS 기준 — brew install ...):
 #   bash 4.0+ (또는 --shell=zsh 사용 시 macOS 기본 zsh), jq, git
@@ -48,7 +48,7 @@ FORCE=0
 NO_HOOKS=0
 ASSUME_YES=0
 FORCE_STACK=""
-SHELL_MODE="bash"
+SHELL_MODE=""
 
 for arg in "$@"; do
   case "$arg" in
@@ -104,16 +104,63 @@ case "$(uname -s)" in
   *)      warn "비표준 OS ($(uname -s)): 동작이 보장되지 않습니다." ;;
 esac
 
-# bash 버전 체크 (zsh 모드일 때는 스킵)
-if [ "$SHELL_MODE" = "zsh" ]; then
-  log "셸 모드: zsh (shebang 교체 활성)"
-elif [ -n "${BASH_VERSION:-}" ]; then
-  bash_major="${BASH_VERSION%%.*}"
-  if [ "${bash_major:-0}" -lt 4 ]; then
-    warn "bash $BASH_VERSION 사용 중. macOS 기본 bash 는 3.2 라 일부 기능에 문제 가능."
-    warn "  권장: brew install bash 또는 --shell=zsh 옵션 사용"
+# 셸 선택 (--shell 미지정 시 대화형 프롬프트)
+if [ -z "$SHELL_MODE" ]; then
+  # 환경 감지
+  _bash_ver=""
+  _bash_ok=0
+  if command -v bash >/dev/null 2>&1; then
+    _bash_ver=$(bash --version | head -1 | grep -oE '[0-9]+\.[0-9]+' | head -1)
+    _bash_major="${_bash_ver%%.*}"
+    [ "${_bash_major:-0}" -ge 4 ] && _bash_ok=1
   fi
+  _has_zsh=0
+  _zsh_ver=""
+  if command -v zsh >/dev/null 2>&1; then
+    _has_zsh=1
+    _zsh_ver=$(zsh --version 2>/dev/null | grep -oE '[0-9]+\.[0-9]+' | head -1)
+  fi
+
+  case "$(uname -s)" in
+    Darwin)
+      if [ $_has_zsh -eq 1 ]; then
+        # macOS: zsh 가 있으면 선택 프롬프트
+        echo ""
+        echo "${C_CYN}🐚 스크립트 셸 선택${C_RST}"
+        echo ""
+        if [ $_bash_ok -eq 1 ]; then
+          echo "  1) zsh  ${C_DIM}(macOS 기본, 추가 설치 불필요)${C_RST}"
+          echo "  2) bash ${C_DIM}(${_bash_ver})${C_RST}"
+          _default=1
+        else
+          echo "  1) zsh  ${C_GRN}← 권장${C_RST} ${C_DIM}(macOS 기본, 추가 설치 불필요)${C_RST}"
+          echo "  2) bash ${C_DIM}(${_bash_ver:-없음}${_bash_ver:+ — 4.0+ 필요, brew install bash})${C_RST}"
+          _default=1
+        fi
+        echo ""
+        if [ $ASSUME_YES -eq 1 ]; then
+          _choice=$_default
+        else
+          printf "  선택 [${_default}]: "
+          read -r _choice < /dev/tty 2>/dev/null || _choice=""
+          [ -z "$_choice" ] && _choice=$_default
+        fi
+        case "$_choice" in
+          1) SHELL_MODE="zsh" ;;
+          2) SHELL_MODE="bash" ;;
+          *) SHELL_MODE="zsh" ;;
+        esac
+      else
+        SHELL_MODE="bash"
+      fi
+      ;;
+    *)
+      # Linux 등: bash 가 보통 최신이므로 프롬프트 스킵
+      SHELL_MODE="bash"
+      ;;
+  esac
 fi
+log "셸 모드: ${C_GRN}${SHELL_MODE}${C_RST}"
 
 if [ ! -d "$TARGET/.git" ]; then
   warn "$TARGET 는 git 리포지토리가 아닙니다. 계속 진행하지만 권장하지 않습니다."
