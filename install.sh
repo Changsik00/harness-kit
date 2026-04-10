@@ -12,7 +12,7 @@
 #   ./install.sh                       # 현재 디렉토리에 설치
 #   ./install.sh /path/to/project      # 지정 디렉토리에 설치
 #   ./install.sh --dry-run             # 실제 변경 없이 계획만 출력
-#   ./install.sh --force               # 기존 파일 백업 없이 덮어쓰기
+#   ./install.sh --force               # 확인 프롬프트 없이 진행
 #   ./install.sh --stack=nodejs        # 스택 자동 감지 무시하고 강제 지정 (nodejs|generic)
 #   ./install.sh --no-hooks            # hooks 설치 생략
 #   ./install.sh --yes                 # 확인 프롬프트 생략
@@ -160,7 +160,6 @@ ${C_BLU}━━━━━━━━━━━━━━━━━━━━━━━━
 
 스택: $STACK
 모드: $([ $DRY_RUN -eq 1 ] && echo 'DRY RUN (실제 변경 없음)' || echo '실제 설치')
-백업: $([ $FORCE -eq 1 ] && echo '없음 (--force)' || echo '있음 (.harness-backup-TIMESTAMP/)')
 Hooks: $([ $NO_HOOKS -eq 1 ] && echo '설치 안 함' || echo '설치')
 
 EOF
@@ -189,25 +188,8 @@ do_cp()    { do_run "cp -f '$1' '$2'"; }
 do_cp_r()  { do_run "cp -rf '$1' '$2'"; }
 
 # ============================================================
-# 7. 백업
+# 7. (백업 제거됨 — git history 가 보호하므로 불필요)
 # ============================================================
-TS="$(date +%Y%m%d-%H%M%S)"
-BACKUP_DIR="$TARGET/.harness-backup-$TS"
-
-if [ $FORCE -eq 0 ] && [ $DRY_RUN -eq 0 ]; then
-  needs_backup=0
-  for p in agent .claude/commands .claude/settings.json scripts/harness CLAUDE.md; do
-    if [ -e "$TARGET/$p" ]; then needs_backup=1; break; fi
-  done
-  if [ $needs_backup -eq 1 ]; then
-    log "기존 파일 발견 → 백업: $BACKUP_DIR"
-    mkdir -p "$BACKUP_DIR"
-    for p in agent .claude scripts/harness CLAUDE.md; do
-      [ -e "$TARGET/$p" ] && cp -rf "$TARGET/$p" "$BACKUP_DIR/" 2>/dev/null || true
-    done
-    ok "백업 완료"
-  fi
-fi
 
 # ============================================================
 # 8. 디렉토리 생성
@@ -379,7 +361,6 @@ else
       echo ""
       echo "# harness-kit"
       echo ".claude/state/"
-      echo ".harness-backup-*/"
     } >> "$GI"
   fi
   ok ".gitignore 갱신"
