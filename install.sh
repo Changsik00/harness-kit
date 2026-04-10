@@ -15,6 +15,7 @@
 #   ./install.sh --force               # 기존 파일 백업 없이 덮어쓰기
 #   ./install.sh --stack=nodejs        # 스택 자동 감지 무시하고 강제 지정 (nodejs|generic)
 #   ./install.sh --no-hooks            # hooks 설치 생략
+#   ./install.sh --no-backup           # 백업 생성 생략
 #   ./install.sh --yes                 # 확인 프롬프트 생략
 #
 # 필수 의존성 (macOS 기준 — brew install ...):
@@ -45,6 +46,7 @@ TARGET=""
 DRY_RUN=0
 FORCE=0
 NO_HOOKS=0
+NO_BACKUP=0
 ASSUME_YES=0
 FORCE_STACK=""
 
@@ -53,6 +55,7 @@ for arg in "$@"; do
     --dry-run) DRY_RUN=1 ;;
     --force)   FORCE=1 ;;
     --no-hooks) NO_HOOKS=1 ;;
+    --no-backup) NO_BACKUP=1 ;;
     --yes|-y)  ASSUME_YES=1 ;;
     --stack=*) FORCE_STACK="${arg#--stack=}" ;;
     -h|--help)
@@ -160,7 +163,7 @@ ${C_BLU}━━━━━━━━━━━━━━━━━━━━━━━━
 
 스택: $STACK
 모드: $([ $DRY_RUN -eq 1 ] && echo 'DRY RUN (실제 변경 없음)' || echo '실제 설치')
-백업: $([ $FORCE -eq 1 ] && echo '없음 (--force)' || echo '있음 (.harness-backup-TIMESTAMP/)')
+백업: $(if [ $FORCE -eq 1 ]; then echo '없음 (--force)'; elif [ $NO_BACKUP -eq 1 ]; then echo '없음 (--no-backup)'; else echo '있음 (.harness-backup-TIMESTAMP/, 최근 3개 유지)'; fi)
 Hooks: $([ $NO_HOOKS -eq 1 ] && echo '설치 안 함' || echo '설치')
 
 EOF
@@ -194,11 +197,20 @@ do_cp_r()  { do_run "cp -rf '$1' '$2'"; }
 TS="$(date +%Y%m%d-%H%M%S)"
 BACKUP_DIR="$TARGET/.harness-backup-$TS"
 
-if [ $FORCE -eq 0 ] && [ $DRY_RUN -eq 0 ]; then
+if [ $FORCE -eq 0 ] && [ $NO_BACKUP -eq 0 ] && [ $DRY_RUN -eq 0 ]; then
   needs_backup=0
   for p in agent .claude/commands .claude/settings.json scripts/harness CLAUDE.md; do
     if [ -e "$TARGET/$p" ]; then needs_backup=1; break; fi
   done
+
+  # git-clean 감지: 워킹 트리가 clean이면 백업 스킵 (git history가 보호)
+  if [ $needs_backup -eq 1 ] && git -C "$TARGET" rev-parse --git-dir >/dev/null 2>&1; then
+    if [ -z "$(git -C "$TARGET" status --porcelain 2>/dev/null)" ]; then
+      log "git 워킹 트리가 clean → 백업 스킵 (git history 가 보호)"
+      needs_backup=0
+    fi
+  fi
+
   if [ $needs_backup -eq 1 ]; then
     log "기존 파일 발견 → 백업: $BACKUP_DIR"
     mkdir -p "$BACKUP_DIR"
@@ -207,6 +219,8 @@ if [ $FORCE -eq 0 ] && [ $DRY_RUN -eq 0 ]; then
     done
     ok "백업 완료"
   fi
+elif [ $NO_BACKUP -eq 1 ] && [ $DRY_RUN -eq 0 ]; then
+  log "백업 스킵 (--no-backup)"
 fi
 
 # ============================================================
