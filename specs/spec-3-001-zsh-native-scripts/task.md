@@ -106,9 +106,9 @@
 - [x] 전체 테스트 실행 → PASS (모든 테스트 스위트 회귀 없음)
 - [x] **walkthrough.md 작성**
 - [x] **pr_description.md 작성**
-- [ ] **Archive Commit**: `docs(spec-3-001): archive walkthrough and pr description`
-- [ ] **Push**: `git push -u origin spec-3-001-zsh-native-scripts`
-- [ ] **PR 생성**: `/gh-pr`
+- [x] **Archive Commit**: `docs(spec-3-001): archive walkthrough and pr description`
+- [x] **Push**: `git push -u origin spec-3-001-zsh-native-scripts`
+- [x] **PR 생성**: `/gh-pr`
 
 ---
 

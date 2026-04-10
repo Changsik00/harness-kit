@@ -9,7 +9,7 @@
 - [x] spec.md 작성
 - [x] plan.md 작성
 - [x] task.md 작성 (이 파일)
-- [ ] 사용자 Plan Accept
+- [x] 사용자 Plan Accept
 
 ---
 
@@ -50,13 +50,13 @@
 
 ## Task 5: Hand-off (필수)
 
-- [ ] 전체 테스트 실행 → 모두 PASS
-- [ ] **walkthrough.md 작성**
-- [ ] **pr_description.md 작성**
-- [ ] **Archive Commit**: `docs(spec-2-002): archive walkthrough and pr description`
-- [ ] **Push**: `git push -u origin spec-2-002-two-tier-loading`
-- [ ] **PR 생성**: `/gh-pr`
-- [ ] **사용자 알림**
+- [x] 전체 테스트 실행 → 모두 PASS
+- [x] **walkthrough.md 작성**
+- [x] **pr_description.md 작성**
+- [x] **Archive Commit**: `docs(spec-2-002): archive walkthrough and pr description`
+- [x] **Push**: `git push -u origin spec-2-002-two-tier-loading`
+- [x] **PR 생성**: `/gh-pr`
+- [x] **사용자 알림**
 
 ---
 

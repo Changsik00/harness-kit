@@ -8,7 +8,7 @@
 - [x] report.md 작성 (spec.md 대체)
 - [x] plan.md 작성
 - [x] task.md 작성 (이 파일)
-- [ ] 사용자 Plan Accept
+- [x] 사용자 Plan Accept
 
 ---
 
@@ -25,11 +25,11 @@
 
 ## Task 2: Hand-off
 
-- [ ] **walkthrough.md 작성**
-- [ ] **pr_description.md 작성**
-- [ ] **Archive Commit**: `docs(spec-5-001): archive walkthrough and pr description`
-- [ ] **Push**: `git push -u origin spec-5-001-spec-kit-benchmark`
-- [ ] **사용자 알림**
+- [x] **walkthrough.md 작성**
+- [x] **pr_description.md 작성**
+- [x] **Archive Commit**: `docs(spec-5-001): archive walkthrough and pr description`
+- [x] **Push**: `git push -u origin spec-5-001-spec-kit-benchmark`
+- [x] **사용자 알림**
 
 ---
 
