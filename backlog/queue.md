@@ -7,7 +7,7 @@
 ## 🎯 진행 중
 
 <!-- sdd:active:start -->
-- **phase-4** — 옵셔널 Sub-agent 리뷰 시스템 — 1 spec — 다음: spec-4-001-spec-review-cmd
+- **phase-4** — 옵셔널 Sub-agent 리뷰 시스템 — 2 spec — 다음: spec-4-002-code-review-cmd
 <!-- sdd:active:end -->
 
 ## 📋 대기 (Backlog)
@@ -18,6 +18,7 @@
 | Phase | 제목 | 상태 | SPECs |
 |-------|------|------|-------|
 | [phase-5](phase-5.md) | spec-kit 패턴 도입 & 크로스 에이전트 | Planning | 2 |
+| [phase-6](phase-6.md) | SDD UX 개선 및 커맨드 정리 | Planning | 3 |
 <!-- sdd:queued:end -->
 
 ## ✅ 완료
