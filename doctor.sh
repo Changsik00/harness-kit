@@ -39,16 +39,36 @@ case "$(uname -s)" in
 esac
 command -v git >/dev/null && check_pass "git" || check_fail "git 없음"
 command -v jq  >/dev/null && check_pass "jq"  || check_fail "jq 없음 (brew install jq / apt install jq)"
-if command -v bash >/dev/null; then
-  bv=$(bash --version | head -1 | grep -oE '[0-9]+\.[0-9]+' | head -1)
-  bv_major="${bv%%.*}"
-  if [ "${bv_major:-0}" -ge 4 ]; then
-    check_pass "bash $bv"
+# 셸 모드 감지: 설치된 스크립트의 shebang 으로 판별
+_detect_shell_mode() {
+  local sdd="$TARGET/scripts/harness/bin/sdd"
+  if [ -f "$sdd" ] && head -1 "$sdd" | grep -q 'zsh'; then
+    echo "zsh"
   else
-    check_warn "bash $bv (4.0+ 권장 — brew install bash)"
+    echo "bash"
+  fi
+}
+INSTALLED_SHELL="$(_detect_shell_mode)"
+
+if [ "$INSTALLED_SHELL" = "zsh" ]; then
+  if command -v zsh >/dev/null; then
+    zv=$(zsh --version | grep -oE '[0-9]+\.[0-9]+' | head -1)
+    check_pass "zsh $zv (zsh 모드로 설치됨)"
+  else
+    check_fail "zsh 없음 (zsh 모드로 설치되었으나 zsh 를 찾을 수 없음)"
   fi
 else
-  check_fail "bash 없음"
+  if command -v bash >/dev/null; then
+    bv=$(bash --version | head -1 | grep -oE '[0-9]+\.[0-9]+' | head -1)
+    bv_major="${bv%%.*}"
+    if [ "${bv_major:-0}" -ge 4 ]; then
+      check_pass "bash $bv"
+    else
+      check_warn "bash $bv (4.0+ 권장 — brew install bash 또는 --shell=zsh)"
+    fi
+  else
+    check_fail "bash 없음 (--shell=zsh 옵션으로 재설치 권장)"
+  fi
 fi
 echo ""
 

@@ -6,8 +6,9 @@
 
 set -uo pipefail
 
-# 자기 위치에서 lib 찾기
-SDD_BIN_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# 자기 위치에서 lib 찾기 (bash/zsh 호환)
+_self() { if [ -n "${BASH_VERSION:-}" ]; then echo "${BASH_SOURCE[0]}"; elif [ -n "${ZSH_VERSION:-}" ]; then echo "${(%):-%x}"; else echo "$0"; fi; }
+SDD_BIN_DIR="$(cd "$(dirname "$(_self)")" && pwd)"
 # shellcheck source=lib/common.sh
 source "$SDD_BIN_DIR/lib/common.sh"
 # shellcheck source=lib/state.sh
@@ -621,20 +622,19 @@ cmd_archive() {
 cmd_hooks() {
   local sub="${1:-status}"; shift || true
 
-  # hook 목록과 기본 모드
-  local -a HOOK_NAMES=("BRANCH" "PLAN_ACCEPT" "TEST_PASSED")
-  local -a HOOK_DEFAULTS=("block" "warn" "warn")
-  local -a HOOK_FILES=("check-branch.sh" "check-plan-accept.sh" "check-test-passed.sh")
+  # hook 목록과 기본 모드 (배열 대신 문자열 — bash/zsh 호환)
+  local hook_data="BRANCH:block:check-branch.sh PLAN_ACCEPT:warn:check-plan-accept.sh TEST_PASSED:warn:check-test-passed.sh"
 
   case "$sub" in
     status|"")
       printf "\n${C_BLD}Hook 모드 현황${C_RST}\n\n"
       printf "  %-20s %-10s %-10s %s\n" "Hook" "현재" "기본" "환경변수"
       printf "  %-20s %-10s %-10s %s\n" "----" "----" "----" "--------"
-      local i=0
-      while [ $i -lt ${#HOOK_NAMES[@]} ]; do
-        local name="${HOOK_NAMES[$i]}"
-        local default="${HOOK_DEFAULTS[$i]}"
+      for entry in $hook_data; do
+        local name="${entry%%:*}"
+        local rest="${entry#*:}"
+        local default="${rest%%:*}"
+        local file="${rest#*:}"
         local per_hook_var="HARNESS_HOOK_MODE_${name}"
         local per_hook_val
         eval "per_hook_val=\${$per_hook_var:-}"
@@ -650,8 +650,7 @@ cmd_hooks() {
         local color="$C_DIM"
         [ "$current" = "block" ] && color="$C_RED"
         [ "$current" = "warn" ] && color="$C_YLW"
-        printf "  %-20s ${color}%-10s${C_RST} %-10s %s\n" "${HOOK_FILES[$i]}" "$current" "$default" "$per_hook_var"
-        i=$((i + 1))
+        printf "  %-20s ${color}%-10s${C_RST} %-10s %s\n" "$file" "$current" "$default" "$per_hook_var"
       done
       printf "\n${C_DIM}  글로벌: HARNESS_HOOK_MODE=${HARNESS_HOOK_MODE:-<미설정>}${C_RST}\n"
       printf "${C_DIM}  전환: export HARNESS_HOOK_MODE_<NAME>=block|warn|off${C_RST}\n\n"

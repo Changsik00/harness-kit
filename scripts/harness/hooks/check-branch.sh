@@ -7,8 +7,9 @@
 #   - HARNESS_HOOK_MODE=block:        위반 시 stderr 출력 + exit 2 (차단)
 #   - HARNESS_HOOK_MODE=off:          즉시 통과
 
-# 자기 자신 위치에서 lib 찾기
-HOOK_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# 자기 자신 위치에서 lib 찾기 (bash/zsh 호환)
+_self() { if [ -n "${BASH_VERSION:-}" ]; then echo "${BASH_SOURCE[0]}"; elif [ -n "${ZSH_VERSION:-}" ]; then echo "${(%):-%x}"; else echo "$0"; fi; }
+HOOK_DIR="$(cd "$(dirname "$(_self)")" && pwd)"
 # shellcheck source=_lib.sh
 source "$HOOK_DIR/_lib.sh"
 hook_resolve_mode "BRANCH" "block"
