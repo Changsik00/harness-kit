@@ -58,9 +58,24 @@ $HARNESS_TEST_INTEGRATION_CMD || { echo "integration test 실패"; exit 1; }
 git push -u origin spec-{phaseN}-{seq}-{slug}
 ```
 
-## 5. PR 생성 안내
+## 5. PR 생성
 
-push 후 사용자에게 hosted git UI 에서 PR 을 생성하라고 안내합니다. PR 본문은 방금 archive 한 `pr_description.md` 를 그대로 복사하면 됩니다.
+origin 이 Bitbucket Cloud 인 경우 `bb-pr` 로 자동 생성합니다 (사전: `~/.config/bitbucket/token` 준비).
+사용자에게 한 번 더 확인을 받은 뒤 호출:
+
+```bash
+./scripts/harness/bin/bb-pr -f specs/spec-{phaseN}-{seq}-{slug}/pr_description.md
+```
+
+bb-pr 동작:
+- 본문 파일의 첫 비어있지 않은 줄 → PR 제목
+- 나머지 → PR 본문
+- 타깃 브랜치는 대화형 입력 (repo 기본 브랜치 제안)
+- 자체 확인 프롬프트가 있으므로 `-y` 는 붙이지 말 것
+
+성공 시 출력되는 PR URL/번호를 그대로 사용자에게 보고합니다.
+
+origin 이 Bitbucket Cloud 가 아닌 경우 (GitHub/GitLab/사내 Bitbucket Server 등), 기존대로 hosted git UI 에서 수동 생성하도록 안내:
 
 ```
 ✅ Push 완료: spec-{phaseN}-{seq}-{slug}

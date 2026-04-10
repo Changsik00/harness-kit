@@ -274,8 +274,9 @@ fi
 if [ -d "$KIT_DIR/sources/bin" ]; then
   log "bin/ 복사"
   do_cp_r "$KIT_DIR/sources/bin/." "$TARGET/scripts/harness/bin/"
-  if [ $DRY_RUN -eq 0 ] && [ -f "$TARGET/scripts/harness/bin/sdd" ]; then
-    chmod +x "$TARGET/scripts/harness/bin/sdd" 2>/dev/null || true
+  if [ $DRY_RUN -eq 0 ]; then
+    [ -f "$TARGET/scripts/harness/bin/sdd" ]   && chmod +x "$TARGET/scripts/harness/bin/sdd"   2>/dev/null || true
+    [ -f "$TARGET/scripts/harness/bin/bb-pr" ] && chmod +x "$TARGET/scripts/harness/bin/bb-pr" 2>/dev/null || true
   fi
 fi
 

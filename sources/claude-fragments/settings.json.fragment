@@ -79,6 +79,8 @@
 
       "Bash(scripts/harness/bin/sdd:*)",
       "Bash(./scripts/harness/bin/sdd:*)",
+      "Bash(scripts/harness/bin/bb-pr:*)",
+      "Bash(./scripts/harness/bin/bb-pr:*)",
       "Bash(scripts/harness/hooks/*)",
       "Bash(./scripts/harness/hooks/*)",
       "Bash(scripts/harness/doctor.sh:*)",
