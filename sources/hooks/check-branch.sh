@@ -11,6 +11,7 @@
 HOOK_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=_lib.sh
 source "$HOOK_DIR/_lib.sh"
+hook_resolve_mode "BRANCH" "block"
 
 cmd="$(hook_tool_input command)"
 [ -z "$cmd" ] && exit 0
