@@ -1,10 +1,6 @@
 {
   "permissions": {
     "allow": [
-      "Bash(./scripts/harness/bin/bb-pr:*)",
-      "Bash(./scripts/harness/bin/sdd:*)",
-      "Bash(./scripts/harness/doctor.sh:*)",
-      "Bash(./scripts/harness/hooks/*)",
       "Bash(awk:*)",
       "Bash(bash:*)",
       "Bash(bun:*)",

@@ -80,17 +80,29 @@ cmd_status() {
     esac
   done
 
+  # state 파일 유무에 따라 분기: 있으면 정상 경로, 없으면 폴백
+  local has_state=1
+  [ -f "$SDD_STATE" ] || has_state=0
+
   local phase spec branch plan_accepted last_test stack kit_ver
-  phase="$(state_get phase)"
-  spec="$(state_get spec)"
+  if [ $has_state -eq 1 ]; then
+    phase="$(state_get phase)"
+    spec="$(state_get spec)"
+    plan_accepted="$(state_get planAccepted)"
+    last_test="$(state_get lastTestPass)"
+    stack="$(state_get stack)"
+    kit_ver="$(state_get kitVersion)"
+  else
+    phase="" spec="" plan_accepted="false" last_test="" stack="unknown" kit_ver="?"
+  fi
   branch="$(git -C "$SDD_ROOT" branch --show-current 2>/dev/null || echo '')"
-  plan_accepted="$(state_get planAccepted)"
-  last_test="$(state_get lastTestPass)"
-  stack="$(state_get stack)"
-  kit_ver="$(state_get kitVersion)"
 
   if [ $json -eq 1 ]; then
-    state_dump
+    if [ $has_state -eq 1 ]; then
+      state_dump
+    else
+      printf '{"phase":null,"spec":null,"branch":"%s","planAccepted":false,"fallback":true}\n' "$branch"
+    fi
     return 0
   fi
 
@@ -135,18 +147,31 @@ cmd_status() {
       "${C_GRN}$done_cnt${C_RST}" "${C_YLW}$pending_cnt${C_RST}" "${C_DIM}$pass_cnt${C_RST}" "$total"
   fi
 
-  if [ $verbose -eq 1 ]; then
+  # verbose 또는 폴백 시 추가 정보 출력
+  if [ $verbose -eq 1 ] || [ $has_state -eq 0 ]; then
     echo ""
     echo "📝 최근 활동 (git log -5)"
     git -C "$SDD_ROOT" log --oneline -5 2>/dev/null | sed 's/^/  /' || echo "  (git history 없음)"
-    echo ""
-    echo "📝 변경 파일 (git status -s)"
-    local st
-    st="$(git -C "$SDD_ROOT" status -s 2>/dev/null)"
-    if [ -n "$st" ]; then
-      echo "$st" | sed 's/^/  /'
-    else
-      echo "  ${C_DIM}변경 없음${C_RST}"
+
+    if [ $has_state -eq 0 ]; then
+      echo ""
+      echo "📁 backlog/"
+      ls "$SDD_BACKLOG"/*.md 2>/dev/null | xargs -I{} basename {} | sed 's/^/  /' || echo "  (없음)"
+      echo ""
+      echo "📁 specs/"
+      ls -d "$SDD_SPECS"/spec-* 2>/dev/null | xargs -I{} basename {} | sed 's/^/  /' || echo "  (없음)"
+    fi
+
+    if [ $verbose -eq 1 ]; then
+      echo ""
+      echo "📝 변경 파일 (git status -s)"
+      local st
+      st="$(git -C "$SDD_ROOT" status -s 2>/dev/null)"
+      if [ -n "$st" ]; then
+        echo "$st" | sed 's/^/  /'
+      else
+        echo "  ${C_DIM}변경 없음${C_RST}"
+      fi
     fi
   fi
   echo ""
