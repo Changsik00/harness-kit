@@ -9,7 +9,7 @@ This document defines the mandatory operating procedure for any Agent working un
 1. **constitution.md** overrides all other instructions.
 2. User decisions override Agent recommendations.
 3. **Alignment before Action**: Speed is secondary to procedural integrity.
-4. Execution without explicit authority (Plan Accept) is strictly forbidden.
+4. Premature execution is a CRITICAL VIOLATION (→ constitution §4.3).
 
 ## 1. Agent Identity
 
@@ -22,7 +22,7 @@ The Agent acts as a delegated senior engineer.
 
 Upon activation (typically via `/align`), the Agent MUST:
 1. Read `agent/constitution.md` and `agent/agent.md`.
-2. Run `bin/sdd status` (if available) or fall back to `git branch --show-current` + `git log -3 --oneline`.
+2. Run `scripts/harness/bin/sdd status` (if available) or fall back to `git branch --show-current` + `git log -3 --oneline`.
 3. Inspect active work in `backlog/`, `specs/`, and `backlog/queue.md`.
 4. Summarize current state to the User: active PHASE, active SPEC, branch, plan-accept flag, last test result.
 5. Ask **ONE** question: "어떤 컨텍스트로 진행할까요?"
@@ -40,8 +40,8 @@ Before drafting any Spec or Plan, the Agent MUST enter the Alignment Phase.
 ## 4. SDD Mode Protocol
 
 Once SDD is selected:
-- **Documentation**: All Agent-generated documentation (Phases, Specs, Plans, Tasks, Walkthroughs, PR descriptions) MUST be written in **Korean** for user clarity.
-- **No Early Execution**: NO production code changes or commits until a Plan is explicitly accepted.
+- **Documentation**: All artifacts MUST be in **Korean** (→ constitution §4.4).
+- **No Early Execution**: NO production code changes or commits until a Plan is explicitly accepted (→ constitution §4.3).
 
 ### 4.1 Layout (Flat — One File Per Phase)
 
@@ -72,12 +72,11 @@ docs/decisions/         # ADR (phase-x.md / spec.md 에서 참조)
 └── ADR-002-{slug}.md
 ```
 
-> **두 단계의 분리**:
-> - `backlog/phase-N.md` 에서는 spec 마다 *요점 1줄 + 방향성 1~2줄 + 참조 링크* 만 적는다.
-> - `specs/spec-N-NNN-{slug}/spec.md` 에서는 그 spec 을 *깊게* 구체화한다 (배경, 다이어그램, DoD).
+> ID 형식, 디렉토리 경로, 브랜치 이름 규칙은 constitution §5 참조.
 
 ### 4.2 Template Enforcement
-The Agent MUST read templates from `agent/templates/` before writing any artifact:
+
+The Agent MUST read templates from `agent/templates/` before writing any artifact (→ constitution §4.4):
 
 | Artifact | Template | Output Path |
 |---|---|---|
@@ -94,7 +93,7 @@ The Agent MUST read templates from `agent/templates/` before writing any artifac
 - `backlog/queue.md`: `<!-- sdd:active:start --> ~ <!-- sdd:active:end -->` 등
 - `backlog/phase-{N}.md`: `<!-- sdd:specs:start --> ~ <!-- sdd:specs:end -->` (spec 표)
 
-### 4.3 Hard Stop for Review
+### 4.4 Hard Stop for Review
 After writing `spec.md`, `plan.md`, and `task.md`, the Agent MUST:
 1. Report completion to the User with paths.
 2. Wait for explicit Plan Accept (`/plan-accept` or "Plan Accepted" message).
@@ -103,24 +102,21 @@ After writing `spec.md`, `plan.md`, and `task.md`, the Agent MUST:
 ## 5. Plan & Task Strategy
 
 A Plan is a binding execution contract. It MUST follow the `plan.md` template exactly and include:
-- **Branch Strategy**: The first task MUST create a feature branch named exactly the same as the spec directory: `spec-{phaseN}-{seq}-{slug}`. **No `feature/` prefix.**
-- **Task Granularity**: Each Task MUST represent one logical unit of work (one commit).
+- **Branch Strategy**: The first task MUST create a feature branch (→ constitution §5.4 for naming).
+- **Task Granularity**: Each Task MUST represent one logical unit of work (→ constitution §7).
 - **TDD Integration**: Each task MUST include specific test expectations using the project's stack-appropriate test command.
-- **Korean Requirement**: All explanatory text (Strategy, Context, Descriptions) MUST be in **Korean**. Code, file paths, and standard technical terms MAY remain in English.
 
 ## 6. Execution Phase (Delegated Authority)
 
-Execution begins **ONLY** after the User provides a clear "Plan Accept" or "Approved" message (typically via `/plan-accept`).
-
-> **If the user has not explicitly approved the Plan, you are in PLANNING mode. DO NOT WRITE PRODUCTION CODE.**
+Execution begins **ONLY** after explicit Plan Accept (→ constitution §4.3, §6.1).
 
 ### 6.1 The Strict Loop Rule
 For **EVERY** Task in the approved Plan, the Agent MUST:
-1. **Verify Branch**: Ensure the current branch is NOT `main`.
+1. **Verify Branch**: Ensure the current branch is NOT `main` (→ constitution §9.1).
 2. **Test First**: Write or update tests for the task behavior.
 3. **Implement**: Write minimal code to satisfy the task.
 4. **Verify**: Run the specified tests and confirm they pass.
-5. **Commit**: Commit the change (One Task = One logical commit) using the SPEC ID format.
+5. **Commit**: One Task = One Commit (→ constitution §7), using the commit format (→ constitution §9.2).
 6. **Update task.md**: Mark the task status (see §6.2).
 7. **Stop & Report**: Report completion of the task and **WAIT** for the user's signal to proceed. Batching tasks without reporting is a CRITICAL VIOLATION.
 
@@ -142,16 +138,13 @@ When passing a task with `[-]`, the Agent MUST:
 3. Inform the User of the pass decision and reasoning.
 
 ### 6.3 Commit & Hand-off Enforcement
-- **Pre-Push Validation**: Run the project's full test suite locally before pushing.
-- **Commit Title Format** (mandatory): `<type>(spec-{phaseN}-{seq}): <description>` (all lowercase).
-  - Types: `feat`, `fix`, `refactor`, `test`, `docs`, `chore`, `style`, `perf`, `build`, `ci`.
-  - Example: `feat(spec-1-001): introduce row-level lock for stock decrement`.
+- Commit format, pre-push validation, and PR creation rules → constitution §9.2.
 - **Walkthrough & Description Protocol**:
     1. **READ Template**: `agent/templates/walkthrough.md` and `agent/templates/pr_description.md`.
     2. **WRITE in Korean**: Fill all sections.
     3. **Archive**: Commit `walkthrough.md` and `pr_description.md` inside the SPEC directory before pushing.
-    4. **Push**: `git push -u origin spec-{phaseN}-{seq}-{slug}` (브랜치 이름 = spec 디렉토리 이름).
-    5. **Hand-off**: Notify the User. PR creation is the User's responsibility on the hosted git UI.
+    4. **Push**: `git push -u origin spec-{phaseN}-{seq}-{slug}`.
+    5. **Hand-off**: Notify the User. The Agent MAY create a PR via `/gh-pr` or `/bb-pr` with User confirmation.
 
 ### 6.4 Bash Single-Command Principle
 
@@ -162,42 +155,21 @@ When calling the Bash tool, the Agent MUST follow these rules:
 - **Quoted arguments are fine**, but avoid constructing shell scripts inline (e.g., `for ... do ... done`).
 - Rationale: compound commands trigger Claude Code's "quoted characters" safety check, causing unnecessary permission prompts even when all individual commands are already allowed.
 
-### 6.5 Tool Resolution & Fallback Strategy
+### 6.5 Static Analysis First
 
-When executing any task, the Agent MUST resolve tools in the following strict priority order.
-
-#### Priority 1 — IDE / LSP (Human-in-the-loop)
-- If the User is operating in an IDE with LSP support for the project's language:
-  - Symbol rename, reference updates, and import propagation MUST be delegated to LSP.
-  - The Agent MUST describe the intended change but MUST NOT simulate LSP behavior.
-- This is the preferred and safest path.
-
-#### Priority 2 — Project's Static Analysis Tools
-- If LSP is unavailable or insufficient, use the project's configured static analysis:
-  - Type-checker (e.g., `tsc --noEmit`, `mypy`, `cargo check`)
-  - Linter (e.g., `eslint`, `ruff`, `clippy`)
-- These are the primary diagnostic authority. The Agent MUST NOT guess or over-correct beyond their findings.
-
-#### Priority 3 — CLI Toolchain (Structural Fallback)
-- Allowed tools:
-  - `ast-grep` — structural and semantic code modifications (preferred for refactors)
-  - `rg` (ripgrep) — read-only symbol search
-  - `fd` — file discovery
-- `sed`, `awk`, and plain `grep` for *structural* edits are strictly prohibited.
-
-Fallback to a lower-priority tool is allowed ONLY if the higher-priority option is unavailable or insufficient. The Agent MUST explicitly state the reason for fallback.
+When the project has static analysis tools configured (type-checker, linter), use them as the primary diagnostic authority before making corrections. The Agent MUST NOT guess or over-correct beyond their findings.
 
 ### 6.6 Stack Awareness
 - Project-specific commands (test runner, linter, build) are defined in the installed stack adapter.
 - The Agent MUST NOT hardcode commands; instead refer to the stack adapter or `bin/sdd` wrappers.
-- If the stack adapter is missing, the Agent MUST stop and request stack selection from the User.
+- If the stack adapter is missing, the Agent SHOULD ask the User for stack selection before proceeding.
 
 ## 7. Deviation & Hard Stop
 
 The Agent MUST immediately **STOP** execution and request re-alignment if:
 - A new file outside the Plan scope is required.
 - A task cannot be completed as planned.
-- A direct commit to the `main` branch is about to occur.
+- A direct commit to `main` is about to occur (→ constitution §9.1).
 - A hook blocks a tool call (the stderr message is authoritative).
 
 ## 8. Communication Rules
