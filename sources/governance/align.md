@@ -23,7 +23,7 @@
 ### 절차 규칙
 - **SDD Process**: Phase → Spec → Plan → Task → Walkthrough → Hand-off
 - **TDD**: Test 작성 → Fail 확인 → Implement → Pass → Commit
-- **Strict Loop**: 한 task 완료 시마다 task.md 업데이트 + 사용자에게 보고 + 대기
+- **Strict Loop**: 한 task 완료 시마다 task.md 업데이트. 이슈 없으면 자동 진행, 이슈 시 멈추고 보고. Hand-off 전에는 반드시 사용자 확인
 - **Plan Accept Gate**: 사용자가 "Plan Accept" 또는 `/hk-plan-accept` 호출하기 전까지는 PLANNING 모드. 코드 편집 금지
 
 ## 4. 상태 요약 보고 (State Summary)
