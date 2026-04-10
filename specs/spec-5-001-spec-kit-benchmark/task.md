@@ -15,11 +15,11 @@
 ## Task 1: 리서치 리포트 커밋
 
 ### 1-1. 브랜치 생성
-- [ ] `git checkout -b spec-5-001-spec-kit-benchmark`
+- [x] `git checkout -b spec-5-001-spec-kit-benchmark`
 
 ### 1-2. 리포트 커밋
-- [ ] report.md, plan.md, task.md 커밋
-- [ ] Commit: `docs(spec-5-001): spec-kit benchmark research report`
+- [x] report.md, plan.md, task.md 커밋
+- [x] Commit: `docs(spec-5-001): spec-kit benchmark research report`
 
 ---
 
