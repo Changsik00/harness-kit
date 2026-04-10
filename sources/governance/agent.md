@@ -161,7 +161,20 @@ When calling the Bash tool, the Agent MUST follow these rules:
 
 When the project has static analysis tools configured (type-checker, linter), use them as the primary diagnostic authority before making corrections. The Agent MUST NOT guess or over-correct beyond their findings.
 
-### 6.6 Stack Awareness
+### 6.6 Model Allocation Strategy
+
+The main session runs on **Opus** (planning, coordination, judgment). Sub-agents are dispatched with explicit model overrides:
+
+| Role | Model | Rationale |
+|---|---|---|
+| Spec / Plan / Task authoring | Opus (main) | Architecture decisions and scope require deep reasoning |
+| Code implementation | Sonnet (sub-agent, `model: "sonnet"`) | Implementation is relatively mechanical; faster and cheaper |
+| Code review / critique | Opus (sub-agent, `model: "opus"`) | Catching subtle issues requires deep analysis from a different context |
+| Code analysis | Opus (sub-agent, `model: "opus"`) | Structural understanding and impact assessment |
+
+When delegating implementation to a Sonnet sub-agent, the main Opus agent MUST provide clear, specific instructions including: target files, expected behavior, test expectations, and commit message format.
+
+### 6.7 Stack Awareness
 - Project-specific commands (test runner, linter, build) are defined in the installed stack adapter.
 - The Agent MUST NOT hardcode commands; instead refer to the stack adapter or `bin/sdd` wrappers.
 - If the stack adapter is missing, the Agent SHOULD ask the User for stack selection before proceeding.
