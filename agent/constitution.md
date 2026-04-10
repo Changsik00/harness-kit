@@ -115,7 +115,7 @@ Once a Plan is explicitly accepted (Plan Accept), the Agent is authorized to:
 - **Commit Title Format**: MUST follow `<type>(spec-{phaseN}-{seq}): <description>` (all lowercase).
   - Allowed types: `feat`, `fix`, `refactor`, `test`, `docs`, `chore`, `style`, `perf`, `build`, `ci`.
   - Example: `feat(spec-1-001): introduce row-level lock for stock decrement`.
-- **Pull Request Creation**: PR creation is delegated to the User (via the project's hosted git platform UI). The Agent's responsibility ends at pushing the feature branch and archiving `walkthrough.md` / `pr_description.md` under the SPEC directory.
+- **Pull Request Creation**: The Agent MAY create a PR via slash commands (`/gh-pr`, `/bb-pr`) after pushing the feature branch, but MUST obtain explicit User confirmation before executing. The Agent MUST archive `walkthrough.md` / `pr_description.md` under the SPEC directory before PR creation.
 
 ## 10. Backlog Law
 
