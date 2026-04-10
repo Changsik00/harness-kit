@@ -18,3 +18,6 @@ tests/fixtures/_target/
 
 # Local Claude state (when this kit is dogfooded onto itself)
 .claude/state/
+
+# Personal Claude Code overrides (should never be committed)
+.claude/settings.local.json
