@@ -168,7 +168,7 @@ The main session runs on **Opus** (planning, coordination, judgment). Sub-agents
 | Role | Model | Rationale |
 |---|---|---|
 | Spec / Plan / Task authoring | Opus (main) | Architecture decisions and scope require deep reasoning |
-| Code implementation | Sonnet (sub-agent, `model: "sonnet"`) | Implementation is relatively mechanical; faster and cheaper |
+| Task execution | Sonnet (sub-agent, `model: "sonnet"`) | Task execution is relatively mechanical; faster and cheaper |
 | Code review / critique | Opus (sub-agent, `model: "opus"`) | Catching subtle issues requires deep analysis from a different context |
 | Code analysis | Opus (sub-agent, `model: "opus"`) | Structural understanding and impact assessment |
 
