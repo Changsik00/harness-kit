@@ -68,7 +68,7 @@
 - [x] 전체 변경 파일 검토
 - [x] **walkthrough.md 작성**
 - [x] **pr_description.md 작성**
-- [ ] **Archive Commit**: `docs(spec-1-001): archive walkthrough and pr description`
+- [x] **Archive Commit**: `docs(spec-1-001): archive walkthrough and pr description`
 - [ ] **Push**: `git push -u origin spec-1-001-permission-friction`
 - [ ] **사용자 알림**: 푸시 완료 + PR 생성 요청
 
