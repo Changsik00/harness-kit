@@ -40,6 +40,7 @@
 |---|---|:---:|---|---|
 | spec-4-001 | spec-review-cmd | P1 | Backlog | `specs/spec-4-001-spec-review-cmd/` |
 | spec-4-002 | code-review-cmd | P2 | Backlog | `specs/spec-4-002-code-review-cmd/` |
+| `spec-4-002` | spec-review-cmd | P? | Active | `specs/spec-4-002-spec-review-cmd/` |
 <!-- sdd:specs:end -->
 
 ### spec-4-001 — /spec-review 슬래시 커맨드
