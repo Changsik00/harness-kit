@@ -218,6 +218,18 @@ if [ $FORCE -eq 0 ] && [ $NO_BACKUP -eq 0 ] && [ $DRY_RUN -eq 0 ]; then
       [ -e "$TARGET/$p" ] && cp -rf "$TARGET/$p" "$BACKUP_DIR/" 2>/dev/null || true
     done
     ok "백업 완료"
+
+    # 보존 정책: 최근 N개만 유지 (기본 3)
+    keep="${HARNESS_BACKUP_KEEP:-3}"
+    old_backups=$(ls -dt "$TARGET"/.harness-backup-* 2>/dev/null | tail -n +$((keep + 1)))
+    if [ -n "$old_backups" ]; then
+      log "백업 보존 정책: 최근 ${keep}개만 유지, 오래된 백업 삭제:"
+      echo "$old_backups" | while IFS= read -r d; do
+        log "  삭제: $(basename "$d")"
+        rm -rf "$d"
+      done
+      ok "오래된 백업 정리 완료"
+    fi
   fi
 elif [ $NO_BACKUP -eq 1 ] && [ $DRY_RUN -eq 0 ]; then
   log "백업 스킵 (--no-backup)"
