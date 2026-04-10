@@ -67,9 +67,6 @@
 
 도그푸딩이 진행 중인 본 프로젝트에서는 두 가지 모두 유효합니다. 키트 원본 (`sources/`, `install.sh`, `stacks/` 등) 을 수정할 때는 위쪽 가이드를 따르고, 도그푸딩 결과물 (`agent/`, `.claude/`, `scripts/harness/` 등) 을 사용해 SDD 작업을 할 때는 아래 HARNESS-KIT 블록의 규약을 따릅니다.
 
-
-
-
 <!-- HARNESS-KIT:BEGIN — 이 블록은 install/update.sh 가 관리합니다. 수동 편집 시 update 가 어려워질 수 있습니다. -->
 
 ## 에이전트 운영 규약 (harness-kit)

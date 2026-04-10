@@ -344,11 +344,17 @@ else
     if grep -qE '^<!-- HARNESS-KIT:BEGIN' "$CLAUDE_MD"; then
       log "기존 HARNESS-KIT 블록 발견 → 갱신"
       tmp="$(mktemp)"
+      # 1) 기존 블록 strip
+      # 2) trailing blank line 제거 (재실행 시마다 빈 줄이 누적되는 것을 방지).
+      #    blank 카운터를 버퍼링하다 비-blank 라인 직전에만 flush, EOF 시 discard.
       awk '
         /^<!-- HARNESS-KIT:BEGIN/ { skip=1 }
         !skip { print }
         /^<!-- HARNESS-KIT:END/   { skip=0; next }
-      ' "$CLAUDE_MD" > "$tmp"
+      ' "$CLAUDE_MD" | awk '
+        /[^[:space:]]/ { for (i=1; i<=blanks; i++) print ""; blanks=0; print; next }
+        { blanks++ }
+      ' > "$tmp"
       mv "$tmp" "$CLAUDE_MD"
     fi
     printf "\n" >> "$CLAUDE_MD"
