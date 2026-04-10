@@ -60,22 +60,38 @@ git push -u origin spec-{phaseN}-{seq}-{slug}
 
 ## 5. PR 생성
 
-origin 이 Bitbucket Cloud 인 경우 `bb-pr` 로 자동 생성합니다 (사전: `~/.config/bitbucket/token` 준비).
-사용자에게 한 번 더 확인을 받은 뒤 호출:
+`git remote get-url origin` 의 호스트로 분기:
+
+### 5-A. github.com → `gh` CLI
+
+(사전: `gh auth status` 로 인증 확인. 미인증이면 사용자에게 `gh auth login` 안내 후 멈춤)
+
+`/gh-pr` 슬래시 커맨드의 절차를 따릅니다. 요지:
+
+```bash
+PR_FILE="specs/spec-{phaseN}-{seq}-{slug}/pr_description.md"
+TITLE="$(awk 'NF { sub(/^#+ +/,""); print; exit }' "$PR_FILE")"
+BODY="$(awk 'BEGIN{found=0} found{print;next} NF{found=1;next}' "$PR_FILE")"
+
+# 타깃 브랜치는 사용자 확인 후 (기본: repo 기본 브랜치)
+gh pr create --title "$TITLE" --body "$BODY" --base "<target>" --head "spec-{phaseN}-{seq}-{slug}"
+```
+
+### 5-B. bitbucket.org → `bb-pr`
+
+(사전: `~/.config/bitbucket/token` 준비)
+
+`/bb-pr` 슬래시 커맨드의 절차를 따릅니다. 요지:
 
 ```bash
 ./scripts/harness/bin/bb-pr -f specs/spec-{phaseN}-{seq}-{slug}/pr_description.md
 ```
 
-bb-pr 동작:
-- 본문 파일의 첫 비어있지 않은 줄 → PR 제목
-- 나머지 → PR 본문
-- 타깃 브랜치는 대화형 입력 (repo 기본 브랜치 제안)
-- 자체 확인 프롬프트가 있으므로 `-y` 는 붙이지 말 것
+bb-pr 은 자체 확인 프롬프트가 있으므로 `-y` 를 붙이지 말 것.
 
-성공 시 출력되는 PR URL/번호를 그대로 사용자에게 보고합니다.
+### 5-C. 그 외 (GitLab, GitHub Enterprise, 사내 Bitbucket Server 등)
 
-origin 이 Bitbucket Cloud 가 아닌 경우 (GitHub/GitLab/사내 Bitbucket Server 등), 기존대로 hosted git UI 에서 수동 생성하도록 안내:
+기존대로 hosted git UI 에서 수동 생성하도록 안내:
 
 ```
 ✅ Push 완료: spec-{phaseN}-{seq}-{slug}
@@ -86,6 +102,8 @@ origin 이 Bitbucket Cloud 가 아닌 경우 (GitHub/GitLab/사내 Bitbucket Ser
 3. 리뷰어 지정
 4. 머지 후 backlog/phase-{phaseN}/phase.md 의 SPEC 표 갱신 (Status: Merged)
 ```
+
+성공 시 어느 경로든 출력되는 PR URL/번호를 그대로 사용자에게 보고합니다.
 
 ## 6. State 업데이트
 

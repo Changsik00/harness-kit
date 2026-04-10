@@ -70,6 +70,7 @@
       "Bash(bunx:*)",
       "Bash(node:*)",
       "Bash(curl:*)",
+      "Bash(gh:*)",
 
       "Bash(scripts/harness/bin/sdd:*)",
       "Bash(./scripts/harness/bin/sdd:*)",
@@ -84,7 +85,9 @@
       "Bash(git merge)",
       "Bash(git merge:*)",
       "Bash(git push)",
-      "Bash(git push:*)"
+      "Bash(git push:*)",
+      "Bash(gh pr merge)",
+      "Bash(gh pr merge:*)"
     ],
     "deny": [
       "Bash(sudo:*)",
