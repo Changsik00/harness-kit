@@ -3,15 +3,36 @@
 # 각 hook 스크립트가 source 합니다.
 #
 # 환경변수:
-#   HARNESS_HOOK_MODE   warn (기본) / block / off
-#                       - warn  : 위반 발견 시 stderr 메시지만 출력하고 exit 0 (통과)
-#                       - block : 위반 발견 시 stderr 메시지 출력하고 exit 2 (차단)
-#                       - off   : hook 자체를 사실상 비활성 (exit 0 즉시)
+#   HARNESS_HOOK_MODE            글로벌 모드: warn (기본) / block / off
+#   HARNESS_HOOK_MODE_{NAME}    per-hook 모드 (우선순위 높음)
+#                               NAME = BRANCH, PLAN_ACCEPT, TEST_PASSED
+#
+#   모드 값:
+#     warn  : 위반 발견 시 stderr 메시지만 출력하고 exit 0 (통과)
+#     block : 위반 발견 시 stderr 메시지 출력하고 exit 2 (차단)
+#     off   : hook 자체를 사실상 비활성 (exit 0 즉시)
 
 set -uo pipefail
 
-# off 모드 → 즉시 통과
-if [ "${HARNESS_HOOK_MODE:-warn}" = "off" ]; then
+# Per-hook 모드 해석: HARNESS_HOOK_MODE_{NAME} → HARNESS_HOOK_MODE → default
+# 사용법: source _lib.sh 직후, hook_resolve_mode "HOOK_NAME" "default_mode" 호출
+hook_resolve_mode() {
+  local hook_name="$1"     # e.g. BRANCH, PLAN_ACCEPT, TEST_PASSED
+  local default_mode="$2"  # e.g. block, warn
+  local per_hook_var="HARNESS_HOOK_MODE_${hook_name}"
+  local per_hook_val
+  eval "per_hook_val=\${$per_hook_var:-}"
+
+  if [ -n "$per_hook_val" ]; then
+    HARNESS_HOOK_MODE="$per_hook_val"
+  elif [ -z "${HARNESS_HOOK_MODE:-}" ]; then
+    HARNESS_HOOK_MODE="$default_mode"
+  fi
+  export HARNESS_HOOK_MODE
+}
+
+# off 모드 → 즉시 통과 (hook_resolve_mode 호출 전에도 글로벌로 off 가능)
+if [ "${HARNESS_HOOK_MODE:-}" = "off" ]; then
   exit 0
 fi
 
@@ -43,7 +64,7 @@ hook_violation() {
   for line in "$@"; do
     echo "${HC_DIM}   $line${HC_RST}" >&2
   done
-  echo "${HC_DIM}   (mode=$mode — block 모드로 전환하려면 환경변수 HARNESS_HOOK_MODE=block)${HC_RST}" >&2
+  echo "${HC_DIM}   (mode=$mode — 전환: HARNESS_HOOK_MODE=block 또는 HARNESS_HOOK_MODE_{HOOK}=block)${HC_RST}" >&2
 
   if [ "$mode" = "block" ]; then
     exit 2
