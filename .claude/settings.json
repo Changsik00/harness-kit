@@ -143,6 +143,22 @@
           {
             "type": "command",
             "command": "scripts/harness/hooks/check-test-passed.sh"
+          },
+          {
+            "type": "command",
+            "command": "scripts/harness/hooks/check-commit-msg.sh"
+          },
+          {
+            "type": "command",
+            "command": "scripts/harness/hooks/check-diff-size.sh"
+          },
+          {
+            "type": "command",
+            "command": "scripts/harness/hooks/check-secrets.sh"
+          },
+          {
+            "type": "command",
+            "command": "scripts/harness/hooks/check-task-checkbox.sh"
           }
         ]
       },
@@ -152,6 +168,10 @@
           {
             "type": "command",
             "command": "scripts/harness/hooks/check-plan-accept.sh"
+          },
+          {
+            "type": "command",
+            "command": "scripts/harness/hooks/check-scope.sh"
           }
         ]
       }

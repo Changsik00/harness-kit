@@ -5,7 +5,9 @@
 # 환경변수:
 #   HARNESS_HOOK_MODE            글로벌 모드: warn (기본) / block / off
 #   HARNESS_HOOK_MODE_{NAME}    per-hook 모드 (우선순위 높음)
-#                               NAME = BRANCH, PLAN_ACCEPT, TEST_PASSED
+#                               NAME = BRANCH, PLAN_ACCEPT, TEST_PASSED,
+#                                      COMMIT_MSG, SCOPE, TASK_CHECKBOX,
+#                                      DIFF_SIZE, SECRETS
 #
 #   모드 값:
 #     warn  : 위반 발견 시 stderr 메시지만 출력하고 exit 0 (통과)
