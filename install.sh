@@ -480,7 +480,7 @@ ${C_GRN}━━━━━━━━━━━━━━━━━━━━━━━━
 다음 단계:
   1) cd $TARGET
   2) ${C_CYN}./scripts/harness/bin/sdd status${C_RST}    # 상태 확인 (스크립트 완성 후)
-  3) Claude Code 새 세션에서 ${C_CYN}/align${C_RST} 호출
+  3) Claude Code 새 세션에서 ${C_CYN}/hk-align${C_RST} 호출
   4) 첫 PHASE / SPEC 만들기
 
 문제가 생기면:
