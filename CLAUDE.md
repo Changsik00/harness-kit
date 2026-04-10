@@ -72,11 +72,7 @@
 ## 에이전트 운영 규약 (harness-kit)
 
 이 프로젝트는 harness-kit 의 거버넌스를 따릅니다.
-새 세션에서는 `/align` 슬래시 커맨드를 먼저 호출하세요.
-
-- @agent/constitution.md
-- @agent/agent.md
-- @agent/align.md
+SDD 작업 시작 시 `/align` 슬래시 커맨드를 호출하면 전체 거버넌스가 로드됩니다.
 
 **핵심 규칙 요약**:
 - Plan Accept 전에는 PLANNING 모드 (코드 편집 금지)
