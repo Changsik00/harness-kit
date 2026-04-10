@@ -298,9 +298,9 @@ if [ $DRY_RUN -eq 1 ]; then
 else
   if [ -f "$SETTINGS" ]; then
     # 머지 전략 (사용자 친화):
-    #   - permissions.allow / permissions.deny : 합집합 (union)
-    #   - hooks                                 : 키트가 권위 (덮어쓰기)
-    #   - 그 외 사용자 키 (env, model, ...)     : 사용자 보존
+    #   - permissions.allow / permissions.deny / permissions.ask : 합집합 (union)
+    #   - hooks                                                   : 키트가 권위 (덮어쓰기)
+    #   - 그 외 사용자 키 (env, model, ...)                        : 사용자 보존
     #
     # 사용자가 hook 을 직접 추가하고 싶다면:
     #   1) sources/claude-fragments/settings.json.fragment 를 직접 수정 (키트 PR)
@@ -314,6 +314,9 @@ else
           | .allow = (((.allow // []) + ($kit.permissions.allow // [])) | unique)
           | (if $kit.permissions.deny then
                .deny = (((.deny // []) + $kit.permissions.deny) | unique)
+             else . end)
+          | (if $kit.permissions.ask then
+               .ask = (((.ask // []) + $kit.permissions.ask) | unique)
              else . end)
         )
       | .hooks = ($kit.hooks // $user.hooks)
@@ -336,13 +339,15 @@ if [ $DRY_RUN -eq 1 ]; then
   echo "${C_DIM}[dry-run]${C_RST} append CLAUDE.md.fragment to $CLAUDE_MD"
 else
   if [ -f "$CLAUDE_MD" ]; then
-    if grep -q "HARNESS-KIT:BEGIN" "$CLAUDE_MD"; then
+    # 마커 검출은 라인 시작의 HTML 주석으로 엄격히 매치한다.
+    # (본문에서 마커 문자열을 인용·설명할 수 있으므로 substring 매치는 위험)
+    if grep -qE '^<!-- HARNESS-KIT:BEGIN' "$CLAUDE_MD"; then
       log "기존 HARNESS-KIT 블록 발견 → 갱신"
       tmp="$(mktemp)"
       awk '
-        /HARNESS-KIT:BEGIN/ { skip=1 }
+        /^<!-- HARNESS-KIT:BEGIN/ { skip=1 }
         !skip { print }
-        /HARNESS-KIT:END/ { skip=0; next }
+        /^<!-- HARNESS-KIT:END/   { skip=0; next }
       ' "$CLAUDE_MD" > "$tmp"
       mv "$tmp" "$CLAUDE_MD"
     fi
