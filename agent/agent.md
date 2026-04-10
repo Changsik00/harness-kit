@@ -20,7 +20,7 @@ The Agent acts as a delegated senior engineer.
 
 ## 2. Bootstrap Protocol (On Start / Re-entry)
 
-Upon activation (typically via `/align`), the Agent MUST:
+Upon activation (typically via `/hk-align`), the Agent MUST:
 1. Read `agent/constitution.md` and `agent/agent.md`.
 2. Run `scripts/harness/bin/sdd status` (if available) or fall back to `git branch --show-current` + `git log -3 --oneline`.
 3. Inspect active work in `backlog/`, `specs/`, and `backlog/queue.md`.
@@ -96,7 +96,7 @@ The Agent MUST read templates from `agent/templates/` before writing any artifac
 ### 4.4 Hard Stop for Review
 After writing `spec.md`, `plan.md`, and `task.md`, the Agent MUST:
 1. Report completion to the User with paths.
-2. Wait for explicit Plan Accept (`/plan-accept` or "Plan Accepted" message).
+2. Wait for explicit Plan Accept (`/hk-plan-accept` or "Plan Accepted" message).
 3. **STRICTLY PROHIBITED**: Generating code or running non-read commands until approval.
 
 ## 5. Plan & Task Strategy
@@ -144,7 +144,7 @@ When passing a task with `[-]`, the Agent MUST:
     2. **WRITE in Korean**: Fill all sections.
     3. **Archive**: Commit `walkthrough.md` and `pr_description.md` inside the SPEC directory before pushing.
     4. **Push**: `git push -u origin spec-{phaseN}-{seq}-{slug}`.
-    5. **Hand-off**: Notify the User. The Agent MAY create a PR via `/gh-pr` or `/bb-pr` with User confirmation.
+    5. **Hand-off**: Notify the User. The Agent MAY create a PR via `/hk-gh-pr` or `/hk-bb-pr` with User confirmation.
 
 ### 6.4 Bash Single-Command Principle
 
