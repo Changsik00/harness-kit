@@ -153,7 +153,16 @@ When passing a task with `[-]`, the Agent MUST:
     4. **Push**: `git push -u origin spec-{phaseN}-{seq}-{slug}` (브랜치 이름 = spec 디렉토리 이름).
     5. **Hand-off**: Notify the User. PR creation is the User's responsibility on the hosted git UI.
 
-### 6.4 Tool Resolution & Fallback Strategy
+### 6.4 Bash Single-Command Principle
+
+When calling the Bash tool, the Agent MUST follow these rules:
+- **One command per Bash call.** Do NOT chain commands with `||`, `&&`, or `;`.
+- **Pipes (`|`) are allowed** within a single logical command (e.g., `jq '.phase' < file.json`).
+- If multiple commands are needed, make **sequential Bash tool calls** or delegate to `sdd` CLI.
+- **Quoted arguments are fine**, but avoid constructing shell scripts inline (e.g., `for ... do ... done`).
+- Rationale: compound commands trigger Claude Code's "quoted characters" safety check, causing unnecessary permission prompts even when all individual commands are already allowed.
+
+### 6.5 Tool Resolution & Fallback Strategy
 
 When executing any task, the Agent MUST resolve tools in the following strict priority order.
 
@@ -178,7 +187,7 @@ When executing any task, the Agent MUST resolve tools in the following strict pr
 
 Fallback to a lower-priority tool is allowed ONLY if the higher-priority option is unavailable or insufficient. The Agent MUST explicitly state the reason for fallback.
 
-### 6.5 Stack Awareness
+### 6.6 Stack Awareness
 - Project-specific commands (test runner, linter, build) are defined in the installed stack adapter.
 - The Agent MUST NOT hardcode commands; instead refer to the stack adapter or `bin/sdd` wrappers.
 - If the stack adapter is missing, the Agent MUST stop and request stack selection from the User.
