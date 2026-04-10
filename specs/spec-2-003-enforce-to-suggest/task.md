@@ -8,7 +8,7 @@
 - [x] spec.md 작성
 - [x] plan.md 작성
 - [x] task.md 작성 (이 파일)
-- [ ] 사용자 Plan Accept
+- [x] 사용자 Plan Accept
 
 ---
 
@@ -65,20 +65,20 @@
 ## Task 6: 검증 테스트
 
 ### 6-1. 테스트 작성 및 실행
-- [ ] `tests/test-hook-modes.sh` 작성
-- [ ] 테스트 실행 → PASS
-- [ ] Commit: `test(spec-2-003): add hook mode verification test`
+- [x] `tests/test-hook-modes.sh` 작성
+- [x] 테스트 실행 → PASS
+- [x] Commit: `test(spec-2-003): add hook mode verification test`
 
 ---
 
 ## Task 7: Hand-off (필수)
 
-- [ ] 전체 테스트 실행 → PASS
-- [ ] **walkthrough.md 작성**
-- [ ] **pr_description.md 작성**
-- [ ] **Archive Commit**: `docs(spec-2-003): archive walkthrough and pr description`
-- [ ] **Push**: `git push -u origin spec-2-003-enforce-to-suggest`
-- [ ] **PR 생성**: `/gh-pr`
+- [x] 전체 테스트 실행 → PASS
+- [x] **walkthrough.md 작성**
+- [x] **pr_description.md 작성**
+- [x] **Archive Commit**: `docs(spec-2-003): archive walkthrough and pr description`
+- [x] **Push**: `git push -u origin spec-2-003-enforce-to-suggest`
+- [x] **PR 생성**: `/gh-pr`
 
 ---
 

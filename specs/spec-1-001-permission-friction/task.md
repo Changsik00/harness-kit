@@ -9,8 +9,8 @@
 - [x] spec.md 작성
 - [x] plan.md 작성
 - [x] task.md 작성 (이 파일)
-- [ ] 백로그 업데이트 (phase-1.md SPEC 표 갱신)
-- [ ] 사용자 Plan Accept
+- [x] 백로그 업데이트 (phase-1.md SPEC 표 갱신)
+- [x] 사용자 Plan Accept
 
 ---
 
@@ -69,8 +69,8 @@
 - [x] **walkthrough.md 작성**
 - [x] **pr_description.md 작성**
 - [x] **Archive Commit**: `docs(spec-1-001): archive walkthrough and pr description`
-- [ ] **Push**: `git push -u origin spec-1-001-permission-friction`
-- [ ] **사용자 알림**: 푸시 완료 + PR 생성 요청
+- [x] **Push**: `git push -u origin spec-1-001-permission-friction`
+- [x] **사용자 알림**: 푸시 완료 + PR 생성 요청
 
 ---
 

@@ -139,12 +139,14 @@ When passing a task with `[-]`, the Agent MUST:
 
 ### 6.3 Commit & Hand-off Enforcement
 - Commit format, pre-push validation, and PR creation rules → constitution §9.2.
+- **Task Completeness Check**: Before push, the Agent MUST verify that **ALL** checkboxes in `task.md` are marked `[x]` or `[-]` — including Pre-flight items (e.g., "사용자 Plan Accept") and Hand-off items (e.g., "Push", "사용자 알림"). No `[ ]` may remain.
 - **Walkthrough & Description Protocol**:
     1. **READ Template**: `agent/templates/walkthrough.md` and `agent/templates/pr_description.md`.
     2. **WRITE in Korean**: Fill all sections.
     3. **Archive**: Commit `walkthrough.md` and `pr_description.md` inside the SPEC directory before pushing.
-    4. **Push**: `git push -u origin spec-{phaseN}-{seq}-{slug}`.
-    5. **Hand-off**: Notify the User. The Agent MAY create a PR via `/hk-gh-pr` or `/hk-bb-pr` with User confirmation.
+    4. **Verify task.md**: Ensure zero `[ ]` checkboxes remain.
+    5. **Push**: `git push -u origin spec-{phaseN}-{seq}-{slug}`.
+    6. **Hand-off**: Notify the User. The Agent MAY create a PR via `/hk-gh-pr` or `/hk-bb-pr` with User confirmation.
 
 ### 6.4 Bash Single-Command Principle
 

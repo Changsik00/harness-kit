@@ -9,8 +9,8 @@
 - [x] spec.md 작성
 - [x] plan.md 작성
 - [x] task.md 작성 (이 파일)
-- [ ] 백로그 업데이트 (phase-2.md SPEC 표 갱신)
-- [ ] 사용자 Plan Accept
+- [x] 백로그 업데이트 (phase-2.md SPEC 표 갱신)
+- [x] 사용자 Plan Accept
 
 ---
 
@@ -82,9 +82,9 @@
 - [x] 전체 테스트 실행 → 모두 PASS (8/8)
 - [x] **walkthrough.md 작성** (증거 로그)
 - [x] **pr_description.md 작성** (템플릿 준수)
-- [ ] **Archive Commit**: `docs(spec-2-001): archive walkthrough and pr description`
-- [ ] **Push**: `git push -u origin spec-2-001-governance-dedup`
-- [ ] **사용자 알림**: 푸시 완료 + PR 생성 요청
+- [x] **Archive Commit**: `docs(spec-2-001): archive walkthrough and pr description`
+- [x] **Push**: `git push -u origin spec-2-001-governance-dedup`
+- [x] **사용자 알림**: 푸시 완료 + PR 생성 요청
 
 ---
 

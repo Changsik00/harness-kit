@@ -9,7 +9,7 @@
 - [x] spec.md 작성
 - [x] plan.md 작성
 - [x] task.md 작성 (이 파일)
-- [ ] 사용자 Plan Accept
+- [x] 사용자 Plan Accept
 
 ---
 
@@ -36,11 +36,11 @@
 
 ## Task 2: Hand-off (필수)
 
-- [ ] **walkthrough.md 작성**
-- [ ] **pr_description.md 작성**
-- [ ] **Archive Commit**: `docs(spec-4-002): archive walkthrough and pr description`
-- [ ] **Push**: `git push -u origin spec-4-002-code-review-cmd`
-- [ ] **사용자 알림**: 푸시 완료 + PR 생성 요청
+- [x] **walkthrough.md 작성**
+- [x] **pr_description.md 작성**
+- [x] **Archive Commit**: `docs(spec-4-002): archive walkthrough and pr description`
+- [x] **Push**: `git push -u origin spec-4-002-code-review-cmd`
+- [x] **사용자 알림**: 푸시 완료 + PR 생성 요청
 
 ---
 

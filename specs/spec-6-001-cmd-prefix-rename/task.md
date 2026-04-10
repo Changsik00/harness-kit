@@ -8,7 +8,7 @@
 - [x] spec.md 작성
 - [x] plan.md 작성
 - [x] task.md 작성 (이 파일)
-- [ ] 사용자 Plan Accept
+- [x] 사용자 Plan Accept
 
 ---
 
@@ -51,11 +51,11 @@
 
 ## Task 3: Hand-off
 
-- [ ] **walkthrough.md 작성**
-- [ ] **pr_description.md 작성**
-- [ ] **Archive Commit**: `docs(spec-6-001): archive walkthrough and pr description`
-- [ ] **Push**: `git push -u origin spec-6-001-cmd-prefix-rename`
-- [ ] **사용자 알림**
+- [x] **walkthrough.md 작성**
+- [x] **pr_description.md 작성**
+- [x] **Archive Commit**: `docs(spec-6-001): archive walkthrough and pr description`
+- [x] **Push**: `git push -u origin spec-6-001-cmd-prefix-rename`
+- [x] **사용자 알림**
 
 ---
 
