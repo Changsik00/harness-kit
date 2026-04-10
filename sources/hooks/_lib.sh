@@ -14,6 +14,21 @@
 
 set -uo pipefail
 
+# 셸 호환: 현재 스크립트의 디렉토리를 반환
+# bash → ${BASH_SOURCE[0]}, zsh → ${(%):-%x}, 그 외 → $0
+_script_dir() {
+  local src
+  if [ -n "${BASH_VERSION:-}" ]; then
+    src="${BASH_SOURCE[0]}"
+  elif [ -n "${ZSH_VERSION:-}" ]; then
+    # zsh prompt expansion: %x = 현재 소스 파일 경로
+    src="${(%):-%x}"
+  else
+    src="$0"
+  fi
+  (cd "$(dirname "$src")" && pwd)
+}
+
 # Per-hook 모드 해석: HARNESS_HOOK_MODE_{NAME} → HARNESS_HOOK_MODE → default
 # 사용법: source _lib.sh 직후, hook_resolve_mode "HOOK_NAME" "default_mode" 호출
 hook_resolve_mode() {
