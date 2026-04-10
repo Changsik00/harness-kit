@@ -308,10 +308,10 @@ if [ $NO_HOOKS -eq 0 ] && [ -d "$KIT_DIR/sources/hooks" ]; then
     log "Hook 스크립트 복사 ($hook_count 개)"
     for f in "$KIT_DIR/sources/hooks"/*.sh; do
       [ -e "$f" ] || continue
-      local hf="$TARGET/scripts/harness/hooks/$(basename "$f")"
-      do_cp "$f" "$hf"
-      do_fix_shebang "$hf"
-      do_run "chmod +x '$hf'"
+      _hf="$TARGET/scripts/harness/hooks/$(basename "$f")"
+      do_cp "$f" "$_hf"
+      do_fix_shebang "$_hf"
+      do_run "chmod +x '$_hf'"
     done
   else
     warn "Hook source 가 비어있음 (Phase 3 미완)"
@@ -485,7 +485,6 @@ ${C_GRN}━━━━━━━━━━━━━━━━━━━━━━━━
 
 문제가 생기면:
   - ${C_CYN}./scripts/harness/doctor.sh${C_RST}  (점검)
-  - 백업: $BACKUP_DIR
   - 제거: ${C_CYN}$KIT_DIR/uninstall.sh $TARGET${C_RST}
 
 EOF
