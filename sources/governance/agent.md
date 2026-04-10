@@ -118,7 +118,7 @@ For **EVERY** Task in the approved Plan, the Agent MUST:
 4. **Verify**: Run the specified tests and confirm they pass.
 5. **Commit**: One Task = One Commit (→ constitution §7), using the commit format (→ constitution §9.2).
 6. **Update task.md**: Mark the task status (see §6.2).
-7. **Stop & Report**: Report completion of the task and **WAIT** for the user's signal to proceed. Batching tasks without reporting is a CRITICAL VIOLATION.
+7. **Auto-proceed or Stop**: If no issues occurred, update `task.md` and **automatically proceed** to the next task. If any issue occurs (test failure, unexpected error, scope deviation), immediately **STOP** and report to the user. The Hand-off task (push/PR) **always** requires explicit user confirmation.
 
 ### 6.2 Task Status Management
 
