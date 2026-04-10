@@ -1,0 +1,238 @@
+#!/usr/bin/env bash
+# bb-pr — Bitbucket Cloud Pull Request 생성기
+#
+# 환경: macOS + bash 3.2 호환, 의존: jq, curl, git
+#
+# 사용법:
+#   bb-pr [옵션]
+#
+# 토큰:
+#   파일에서 읽어옵니다. 우선순위:
+#     1) $BITBUCKET_TOKEN_FILE
+#     2) ~/.config/bitbucket/token
+#   파일 내용 형식 (자동 감지):
+#     - <api_token>                → Bearer
+#     - <username>:<app_password>  → Basic
+#
+# PR 본문 파일 형식 (기본 ./pr_description.md):
+#   첫 번째 비어 있지 않은 줄 → PR 제목 (선두 '# ' 제거)
+#   나머지 → PR 본문 (Markdown)
+
+set -uo pipefail
+
+# ─── 색상 ────────────────────────────────────────────────
+if [ -t 1 ]; then
+  C_RED=$'\033[31m'; C_GRN=$'\033[32m'; C_YLW=$'\033[33m'
+  C_CYN=$'\033[36m'; C_DIM=$'\033[2m'; C_RST=$'\033[0m'
+else
+  C_RED=""; C_GRN=""; C_YLW=""; C_CYN=""; C_DIM=""; C_RST=""
+fi
+log()  { echo "${C_CYN}[bb-pr]${C_RST} $*"; }
+ok()   { echo "${C_GRN}✓${C_RST} $*"; }
+warn() { echo "${C_YLW}⚠${C_RST} $*" >&2; }
+err()  { echo "${C_RED}✗${C_RST} $*" >&2; }
+die()  { err "$*"; exit 1; }
+
+usage() {
+  cat <<'EOF'
+bb-pr — Bitbucket Cloud Pull Request 생성기
+
+사용법:
+  bb-pr [옵션]
+
+옵션:
+  -f, --file <path>     PR 본문 파일 (기본: ./pr_description.md)
+  -t, --target <branch> 타깃 브랜치 (기본: 대화형 입력, repo 기본 브랜치 제안)
+  -s, --source <branch> 소스 브랜치 (기본: 현재 체크아웃 브랜치)
+  -d, --draft           draft PR 로 생성
+  -y, --yes             확인 없이 즉시 생성 (target 도 기본값 사용)
+  -n, --dry-run         실제 호출 없이 페이로드만 출력
+  -h, --help            이 도움말
+
+환경변수:
+  BITBUCKET_TOKEN_FILE  토큰 파일 경로 (기본: ~/.config/bitbucket/token)
+
+예:
+  bb-pr                       # 대화형
+  bb-pr -t develop -y         # develop 으로, 확인 없이 즉시
+  bb-pr -f docs/pr.md -n      # dry-run
+EOF
+}
+
+# ─── 인자 파싱 ────────────────────────────────────────────
+PR_FILE="pr_description.md"
+TARGET=""
+SOURCE=""
+DRAFT=0
+YES=0
+DRYRUN=0
+while [ $# -gt 0 ]; do
+  case "$1" in
+    -f|--file)    [ $# -ge 2 ] || die "$1 인자에 값이 필요합니다"; PR_FILE="$2"; shift 2 ;;
+    -t|--target)  [ $# -ge 2 ] || die "$1 인자에 값이 필요합니다"; TARGET="$2"; shift 2 ;;
+    -s|--source)  [ $# -ge 2 ] || die "$1 인자에 값이 필요합니다"; SOURCE="$2"; shift 2 ;;
+    -d|--draft)   DRAFT=1; shift ;;
+    -y|--yes)     YES=1; shift ;;
+    -n|--dry-run) DRYRUN=1; shift ;;
+    -h|--help)    usage; exit 0 ;;
+    *) die "알 수 없는 인자: $1 (--help 참고)" ;;
+  esac
+done
+
+# ─── 의존성 체크 ──────────────────────────────────────────
+command -v jq   >/dev/null 2>&1 || die "jq 가 필요합니다 (brew install jq)"
+command -v curl >/dev/null 2>&1 || die "curl 이 필요합니다"
+command -v git  >/dev/null 2>&1 || die "git 이 필요합니다"
+
+# ─── 1. git repo + origin 파싱 ────────────────────────────
+git rev-parse --is-inside-work-tree >/dev/null 2>&1 || die "git 저장소 안에서 실행하세요"
+
+ORIGIN_URL="$(git remote get-url origin 2>/dev/null)" || die "origin remote 가 없습니다"
+case "$ORIGIN_URL" in
+  *bitbucket.org*) ;;
+  *) die "origin 이 bitbucket.org 가 아닙니다: $ORIGIN_URL" ;;
+esac
+# SSH:   git@bitbucket.org:workspace/repo.git
+# HTTPS: https://user@bitbucket.org/workspace/repo.git
+SLUG="$(echo "$ORIGIN_URL" | sed -E 's#^.*bitbucket\.org[:/]##; s#\.git$##')"
+WORKSPACE="${SLUG%%/*}"
+REPO="${SLUG#*/}"
+[ -n "$WORKSPACE" ] && [ -n "$REPO" ] && [ "$WORKSPACE" != "$REPO" ] \
+  || die "workspace/repo 파싱 실패: $ORIGIN_URL"
+
+# ─── 2. 토큰 로드 ─────────────────────────────────────────
+TOKEN_FILE="${BITBUCKET_TOKEN_FILE:-$HOME/.config/bitbucket/token}"
+[ -f "$TOKEN_FILE" ] || die "토큰 파일 없음: $TOKEN_FILE
+  ($BITBUCKET_TOKEN_FILE 환경변수로 경로를 지정하거나
+   mkdir -p ~/.config/bitbucket && echo '<TOKEN>' > ~/.config/bitbucket/token && chmod 600 ~/.config/bitbucket/token)"
+
+# 권한 점검 (macOS 와 Linux 분기)
+if [ "$(uname)" = "Darwin" ]; then
+  PERM="$(stat -f '%A' "$TOKEN_FILE" 2>/dev/null || echo)"
+else
+  PERM="$(stat -c '%a' "$TOKEN_FILE" 2>/dev/null || echo)"
+fi
+if [ -n "$PERM" ] && [ "$PERM" != "600" ] && [ "$PERM" != "400" ]; then
+  warn "토큰 파일 권한이 $PERM 입니다. 'chmod 600 $TOKEN_FILE' 권장."
+fi
+
+TOKEN_RAW="$(tr -d '\r\n' < "$TOKEN_FILE")"
+[ -n "$TOKEN_RAW" ] || die "토큰 파일이 비어 있습니다: $TOKEN_FILE"
+
+# Bearer vs Basic 자동 감지
+USE_BASIC=0
+case "$TOKEN_RAW" in
+  *:*) USE_BASIC=1 ;;
+esac
+
+bb_curl() {
+  if [ $USE_BASIC -eq 1 ]; then
+    curl -sS -u "$TOKEN_RAW" "$@"
+  else
+    curl -sS -H "Authorization: Bearer $TOKEN_RAW" "$@"
+  fi
+}
+
+# ─── 3. source 브랜치 ─────────────────────────────────────
+if [ -z "$SOURCE" ]; then
+  SOURCE="$(git symbolic-ref --short HEAD 2>/dev/null)" \
+    || die "현재 브랜치를 알 수 없습니다 (detached HEAD?)"
+fi
+
+# ─── 4. target 브랜치 (대화형) ────────────────────────────
+if [ -z "$TARGET" ]; then
+  log "기본 브랜치 조회 중…"
+  REPO_INFO="$(bb_curl "https://api.bitbucket.org/2.0/repositories/$WORKSPACE/$REPO")"
+  DEFAULT_BRANCH="$(echo "$REPO_INFO" | jq -r '.mainbranch.name // empty')"
+  if [ -z "$DEFAULT_BRANCH" ]; then
+    err "repo 정보 조회 실패:"
+    echo "$REPO_INFO" | jq . 2>/dev/null || echo "$REPO_INFO"
+    exit 1
+  fi
+  if [ $YES -eq 1 ] || [ ! -t 0 ]; then
+    TARGET="$DEFAULT_BRANCH"
+  else
+    printf "타깃 브랜치 [%s]: " "$DEFAULT_BRANCH" > /dev/tty
+    read -r ans < /dev/tty || ans=""
+    TARGET="${ans:-$DEFAULT_BRANCH}"
+  fi
+fi
+
+[ "$SOURCE" != "$TARGET" ] || die "source 와 target 이 같습니다: $SOURCE"
+
+# ─── 5. PR 본문 파일 파싱 ─────────────────────────────────
+[ -f "$PR_FILE" ] || die "PR 본문 파일 없음: $PR_FILE
+  (-f 로 다른 경로를 지정하거나 ./pr_description.md 를 만드세요)"
+
+# 첫 번째 비어있지 않은 줄 → 제목 (선두 '# ' 제거)
+TITLE="$(awk 'NF { sub(/^#+ +/,""); print; exit }' "$PR_FILE")"
+[ -n "$TITLE" ] || die "PR 제목을 찾지 못했습니다 (파일이 비어있음): $PR_FILE"
+
+# 본문: 첫 번째 비어있지 않은 줄 다음부터 끝까지
+DESCRIPTION="$(awk 'BEGIN { found=0 }
+  found { print; next }
+  NF { found=1; next }
+' "$PR_FILE")"
+
+# ─── 6. payload 생성 ──────────────────────────────────────
+if [ $DRAFT -eq 1 ]; then DRAFT_BOOL=true; else DRAFT_BOOL=false; fi
+PAYLOAD="$(jq -n \
+  --arg title "$TITLE" \
+  --arg desc "$DESCRIPTION" \
+  --arg src "$SOURCE" \
+  --arg dst "$TARGET" \
+  --argjson draft "$DRAFT_BOOL" \
+  '{
+    title: $title,
+    description: $desc,
+    source:      { branch: { name: $src } },
+    destination: { branch: { name: $dst } },
+    draft: $draft
+  }')"
+
+# ─── 7. 미리보기 ──────────────────────────────────────────
+echo
+log "Bitbucket PR 생성 준비"
+echo "  ${C_DIM}repo${C_RST}    : $WORKSPACE/$REPO"
+echo "  ${C_DIM}source${C_RST}  : $SOURCE"
+echo "  ${C_DIM}target${C_RST}  : $TARGET"
+echo "  ${C_DIM}title${C_RST}   : $TITLE"
+echo "  ${C_DIM}draft${C_RST}   : $([ $DRAFT -eq 1 ] && echo yes || echo no)"
+echo "  ${C_DIM}body${C_RST}    : $(printf '%s' "$DESCRIPTION" | wc -l | tr -d ' ') 줄"
+echo
+
+if [ $DRYRUN -eq 1 ]; then
+  log "dry-run — 페이로드만 출력하고 종료"
+  echo "$PAYLOAD" | jq .
+  exit 0
+fi
+
+# ─── 8. 확인 ──────────────────────────────────────────────
+if [ $YES -eq 0 ] && [ -t 0 ]; then
+  printf "생성할까요? [y/N]: " > /dev/tty
+  read -r confirm < /dev/tty || confirm=""
+  case "$confirm" in
+    y|Y|yes|YES) ;;
+    *) log "취소됨"; exit 0 ;;
+  esac
+fi
+
+# ─── 9. POST ──────────────────────────────────────────────
+URL="https://api.bitbucket.org/2.0/repositories/$WORKSPACE/$REPO/pullrequests"
+RESP="$(bb_curl -X POST -H "Content-Type: application/json" -d "$PAYLOAD" -w $'\n__HTTP__%{http_code}' "$URL")"
+HTTP="$(echo "$RESP" | sed -n 's/^__HTTP__//p')"
+BODY="$(echo "$RESP" | sed '$d')"
+
+case "$HTTP" in
+  200|201)
+    PR_URL="$(echo "$BODY" | jq -r '.links.html.href // empty')"
+    PR_ID="$(echo "$BODY" | jq -r '.id // empty')"
+    ok "PR 생성 완료 (#$PR_ID)"
+    [ -n "$PR_URL" ] && echo "   $PR_URL"
+    ;;
+  *)
+    err "PR 생성 실패 (HTTP ${HTTP:-?})"
+    echo "$BODY" | jq . 2>/dev/null || echo "$BODY"
+    exit 1
+    ;;
+esac

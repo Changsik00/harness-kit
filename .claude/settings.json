@@ -1,0 +1,174 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(./scripts/harness/bin/bb-pr:*)",
+      "Bash(./scripts/harness/bin/sdd:*)",
+      "Bash(./scripts/harness/doctor.sh:*)",
+      "Bash(./scripts/harness/hooks/*)",
+      "Bash(awk:*)",
+      "Bash(bash:*)",
+      "Bash(bun:*)",
+      "Bash(bunx:*)",
+      "Bash(cat:*)",
+      "Bash(cd:*)",
+      "Bash(chmod:*)",
+      "Bash(cp:*)",
+      "Bash(curl:*)",
+      "Bash(cut:*)",
+      "Bash(date)",
+      "Bash(date:*)",
+      "Bash(diff:*)",
+      "Bash(echo:*)",
+      "Bash(env)",
+      "Bash(env:*)",
+      "Bash(false)",
+      "Bash(fd:*)",
+      "Bash(file:*)",
+      "Bash(find:*)",
+      "Bash(gh:*)",
+      "Bash(git:*)",
+      "Bash(grep:*)",
+      "Bash(head:*)",
+      "Bash(jq:*)",
+      "Bash(ln:*)",
+      "Bash(ls)",
+      "Bash(ls:*)",
+      "Bash(mkdir:*)",
+      "Bash(mv:*)",
+      "Bash(node:*)",
+      "Bash(npm:*)",
+      "Bash(npx:*)",
+      "Bash(pnpm:*)",
+      "Bash(printf:*)",
+      "Bash(pwd)",
+      "Bash(rg:*)",
+      "Bash(rm:*)",
+      "Bash(scripts/harness/bin/bb-pr:*)",
+      "Bash(scripts/harness/bin/sdd:*)",
+      "Bash(scripts/harness/doctor.sh:*)",
+      "Bash(scripts/harness/hooks/*)",
+      "Bash(sed:*)",
+      "Bash(sh:*)",
+      "Bash(sort:*)",
+      "Bash(stat:*)",
+      "Bash(tail:*)",
+      "Bash(tee:*)",
+      "Bash(test:*)",
+      "Bash(touch:*)",
+      "Bash(tr:*)",
+      "Bash(true)",
+      "Bash(type:*)",
+      "Bash(uname:*)",
+      "Bash(uniq:*)",
+      "Bash(wc:*)",
+      "Bash(which:*)",
+      "Bash(xargs:*)",
+      "Bash(yarn:*)",
+      "Bash(yq:*)",
+      "Bash(zsh:*)",
+      "Edit",
+      "Glob",
+      "Grep",
+      "MultiEdit",
+      "Read(**)",
+      "Write"
+    ],
+    "ask": [
+      "Bash(gh pr merge)",
+      "Bash(gh pr merge:*)",
+      "Bash(git merge)",
+      "Bash(git merge:*)",
+      "Bash(git push)",
+      "Bash(git push:*)"
+    ],
+    "deny": [
+      "Bash(curl * | bash:*)",
+      "Bash(curl * | sh:*)",
+      "Bash(git clean -f:*)",
+      "Bash(git clean -fd:*)",
+      "Bash(git clean -fdx:*)",
+      "Bash(git push --force-with-lease:*)",
+      "Bash(git push --force:*)",
+      "Bash(git push -f:*)",
+      "Bash(git rebase --onto:*)",
+      "Bash(git reset --hard:*)",
+      "Bash(rm -rf $HOME)",
+      "Bash(rm -rf $HOME:*)",
+      "Bash(rm -rf /)",
+      "Bash(rm -rf /*)",
+      "Bash(rm -rf /*:*)",
+      "Bash(rm -rf /:*)",
+      "Bash(rm -rf ~)",
+      "Bash(rm -rf ~:*)",
+      "Bash(sudo:*)",
+      "Bash(wget * | bash:*)",
+      "Bash(wget * | sh:*)",
+      "Edit(**/*.key)",
+      "Edit(**/*.pem)",
+      "Edit(**/.env)",
+      "Edit(**/.env.*)",
+      "Edit(**/.netrc)",
+      "Edit(**/.npmrc)",
+      "Edit(**/credentials*)",
+      "Edit(**/id_ed25519*)",
+      "Edit(**/id_rsa*)",
+      "Edit(**/secrets/**)",
+      "Edit(/etc/**)",
+      "Edit(/tmp/**)",
+      "Edit(/usr/**)",
+      "Edit(/var/**)",
+      "Edit(~/**)",
+      "Write(**/*.key)",
+      "Write(**/*.pem)",
+      "Write(**/.env)",
+      "Write(**/.env.*)",
+      "Write(**/.netrc)",
+      "Write(**/.npmrc)",
+      "Write(**/credentials*)",
+      "Write(**/id_ed25519*)",
+      "Write(**/id_rsa*)",
+      "Write(**/secrets/**)",
+      "Write(/etc/**)",
+      "Write(/tmp/**)",
+      "Write(/usr/**)",
+      "Write(/var/**)",
+      "Write(~/**)"
+    ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "scripts/harness/hooks/check-branch.sh"
+          },
+          {
+            "type": "command",
+            "command": "scripts/harness/hooks/check-test-passed.sh"
+          }
+        ]
+      },
+      {
+        "matcher": "Edit|Write|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "scripts/harness/hooks/check-plan-accept.sh"
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "scripts/harness/bin/sdd status --brief 2>/dev/null || true"
+          }
+        ]
+      }
+    ]
+  }
+}
