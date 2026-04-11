@@ -41,6 +41,16 @@ Before drafting any Spec or Plan, the Agent MUST enter the Alignment Phase.
 - **[Recommendation]**: Preferred mode and why.
 - **[Decision Request]**: Ask the user to select a mode.
 
+### 3.1 Work Type Behavior Table
+
+| Work Type | Entry Action | Execution | Completion Action |
+|---|---|---|---|
+| **Phase (SDD-P)** | `sdd phase new <slug> [--base]` → spec planning | Strict Loop per spec | All specs Merged → `sdd phase done` |
+| **Spec** | `sdd spec new <slug>` → plan/task authoring | Strict Loop → archive → push → PR | PR merge → phase.md auto-Merged by `sdd archive` |
+| **spec-x (SDD-x)** | `sdd spec new <slug>` (no phase) | Same as Spec | `sdd specx done <slug>` → queue.md update |
+| **FF** | User approval only | Direct commit (no state.json change) | No `sdd` commands needed — state untouched |
+| **Icebox** | Add to queue.md Icebox section | **NON-EXECUTABLE** — no code/commit | Promote to Phase or spec-x when ready |
+
 ## 4. SDD Mode Protocol
 
 Once SDD is selected:
@@ -160,9 +170,18 @@ When passing a task with `[-]`, the Agent MUST:
 2. Add the passed task to `backlog/queue.md` if it requires future work.
 3. Inform the User of the pass decision and reasoning.
 
-### 6.3 Commit & Hand-off Enforcement
+### 6.3 Commit & Ship Enforcement
 - Commit format, pre-push validation, and PR creation rules → constitution §9.2.
-- **Task Completeness Check**: Before push, the Agent MUST verify that **ALL** checkboxes in `task.md` are marked `[x]` or `[-]` — including Pre-flight items (e.g., "사용자 Plan Accept") and Hand-off items (e.g., "Push", "사용자 알림"). No `[ ]` may remain.
+- **Task Completeness Check**: Before push, the Agent MUST verify that **ALL** checkboxes in `task.md` are marked `[x]` or `[-]` — including Pre-flight items (e.g., "사용자 Plan Accept") and Ship items (e.g., "Push", "사용자 알림"). No `[ ]` may remain.
+
+**Completion Checklists by Work Type**:
+
+| Work Type | After PR Merge / Commit |
+|---|---|
+| **Spec (SDD-P)** | `sdd archive` auto-updates phase.md → Merged. If all specs Merged, run `sdd phase done`. |
+| **spec-x (SDD-x)** | Run `sdd specx done <slug>` to move item from specx → done in queue.md. |
+| **FF** | No `sdd` state changes. Do NOT modify `state.json` — FF work is invisible to state. |
+| **Phase done** | Run `sdd phase done` after all specs merged + integration tests passed + user approval. |
 - **Walkthrough & Description Protocol**:
     1. **READ Template**: `agent/templates/walkthrough.md` and `agent/templates/pr_description.md`.
     2. **WRITE in Korean**: Fill all sections.
