@@ -48,13 +48,14 @@ $HARNESS_TEST_INTEGRATION_CMD || { echo "integration test 실패"; exit 1; }
 
 ## 4. Push 확인 (사용자 승인 필요)
 
-`git log --oneline origin/<branch>..HEAD 2>/dev/null` 로 커밋 수를 확인한 후 다음 블록을 표시:
+`git log --oneline origin/<branch>..HEAD 2>/dev/null` 로 커밋 수를, `git remote get-url origin` 의 기본 브랜치로 타깃을 확인한 후 다음 블록을 표시:
 
 ```
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 🔍 Push 확인
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  브랜치    <current-branch>  ▶  🎯 origin
+  브랜치    <current-branch>  ▶  🎯 origin/<base>
+  PR 제목   <pr_description.md 첫 줄>
   커밋 수   <N>개 (push 예정)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
