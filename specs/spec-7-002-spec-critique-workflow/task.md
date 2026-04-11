@@ -9,7 +9,7 @@
 - [x] spec.md 작성
 - [x] plan.md 작성
 - [x] task.md 작성 (이 파일)
-- [ ] 사용자 Plan Accept
+- [x] 사용자 Plan Accept
 
 ---
 
