@@ -46,6 +46,11 @@
 - <항목 1>
 - <항목 2>
 
+## 🔍 Critique 결과 (선택)
+
+<!-- /hk-spec-critique 실행 후 핵심 발견사항을 요약합니다. 미실행 시 이 섹션 생략 가능. -->
+<!-- 전체 결과: specs/<spec-dir>/critique.md -->
+
 ## ✅ Definition of Done
 
 - [ ] 모든 단위 테스트 PASS
