@@ -677,6 +677,54 @@ cmd_archive() {
   git -C "$SDD_ROOT" add "$spec_dir/walkthrough.md" "$spec_dir/pr_description.md"
   git -C "$SDD_ROOT" commit -m "docs(${scope}): archive walkthrough and pr description"
   ok "archive commit 완료"
+
+  # phase.md spec 상태 → Merged 자동 갱신
+  local phase_id
+  phase_id="$(state_get phase)"
+  if [ -n "$phase_id" ] && [ "$phase_id" != "null" ]; then
+    local phase_file="$SDD_BACKLOG/${phase_id}.md"
+    if [ -f "$phase_file" ]; then
+      local tmp_pf
+      tmp_pf="$(mktemp)"
+      awk -v sid="$spec_id" '
+        index($0, sid) && /\| In Progress \|/ {
+          sub(/\| In Progress \|/, "| Merged |")
+        }
+        { print }
+      ' "$phase_file" > "$tmp_pf" && mv "$tmp_pf" "$phase_file"
+      ok "phase.md spec 상태 → Merged: $spec_id"
+    else
+      warn "phase.md 없음, 수동 갱신 필요: $phase_file"
+    fi
+
+    # 모든 spec Merged 여부 확인 → phase done 유도
+    _check_phase_all_merged "$phase_id"
+  fi
+}
+
+# 모든 spec이 Merged인지 확인하고 유도 메시지 출력
+_check_phase_all_merged() {
+  local phase_id="$1"
+  [ -z "$phase_id" ] || [ "$phase_id" = "null" ] && return
+  local phase_file="$SDD_BACKLOG/${phase_id}.md"
+  [ -f "$phase_file" ] || return
+
+  local remaining
+  remaining=$(awk -F'|' '
+    /<!-- sdd:specs:start -->/ { in_t=1; next }
+    /<!-- sdd:specs:end -->/ { in_t=0; next }
+    in_t && (/\| Backlog \|/ || /\| In Progress \|/) {
+      gsub(/[[:space:]]/, "", $2)
+      if ($2 != "" && $2 !~ /^-+$/ && $2 !~ /^ID$/) { print $2 }
+    }
+  ' "$phase_file" | wc -l | tr -d ' ')
+
+  if [ "$remaining" -eq 0 ]; then
+    echo ""
+    echo "🎉 모든 Spec이 Merged 상태입니다."
+    echo "   sdd phase done 을 실행하여 phase를 완료하세요."
+    echo ""
+  fi
 }
 
 # ============================================================
