@@ -792,6 +792,39 @@ cmd_hooks() {
 }
 
 # ============================================================
+# specx done
+# ============================================================
+cmd_specx() {
+  local sub="${1:-}"; shift || true
+  case "$sub" in
+    done) specx_done "$@" ;;
+    *)    die "사용법: sdd specx done <slug>" ;;
+  esac
+}
+
+specx_done() {
+  local slug="${1:-}"
+  [ -z "$slug" ] && die "사용법: sdd specx done <slug>"
+  local q
+  q="$(state_queue_file)"
+  [ -f "$q" ] || die "queue.md 없음"
+
+  # specx 섹션에서 해당 slug 포함 행 제거
+  local tmp
+  tmp="$(mktemp)"
+  awk -v s="<!-- sdd:specx:start -->" -v e="<!-- sdd:specx:end -->" -v slug="$slug" '
+    $0 == s { in_sec=1; print; next }
+    $0 == e { in_sec=0; print; next }
+    in_sec && index($0, slug) > 0 { next }
+    { print }
+  ' "$q" > "$tmp" && mv "$tmp" "$q"
+
+  # done 섹션에 추가
+  sdd_marker_append "$q" "done" "- [x] spec-x-${slug} (완료)"
+  ok "spec-x-${slug} → queue.md done 섹션으로 이동"
+}
+
+# ============================================================
 main() {
   local cmd="${1:-help}"; shift || true
   case "$cmd" in
@@ -806,6 +839,7 @@ main() {
     archive) cmd_archive "$@" ;;
     queue)   cmd_queue "$@" ;;
     hooks)   cmd_hooks "$@" ;;
+    specx)   cmd_specx "$@" ;;
     *)       err "알 수 없는 명령: $cmd"; cmd_help; exit 1 ;;
   esac
 }
