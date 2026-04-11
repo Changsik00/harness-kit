@@ -51,9 +51,12 @@ $HARNESS_TEST_INTEGRATION_CMD || { echo "integration test 실패"; exit 1; }
 `git log --oneline origin/<branch>..HEAD 2>/dev/null` 로 커밋 수를 확인한 후 다음 블록을 표시:
 
 ```
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 🔍 Push 확인
-- 브랜치: <current-branch> → origin
-- 커밋 수: <N>개 (push 예정)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  브랜치    <current-branch>  ▶  🎯 origin
+  커밋 수   <N>개 (push 예정)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 push 할까요? [Y/n]
 ```
