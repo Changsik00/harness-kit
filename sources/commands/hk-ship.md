@@ -132,6 +132,14 @@ git push -u origin spec-{phaseN}-{seq}-{slug}
 
 planAccepted 플래그를 false 로 되돌려 다음 SPEC 을 위해 깨끗한 상태로 만듭니다.
 
+> **[spec-x 한정] queue.md 완료 갱신**
+>
+> spec-x (`spec-x-{slug}`) 인 경우 queue.md 갱신:
+> ```bash
+> ./scripts/harness/bin/sdd specx done {slug}
+> ```
+> 이 명령은 specx 대기 섹션에서 해당 항목을 제거하고 완료 섹션으로 이동합니다.
+
 > **[Phase base branch 모드] 다음 Spec 시작 전 주의사항**
 >
 > 현재 Spec PR 이 phase base branch 에 **merge된 후** 다음 Spec 브랜치를 생성해야 합니다.
