@@ -54,9 +54,10 @@ $HARNESS_TEST_INTEGRATION_CMD || { echo "integration test 실패"; exit 1; }
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 🔍 Push 확인
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  브랜치    <current-branch>  ▶  🎯 <base>
-  PR 제목   <pr_description.md 첫 줄>
-  커밋 수   <N>개 (push 예정)
+  브랜치    <head>  ▶  🎯 <base>
+  제목      <pr_description.md 첫 줄>
+  커밋 수   <N>개
+  변경 파일 <M>개
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 push 할까요? [Y/n]
