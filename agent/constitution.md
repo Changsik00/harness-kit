@@ -29,72 +29,72 @@ The Constitution defines the invariant laws of this project. All Agents MUST com
 - No Pull Request is produced.
 - ONLY allowed with explicit User approval.
 - LIMITED to: Inline fixes, minor wording, config tweaks that do not warrant a PR.
-- **State Rule**: FF 작업은 `state.json`의 active phase/spec을 변경하지 않는다.
+- **State Rule**: FF work MUST NOT modify `state.json`'s active phase/spec.
 
 ### 2.4 Work Mode Decision Tree
 
 Use this two-step check at the start of every Alignment Phase (→ agent.md §3):
 
 ```
-Step 1 — PR이 필요한가?
+Step 1 — Is a PR required?
   NO  → FF  (Mode C)
   YES → Step 2
 
-Step 2 — Phase가 필요한가?
+Step 2 — Is a Phase required?
   YES → SDD-P  (Mode A)  spec-{phaseN}-{seq}-{slug}
   NO  → SDD-x  (Mode B)  spec-x-{slug}
 ```
 
 **Edge Cases**
 
-| 작업 예시 | PR? | Phase? | 모드 |
+| Example | PR? | Phase? | Mode |
 |---|:---:|:---:|:---:|
-| agent.md 오탈자 한 줄 수정 | NO | — | FF |
-| `hk-pr-gh.md` PR 확인 UX 표준화 | YES | NO | SDD-x |
-| `update.sh` 버전 인식 재작성 | YES | NO | SDD-x |
-| 신규 훅 5개 추가 (기능 추가) | YES | YES | SDD-P |
-| Spec 자기비판 워크플로우 신설 | YES | YES | SDD-P |
+| One-line typo fix in agent.md | NO | — | FF |
+| `hk-pr-gh.md` PR confirmation UX standardization | YES | NO | SDD-x |
+| `update.sh` version detection rewrite | YES | NO | SDD-x |
+| Adding 5 new hooks (feature addition) | YES | YES | SDD-P |
+| New spec self-critique workflow | YES | YES | SDD-P |
 
 ## 3. Work Type Model
 
-이 섹션은 harness-kit에서 사용하는 작업 유형의 역할과 경계를 정의한다. 에이전트는 모든 작업 시작 전 이 모델을 기준으로 유형을 분류해야 한다.
+This section defines the roles and boundaries of work types used in harness-kit. The Agent MUST classify work by this model before starting any task.
 
 ### 3.1 Phase (Epic)
 
-- **역할**: 연관된 Spec들의 묶음. 독립된 통합 테스트와 릴리즈 단위가 될 수 있다.
-- **진입 조건**: Spec이 3개 이상이거나, Spec 간 의존성이 있거나, 통합 테스트가 필요한 경우.
-- **종료 조건**: 모든 Spec이 merge되고 phase-level 통합 테스트가 PASS된 후 사용자 최종 승인.
-- **Base Branch (opt-in)**: Phase는 선택적으로 `phase-N` base 브랜치를 가질 수 있다. 이 경우 Spec PR은 main이 아닌 phase 브랜치를 타깃으로 하며, 모든 Spec 완료 후 phase 브랜치가 main으로 merge된다. Base 브랜치는 첫 번째 Spec의 hk-ship 시점에 just-in-time으로 생성된다.
-- **식별자**: `phase-{N}` (→ §6.1)
+- **Role**: A grouping of related Specs. Can serve as an independent integration test and release unit.
+- **Entry Condition**: 3+ Specs, or inter-Spec dependencies exist, or integration testing is required.
+- **Exit Condition**: All Specs merged, phase-level integration tests PASS, and User final approval.
+- **Base Branch (opt-in)**: A Phase MAY optionally have a `phase-N-{slug}` base branch. In this case, Spec PRs target the phase branch instead of main, and the phase branch merges to main after all Specs are complete. The base branch is created just-in-time at the first Spec's hk-ship.
+- **Identifier**: `phase-{N}` (→ §6.1)
 
 ### 3.2 Spec
 
-- **역할**: Phase 내 단일 PR 단위. 독립적으로 테스트 가능하고 완전히 동작하는 변경이어야 한다.
-- **진입 조건**: Phase 내에서 User가 승인한 Plan이 존재할 것.
-- **종료 조건**: 단위 테스트 PASS + walkthrough/pr_description 작성 + PR merge.
-- **PR 타깃**: Phase base branch 모드이면 `phase-N`, 아니면 `main`.
-- **식별자**: `spec-{phaseN}-{seq}-{slug}` (→ §6.2)
+- **Role**: A single PR unit within a Phase. Must be independently testable and fully functional.
+- **Entry Condition**: A User-approved Plan exists within the Phase.
+- **Exit Condition**: Unit tests PASS + walkthrough/pr_description written + PR merge.
+- **PR Target**: `phase-N-{slug}` if Phase base branch mode, otherwise `main`.
+- **Identifier**: `spec-{phaseN}-{seq}-{slug}` (→ §6.2)
 
 ### 3.3 spec-x (Solo Spec)
 
-- **역할**: Phase 비소속 단독 PR. 긴급 수정, 단발성 개선 등 Phase에 묶기엔 작은 작업.
-- **진입 조건**: 아래 조건을 모두 충족할 것 (→ §5.1 Solo Spec conditions):
-  1. 단일 PR로 완결 가능
-  2. 타입: `chore`, `fix`, `docs`, 소규모 `refactor`만 허용
-  3. 신규 아키텍처 결정 또는 기능 추가 없음
-- **종료 조건**: PR merge + queue.md 완료 섹션 갱신.
-- **PR 타깃**: 항상 `main`.
-- **식별자**: `spec-x-{slug}` (→ §6.2)
+- **Role**: A standalone PR not affiliated with any Phase. For urgent fixes, one-off improvements too small for a Phase.
+- **Entry Condition**: ALL of the following must be met (→ §5.1 Solo Spec conditions):
+  1. Completable in a single PR
+  2. Type limited to `chore`, `fix`, `docs`, or small-scope `refactor`
+  3. No new architectural decisions or feature additions
+- **Exit Condition**: PR merge + queue.md done section update.
+- **PR Target**: Always `main`.
+- **Identifier**: `spec-x-{slug}` (→ §6.2)
 
 ### 3.4 Icebox
 
-- **역할**: 아이디어, 보류 항목, 나중에 할 일의 보관소. queue.md 하단 Icebox 섹션에 자유 형식으로 기록.
-- **진입 조건**: 즉시 실행하지 않을 아이디어나 항목 발생 시 언제든지.
-- **종료 조건 (승격)**:
-  - 관련 항목이 쌓여 연관성이 생기면 → 새 Phase로 승격
-  - 단발성이면 → spec-x로 승격
-- **실행 금지**: Icebox 항목은 NON-EXECUTABLE. Phase 또는 spec-x로 승격되기 전까지 코드 변경, task, commit을 생성할 수 없다 (→ §12).
-- **식별자**: 없음 (queue.md Icebox 섹션에 자유 기록)
+- **Role**: A holding area for ideas, deferred items, and future work. Recorded in free-form in the queue.md Icebox section.
+- **Entry Condition**: Any time an idea or item arises that should not be executed immediately.
+- **Exit Condition (Promotion)**:
+  - When related items accumulate → promote to a new Phase
+  - When standalone → promote to spec-x
+- **Execution Prohibition**: Icebox items are NON-EXECUTABLE. No code changes, tasks, or commits may be created until promoted to a Phase or spec-x (→ §12).
+- **Identifier**: None (free-form in queue.md Icebox section)
 
 ## 4. Alignment Requirement (Mandatory)
 
@@ -115,13 +115,13 @@ Before any Spec, Plan, or execution:
   3. No new architectural decisions or feature additions are involved.
   - Solo Specs do NOT require a `phase.md` entry or `queue.md` update.
 
-### 5.2 Plan Accept & Critique 인식
+### 5.2 Plan Accept & Critique Recognition
 - A Plan is an execution contract. No execution is allowed without an approved Plan.
 - The Plan MUST include branch creation and test execution tasks.
-- **Plan Accept 인식 (SSOT)**: 다음 표현은 모두 Plan Accept로 처리한다 (대소문자 무시):
+- **Plan Accept Recognition (SSOT)**: The following expressions are all treated as Plan Accept (case-insensitive):
   `1`, `Y`, `yes`, `ok`, `accept`, `plan accept`, `/hk-plan-accept`
-- **Critique 진입**: `2` 또는 `/hk-spec-critique` 입력 시 Critique 단계로 진입한다.
-- **목록 외 응답**: 위 목록에 없는 응답을 받은 경우 에이전트는 선택을 다시 요청한다.
+- **Critique Entry**: Input of `2` or `/hk-spec-critique` enters the Critique phase.
+- **Unrecognized Response**: For any response not in the above list, the Agent MUST re-request the selection.
 
 ### 5.3 Premature Execution (Critical)
 - **Zero Tolerance**: Writing production code or changing project state BEFORE the User has explicitly approved the `plan.md` is a **CRITICAL VIOLATION**.
@@ -138,7 +138,7 @@ Before any Spec, Plan, or execution:
 - Format: `phase-{N}` where `N` is a positive integer.
 - Examples: `phase-1`, `phase-2`.
 - Descriptive name lives only inside `phase.md`'s title, not in the ID/directory.
-- **Phase Base Branch**: Phase base branch 모드인 경우 `phase-{N}-{slug}` 브랜치가 생성된다. slug는 phase.md 제목에서 유래한 간결한 식별자. 예: `phase-8-work-model`.
+- **Phase Base Branch**: In phase base branch mode, a `phase-{N}-{slug}` branch is created. The slug is a concise identifier derived from the phase.md title. Example: `phase-8-work-model`.
 
 ### 6.2 Spec Identifier
 - Format: `spec-{phaseN}-{seq}` where `phaseN` matches the parent phase number and `seq` is a 3-digit number reset per phase.
@@ -160,7 +160,7 @@ Before any Spec, Plan, or execution:
 - Spec branch name = spec directory name. **No `feature/` prefix.**
 - Format: `spec-{phaseN}-{seq}-{slug}`
 - Example: `spec-1-001-stock-row-locking`
-- Phase base branch format: `phase-{N}-{slug}` (→ §6.1). 예: `phase-8-work-model`
+- Phase base branch format: `phase-{N}-{slug}` (→ §6.1). Example: `phase-8-work-model`
 
 ## 7. Execution Delegation
 

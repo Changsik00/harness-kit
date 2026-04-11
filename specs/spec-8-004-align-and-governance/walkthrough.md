@@ -8,6 +8,8 @@
 - [x] `sources/governance/agent.md` — §6.3 "Hand-off" → "Ship" 용어 통일
 - [x] `agent/agent.md` — 위와 동일 동기화
 - [x] `agent/templates/task.md` + `sources/templates/task.md` — "Hand-off" → "Ship" 변경, PR 생성 절차 명시
+- [x] `sources/governance/constitution.md` + `agent/constitution.md` — 전문 영문화 (한국어 0건)
+- [x] `sources/governance/agent.md` + `agent/agent.md` — 전문 영문화 (한국어 0건)
 - [x] `README.md` — 전면 최신화:
   - 작업 유형 모델 섹션 신규 추가
   - Phase base branch 설명 추가
