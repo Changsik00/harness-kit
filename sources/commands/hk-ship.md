@@ -131,3 +131,16 @@ git push -u origin spec-{phaseN}-{seq}-{slug}
 ```
 
 planAccepted 플래그를 false 로 되돌려 다음 SPEC 을 위해 깨끗한 상태로 만듭니다.
+
+> **[Phase base branch 모드] 다음 Spec 시작 전 주의사항**
+>
+> 현재 Spec PR 이 phase base branch 에 **merge된 후** 다음 Spec 브랜치를 생성해야 합니다.
+> merge 전에 다음 Spec 을 시작하면 이전 Spec 의 변경사항이 누락된 base 에서 분기하게 됩니다.
+>
+> ```
+> 올바른 순서:
+>   1. PR merge 완료 (phase base branch ← spec 브랜치)
+>   2. 다음 Spec 브랜치 생성 (phase base branch 최신 기준)
+> ```
+>
+> (→ constitution §4.1 Phase base branch 분기 규칙)

@@ -108,6 +108,7 @@ Before any Spec, Plan, or execution:
 - **One Spec = One Pull Request.**
 - If the scope exceeds a single PR, the Spec MUST be split, and overflow moved to the Backlog.
 - Every Spec MUST belong to a Phase. Orphan Specs are forbidden (use `phase-0` if no logical home exists).
+- **Phase base branch 분기 규칙**: Phase base branch 모드에서 새 Spec 브랜치를 생성할 때, 직전 Spec의 PR이 phase base branch에 **merge된 후** 분기해야 한다. 직전 PR이 미merge 상태라면 에이전트는 사용자에게 merge를 먼저 요청하고 대기한다. merge 전 선작업이 불가피한 경우 직전 Spec 브랜치에서 분기하되 사용자에게 명시적으로 고지한다.
 - **Exception — Solo Spec**: A Spec MAY be created without a Phase using the `spec-x-{slug}` identifier when ALL of the following conditions are met:
   1. The change is self-contained and completable in a single PR.
   2. The type is limited to `chore`, `fix`, `docs`, or small-scope `refactor`.
