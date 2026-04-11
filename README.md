@@ -147,8 +147,8 @@ Claude Code 안에서:
 │   │   ├── hk-code-review.md, hk-spec-critique.md
 │   └── state/current.json          #   런타임 state (gitignore)
 │
-├── scripts/harness/                # 키트 런타임
-│   ├── bin/sdd                     #   메타 명령
+├── scripts/harness/                # 키트 런타임 (에이전트 내부용)
+│   ├── bin/sdd                     #   에이전트 전용 메타 명령 (사용자 실행 불필요)
 │   ├── bin/lib/{common,state}.sh
 │   ├── hooks/                      #   PreToolUse 후크
 │   │   ├── check-branch.sh         #     main 보호
@@ -186,37 +186,20 @@ Claude Code 안에서:
 | `uninstall.sh [TARGET]` | 제거 (산출물 보존) |
 | `doctor.sh [TARGET]` | 점검 (의존성, 구조, 권한, hook, state) |
 
-### `bin/sdd` 메타 명령 (대상 프로젝트에서)
-
-| 명령 | 설명 |
-|---|---|
-| `sdd status [--brief] [--json]` | 현재 상태 (NOW/NEXT 포함) |
-| `sdd queue [--raw]` | backlog/queue.md 대시보드 출력 |
-| `sdd phase new <slug> [--base]` | 새 phase 생성 (`--base`: phase base branch 모드) |
-| `sdd phase list` | 모든 phase 와 spec 카운트 |
-| `sdd phase show [phase-N]` | phase 상세 |
-| `sdd phase done [phase-N]` | phase 완료 처리 → queue done 이동 |
-| `sdd spec new <slug>` | active phase 안에 새 spec 생성 |
-| `sdd spec list [--phase=N]` | spec 목록 |
-| `sdd plan accept` | Plan Accept → 실행 모드 |
-| `sdd plan reset` | Plan Accept 해제 |
-| `sdd task done <num>` | task.md 항목 완료 마킹 |
-| `sdd test passed` | 테스트 통과 시각 기록 |
-| `sdd archive [--check]` | walkthrough/pr_description 검증 + commit + phase.md Merged 갱신 |
-| `sdd specx done <slug>` | spec-x 완료 → queue.md done 이동 |
-| `sdd hooks [status]` | hook 모드 현황 |
-
 ### 슬래시 커맨드 (Claude Code 안에서)
 
 | 커맨드 | 설명 |
 |---|---|
 | `/hk-align` | 세션 부트스트랩 (규약 로드 + 상태 보고 + NOW/NEXT) |
 | `/hk-plan-accept` | plan.md 승인 → Strict Loop 시작 |
-| `/hk-ship` | 검증 + archive + push + PR 생성 |
+| `/hk-ship` | Spec 완료 — 검증 + archive + push + PR 생성 |
+| `/hk-phase-ship` | Phase 완료 — 성공 기준 검증 + 통합 테스트 + go/no-go + main PR |
 | `/hk-pr-gh` | GitHub PR 생성 (gh CLI) |
 | `/hk-pr-bb` | Bitbucket PR 생성 |
 | `/hk-code-review` | 독립 sub-agent 코드 리뷰 |
 | `/hk-spec-critique` | spec.md 비평 (Opus sub-agent) |
+
+> `sdd`는 에이전트가 내부적으로 사용하는 메타 명령입니다. 사용자가 직접 실행할 필요 없습니다.
 
 ---
 
