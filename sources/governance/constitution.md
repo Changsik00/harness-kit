@@ -75,6 +75,10 @@ Before any Spec, Plan, or execution:
 ### 4.2 Plan Rules
 - A Plan is an execution contract. No execution is allowed without an approved Plan.
 - The Plan MUST include branch creation and test execution tasks.
+- **Plan Accept 인식 (SSOT)**: 다음 표현은 모두 Plan Accept로 처리한다 (대소문자 무시):
+  `1`, `Y`, `yes`, `ok`, `accept`, `plan accept`, `/hk-plan-accept`
+- **Critique 진입**: `2` 또는 `/hk-spec-critique` 입력 시 Critique 단계로 진입한다.
+- **목록 외 응답**: 위 목록에 없는 응답을 받은 경우 에이전트는 선택을 다시 요청한다.
 
 ### 4.3 Premature Execution (Critical)
 - **Zero Tolerance**: Writing production code or changing project state BEFORE the User has explicitly approved the `plan.md` is a **CRITICAL VIOLATION**.
