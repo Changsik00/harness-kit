@@ -33,7 +33,11 @@ Before drafting any Spec or Plan, the Agent MUST enter the Alignment Phase.
 
 **Output Format**:
 - **[Intent Understanding]**: Summary of user goals.
-- **[Work Mode Options]**: Compare SDD vs. FF with reasoning.
+- **[Classification]**: Apply the two-step decision tree (→ constitution §2.4):
+  - Step 1: PR 필요 여부 → FF or SDD 계열
+  - Step 2 (SDD인 경우): Phase 필요 여부 → SDD-P or SDD-x
+  - 각 항목별 판단 근거를 한 줄로 명시할 것.
+- **[Work Mode Options]**: Present the classified mode(s) with reasoning.
 - **[Recommendation]**: Preferred mode and why.
 - **[Decision Request]**: Ask the user to select a mode.
 
