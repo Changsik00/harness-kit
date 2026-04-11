@@ -39,7 +39,8 @@ bash scripts/harness/bin/sdd status
 ```
 📊 현재 상태
 - Active Phase: <PHASE-N-slug 또는 "없음">
-- Active Spec:  <SPEC-N-NNN-slug 또는 "없음">
+- Active Spec:  <SPEC-N-NNN-slug 또는 "없음">  ← NOW
+- NEXT:         <다음 spec 또는 "없음">
 - Branch:       <current branch>
 - Plan Accept:  <yes / no>
 - Last Test:    <timestamp 또는 "없음"> (PASS / FAIL)
@@ -50,6 +51,8 @@ bash scripts/harness/bin/sdd status
 - <git log -3 의 둘째 줄>
 - <git log -3 의 셋째 줄>
 ```
+
+> `sdd status` 출력에 NEXT가 이미 포함되어 있으므로 별도 파싱 불필요.
 
 ## 5. 단 하나의 질문 (One Question)
 

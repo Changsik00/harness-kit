@@ -75,6 +75,24 @@ cmd_version() {
 # ============================================================
 # status
 # ============================================================
+# phase.md spec 표에서 다음 실행 대기 중인 spec ID를 반환한다.
+# 첫 번째 'Backlog' 상태 행의 ID 컬럼 값을 출력. 없으면 '없음'.
+compute_next_spec() {
+  local phase_id="$1"
+  local phase_file="$SDD_BACKLOG/${phase_id}.md"
+  [ -f "$phase_file" ] || { echo "없음"; return; }
+  local next
+  next=$(awk -F'|' '
+    /<!-- sdd:specs:start -->/ { in_table=1; next }
+    /<!-- sdd:specs:end -->/ { in_table=0; next }
+    in_table && /\| Backlog \|/ {
+      gsub(/[[:space:]]/, "", $2)
+      if ($2 != "" && $2 !~ /^-+$/ && $2 !~ /^ID$/) { print $2; exit }
+    }
+  ' "$phase_file")
+  echo "${next:-없음}"
+}
+
 cmd_status() {
   local brief=0 verbose=0 json=0
   for a in "$@"; do
@@ -122,8 +140,14 @@ cmd_status() {
   echo "${C_BLU}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${C_RST}"
   echo ""
   echo "📊 현재 상태"
+  local next_spec=""
+  if [ -n "${phase:-}" ] && [ "${phase}" != "null" ]; then
+    next_spec="$(compute_next_spec "$phase")"
+  fi
+
   printf "  Active Phase: %s\n" "${phase:-${C_DIM}없음${C_RST}}"
   printf "  Active Spec:  %s\n" "${spec:-${C_DIM}없음${C_RST}}"
+  printf "  NEXT:         %s\n" "${next_spec:-${C_DIM}없음${C_RST}}"
   printf "  Branch:       %s\n" "${branch:-${C_DIM}?${C_RST}}"
   printf "  Plan Accept:  %s\n" "$([ "$plan_accepted" = "true" ] && echo "${C_GRN}yes${C_RST}" || echo "${C_DIM}no${C_RST}")"
   printf "  Last Test:    %s\n" "${last_test:-${C_DIM}없음${C_RST}}"
@@ -203,6 +227,7 @@ phase_done() {
   state_set phase "null"
   state_set spec "null"
   state_set planAccepted "false"
+  state_set baseBranch "null"
   ok "phase done: $id (queue.md 갱신)"
 }
 
@@ -210,6 +235,12 @@ phase_new() {
   local slug="${1:-}"
   [ -z "$slug" ] && die "사용법: sdd phase new <slug>"
   sdd_slug_ok "$slug" || die "slug 형식 오류: 소문자/숫자/하이픈 (예: payment-stability)"
+  # --base 플래그 파싱 (slug 이후 추가 인수)
+  local base_mode=0
+  local arg
+  for arg in "${@:2}"; do
+    case "$arg" in --base) base_mode=1 ;; esac
+  done
   # slug 는 phase 의 제목 표시용. ID 는 phase-{N} (slug 없음).
 
   mkdir -p "$SDD_BACKLOG"
@@ -247,6 +278,19 @@ phase_new() {
   state_set phase "$id"
   state_set spec "null"
   state_set planAccepted "false"
+
+  # base branch 모드 처리
+  if [ $base_mode -eq 1 ]; then
+    local base_branch="${id}-${slug}"
+    state_set baseBranch "$base_branch"
+    # phase.md 메타 Base Branch 필드 갱신 (템플릿 placeholder 교체)
+    sed -i.tmp "s|없음 / phase-{N}-{slug} (opt-in)|${base_branch}|" "$file"
+    rm -f "$file.tmp"
+    ok "base branch 모드: $base_branch (첫 hk-ship 시 자동 생성)"
+  else
+    state_set baseBranch "null"
+  fi
+
   ok "생성 완료: $file"
   ok "active phase 설정: $id"
   echo ""
@@ -356,12 +400,33 @@ phase_show() {
 }
 
 cmd_queue() {
-  local q="$(state_queue_file)"
+  local raw=0
+  for a in "$@"; do
+    case "$a" in --raw) raw=1 ;; esac
+  done
+
+  local q
+  q="$(state_queue_file)"
   if [ ! -f "$q" ]; then
     echo "${C_DIM}queue.md 가 아직 없습니다. sdd phase new <slug> 로 시작하세요.${C_RST}"
     return
   fi
-  cat "$q"
+
+  if [ $raw -eq 1 ]; then
+    cat "$q"
+    return
+  fi
+
+  # 구조화 출력: 섹션 헤더에 색상 적용
+  while IFS= read -r line; do
+    case "$line" in
+      "## 🔴 NOW"*)      echo "${C_RED}${line}${C_RST}" ;;
+      "## ⏭ NEXT"*)     echo "${C_YLW}${line}${C_RST}" ;;
+      "## 🧊 Icebox"*)  echo "${C_CYN}${line}${C_RST}" ;;
+      "## 📦"*|"## 📥"*|"## 📋"*|"## ✅"*) echo "${C_BLU}${line}${C_RST}" ;;
+      *)                 echo "$line" ;;
+    esac
+  done < "$q"
 }
 
 # ============================================================
@@ -612,6 +677,54 @@ cmd_archive() {
   git -C "$SDD_ROOT" add "$spec_dir/walkthrough.md" "$spec_dir/pr_description.md"
   git -C "$SDD_ROOT" commit -m "docs(${scope}): archive walkthrough and pr description"
   ok "archive commit 완료"
+
+  # phase.md spec 상태 → Merged 자동 갱신
+  local phase_id
+  phase_id="$(state_get phase)"
+  if [ -n "$phase_id" ] && [ "$phase_id" != "null" ]; then
+    local phase_file="$SDD_BACKLOG/${phase_id}.md"
+    if [ -f "$phase_file" ]; then
+      local tmp_pf
+      tmp_pf="$(mktemp)"
+      awk -v sid="$spec_id" '
+        index($0, sid) && /\| In Progress \|/ {
+          sub(/\| In Progress \|/, "| Merged |")
+        }
+        { print }
+      ' "$phase_file" > "$tmp_pf" && mv "$tmp_pf" "$phase_file"
+      ok "phase.md spec 상태 → Merged: $spec_id"
+    else
+      warn "phase.md 없음, 수동 갱신 필요: $phase_file"
+    fi
+
+    # 모든 spec Merged 여부 확인 → phase done 유도
+    _check_phase_all_merged "$phase_id"
+  fi
+}
+
+# 모든 spec이 Merged인지 확인하고 유도 메시지 출력
+_check_phase_all_merged() {
+  local phase_id="$1"
+  [ -z "$phase_id" ] || [ "$phase_id" = "null" ] && return
+  local phase_file="$SDD_BACKLOG/${phase_id}.md"
+  [ -f "$phase_file" ] || return
+
+  local remaining
+  remaining=$(awk -F'|' '
+    /<!-- sdd:specs:start -->/ { in_t=1; next }
+    /<!-- sdd:specs:end -->/ { in_t=0; next }
+    in_t && (/\| Backlog \|/ || /\| In Progress \|/) {
+      gsub(/[[:space:]]/, "", $2)
+      if ($2 != "" && $2 !~ /^-+$/ && $2 !~ /^ID$/) { print $2 }
+    }
+  ' "$phase_file" | wc -l | tr -d ' ')
+
+  if [ "$remaining" -eq 0 ]; then
+    echo ""
+    echo "🎉 모든 Spec이 Merged 상태입니다."
+    echo "   sdd phase done 을 실행하여 phase를 완료하세요."
+    echo ""
+  fi
 }
 
 # ============================================================
@@ -679,6 +792,39 @@ cmd_hooks() {
 }
 
 # ============================================================
+# specx done
+# ============================================================
+cmd_specx() {
+  local sub="${1:-}"; shift || true
+  case "$sub" in
+    done) specx_done "$@" ;;
+    *)    die "사용법: sdd specx done <slug>" ;;
+  esac
+}
+
+specx_done() {
+  local slug="${1:-}"
+  [ -z "$slug" ] && die "사용법: sdd specx done <slug>"
+  local q
+  q="$(state_queue_file)"
+  [ -f "$q" ] || die "queue.md 없음"
+
+  # specx 섹션에서 해당 slug 포함 행 제거
+  local tmp
+  tmp="$(mktemp)"
+  awk -v s="<!-- sdd:specx:start -->" -v e="<!-- sdd:specx:end -->" -v slug="$slug" '
+    $0 == s { in_sec=1; print; next }
+    $0 == e { in_sec=0; print; next }
+    in_sec && index($0, slug) > 0 { next }
+    { print }
+  ' "$q" > "$tmp" && mv "$tmp" "$q"
+
+  # done 섹션에 추가
+  sdd_marker_append "$q" "done" "- [x] spec-x-${slug} (완료)"
+  ok "spec-x-${slug} → queue.md done 섹션으로 이동"
+}
+
+# ============================================================
 main() {
   local cmd="${1:-help}"; shift || true
   case "$cmd" in
@@ -693,6 +839,7 @@ main() {
     archive) cmd_archive "$@" ;;
     queue)   cmd_queue "$@" ;;
     hooks)   cmd_hooks "$@" ;;
+    specx)   cmd_specx "$@" ;;
     *)       err "알 수 없는 명령: $cmd"; cmd_help; exit 1 ;;
   esac
 }

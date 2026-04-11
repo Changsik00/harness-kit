@@ -48,13 +48,31 @@ $HARNESS_TEST_INTEGRATION_CMD || { echo "integration test 실패"; exit 1; }
 
 ## 4. Push 확인 (사용자 승인 필요)
 
-`git log --oneline origin/<branch>..HEAD 2>/dev/null` 로 커밋 수를, `git remote get-url origin` 의 기본 브랜치로 타깃을 확인한 후 다음 블록을 표시:
+**[Phase base branch 감지]** Push 전, PR 타깃 결정:
+
+```bash
+base_branch=$(./scripts/harness/bin/sdd status --json | jq -r '.baseBranch // "null"')
+if [ "$base_branch" != "null" ]; then
+  # phase base branch 모드 — remote 존재 여부 확인
+  if ! git ls-remote --exit-code origin "$base_branch" >/dev/null 2>&1; then
+    echo "phase base branch 없음 — 생성: $base_branch"
+    git checkout -b "$base_branch" main
+    git push -u origin "$base_branch"
+    git checkout -   # spec 브랜치로 복귀
+  fi
+  PR_BASE="$base_branch"
+else
+  PR_BASE="main"
+fi
+```
+
+`git log --oneline origin/<branch>..HEAD 2>/dev/null` 로 커밋 수를, 위에서 결정한 `PR_BASE` 를 타깃으로 확인 블록 표시:
 
 ```
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 🔍 Push 확인
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  브랜치    <head>  ▶  🎯 <base>
+  브랜치    <head>  ▶  🎯 <PR_BASE>
   제목      <pr_description.md 첫 줄>
   커밋 수   <N>개
   변경 파일 <M>개
@@ -81,6 +99,8 @@ git push -u origin spec-{phaseN}-{seq}-{slug}
 (사전: `gh auth status` 로 인증 확인. 미인증이면 사용자에게 `gh auth login` 안내 후 멈춤)
 
 `/hk-pr-gh` 슬래시 커맨드의 절차를 따릅니다.
+
+> **Phase base branch 모드**: `PR_BASE` 가 `main` 이 아닌 경우 `gh pr create --base $PR_BASE` 를 사용합니다.
 
 ### 5-B. bitbucket.org → `bb-pr`
 
@@ -111,3 +131,24 @@ git push -u origin spec-{phaseN}-{seq}-{slug}
 ```
 
 planAccepted 플래그를 false 로 되돌려 다음 SPEC 을 위해 깨끗한 상태로 만듭니다.
+
+> **[spec-x 한정] queue.md 완료 갱신**
+>
+> spec-x (`spec-x-{slug}`) 인 경우 queue.md 갱신:
+> ```bash
+> ./scripts/harness/bin/sdd specx done {slug}
+> ```
+> 이 명령은 specx 대기 섹션에서 해당 항목을 제거하고 완료 섹션으로 이동합니다.
+
+> **[Phase base branch 모드] 다음 Spec 시작 전 주의사항**
+>
+> 현재 Spec PR 이 phase base branch 에 **merge된 후** 다음 Spec 브랜치를 생성해야 합니다.
+> merge 전에 다음 Spec 을 시작하면 이전 Spec 의 변경사항이 누락된 base 에서 분기하게 됩니다.
+>
+> ```
+> 올바른 순서:
+>   1. PR merge 완료 (phase base branch ← spec 브랜치)
+>   2. 다음 Spec 브랜치 생성 (phase base branch 최신 기준)
+> ```
+>
+> (→ constitution §4.1 Phase base branch 분기 규칙)
