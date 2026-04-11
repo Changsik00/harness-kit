@@ -104,11 +104,13 @@ After writing `spec.md`, `plan.md`, and `task.md`, the Agent MUST:
 
    ```
    📋 spec/plan/task 작성 완료. 다음 단계를 선택하세요:
-     1. /hk-spec-critique — 요구사항 비판 먼저 (Opus 서브에이전트, 선택 권장)
-     2. Plan Accept       — 바로 실행 단계 진입
+     1. Plan Accept (/hk-plan-accept)   — 바로 실행 단계 진입
+     2. Critique    (/hk-spec-critique) — 요구사항 비판 먼저 (Opus 서브에이전트, 선택)
+
+   → 허용 응답: constitution §4.2 참조
    ```
 
-3. **STRICTLY PROHIBITED**: Generating code or running non-read commands until the User selects an option and, if option 2, explicitly approves the Plan.
+3. **STRICTLY PROHIBITED**: Generating code or running non-read commands until the User selects an option and, if option 1, explicitly approves the Plan.
 
 ### 4.5 Critique Step (Optional)
 Before Plan Accept, the User MAY invoke `/hk-spec-critique` to get an independent Opus sub-agent critique of `spec.md`.
