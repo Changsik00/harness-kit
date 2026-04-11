@@ -35,7 +35,25 @@ description: Bitbucket Cloud PR 생성 — pr_description.md 기반으로 origin
 git push -u origin <current-branch>
 ```
 
-### 3. PR 생성
+### 3. PR 확인 (사용자 승인)
+
+`--no-confirm` 옵션이 없는 경우, 다음 블록을 표시하고 응답 대기:
+
+```
+🔍 PR 생성 확인
+- 브랜치:    <head> → <base>
+- 제목:      <PR title>
+- 커밋 수:   <N>개
+- 파일 변경: <M>개
+
+생성할까요? [Y/n]
+```
+
+- **긍정**: 거부 표현 외 모든 응답 (엔터, `Y`, `y`, `ok`, `go`, `ㅇㅇ`, `해`, `.` 등) → PR 생성 진행
+- **거부**: `n`, `no`, `아니`, `취소`, `cancel` → 중단
+- **`--no-confirm`**: 확인 블록 생략 (`bb-pr -y` 플래그와 동일 효과)
+
+### 4. PR 생성
 
 ```bash
 ./scripts/harness/bin/bb-pr -f <본문 파일 경로>
@@ -54,7 +72,7 @@ git push -u origin <current-branch>
 - `-y`           모든 확인 생략 (CI 등 비대화형)
 - `-n`           dry-run (페이로드만 출력)
 
-### 4. 결과 보고
+### 5. 결과 보고
 
 bb-pr 이 출력하는 PR URL 과 PR 번호를 그대로 사용자에게 전달합니다.
 실패 시 stderr 의 응답 body 를 그대로 보여주고 멈춥니다 (임의 재시도 금지).
