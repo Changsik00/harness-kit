@@ -7,7 +7,7 @@
 ## 🎯 진행 중
 
 <!-- sdd:active:start -->
-- **phase-6** — SDD UX 개선 및 커맨드 정리 — 1 spec — 다음: spec-6-001-cmd-prefix-rename
+- **phase-6** — SDD UX 개선 및 커맨드 정리 — 2 spec — 다음: spec-6-002-task-auto-proceed
 <!-- sdd:active:end -->
 
 ## 📋 대기 (Backlog)
