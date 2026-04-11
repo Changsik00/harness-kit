@@ -63,7 +63,8 @@ This section defines the roles and boundaries of work types used in harness-kit.
 
 - **Role**: A grouping of related Specs. Can serve as an independent integration test and release unit.
 - **Entry Condition**: 3+ Specs, or inter-Spec dependencies exist, or integration testing is required.
-- **Exit Condition**: All Specs merged, phase-level integration tests PASS, and User final approval.
+- **Exit Condition**: All Specs merged, phase-level integration tests PASS, and User final approval via `/hk-phase-ship`.
+- **Phase Ship Rule**: The Agent MUST NOT create a Phase PR (phase branch → main) without explicit User go/no-go approval. The `/hk-phase-ship` procedure — including success criteria verification, integration test execution, and go/no-go report — MUST be completed before PR creation. The Phase PR body MUST follow the `phase-ship.md` template.
 - **Base Branch (opt-in)**: A Phase MAY optionally have a `phase-N-{slug}` base branch. In this case, Spec PRs target the phase branch instead of main, and the phase branch merges to main after all Specs are complete. The base branch is created just-in-time at the first Spec's hk-ship.
 - **Identifier**: `phase-{N}` (→ §6.1)
 

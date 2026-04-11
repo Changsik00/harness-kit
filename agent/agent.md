@@ -45,7 +45,7 @@ Before drafting any Spec or Plan, the Agent MUST enter the Alignment Phase.
 
 | Work Type | Entry Action | Execution | Completion Action |
 |---|---|---|---|
-| **Phase (SDD-P)** | `sdd phase new <slug> [--base]` → spec planning | Strict Loop per spec | All specs Merged → `sdd phase done` |
+| **Phase (SDD-P)** | `sdd phase new <slug> [--base]` → spec planning | Strict Loop per spec | All specs Merged → `/hk-phase-ship` (go/no-go → Phase PR → `sdd phase done`) |
 | **Spec** | `sdd spec new <slug>` → plan/task authoring | Strict Loop → archive → push → PR | PR merge → phase.md auto-Merged by `sdd archive` |
 | **spec-x (SDD-x)** | `sdd spec new <slug>` (no phase) | Same as Spec | `sdd specx done <slug>` → queue.md update |
 | **FF** | User approval only | Direct commit (no state.json change) | No `sdd` commands needed — state untouched |
@@ -181,7 +181,7 @@ When passing a task with `[-]`, the Agent MUST:
 | **Spec (SDD-P)** | `sdd archive` auto-updates phase.md → Merged. If all specs Merged, run `sdd phase done`. |
 | **spec-x (SDD-x)** | Run `sdd specx done <slug>` to move item from specx → done in queue.md. |
 | **FF** | No `sdd` state changes. Do NOT modify `state.json` — FF work is invisible to state. |
-| **Phase done** | Run `sdd phase done` after all specs merged + integration tests passed + user approval. |
+| **Phase done** | Run `/hk-phase-ship`: verify success criteria + run integration tests + get User go/no-go + create Phase PR + `sdd phase done`. |
 
 - **Walkthrough & Description Protocol**:
     1. **READ Template**: `agent/templates/walkthrough.md` and `agent/templates/pr_description.md`.
