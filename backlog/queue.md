@@ -17,6 +17,7 @@
 <!-- sdd:queued:start -->
 | Phase | 제목 | 상태 | SPECs |
 |-------|------|------|-------|
+| [phase-7](phase-7.md) | SDD 프로세스 일관성 및 품질 강화 | Planning | 4 (Backlog) |
 <!-- sdd:queued:end -->
 
 ## ✅ 완료

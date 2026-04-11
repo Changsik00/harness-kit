@@ -17,12 +17,42 @@ The Constitution defines the invariant laws of this project. All Agents MUST com
 
 ## 2. Work Modes
 
-### 2.1 Mode A — SDD (Spec-Driven Development)
-- **REQUIRED for**: New features, architectural changes, non-trivial refactoring, and any change producing a Pull Request.
+### 2.1 Mode A — SDD-P (Spec-Driven Development, Phase-bound)
+- A Pull Request is produced. The change belongs to a Phase (multi-spec initiative).
+- **REQUIRED for**: New features, architectural changes, non-trivial refactoring.
 
-### 2.2 Mode B — FF (Fast Flow)
+### 2.2 Mode B — SDD-x (Spec-Driven Development, Solo)
+- A Pull Request is produced. The change is self-contained with no Phase affiliation.
+- See §4.1 Solo Spec conditions and §5.2 for the `spec-x-{slug}` identifier.
+
+### 2.3 Mode C — FF (Fast Flow)
+- No Pull Request is produced.
 - ONLY allowed with explicit User approval.
-- LIMITED to: Documentation, minor configuration, and small reversible experiments.
+- LIMITED to: Inline fixes, minor wording, config tweaks that do not warrant a PR.
+
+### 2.4 Work Mode Decision Tree
+
+Use this two-step check at the start of every Alignment Phase (→ agent.md §3):
+
+```
+Step 1 — PR이 필요한가?
+  NO  → FF  (Mode C)
+  YES → Step 2
+
+Step 2 — Phase가 필요한가?
+  YES → SDD-P  (Mode A)  spec-{phaseN}-{seq}-{slug}
+  NO  → SDD-x  (Mode B)  spec-x-{slug}
+```
+
+**Edge Cases**
+
+| 작업 예시 | PR? | Phase? | 모드 |
+|---|:---:|:---:|:---:|
+| agent.md 오탈자 한 줄 수정 | NO | — | FF |
+| `hk-gh-pr.md` PR 확인 UX 표준화 | YES | NO | SDD-x |
+| `update.sh` 버전 인식 재작성 | YES | NO | SDD-x |
+| 신규 훅 5개 추가 (기능 추가) | YES | YES | SDD-P |
+| Spec 자기비판 워크플로우 신설 | YES | YES | SDD-P |
 
 ## 3. Alignment Requirement (Mandatory)
 
