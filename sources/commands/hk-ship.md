@@ -80,13 +80,13 @@ git push -u origin spec-{phaseN}-{seq}-{slug}
 
 (사전: `gh auth status` 로 인증 확인. 미인증이면 사용자에게 `gh auth login` 안내 후 멈춤)
 
-`/hk-gh-pr` 슬래시 커맨드의 절차를 따릅니다.
+`/hk-pr-gh` 슬래시 커맨드의 절차를 따릅니다.
 
 ### 5-B. bitbucket.org → `bb-pr`
 
 (사전: `~/.config/bitbucket/token` 준비)
 
-`/hk-bb-pr` 슬래시 커맨드의 절차를 따릅니다.
+`/hk-pr-bb` 슬래시 커맨드의 절차를 따릅니다.
 
 ### 5-C. 그 외 (GitLab, GitHub Enterprise, 사내 Bitbucket Server 등)
 

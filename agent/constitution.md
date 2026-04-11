@@ -49,7 +49,7 @@ Step 2 — Phase가 필요한가?
 | 작업 예시 | PR? | Phase? | 모드 |
 |---|:---:|:---:|:---:|
 | agent.md 오탈자 한 줄 수정 | NO | — | FF |
-| `hk-gh-pr.md` PR 확인 UX 표준화 | YES | NO | SDD-x |
+| `hk-pr-gh.md` PR 확인 UX 표준화 | YES | NO | SDD-x |
 | `update.sh` 버전 인식 재작성 | YES | NO | SDD-x |
 | 신규 훅 5개 추가 (기능 추가) | YES | YES | SDD-P |
 | Spec 자기비판 워크플로우 신설 | YES | YES | SDD-P |
@@ -158,7 +158,7 @@ Once a Plan is explicitly accepted (Plan Accept), the Agent is authorized to:
 - **Commit Title Format**: MUST follow `<type>(spec-{phaseN}-{seq}): <description>` (all lowercase).
   - Allowed types: `feat`, `fix`, `refactor`, `test`, `docs`, `chore`, `style`, `perf`, `build`, `ci`.
   - Example: `feat(spec-1-001): introduce row-level lock for stock decrement`.
-- **Pull Request Creation**: The Agent MAY create a PR via slash commands (`/hk-gh-pr`, `/hk-bb-pr`) after pushing the feature branch, but MUST obtain explicit User confirmation before executing. The Agent MUST archive `walkthrough.md` / `pr_description.md` under the SPEC directory before PR creation.
+- **Pull Request Creation**: The Agent MAY create a PR via slash commands (`/hk-pr-gh`, `/hk-pr-bb`) after pushing the feature branch, but MUST obtain explicit User confirmation before executing. The Agent MUST archive `walkthrough.md` / `pr_description.md` under the SPEC directory before PR creation.
 
 ## 10. Backlog Law
 

@@ -169,7 +169,7 @@ When passing a task with `[-]`, the Agent MUST:
     3. **Archive**: Commit `walkthrough.md` and `pr_description.md` inside the SPEC directory before pushing.
     4. **Verify task.md**: Ensure zero `[ ]` checkboxes remain.
     5. **Push**: `git push -u origin spec-{phaseN}-{seq}-{slug}`.
-    6. **Hand-off**: Notify the User. The Agent MAY create a PR via `/hk-gh-pr` or `/hk-bb-pr` with User confirmation.
+    6. **Hand-off**: Notify the User. The Agent MAY create a PR via `/hk-pr-gh` or `/hk-pr-bb` with User confirmation.
 
 ### 6.4 Bash Single-Command Principle
 
