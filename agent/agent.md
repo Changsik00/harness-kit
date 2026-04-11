@@ -100,8 +100,15 @@ The Agent MUST read templates from `agent/templates/` before writing any artifac
 ### 4.4 Hard Stop for Review
 After writing `spec.md`, `plan.md`, and `task.md`, the Agent MUST:
 1. Report completion to the User with paths.
-2. Wait for explicit Plan Accept (`/hk-plan-accept` or "Plan Accepted" message).
-3. **STRICTLY PROHIBITED**: Generating code or running non-read commands until approval.
+2. Present the following choice and wait for explicit selection:
+
+   ```
+   📋 spec/plan/task 작성 완료. 다음 단계를 선택하세요:
+     1. /hk-spec-critique — 요구사항 비판 먼저 (Opus 서브에이전트, 선택 권장)
+     2. Plan Accept       — 바로 실행 단계 진입
+   ```
+
+3. **STRICTLY PROHIBITED**: Generating code or running non-read commands until the User selects an option and, if option 2, explicitly approves the Plan.
 
 ### 4.5 Critique Step (Optional)
 Before Plan Accept, the User MAY invoke `/hk-spec-critique` to get an independent Opus sub-agent critique of `spec.md`.
