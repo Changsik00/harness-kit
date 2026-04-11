@@ -36,6 +36,11 @@ Before any Spec, Plan, or execution:
 - **One Spec = One Pull Request.**
 - If the scope exceeds a single PR, the Spec MUST be split, and overflow moved to the Backlog.
 - Every Spec MUST belong to a Phase. Orphan Specs are forbidden (use `phase-0` if no logical home exists).
+- **Exception — Solo Spec**: A Spec MAY be created without a Phase using the `spec-x-{slug}` identifier when ALL of the following conditions are met:
+  1. The change is self-contained and completable in a single PR.
+  2. The type is limited to `chore`, `fix`, `docs`, or small-scope `refactor`.
+  3. No new architectural decisions or feature additions are involved.
+  - Solo Specs do NOT require a `phase.md` entry or `queue.md` update.
 
 ### 4.2 Plan Rules
 - A Plan is an execution contract. No execution is allowed without an approved Plan.
@@ -61,6 +66,10 @@ Before any Spec, Plan, or execution:
 - Format: `spec-{phaseN}-{seq}` where `phaseN` matches the parent phase number and `seq` is a 3-digit number reset per phase.
 - Examples: `spec-1-001`, `spec-1-002`, `spec-2-001`.
 - A Spec ID is immutable once assigned.
+- **Solo Spec format**: `spec-x-{slug}` — used when no Phase affiliation exists (→ §4.1 Solo Spec conditions).
+  - `x` is a literal character, not a phase number.
+  - `{slug}` must be unique across all specs in the repository.
+  - Example: `spec-x-update-migration`
 
 ### 5.3 Layout (Flat)
 - Queue dashboard: `backlog/queue.md` (sdd-managed)
