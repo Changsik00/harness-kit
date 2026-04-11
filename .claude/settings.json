@@ -183,7 +183,7 @@
           },
           {
             "type": "command",
-            "command": "echo 'IMPORTANT: New session started. You MUST proactively recommend the user to run /hk-align before starting any work.'"
+            "command": "echo 'IMPORTANT: New session started. You MUST proactively recommend the user to run /hk-align before starting any work.' >&2"
           }
         ]
       }

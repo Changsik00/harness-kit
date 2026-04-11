@@ -194,6 +194,10 @@
           {
             "type": "command",
             "command": "scripts/harness/bin/sdd status --brief 2>/dev/null || true"
+          },
+          {
+            "type": "command",
+            "command": "echo 'IMPORTANT: New session started. You MUST proactively recommend the user to run /hk-align before starting any work.' >&2"
           }
         ]
       }
