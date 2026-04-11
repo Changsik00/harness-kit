@@ -137,7 +137,7 @@ Before any Spec, Plan, or execution:
 - Format: `phase-{N}` where `N` is a positive integer.
 - Examples: `phase-1`, `phase-2`.
 - Descriptive name lives only inside `phase.md`'s title, not in the ID/directory.
-- **Phase Base Branch**: Phase base branch 모드인 경우 `phase-{N}` 브랜치가 생성된다. 브랜치 이름 = Phase ID.
+- **Phase Base Branch**: Phase base branch 모드인 경우 `phase-{N}-{slug}` 브랜치가 생성된다. slug는 phase.md 제목에서 유래한 간결한 식별자. 예: `phase-8-work-model`.
 
 ### 6.2 Spec Identifier
 - Format: `spec-{phaseN}-{seq}` where `phaseN` matches the parent phase number and `seq` is a 3-digit number reset per phase.
@@ -159,7 +159,7 @@ Before any Spec, Plan, or execution:
 - Spec branch name = spec directory name. **No `feature/` prefix.**
 - Format: `spec-{phaseN}-{seq}-{slug}`
 - Example: `spec-1-001-stock-row-locking`
-- Phase base branch format: `phase-{N}` (→ §6.1)
+- Phase base branch format: `phase-{N}-{slug}` (→ §6.1). 예: `phase-8-work-model`
 
 ## 7. Execution Delegation
 

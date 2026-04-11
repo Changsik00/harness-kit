@@ -79,8 +79,8 @@
 - [ ] **pr_description.md 작성** (템플릿 준수)
 - [ ] **Archive Commit**: `docs(spec-8-001): archive walkthrough and pr description`
 - [ ] **Push**: `git push -u origin spec-8-001-queue-redesign`
-  - phase-8 브랜치 미존재 확인 후 수동 생성: `git checkout -b phase-8 main && git push -u origin phase-8`
-  - PR 타깃: `phase-8`
+  - phase-8-work-model 브랜치 미존재 확인 후 수동 생성: `git checkout -b phase-8-work-model main && git push -u origin phase-8-work-model`
+  - PR 타깃: `phase-8-work-model`
 - [ ] **사용자 알림**: 푸시 완료 + PR 생성 요청
 
 ---
