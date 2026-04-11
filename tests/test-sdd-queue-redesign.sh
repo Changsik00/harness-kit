@@ -120,11 +120,10 @@ cat > "$FIXTURE_DIR/backlog/queue.md" <<'EOF'
 EOF
 
 SDD_CMD="bash $FIXTURE_DIR/scripts/harness/bin/sdd"
-export SDD_ROOT="$FIXTURE_DIR"
 
 echo "▶ Check 1: sdd status — NEXT 행 존재 여부"
 check
-STATUS_OUT=$($SDD_CMD status 2>&1 || true)
+STATUS_OUT=$(cd "$FIXTURE_DIR" && $SDD_CMD status 2>&1 || true)
 if echo "$STATUS_OUT" | grep -q "NEXT:"; then
   pass "sdd status 출력에 'NEXT:' 행이 있음"
 else
@@ -145,7 +144,7 @@ fi
 echo ""
 echo "▶ Check 3: sdd queue — NOW/NEXT/Icebox 섹션 헤더 존재"
 check
-QUEUE_OUT=$($SDD_CMD queue 2>&1 || true)
+QUEUE_OUT=$(cd "$FIXTURE_DIR" && $SDD_CMD queue 2>&1 || true)
 MISSING=""
 for section in "🔴 NOW" "⏭ NEXT" "🧊 Icebox"; do
   if ! echo "$QUEUE_OUT" | grep -q "$section"; then
@@ -161,7 +160,7 @@ fi
 echo ""
 echo "▶ Check 4: sdd queue --raw — queue.md 원문 출력"
 check
-RAW_OUT=$($SDD_CMD queue --raw 2>&1 || true)
+RAW_OUT=$(cd "$FIXTURE_DIR" && $SDD_CMD queue --raw 2>&1 || true)
 if echo "$RAW_OUT" | grep -q "sdd:now:start"; then
   pass "sdd queue --raw 는 queue.md 원문(마커 포함) 출력"
 else
@@ -174,7 +173,7 @@ check
 # phase-8.md의 모든 spec을 Merged로 변경
 sed -i.bak 's/| In Progress |/| Merged |/g; s/| Backlog |/| Merged |/g' \
   "$FIXTURE_DIR/backlog/phase-8.md"
-STATUS_ALL_DONE=$($SDD_CMD status 2>&1 || true)
+STATUS_ALL_DONE=$(cd "$FIXTURE_DIR" && $SDD_CMD status 2>&1 || true)
 if echo "$STATUS_ALL_DONE" | grep -qE "NEXT:.*없음|NEXT:.*none"; then
   pass "모든 spec Merged 시 NEXT = 없음"
 else

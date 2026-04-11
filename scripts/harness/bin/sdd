@@ -75,6 +75,24 @@ cmd_version() {
 # ============================================================
 # status
 # ============================================================
+# phase.md spec 표에서 다음 실행 대기 중인 spec ID를 반환한다.
+# 첫 번째 'Backlog' 상태 행의 ID 컬럼 값을 출력. 없으면 '없음'.
+compute_next_spec() {
+  local phase_id="$1"
+  local phase_file="$SDD_BACKLOG/${phase_id}.md"
+  [ -f "$phase_file" ] || { echo "없음"; return; }
+  local next
+  next=$(awk -F'|' '
+    /<!-- sdd:specs:start -->/ { in_table=1; next }
+    /<!-- sdd:specs:end -->/ { in_table=0; next }
+    in_table && /\| Backlog \|/ {
+      gsub(/[[:space:]]/, "", $2)
+      if ($2 != "" && $2 !~ /^-+$/ && $2 !~ /^ID$/) { print $2; exit }
+    }
+  ' "$phase_file")
+  echo "${next:-없음}"
+}
+
 cmd_status() {
   local brief=0 verbose=0 json=0
   for a in "$@"; do
@@ -122,8 +140,14 @@ cmd_status() {
   echo "${C_BLU}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${C_RST}"
   echo ""
   echo "📊 현재 상태"
+  local next_spec=""
+  if [ -n "${phase:-}" ] && [ "${phase}" != "null" ]; then
+    next_spec="$(compute_next_spec "$phase")"
+  fi
+
   printf "  Active Phase: %s\n" "${phase:-${C_DIM}없음${C_RST}}"
   printf "  Active Spec:  %s\n" "${spec:-${C_DIM}없음${C_RST}}"
+  printf "  NEXT:         %s\n" "${next_spec:-${C_DIM}없음${C_RST}}"
   printf "  Branch:       %s\n" "${branch:-${C_DIM}?${C_RST}}"
   printf "  Plan Accept:  %s\n" "$([ "$plan_accepted" = "true" ] && echo "${C_GRN}yes${C_RST}" || echo "${C_DIM}no${C_RST}")"
   printf "  Last Test:    %s\n" "${last_test:-${C_DIM}없음${C_RST}}"
@@ -356,12 +380,33 @@ phase_show() {
 }
 
 cmd_queue() {
-  local q="$(state_queue_file)"
+  local raw=0
+  for a in "$@"; do
+    case "$a" in --raw) raw=1 ;; esac
+  done
+
+  local q
+  q="$(state_queue_file)"
   if [ ! -f "$q" ]; then
     echo "${C_DIM}queue.md 가 아직 없습니다. sdd phase new <slug> 로 시작하세요.${C_RST}"
     return
   fi
-  cat "$q"
+
+  if [ $raw -eq 1 ]; then
+    cat "$q"
+    return
+  fi
+
+  # 구조화 출력: 섹션 헤더에 색상 적용
+  while IFS= read -r line; do
+    case "$line" in
+      "## 🔴 NOW"*)      echo "${C_RED}${line}${C_RST}" ;;
+      "## ⏭ NEXT"*)     echo "${C_YLW}${line}${C_RST}" ;;
+      "## 🧊 Icebox"*)  echo "${C_CYN}${line}${C_RST}" ;;
+      "## 📦"*|"## 📥"*|"## 📋"*|"## ✅"*) echo "${C_BLU}${line}${C_RST}" ;;
+      *)                 echo "$line" ;;
+    esac
+  done < "$q"
 }
 
 # ============================================================
