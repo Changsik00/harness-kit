@@ -14,6 +14,7 @@
 | **시작일** | YYYY-MM-DD |
 | **목표 종료일** | YYYY-MM-DD |
 | **소유자** | <name> |
+| **Base Branch** | 없음 / `phase-{N}` (opt-in) |
 
 ## 🎯 배경 및 목표
 
@@ -38,6 +39,9 @@
 | ID | 슬러그 | 우선순위 | 상태 | 디렉토리 |
 |---|---|:---:|---|---|
 <!-- sdd:specs:end -->
+
+> 상태 허용값: `Backlog` / `In Progress` / `Merged`
+> sdd가 archive 시 자동으로 `Merged`로 갱신합니다. `In Progress`는 active spec에 자동 마킹됩니다.
 
 ### spec-{N}-001 — <한글 슬러그>
 
@@ -94,7 +98,7 @@ npm run test:e2e -- --testPathPattern="phase-{N}"
 
 ## 🏁 Phase Done 조건
 
-- [ ] 모든 SPEC 이 main 에 merge (위 표의 상태 = Merged)
+- [ ] 모든 SPEC 이 merge (base branch 모드: `phase-{N}` → main / 일반 모드: 각 spec → main)
 - [ ] 통합 테스트 전 시나리오 PASS
 - [ ] 성공 기준 정량 측정 결과 (본 문서 하단 "검증 결과" 섹션에 기록)
 - [ ] 사용자 최종 승인
