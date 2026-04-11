@@ -1,5 +1,5 @@
 ---
-description: 현재 SPEC 브랜치의 코드 변경을 독립 sub-agent 로 리뷰 (spec 대비 구현 + 코드 품질 + 테스트 커버리지)
+description: 현재 SPEC 브랜치의 코드 변경을 독립 서브에이전트로 리뷰 (spec 대비 구현 + 코드 품질 + 테스트 커버리지)
 ---
 
 현재 브랜치의 코드 변경사항을 **독립적인 관점**에서 리뷰합니다.
@@ -24,9 +24,9 @@ git diff main...HEAD --stat
 
 ## 2. 독립 리뷰 수행
 
-Agent tool (subagent_type: general-purpose) 을 사용하여 **별도 컨텍스트**에서 리뷰를 수행합니다.
+Agent tool (`subagent_type: general-purpose`, `model: "opus"`) 을 사용하여 **별도 컨텍스트**에서 리뷰를 수행합니다.
 
-sub-agent 에게 전달할 프롬프트:
+서브에이전트에게 전달할 프롬프트:
 
 > 당신은 독립적인 시니어 개발자 코드 리뷰어입니다.
 >

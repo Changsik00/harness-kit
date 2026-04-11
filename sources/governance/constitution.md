@@ -72,7 +72,7 @@ Before any Spec, Plan, or execution:
   3. No new architectural decisions or feature additions are involved.
   - Solo Specs do NOT require a `phase.md` entry or `queue.md` update.
 
-### 4.2 Plan Rules
+### 4.2 Plan Accept & Critique 인식
 - A Plan is an execution contract. No execution is allowed without an approved Plan.
 - The Plan MUST include branch creation and test execution tasks.
 - **Plan Accept 인식 (SSOT)**: 다음 표현은 모두 Plan Accept로 처리한다 (대소문자 무시):

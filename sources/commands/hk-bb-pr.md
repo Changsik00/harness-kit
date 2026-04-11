@@ -2,7 +2,7 @@
 description: Bitbucket Cloud PR 생성 — pr_description.md 기반으로 origin 에 PR 요청
 ---
 
-본 명령은 현재 브랜치에 대한 Bitbucket Cloud Pull Request 를 생성합니다.
+이 명령은 현재 브랜치에 대한 Bitbucket Cloud Pull Request 를 생성합니다.
 원격 git UI 에 접속해 수동으로 PR 을 만들 필요 없이, CLI 한 번으로 끝납니다.
 
 ## 사전 조건 (사용자가 한 번만 준비)
@@ -52,8 +52,7 @@ git push -u origin <current-branch>
 생성할까요? [Y/n]
 ```
 
-- **긍정**: 거부 표현 외 모든 응답 (엔터, `Y`, `y`, `ok`, `go`, `ㅇㅇ`, `해`, `.` 등) → PR 생성 진행
-- **거부**: `n`, `no`, `아니`, `취소`, `cancel` → 중단
+긍정/거부 규칙 → constitution §4.2 참조
 - **`--no-confirm`**: 확인 블록 생략 (`bb-pr -y` 플래그와 동일 효과)
 
 ### 4. PR 생성

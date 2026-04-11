@@ -2,7 +2,7 @@
 description: GitHub PR 생성 — pr_description.md 기반으로 origin 에 PR 요청 (gh CLI 사용)
 ---
 
-본 명령은 현재 브랜치에 대한 GitHub Pull Request 를 `gh` CLI 로 생성합니다.
+이 명령은 현재 브랜치에 대한 GitHub Pull Request 를 `gh` CLI 로 생성합니다.
 원격 GitHub UI 에 접속해 수동으로 PR 을 만들 필요 없이, CLI 한 번으로 끝납니다.
 
 ## 사전 조건 (사용자가 한 번만 준비)
@@ -60,8 +60,7 @@ BODY="$(awk 'BEGIN{found=0} found{print;next} NF{found=1;next}' "$PR_FILE")"
 생성할까요? [Y/n]
 ```
 
-- **긍정**: 거부 표현 외 모든 응답 (엔터, `Y`, `y`, `ok`, `go`, `ㅇㅇ`, `해`, `.` 등) → PR 생성 진행
-- **거부**: `n`, `no`, `아니`, `취소`, `cancel` → 중단
+긍정/거부 규칙 → constitution §4.2 참조
 - **`--no-confirm`**: 확인 블록 생략하고 바로 PR 생성
 
 ### 5. PR 생성
