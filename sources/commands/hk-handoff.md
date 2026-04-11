@@ -48,11 +48,21 @@ $HARNESS_TEST_INTEGRATION_CMD || { echo "integration test 실패"; exit 1; }
 
 ## 4. Push 확인 (사용자 승인 필요)
 
-`git status` + `git log --oneline origin/main..HEAD` 를 보여주고 사용자에게 묻습니다:
+`git log --oneline origin/<branch>..HEAD 2>/dev/null` 로 커밋 수를 확인한 후 다음 블록을 표시:
 
-> "다음 커밋들을 origin 으로 push 할까요?"
+```
+🔍 Push 확인
+- 브랜치: <current-branch> → origin
+- 커밋 수: <N>개 (push 예정)
 
-사용자가 명시적으로 승인하면 (브랜치 이름 = spec 디렉토리 이름, `feature/` prefix 없음):
+push 할까요? [Y/n]
+```
+
+- **긍정**: 거부 표현 외 모든 응답 (엔터, `Y`, `y`, `ok`, `go`, `ㅇㅇ`, `해`, `.` 등) → push 진행
+- **거부**: `n`, `no`, `아니`, `취소`, `cancel` → 중단
+- **`--no-confirm`**: 확인 블록 생략하고 바로 push
+
+승인 시 (브랜치 이름 = spec 디렉토리 이름, `feature/` prefix 없음):
 
 ```bash
 git push -u origin spec-{phaseN}-{seq}-{slug}
