@@ -40,9 +40,9 @@
 
 ---
 
-## Task N: Hand-off (필수)
+## Task N: Ship (필수)
 
-> 모든 작업 task 완료 후 수행합니다.
+> 모든 작업 task 완료 후 `/hk-ship` 절차를 따릅니다.
 
 - [ ] 코드 품질 점검 (lint / type check) — 스택별 명령
 - [ ] 전체 테스트 실행 → 모두 PASS
@@ -51,7 +51,8 @@
 - [ ] **pr_description.md 작성** (템플릿 준수)
 - [ ] **Archive Commit**: `docs(spec-{phaseN}-{seq}): archive walkthrough and pr description`
 - [ ] **Push**: `git push -u origin spec-{phaseN}-{seq}-<slug>`
-- [ ] **사용자 알림**: 푸시 완료 + PR 생성 요청 (PR 은 사용자가 hosted git UI 에서 생성)
+- [ ] **PR 생성**: 에��전트가 `gh pr create` 또는 `/hk-pr-gh` 로 생성 (사용자 승인 후)
+- [ ] **사용자 알림**: 푸시 완료 + PR URL 보고
 
 ---
 
@@ -61,5 +62,5 @@
 |---|---|
 | **총 Task 수** | N |
 | **예상 commit 수** | M |
-| **현재 단계** | Planning / Execution / Hand-off |
+| **현재 단계** | Planning / Execution / Ship |
 | **마지막 업데이트** | YYYY-MM-DD HH:MM |

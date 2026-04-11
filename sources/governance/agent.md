@@ -24,8 +24,8 @@ Upon activation (typically via `/hk-align`), the Agent MUST:
 1. Read `agent/constitution.md` and `agent/agent.md`.
 2. Run `scripts/harness/bin/sdd status` (if available) or fall back to `git branch --show-current` + `git log -3 --oneline`.
 3. Inspect active work in `backlog/`, `specs/`, and `backlog/queue.md`.
-4. Summarize current state to the User: active PHASE, active SPEC, branch, plan-accept flag, last test result.
-5. Ask **ONE** question: "어떤 컨텍스트로 진행할까요?"
+4. Summarize current state to the User: active PHASE, active SPEC, NOW/NEXT, branch, plan-accept flag, last test result.
+5. Ask **ONE** question: "What context shall we proceed with?"
 
 ## 3. Alignment Phase (Mandatory)
 
@@ -34,35 +34,45 @@ Before drafting any Spec or Plan, the Agent MUST enter the Alignment Phase.
 **Output Format**:
 - **[Intent Understanding]**: Summary of user goals.
 - **[Classification]**: Apply the two-step decision tree (→ constitution §2.4):
-  - Step 1: PR 필요 여부 → FF or SDD 계열
-  - Step 2 (SDD인 경우): Phase 필요 여부 → SDD-P or SDD-x
-  - 각 항목별 판단 근거를 한 줄로 명시할 것.
+  - Step 1: Is a PR required? → FF or SDD family
+  - Step 2 (if SDD): Is a Phase required? → SDD-P or SDD-x
+  - State the reasoning for each step in one line.
 - **[Work Mode Options]**: Present the classified mode(s) with reasoning.
 - **[Recommendation]**: Preferred mode and why.
 - **[Decision Request]**: Ask the user to select a mode.
 
+### 3.1 Work Type Behavior Table
+
+| Work Type | Entry Action | Execution | Completion Action |
+|---|---|---|---|
+| **Phase (SDD-P)** | `sdd phase new <slug> [--base]` → spec planning | Strict Loop per spec | All specs Merged → `sdd phase done` |
+| **Spec** | `sdd spec new <slug>` → plan/task authoring | Strict Loop → archive → push → PR | PR merge → phase.md auto-Merged by `sdd archive` |
+| **spec-x (SDD-x)** | `sdd spec new <slug>` (no phase) | Same as Spec | `sdd specx done <slug>` → queue.md update |
+| **FF** | User approval only | Direct commit (no state.json change) | No `sdd` commands needed — state untouched |
+| **Icebox** | Add to queue.md Icebox section | **NON-EXECUTABLE** — no code/commit | Promote to Phase or spec-x when ready |
+
 ## 4. SDD Mode Protocol
 
 Once SDD is selected:
-- **Documentation**: All artifacts MUST be in **Korean** (→ constitution §4.4).
-- **No Early Execution**: NO production code changes or commits until a Plan is explicitly accepted (→ constitution §4.3).
+- **Documentation**: All artifacts MUST be in **Korean** (→ constitution §5.4).
+- **No Early Execution**: NO production code changes or commits until a Plan is explicitly accepted (→ constitution §5.3).
 
 ### 4.1 Layout (Flat — One File Per Phase)
 
-`backlog/` 와 `specs/` 는 **형제 디렉토리** 이며 역할이 분리되어 있다:
-- `backlog/` = phase 단위 *계획* (대시보드 + 업무 지도)
-- `specs/`   = 실제 *진행/완료* 된 spec 산출물 (work log)
+`backlog/` and `specs/` are **sibling directories** with distinct roles:
+- `backlog/` = phase-level *planning* (dashboard + work map)
+- `specs/`   = actual *progress/completed* spec artifacts (work log)
 
 ```
 backlog/
-├── queue.md            # 대시보드: 진행 중 / 대기 / 완료 phase 한눈에
-├── phase-1.md          # phase 1 의 모든 spec 을 한 파일에 (요점 + 방향성 + 통합 테스트 + ADR 참조)
+├── queue.md            # Dashboard: active / queued / done phases at a glance
+├── phase-1.md          # All specs for phase 1 in one file (summary + direction + integration tests + ADR refs)
 ├── phase-2.md
 └── ...
 
-specs/                  # 실제 작업 (평면 배치)
+specs/                  # Actual work (flat layout)
 ├── spec-1-001-{slug}/
-│   ├── spec.md         # phase-1.md 의 spec-1-001 항목을 *구체화*
+│   ├── spec.md         # Detailed spec expanding phase-1.md's spec-1-001 entry
 │   ├── plan.md
 │   ├── task.md
 │   ├── walkthrough.md
@@ -71,20 +81,20 @@ specs/                  # 실제 작업 (평면 배치)
 ├── spec-2-001-{slug}/
 └── ...
 
-docs/decisions/         # ADR (phase-x.md / spec.md 에서 참조)
+docs/decisions/         # ADR (referenced from phase-x.md / spec.md)
 ├── ADR-001-{slug}.md
 └── ADR-002-{slug}.md
 ```
 
-> ID 형식, 디렉토리 경로, 브랜치 이름 규칙은 constitution §5 참조.
+> ID formats, directory paths, and branch naming rules → constitution §6.
 
 ### 4.2 Template Enforcement
 
-The Agent MUST read templates from `agent/templates/` before writing any artifact (→ constitution §4.4):
+The Agent MUST read templates from `agent/templates/` before writing any artifact (→ constitution §5.4):
 
 | Artifact | Template | Output Path |
 |---|---|---|
-| Queue | `agent/templates/queue.md` | `backlog/queue.md` (sdd 가 자동 관리) |
+| Queue | `agent/templates/queue.md` | `backlog/queue.md` (sdd auto-managed) |
 | Phase | `agent/templates/phase.md` | `backlog/phase-{N}.md` |
 | Spec | `agent/templates/spec.md` | `specs/spec-{N}-{seq}-{slug}/spec.md` |
 | Plan | `agent/templates/plan.md` | `specs/spec-{N}-{seq}-{slug}/plan.md` |
@@ -92,10 +102,10 @@ The Agent MUST read templates from `agent/templates/` before writing any artifac
 | Walkthrough | `agent/templates/walkthrough.md` | `specs/spec-{N}-{seq}-{slug}/walkthrough.md` |
 | PR Description | `agent/templates/pr_description.md` | `specs/spec-{N}-{seq}-{slug}/pr_description.md` |
 
-### 4.3 sdd 자동 갱신 (Marker-based)
-다음 마커가 들어 있는 영역은 `bin/sdd` 가 자동 갱신한다 — 사람이 수동 편집하지 말 것:
-- `backlog/queue.md`: `<!-- sdd:active:start --> ~ <!-- sdd:active:end -->` 등
-- `backlog/phase-{N}.md`: `<!-- sdd:specs:start --> ~ <!-- sdd:specs:end -->` (spec 표)
+### 4.3 sdd Auto-Update (Marker-based)
+The following marker-delimited regions are auto-updated by `bin/sdd` — do NOT manually edit:
+- `backlog/queue.md`: `<!-- sdd:active:start --> ~ <!-- sdd:active:end -->` etc.
+- `backlog/phase-{N}.md`: `<!-- sdd:specs:start --> ~ <!-- sdd:specs:end -->` (spec table)
 
 ### 4.4 Hard Stop for Review
 After writing `spec.md`, `plan.md`, and `task.md`, the Agent MUST:
@@ -103,11 +113,11 @@ After writing `spec.md`, `plan.md`, and `task.md`, the Agent MUST:
 2. Present the following choice and wait for explicit selection:
 
    ```
-   📋 spec/plan/task 작성 완료. 다음 단계를 선택하세요:
-     1. Plan Accept (/hk-plan-accept)   — 바로 실행 단계 진입
-     2. Critique    (/hk-spec-critique) — 요구사항 비판 먼저 (Opus 서브에이전트, 선택)
+   spec/plan/task writing complete. Please select the next step:
+     1. Plan Accept (/hk-plan-accept)   — Enter execution phase immediately
+     2. Critique    (/hk-spec-critique) — Get requirements critique first (Opus sub-agent, optional)
 
-   → 허용 응답: constitution §4.2 참조
+   → Accepted responses: see constitution §5.2
    ```
 
 3. **STRICTLY PROHIBITED**: Generating code or running non-read commands until the User selects an option and, if option 1, explicitly approves the Plan.
@@ -115,33 +125,33 @@ After writing `spec.md`, `plan.md`, and `task.md`, the Agent MUST:
 ### 4.5 Critique Step (Optional)
 Before Plan Accept, the User MAY invoke `/hk-spec-critique` to get an independent Opus sub-agent critique of `spec.md`.
 
-- **시점**: spec.md/plan.md/task.md 작성 완료 후, Plan Accept 전
-- **목적**: 유사 기법 조사 + 요구사항 누락·모순·과잉 지적 + 대안 제안
-- **결과**: `specs/<spec-dir>/critique.md` 저장
-- **선택적**: 호출하지 않아도 워크플로우 진행에 영향 없음
-- Agent는 산출물 보고 시 critique 옵션을 한 줄로 안내할 수 있음:
-  `(선택) /hk-spec-critique 로 요구사항 비판을 받을 수 있습니다.`
+- **When**: After spec.md/plan.md/task.md are written, before Plan Accept
+- **Purpose**: Research similar approaches + identify requirement gaps, contradictions, over-engineering + propose alternatives
+- **Output**: `specs/<spec-dir>/critique.md`
+- **Optional**: Not invoking it does not affect workflow progression
+- The Agent MAY include a one-line note about the critique option when reporting artifacts:
+  `(Optional) You can run /hk-spec-critique for a requirements critique.`
 
 ## 5. Plan & Task Strategy
 
 A Plan is a binding execution contract. It MUST follow the `plan.md` template exactly and include:
-- **Branch Strategy**: The first task MUST create a feature branch (→ constitution §5.4 for naming).
-- **Task Granularity**: Each Task MUST represent one logical unit of work (→ constitution §7).
+- **Branch Strategy**: The first task MUST create a feature branch (→ constitution §6.4 for naming).
+- **Task Granularity**: Each Task MUST represent one logical unit of work (→ constitution §8).
 - **TDD Integration**: Each task MUST include specific test expectations using the project's stack-appropriate test command.
 
 ## 6. Execution Phase (Delegated Authority)
 
-Execution begins **ONLY** after explicit Plan Accept (→ constitution §4.3, §6.1).
+Execution begins **ONLY** after explicit Plan Accept (→ constitution §5.3, §7.1).
 
 ### 6.1 The Strict Loop Rule
 For **EVERY** Task in the approved Plan, the Agent MUST:
-1. **Verify Branch**: Ensure the current branch is NOT `main` (→ constitution §9.1).
+1. **Verify Branch**: Ensure the current branch is NOT `main` (→ constitution §10.1).
 2. **Test First**: Write or update tests for the task behavior.
 3. **Implement**: Write minimal code to satisfy the task.
 4. **Verify**: Run the specified tests and confirm they pass.
-5. **Commit**: One Task = One Commit (→ constitution §7), using the commit format (→ constitution §9.2).
+5. **Commit**: One Task = One Commit (→ constitution §8), using the commit format (→ constitution §10.2).
 6. **Update task.md**: Mark the task status (see §6.2).
-7. **Auto-proceed or Stop**: If no issues occurred, update `task.md` and **automatically proceed** to the next task. If any issue occurs (test failure, unexpected error, scope deviation), immediately **STOP** and report to the user. The Hand-off task (push/PR) **always** requires explicit user confirmation.
+7. **Auto-proceed or Stop**: If no issues occurred, update `task.md` and **automatically proceed** to the next task. If any issue occurs (test failure, unexpected error, scope deviation), immediately **STOP** and report to the user. The Ship task (push/PR) **always** requires explicit user confirmation.
 
 ### 6.2 Task Status Management
 
@@ -160,16 +170,26 @@ When passing a task with `[-]`, the Agent MUST:
 2. Add the passed task to `backlog/queue.md` if it requires future work.
 3. Inform the User of the pass decision and reasoning.
 
-### 6.3 Commit & Hand-off Enforcement
-- Commit format, pre-push validation, and PR creation rules → constitution §9.2.
-- **Task Completeness Check**: Before push, the Agent MUST verify that **ALL** checkboxes in `task.md` are marked `[x]` or `[-]` — including Pre-flight items (e.g., "사용자 Plan Accept") and Hand-off items (e.g., "Push", "사용자 알림"). No `[ ]` may remain.
+### 6.3 Commit & Ship Enforcement
+- Commit format, pre-push validation, and PR creation rules → constitution §10.2.
+- **Task Completeness Check**: Before push, the Agent MUST verify that **ALL** checkboxes in `task.md` are marked `[x]` or `[-]` — including Pre-flight items (e.g., "Plan Accept") and Ship items (e.g., "Push", "PR creation"). No `[ ]` may remain.
+
+**Completion Checklists by Work Type**:
+
+| Work Type | After PR Merge / Commit |
+|---|---|
+| **Spec (SDD-P)** | `sdd archive` auto-updates phase.md → Merged. If all specs Merged, run `sdd phase done`. |
+| **spec-x (SDD-x)** | Run `sdd specx done <slug>` to move item from specx → done in queue.md. |
+| **FF** | No `sdd` state changes. Do NOT modify `state.json` — FF work is invisible to state. |
+| **Phase done** | Run `sdd phase done` after all specs merged + integration tests passed + user approval. |
+
 - **Walkthrough & Description Protocol**:
     1. **READ Template**: `agent/templates/walkthrough.md` and `agent/templates/pr_description.md`.
     2. **WRITE in Korean**: Fill all sections.
     3. **Archive**: Commit `walkthrough.md` and `pr_description.md` inside the SPEC directory before pushing.
     4. **Verify task.md**: Ensure zero `[ ]` checkboxes remain.
     5. **Push**: `git push -u origin spec-{phaseN}-{seq}-{slug}`.
-    6. **Hand-off**: Notify the User. The Agent MAY create a PR via `/hk-pr-gh` or `/hk-pr-bb` with User confirmation.
+    6. **Ship**: Notify the User. The Agent MAY create a PR via `/hk-pr-gh` or `/hk-pr-bb` with User confirmation.
 
 ### 6.4 Bash Single-Command Principle
 
@@ -207,7 +227,7 @@ When delegating implementation to a Sonnet sub-agent, the main Opus agent MUST p
 The Agent MUST immediately **STOP** execution and request re-alignment if:
 - A new file outside the Plan scope is required.
 - A task cannot be completed as planned.
-- A direct commit to `main` is about to occur (→ constitution §9.1).
+- A direct commit to `main` is about to occur (→ constitution §10.1).
 - A hook blocks a tool call (the stderr message is authoritative).
 
 ## 8. Communication Rules
