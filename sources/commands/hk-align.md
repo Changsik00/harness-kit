@@ -29,7 +29,7 @@ bash scripts/harness/bin/sdd status
 - **언어**: 채팅, Phase, Spec, Plan, Task, Walkthrough, PR Description 모두 한국어. 코드/경로/기술 용어만 영어 허용.
 - **절차**: Phase → Spec → Plan → Task → Walkthrough → Hand-off (SDD)
 - **TDD**: Test 작성 → Fail → Implement → Pass → Commit
-- **Plan Accept Gate**: 사용자가 `/plan-accept` 또는 "Plan Accepted" 라고 명시하기 전까지는 PLANNING 모드. 코드 편집 금지.
+- **Plan Accept Gate**: 사용자가 `/hk-plan-accept` 를 호출하거나 Plan Accept 를 명시하기 전까지는 PLANNING 모드. 코드 편집 금지.
 - **One Task = One Commit**
 
 ## 4. 상태 요약 보고

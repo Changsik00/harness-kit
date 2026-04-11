@@ -12,7 +12,7 @@ description: 현재 SPEC 의 task 진행률, 변경 파일, 테스트 상태 출
 
 이 명령은 다음을 출력합니다:
 - 키트 버전, 스택, OS
-- Active phase / spec / branch / plan-accepted
+- 활성 phase / spec / branch / plan-accepted
 - task.md 진행률 (`[x]` / `[ ]` / `[-]` 카운트)
 - `git status -s` 변경 파일 목록
 - `git log --oneline -5` 최근 커밋
@@ -37,4 +37,4 @@ description: 현재 SPEC 의 task 진행률, 변경 파일, 테스트 상태 출
 - main 브랜치 위에 있음 → "⚠️ 현재 main 입니다. feature 브랜치로 이동 필요"
 - plan-accepted 인데 변경 파일이 없음 → "⚠️ Strict Loop 시작 전인 것 같습니다"
 - 변경 파일이 많은데 아직 커밋이 없음 → "⚠️ 변경이 누적되어 있습니다. 한 task 단위로 분할 commit 권장"
-- task.md 의 모든 항목이 `[x]` 인데 push 안 됨 → "다음 단계: `/handoff` 실행"
+- task.md 의 모든 항목이 `[x]` 인데 push 안 됨 → "다음 단계: `/hk-handoff` 실행"
