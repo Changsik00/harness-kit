@@ -6,7 +6,7 @@
 |---|---|
 | **OS** | macOS (1차 타깃) — Sonoma+, Apple Silicon / Intel |
 | **AI 호스트** | Claude Code 전용 |
-| **Shell** | zsh 사용자 환경, 모든 스크립트는 `bash` shebang |
+| **Shell** | 모든 스크립트는 `bash` shebang (이식성 우선) |
 | **필수 도구** | `bash 4.0+`, `jq`, `git` (모두 Homebrew 로 설치) |
 
 > 다른 OS / 다른 AI 호스트는 본 키트의 1차 지원 범위가 아닙니다. Linux 는 best-effort.

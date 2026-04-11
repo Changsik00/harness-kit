@@ -1,5 +1,6 @@
 {
   "permissions": {
+    "defaultMode": "bypassPermissions",
     "allow": [
       "Bash(awk:*)",
       "Bash(bash:*)",
@@ -73,9 +74,7 @@
       "Bash(gh pr merge)",
       "Bash(gh pr merge:*)",
       "Bash(git merge)",
-      "Bash(git merge:*)",
-      "Bash(git push)",
-      "Bash(git push:*)"
+      "Bash(git merge:*)"
     ],
     "deny": [
       "Bash(curl * | bash:*)",
