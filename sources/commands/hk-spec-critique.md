@@ -111,6 +111,7 @@ Agent tool (`subagent_type: general-purpose`, `model: "opus"`)을 사용하여 *
 ...
 
 → 반영할 항목 번호를 입력하거나 "all" / "none"을 선택하세요.
+  거부(n/no/아니/취소/cancel/none) 외 모든 응답 → 긍정으로 처리
 ```
 
 사용자가 선택한 항목만 `spec.md`에 반영합니다.
