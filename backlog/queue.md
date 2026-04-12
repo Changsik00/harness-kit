@@ -21,7 +21,7 @@ spec-8-002-phase-base-branch  [phase-8]
 ## 📦 진행 중 Phase
 
 <!-- sdd:active:start -->
-- **phase-8** — 작업 관리 모델 재정립 — Queue·Phase base branch·완료 흐름 강제 — 4 spec — 현재: spec-8-001-queue-redesign
+(active phase 없음. `bin/sdd phase new <slug>` 로 시작)
 <!-- sdd:active:end -->
 
 ## 📥 spec-x 대기
@@ -55,6 +55,7 @@ spec-8-002-phase-base-branch  [phase-8]
 | [phase-5](phase-5.md) | spec-kit 패턴 도입 & 크로스 에이전트 | 1 (Merged, spec-5-002 icebox) |
 | [phase-6](phase-6.md) | SDD UX 개선 및 커맨드 정리 | 2 (Merged) |
 | [phase-7](phase-7.md) | SDD 프로세스 일관성 및 품질 강화 | 4 (Merged) |
+- **phase-8** — 작업 관리 모델 재정립 — Queue·Phase base branch·완료 흐름 강제 — completed 2026-04-12
 <!-- sdd:done:end -->
 
 ---
