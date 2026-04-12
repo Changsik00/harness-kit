@@ -107,16 +107,15 @@ cmd_status() {
   local has_state=1
   [ -f "$SDD_STATE" ] || has_state=0
 
-  local phase spec branch plan_accepted last_test stack kit_ver
+  local phase spec branch plan_accepted last_test kit_ver
   if [ $has_state -eq 1 ]; then
     phase="$(state_get phase)"
     spec="$(state_get spec)"
     plan_accepted="$(state_get planAccepted)"
     last_test="$(state_get lastTestPass)"
-    stack="$(state_get stack)"
     kit_ver="$(state_get kitVersion)"
   else
-    phase="" spec="" plan_accepted="false" last_test="" stack="unknown" kit_ver="?"
+    phase="" spec="" plan_accepted="false" last_test="" kit_ver="?"
   fi
   branch="$(git -C "$SDD_ROOT" branch --show-current 2>/dev/null || echo '')"
 
@@ -136,7 +135,7 @@ cmd_status() {
   fi
 
   echo "${C_BLU}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${C_RST}"
-  echo "${C_BLU}harness-kit $kit_ver${C_RST}  ${C_DIM}stack=$stack${C_RST}"
+  echo "${C_BLU}harness-kit $kit_ver${C_RST}"
   echo "${C_BLU}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${C_RST}"
   echo ""
   echo "📊 현재 상태"
