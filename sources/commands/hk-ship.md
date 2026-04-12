@@ -19,18 +19,11 @@ description: 현재 SPEC 작업 종료 — walkthrough/pr_description 검증 후
 
 ## 2. 품질 게이트
 
-스택 어댑터의 명령으로 lint + 전체 테스트:
+프로젝트의 설정 파일(`package.json`, `Makefile`, `pyproject.toml` 등)을 확인하여 적절한 lint/test 명령을 실행합니다:
 
-```bash
-source ./scripts/harness/lib/stack.sh
-$HARNESS_LINT_CMD || { echo "lint 실패"; exit 1; }
-$HARNESS_TEST_CMD || { echo "test 실패"; exit 1; }
-```
-
-(Integration Test Required = yes 인 경우)
-```bash
-$HARNESS_TEST_INTEGRATION_CMD || { echo "integration test 실패"; exit 1; }
-```
+1. **Lint / Type Check**: 프로젝트에 lint 또는 typecheck 스크립트가 있으면 실행
+2. **단위 테스트**: 프로젝트의 테스트 명령 실행
+3. **(Integration Test Required = yes 인 경우)** 통합 테스트 명령 실행
 
 실패 시 멈추고 사용자에게 보고. 에이전트가 임의로 fix 시도 금지 — 사용자 결정 대기.
 
