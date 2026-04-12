@@ -31,7 +31,7 @@ echo "${C_BLU}━━━━━━━━━━━━━━━━━━━━━━
 echo ""
 
 # ========== 1. 외부 의존성 + 환경 ==========
-echo "[1/6] 외부 의존성 + 환경"
+echo "[1/7] 외부 의존성 + 환경"
 case "$(uname -s)" in
   Darwin) check_pass "OS = macOS (1차 타깃)" ;;
   Linux)  check_warn  "OS = Linux (best-effort)" ;;
@@ -73,7 +73,7 @@ fi
 echo ""
 
 # ========== 2. 디렉토리 구조 ==========
-echo "[2/6] 디렉토리 구조"
+echo "[2/7] 디렉토리 구조"
 for d in agent agent/templates .claude/commands .claude/state scripts/harness/bin scripts/harness/hooks scripts/harness/lib backlog specs; do
   if [ -d "$TARGET/$d" ]; then
     check_pass "$d"
@@ -84,7 +84,7 @@ done
 echo ""
 
 # ========== 3. 거버넌스 + 템플릿 ==========
-echo "[3/6] 거버넌스 + 템플릿"
+echo "[3/7] 거버넌스 + 템플릿"
 for f in agent/constitution.md agent/agent.md agent/align.md; do
   [ -f "$TARGET/$f" ] && check_pass "$f" || check_fail "$f 없음"
 done
@@ -94,7 +94,7 @@ done
 echo ""
 
 # ========== 4. Claude Code 통합 ==========
-echo "[4/6] Claude Code 통합"
+echo "[4/7] Claude Code 통합"
 SETTINGS="$TARGET/.claude/settings.json"
 if [ -f "$SETTINGS" ]; then
   check_pass ".claude/settings.json 존재"
@@ -125,7 +125,7 @@ fi
 echo ""
 
 # ========== 5. State ==========
-echo "[5/6] State"
+echo "[5/7] State"
 STATE="$TARGET/.claude/state/current.json"
 if [ -f "$STATE" ]; then
   check_pass ".claude/state/current.json 존재"
@@ -141,7 +141,7 @@ fi
 echo ""
 
 # ========== 6. Hook 권한 ==========
-echo "[6/6] Hook 권한"
+echo "[6/7] Hook 권한"
 if [ -d "$TARGET/scripts/harness/hooks" ]; then
   hook_count=$(find "$TARGET/scripts/harness/hooks" -maxdepth 1 -name '*.sh' 2>/dev/null | wc -l | tr -d ' ')
   if [ "$hook_count" -eq 0 ]; then
@@ -155,6 +155,99 @@ if [ -d "$TARGET/scripts/harness/hooks" ]; then
       fi
     done
   fi
+fi
+echo ""
+
+# ========== 7. 프로젝트 품질 도구 ==========
+echo "[7/7] 프로젝트 품질 도구"
+
+_check_nodejs() {
+  local pkg="$TARGET/package.json"
+  echo "  ${C_DIM}프로젝트 타입: Node.js (package.json 감지)${C_RST}"
+
+  # test
+  if command -v jq >/dev/null 2>&1; then
+    local test_script
+    test_script=$(jq -r '.scripts.test // ""' "$pkg" 2>/dev/null)
+    if [ -n "$test_script" ] && ! echo "$test_script" | grep -qE '(no test|echo .*(Error|test))'; then
+      check_pass "test 스크립트 설정됨"
+    else
+      check_warn "test 스크립트 없음 (npm install --save-dev jest 또는 vitest)"
+    fi
+
+    # lint
+    local lint_script
+    lint_script=$(jq -r '.scripts.lint // ""' "$pkg" 2>/dev/null)
+    if [ -n "$lint_script" ]; then
+      check_pass "lint 스크립트 설정됨"
+    else
+      check_warn "lint 스크립트 없음 (npm install --save-dev eslint && npm init @eslint/config)"
+    fi
+  fi
+
+  # typecheck (tsconfig.json 존재 여부)
+  if [ -f "$TARGET/tsconfig.json" ]; then
+    check_pass "TypeScript 설정 (tsconfig.json)"
+  else
+    # TypeScript 가 devDependencies 에 있으면 tsconfig 누락 경고
+    if command -v jq >/dev/null 2>&1; then
+      local has_ts
+      has_ts=$(jq -r '.devDependencies.typescript // .dependencies.typescript // ""' "$pkg" 2>/dev/null)
+      if [ -n "$has_ts" ]; then
+        check_warn "typescript 설치됨이나 tsconfig.json 없음 (npx tsc --init)"
+      fi
+    fi
+  fi
+}
+
+_check_python() {
+  echo "  ${C_DIM}프로젝트 타입: Python 감지${C_RST}"
+
+  # test
+  if [ -f "$TARGET/pyproject.toml" ] && grep -q '\[tool\.pytest' "$TARGET/pyproject.toml" 2>/dev/null; then
+    check_pass "pytest 설정됨"
+  elif [ -d "$TARGET/tests" ] || [ -d "$TARGET/test" ]; then
+    check_pass "테스트 디렉토리 존재"
+  else
+    check_warn "테스트 설정 없음 (pip install pytest)"
+  fi
+
+  # lint
+  if [ -f "$TARGET/.flake8" ] || [ -f "$TARGET/ruff.toml" ] || [ -f "$TARGET/.ruff.toml" ] || \
+     ([ -f "$TARGET/pyproject.toml" ] && grep -qE '\[tool\.(ruff|flake8|pylint)\]' "$TARGET/pyproject.toml" 2>/dev/null); then
+    check_pass "linter 설정됨"
+  else
+    check_warn "linter 설정 없음 (pip install ruff)"
+  fi
+
+  # type checker
+  if [ -f "$TARGET/mypy.ini" ] || [ -f "$TARGET/.mypy.ini" ] || [ -f "$TARGET/pyrightconfig.json" ] || \
+     ([ -f "$TARGET/pyproject.toml" ] && grep -qE '\[tool\.(mypy|pyright)\]' "$TARGET/pyproject.toml" 2>/dev/null); then
+    check_pass "type checker 설정됨"
+  else
+    check_warn "type checker 없음 (pip install mypy)"
+  fi
+}
+
+_check_go() {
+  echo "  ${C_DIM}프로젝트 타입: Go (go.mod 감지)${C_RST}"
+  check_pass "test (go test 내장)"
+
+  if [ -f "$TARGET/.golangci.yml" ] || [ -f "$TARGET/.golangci.yaml" ] || [ -f "$TARGET/.golangci.toml" ]; then
+    check_pass "golangci-lint 설정됨"
+  else
+    check_warn "golangci-lint 설정 없음 (go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest)"
+  fi
+}
+
+if [ -f "$TARGET/package.json" ]; then
+  _check_nodejs
+elif [ -f "$TARGET/pyproject.toml" ] || [ -f "$TARGET/setup.py" ]; then
+  _check_python
+elif [ -f "$TARGET/go.mod" ]; then
+  _check_go
+else
+  check_warn "프로젝트 타입 감지 불가 — lint/test 설정을 직접 확인하세요"
 fi
 echo ""
 
