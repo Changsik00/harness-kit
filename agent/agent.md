@@ -217,11 +217,6 @@ The main session runs on **Opus** (planning, coordination, judgment). Sub-agents
 
 When delegating implementation to a Sonnet sub-agent, the main Opus agent MUST provide clear, specific instructions including: target files, expected behavior, test expectations, and commit message format.
 
-### 6.7 Stack Awareness
-- Project-specific commands (test runner, linter, build) are defined in the installed stack adapter.
-- The Agent MUST NOT hardcode commands; instead refer to the stack adapter or `bin/sdd` wrappers.
-- If the stack adapter is missing, the Agent SHOULD ask the User for stack selection before proceeding.
-
 ## 7. Deviation & Hard Stop
 
 The Agent MUST immediately **STOP** execution and request re-alignment if:

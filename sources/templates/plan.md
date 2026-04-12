@@ -55,7 +55,7 @@
 ### 단위 테스트 (필수)
 ```bash
 # 본 SPEC 의 단위 테스트 실행 명령
-# 스택별 명령은 stack adapter 또는 CLAUDE.md 참고
+# 프로젝트 설정 파일(package.json, Makefile 등)을 확인하여 적절한 명령 사용
 ```
 
 ### 통합 테스트 (Integration Test Required = yes 인 경우)

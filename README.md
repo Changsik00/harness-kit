@@ -154,7 +154,6 @@ Claude Code 안에서:
 │   │   ├── check-branch.sh         #     main 보호
 │   │   ├── check-plan-accept.sh    #     PLANNING 모드 가드
 │   │   └── check-test-passed.sh    #     No Test, No Commit
-│   └── lib/stack.sh                #   자동 감지된 스택 어댑터
 │
 ├── backlog/                        # phase 정의 (평면 파일)
 │   ├── queue.md                    #   대시보드 — NOW/NEXT/Icebox (sdd 자동 갱신)
@@ -181,7 +180,7 @@ Claude Code 안에서:
 
 | 명령 | 설명 |
 |---|---|
-| `install.sh [TARGET]` | 설치 (`--dry-run`, `--force`, `--stack=`, `--yes`) |
+| `install.sh [TARGET]` | 설치 (`--dry-run`, `--force`, `--yes`) |
 | `update.sh [TARGET]` | 키트 갱신 (state 보존) |
 | `uninstall.sh [TARGET]` | 제거 (산출물 보존) |
 | `doctor.sh [TARGET]` | 점검 (의존성, 구조, 권한, hook, state) |
@@ -309,10 +308,6 @@ harness-kit/
 │   ├── bin/                  #   sdd + lib
 │   └── claude-fragments/     #   settings.json / CLAUDE.md fragment
 │
-├── stacks/                   # 스택 어댑터
-│   ├── nodejs.sh             #   npm/pnpm/yarn/bun 자동 감지
-│   └── generic.sh            #   폴백
-│
 └── docs/
     ├── design/               #   설계 근거
     └── decisions/            #   ADR
@@ -333,9 +328,6 @@ A. `HARNESS_HOOK_MODE=off git commit ...` 으로 일회성 우회.
 
 **Q. settings.json 에 추가한 권한이 update 시 사라지나요?**
 A. 아닙니다. `permissions.allow/deny` 는 합집합. `hooks` 만 키트가 덮어씁니다.
-
-**Q. NestJS 가 아닌 Node 프로젝트에서도 되나요?**
-A. 네. nodejs 어댑터는 `package.json` scripts 를 호출하므로 프레임워크와 무관합니다.
 
 **Q. Phase base branch 모드는 언제 쓰나요?**
 A. Spec 간 의존성이 있거나, main merge 전에 phase 전체 통합 테스트를 돌리고 싶을 때. `sdd phase new <slug> --base` 로 선언합니다.

@@ -218,19 +218,13 @@ SAVED_PHASE=$(jq -r '.phase'          "$STATE_FILE")
 SAVED_SPEC=$(jq -r  '.spec'           "$STATE_FILE")
 SAVED_PLAN=$(jq -r  '.planAccepted'   "$STATE_FILE")
 SAVED_TEST=$(jq -r  '.lastTestPass'   "$STATE_FILE")
-SAVED_STACK=$(jq -r '.stack // ""'    "$STATE_FILE")
 
 # ============================================================
 # install.sh 실행
 # ============================================================
-STACK_ARG=""
-if [ -n "$SAVED_STACK" ] && [ "$SAVED_STACK" != "null" ]; then
-  STACK_ARG="--stack=$SAVED_STACK"
-fi
-
 echo ""
 log "파일 설치 중..."
-"$KIT_DIR/install.sh" --yes $STACK_ARG $SHELL_ARG "$TARGET"
+"$KIT_DIR/install.sh" --yes $SHELL_ARG "$TARGET"
 
 # ============================================================
 # state 복원 (phase / spec / planAccepted / lastTestPass)

@@ -18,7 +18,6 @@
 | `--dry-run` | 변경 없이 계획만 출력 |
 | `--force` | 기존 파일 백업 없이 덮어쓰기 |
 | `--no-hooks` | hooks 설치 생략 |
-| `--stack=NAME` | 스택 자동 감지 무시하고 강제 지정 (`generic`, `nodejs`, `nestjs`) |
 | `--yes` / `-y` | 확인 프롬프트 생략 |
 
 ### uninstall.sh 옵션
@@ -161,12 +160,11 @@ export HARNESS_TEST_WINDOW_MIN=60    # 기본 30
 │   ├── bin/
 │   │   ├── sdd                         # 메타 명령
 │   │   └── lib/{common,state}.sh
-│   ├── hooks/
-│   │   ├── _lib.sh
-│   │   ├── check-branch.sh
-│   │   ├── check-plan-accept.sh
-│   │   └── check-test-passed.sh
-│   └── lib/stack.sh                    # 스택 어댑터 (install 시 선택된 것)
+│   └── hooks/
+│       ├── _lib.sh
+│       ├── check-branch.sh
+│       ├── check-plan-accept.sh
+│       └── check-test-passed.sh
 │
 ├── backlog/                            # phase 정의 = 평면 파일 (git 추적)
 │   ├── queue.md                        #   대시보드 (sdd 자동 갱신)
@@ -197,7 +195,6 @@ export HARNESS_TEST_WINDOW_MIN=60    # 기본 30
 ```json
 {
   "kitVersion": "0.1.0",
-  "stack": "nestjs",
   "phase": "phase-1",
   "spec": "spec-1-001-webhook-lock-fail-throw",
   "branch": null,
@@ -210,7 +207,6 @@ export HARNESS_TEST_WINDOW_MIN=60    # 기본 30
 | 키 | 의미 | 갱신 주체 |
 |---|---|---|
 | `kitVersion` | 설치된 키트 버전 | install/update |
-| `stack` | 스택 어댑터 이름 | install |
 | `phase` | active phase ID (없으면 `null`) | `sdd phase new` |
 | `spec` | active spec ID (없으면 `null`) | `sdd spec new` |
 | `branch` | 현재 작업 브랜치 (참고용) | (선택) |
@@ -226,50 +222,6 @@ export HARNESS_TEST_WINDOW_MIN=60    # 기본 30
 |---|---|---|
 | `HARNESS_HOOK_MODE` | `warn` | hook 동작 모드 (`warn` / `block` / `off`) |
 | `HARNESS_TEST_WINDOW_MIN` | `30` | check-test-passed.sh 의 lastTestPass 만료 (분) |
-| `HARNESS_STACK_*` | (스택 어댑터가 export) | `_TEST_CMD`, `_LINT_CMD`, `_BUILD_CMD` 등 |
-
----
-
-## 스택 어댑터
-
-위치: `<kit>/stacks/*.sh` → 설치 시 `<target>/scripts/harness/lib/stack.sh` 로 복사
-
-| 스택 | 감지 | 동작 |
-|---|---|---|
-| `nodejs` | `package.json` 존재 | 패키지 매니저 자동 감지 후 `<pm> test` / `<pm> run lint` / `<pm> run build` 등 |
-| `generic` | 그 외 | placeholder (사용자가 직접 채워야 함) |
-
-### nodejs 어댑터의 패키지 매니저 자동 감지
-
-런타임에 매번 재감지합니다 (사용자가 마이그레이션하면 키트도 자동으로 따라옴).
-
-| 우선순위 | 감지 방법 | 결과 |
-|:---:|---|---|
-| 1 | `package.json` 의 `"packageManager"` 필드 (corepack 표준) | 명시된 PM |
-| 2 | `pnpm-lock.yaml` 존재 | `pnpm` |
-| 3 | `yarn.lock` 존재 | `yarn` |
-| 4 | `bun.lockb` 존재 | `bun` |
-| 5 | `package-lock.json` 존재 | `npm` |
-| 6 | (그 외) | `npm` (fallback) |
-
-### nodejs 어댑터가 export 하는 변수
-
-| 변수 | 값 예시 (pnpm) |
-|---|---|
-| `HARNESS_PKG_MANAGER` | `pnpm` |
-| `HARNESS_BIN_RUNNER` | `pnpm exec` (npm 은 `npx`, bun 은 `bunx`, yarn 은 `yarn`) |
-| `HARNESS_TEST_CMD` | `pnpm test` |
-| `HARNESS_LINT_CMD` | `pnpm run lint` |
-| `HARNESS_BUILD_CMD` | `pnpm run build` |
-| `HARNESS_TYPECHECK_CMD` | `pnpm exec tsc --noEmit` |
-| `HARNESS_TEST_INTEGRATION_CMD` | `pnpm run test:e2e` (있으면) 또는 `pnpm test` |
-| `HARNESS_TEST_FILE_GLOB` | `*.{test,spec}.{js,ts,jsx,tsx,mjs,cjs}` |
-| `HARNESS_INTEGRATION_TEST_FILE_GLOB` | `*.{e2e-spec,e2e}.{js,ts}` |
-
-### 신규 스택 추가 시
-1. `stacks/<name>.sh` 에 `HARNESS_*` 변수들 export
-2. `install.sh` 의 `detect_stack()` 에 감지 로직 추가
-3. install 시 `--stack=<name>` 로 강제 지정 가능
 
 ---
 
@@ -302,11 +254,6 @@ harness-kit/
 │   ├── hooks/                # 3종 hook + _lib.sh
 │   ├── bin/                  # sdd + lib/{common,state}.sh
 │   └── claude-fragments/     # settings.json / CLAUDE.md fragment
-│
-├── stacks/                   # 스택 어댑터 (install 시 1개 선택 복사)
-│   ├── generic.sh
-│   ├── nodejs.sh
-│   └── nestjs.sh
 │
 ├── tests/fixtures/           # 자체 검증용 임시 디렉토리
 │
