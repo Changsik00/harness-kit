@@ -20,7 +20,7 @@
 
 | 시점 | 의미 |
 |------|------|
-| **키트 원본** (this repo) | `sources/`, `install.sh`, `stacks/` 등 — 다른 프로젝트로 *복사될* 파일들 |
+| **키트 원본** (this repo) | `sources/`, `install.sh` 등 — 다른 프로젝트로 *복사될* 파일들 |
 | **키트 적용 결과** (대상 프로젝트) | `install.sh` 가 실행된 후 대상 프로젝트에 생기는 `.claude/`, `scripts/harness/`, `agent/` 등 |
 
 > 같은 파일이라도 어느 시점인지 항상 의식해야 합니다. 키트 원본을 수정한다고 자동으로 이미 설치된 프로젝트가 갱신되지 않습니다 (`update.sh` 가 그 역할).
@@ -33,7 +33,6 @@
 - `sources/hooks/` — 대상의 `scripts/harness/hooks/` 로 복사될 후크 스크립트
 - `sources/bin/` — 대상의 `scripts/harness/bin/` 로 복사될 메타 명령
 - `sources/claude-fragments/` — 대상의 `.claude/settings.json` / `CLAUDE.md` 에 머지될 조각
-- `stacks/` — 언어/프레임워크별 어댑터 (`nestjs.sh`, `generic.sh` 등)
 - `tests/fixtures/` — 키트 자체 검증용 임시 디렉토리
 - `docs/design/` — 설계 근거 (Harness Engineering Review 등)
 - `docs/decisions/` — ADR
@@ -45,7 +44,7 @@
 3. **bash 호환**: 사용자는 zsh 환경이지만 모든 스크립트는 `#!/usr/bin/env bash` 로 작성하여 다른 환경에서도 동작하도록 함 (단, `set -euo pipefail` 필수)
 4. **한국어 산출물**: 사용자 검토 가능성 우선
 5. **Hook 단계론**: 새 hook 은 항상 *경고 모드(exit 0 + stderr)* 로 시작. 1주 운영 후 차단 모드(exit 2) 로 승격
-6. **No Over-engineering**: NestJS 1차 타깃. 다른 언어는 빈 어댑터 슬롯으로
+6. **No Over-engineering**: NestJS 1차 타깃
 
 ## 본 프로젝트의 거버넌스
 
@@ -65,7 +64,7 @@
 - **위쪽** (이 문단까지): 키트를 *만드는 사람* (키트 작업자) 을 위한 가이드. 키트 원본 시점.
 - **아래쪽** (HARNESS-KIT 블록): 키트가 *적용된 프로젝트* 에서 작업하는 사람을 위한 운영 규약. 도그푸딩 결과 시점.
 
-도그푸딩이 진행 중인 본 프로젝트에서는 두 가지 모두 유효합니다. 키트 원본 (`sources/`, `install.sh`, `stacks/` 등) 을 수정할 때는 위쪽 가이드를 따르고, 도그푸딩 결과물 (`agent/`, `.claude/`, `scripts/harness/` 등) 을 사용해 SDD 작업을 할 때는 아래 HARNESS-KIT 블록의 규약을 따릅니다.
+도그푸딩이 진행 중인 본 프로젝트에서는 두 가지 모두 유효합니다. 키트 원본 (`sources/`, `install.sh` 등) 을 수정할 때는 위쪽 가이드를 따르고, 도그푸딩 결과물 (`agent/`, `.claude/`, `scripts/harness/` 등) 을 사용해 SDD 작업을 할 때는 아래 HARNESS-KIT 블록의 규약을 따릅니다.
 
 <!-- HARNESS-KIT:BEGIN — 이 블록은 install/update.sh 가 관리합니다. 수동 편집 시 update 가 어려워질 수 있습니다. -->
 
