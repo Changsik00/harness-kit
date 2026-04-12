@@ -124,27 +124,19 @@ else
 fi
 echo ""
 
-# ========== 5. State / Stack ==========
-echo "[5/6] State / Stack"
+# ========== 5. State ==========
+echo "[5/6] State"
 STATE="$TARGET/.claude/state/current.json"
 if [ -f "$STATE" ]; then
   check_pass ".claude/state/current.json 존재"
   if command -v jq >/dev/null; then
-    stack=$(jq -r '.stack // "unknown"' "$STATE")
     kit_ver=$(jq -r '.kitVersion // "unknown"' "$STATE")
     plan_accepted=$(jq -r '.planAccepted // false' "$STATE")
-    echo "  ${C_DIM}stack: $stack${C_RST}"
     echo "  ${C_DIM}kit version: $kit_ver${C_RST}"
     echo "  ${C_DIM}plan accepted: $plan_accepted${C_RST}"
   fi
 else
   check_warn ".claude/state/current.json 없음"
-fi
-
-if [ -f "$TARGET/scripts/harness/lib/stack.sh" ]; then
-  check_pass "scripts/harness/lib/stack.sh 존재"
-else
-  check_fail "scripts/harness/lib/stack.sh 없음"
 fi
 echo ""
 
