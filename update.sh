@@ -147,6 +147,7 @@ if [ "$OLD_LAYOUT" = "1" ]; then
   mkdir -p "$BACKUP"
   [ -d "$TARGET/agent" ]           && cp -rf "$TARGET/agent"           "$BACKUP/"
   [ -d "$TARGET/scripts/harness" ] && cp -rf "$TARGET/scripts/harness" "$BACKUP/scripts-harness"
+  [ -f "$TARGET/CLAUDE.md" ]       && cp    "$TARGET/CLAUDE.md"        "$BACKUP/CLAUDE.md"
   ok "백업 완료: $BACKUP"
 
   # .harness-kit/ 생성
@@ -324,6 +325,17 @@ if [ "${#BACKUP_DIRS[@]}" -gt 0 ]; then
         ;;
     esac
   fi
+fi
+
+# ============================================================
+# CLAUDE.md 백업 (install.sh 가 @import 방식으로 갱신하므로 미리 저장)
+# ============================================================
+if [ -f "$TARGET/CLAUDE.md" ]; then
+  TS_CLAUDE="$(date +%Y%m%d-%H%M%S)"
+  CLAUDE_BACKUP="$TARGET/.harness-backup-${TS_CLAUDE}"
+  mkdir -p "$CLAUDE_BACKUP"
+  cp "$TARGET/CLAUDE.md" "$CLAUDE_BACKUP/CLAUDE.md"
+  log "CLAUDE.md 백업: $CLAUDE_BACKUP/CLAUDE.md"
 fi
 
 # ============================================================

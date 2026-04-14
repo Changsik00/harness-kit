@@ -50,7 +50,10 @@ harness-kit을 기존 프로젝트에 설치할 때 세 가지 구조적 충돌 
 <!-- sdd:specs:start -->
 | ID | 슬러그 | 우선순위 | 상태 | 디렉토리 |
 |---|---|:---:|---|---|
-| `spec-9-001` | dir-layout | P? | Active | `specs/spec-9-001-dir-layout/` |
+| `spec-9-001` | dir-layout | P1 | Done | `specs/spec-9-001-dir-layout/` |
+| `spec-9-002` | claude-md-import | P1 | Active | `specs/spec-9-002-claude-md-import/` |
+| `spec-9-003` | conflict-detection | P2 | Backlog | — |
+| `spec-9-004` | preflight-ux | P2 | Backlog | — |
 <!-- sdd:specs:end -->
 
 ### spec-9-001 — 디렉토리 레이아웃 마이그레이션
