@@ -7,16 +7,16 @@ description: SDD 세션 정렬 — constitution 로드 + 컨텍스트 점검 + �
 ## 1. 규약 로딩 (Read Rules)
 
 다음 파일을 읽고 거버넌스를 인지합니다:
-- @agent/constitution.md
-- @agent/agent.md
-- @agent/align.md
+- @.harness-kit/agent/constitution.md
+- @.harness-kit/agent/agent.md
+- @.harness-kit/agent/align.md
 
 ## 2. 컨텍스트 점검 (Context Check)
 
 다음 **단일 명령**을 실행하여 현재 상태를 파악합니다:
 
 ```bash
-bash scripts/harness/bin/sdd status
+bash .harness-kit/bin/sdd status
 ```
 
 > `sdd status`는 state 파일이 없어도 자체 폴백으로 git log, backlog/, specs/ 정보를 출력합니다.

@@ -8,9 +8,8 @@
 #   ./uninstall.sh --yes              # 확인 프롬프트 생략
 #
 # 제거 대상:
-#   - agent/                         (전체)
+#   - .harness-kit/                  (전체)
 #   - .claude/commands/              (키트가 깐 슬래시만, 가능하면 사용자 것 보존)
-#   - scripts/harness/               (전체)
 #   - .claude/settings.json 의 hooks 키트 항목 (jq 로 제거)
 #   - CLAUDE.md 의 HARNESS-KIT 블록
 #
@@ -59,22 +58,26 @@ fi
 TS="$(date +%Y%m%d-%H%M%S)"
 BACKUP="$TARGET/.harness-uninstall-backup-$TS"
 mkdir -p "$BACKUP"
-for p in agent .claude scripts/harness CLAUDE.md; do
+for p in .harness-kit .claude CLAUDE.md; do
   [ -e "$TARGET/$p" ] && cp -rf "$TARGET/$p" "$BACKUP/" 2>/dev/null || true
 done
 log "안전 백업: $BACKUP"
 
-# 1. agent/ 제거
-if [ -d "$TARGET/agent" ]; then
-  rm -rf "$TARGET/agent"
-  ok "agent/ 제거"
+# 1. .harness-kit/ 제거 (거버넌스 + bin + hooks 전체)
+if [ -d "$TARGET/.harness-kit" ]; then
+  rm -rf "$TARGET/.harness-kit"
+  ok ".harness-kit/ 제거"
 fi
 
-# 2. scripts/harness/ 제거 (scripts/ 자체는 다른 용도일 수 있으니 보존)
+# 1-b. v0.3 old-layout 잔재 정리 (있을 경우)
+if [ -d "$TARGET/agent" ] && [ -f "$TARGET/agent/constitution.md" ]; then
+  warn "v0.3 잔재 감지: agent/ 제거"
+  rm -rf "$TARGET/agent"
+fi
 if [ -d "$TARGET/scripts/harness" ]; then
+  warn "v0.3 잔재 감지: scripts/harness/ 제거"
   rm -rf "$TARGET/scripts/harness"
-  ok "scripts/harness/ 제거"
-  rmdir "$TARGET/scripts" 2>/dev/null || true   # 비어있으면 정리
+  rmdir "$TARGET/scripts" 2>/dev/null || true
 fi
 
 # 3. .claude/settings.json 에서 hooks 제거

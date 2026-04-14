@@ -5,11 +5,11 @@
 새 세션을 시작했거나 컨텍스트를 재정렬해야 한다면, 어떤 행동을 취하기 전에 반드시 다음을 수행한다.
 
 ## 1. 규약 로딩 (Read Rules)
-- `agent/constitution.md` 와 `agent/agent.md` 를 읽고 거버넌스를 인지한다.
+- `.harness-kit/agent/constitution.md` 와 `.harness-kit/agent/agent.md` 를 읽고 거버넌스를 인지한다.
 - 본 프로젝트의 `CLAUDE.md` 에 import 되어 있다면 자동 로딩되었을 수 있으나, 안전을 위해 명시적으로 다시 확인한다.
 
 ## 2. 컨텍스트 점검 (Context Check)
-- `bash scripts/harness/bin/sdd status` 단일 명령을 실행한다.
+- `bash .harness-kit/bin/sdd status` 단일 명령을 실행한다.
 - `sdd status`는 state 파일이 없어도 자체 폴백으로 git log, backlog/, specs/ 정보를 출력한다.
 - **별도 폴백 명령을 체이닝하지 않는다** (단일 명령 원칙 — agent.md §6.4).
 

@@ -39,10 +39,10 @@
       "Bash(pwd)",
       "Bash(rg:*)",
       "Bash(rm:*)",
-      "Bash(scripts/harness/bin/bb-pr:*)",
-      "Bash(scripts/harness/bin/sdd:*)",
-      "Bash(scripts/harness/doctor.sh:*)",
-      "Bash(scripts/harness/hooks/*)",
+      "Bash(.harness-kit/bin/bb-pr:*)",
+      "Bash(.harness-kit/bin/sdd:*)",
+      "Bash(doctor.sh:*)",
+      "Bash(.harness-kit/hooks/*)",
       "Bash(sed:*)",
       "Bash(sh:*)",
       "Bash(sort:*)",
@@ -136,27 +136,27 @@
         "hooks": [
           {
             "type": "command",
-            "command": "scripts/harness/hooks/check-branch.sh"
+            "command": ".harness-kit/hooks/check-branch.sh"
           },
           {
             "type": "command",
-            "command": "scripts/harness/hooks/check-test-passed.sh"
+            "command": ".harness-kit/hooks/check-test-passed.sh"
           },
           {
             "type": "command",
-            "command": "scripts/harness/hooks/check-commit-msg.sh"
+            "command": ".harness-kit/hooks/check-commit-msg.sh"
           },
           {
             "type": "command",
-            "command": "scripts/harness/hooks/check-diff-size.sh"
+            "command": ".harness-kit/hooks/check-diff-size.sh"
           },
           {
             "type": "command",
-            "command": "scripts/harness/hooks/check-secrets.sh"
+            "command": ".harness-kit/hooks/check-secrets.sh"
           },
           {
             "type": "command",
-            "command": "scripts/harness/hooks/check-task-checkbox.sh"
+            "command": ".harness-kit/hooks/check-task-checkbox.sh"
           }
         ]
       },
@@ -165,11 +165,11 @@
         "hooks": [
           {
             "type": "command",
-            "command": "scripts/harness/hooks/check-plan-accept.sh"
+            "command": ".harness-kit/hooks/check-plan-accept.sh"
           },
           {
             "type": "command",
-            "command": "scripts/harness/hooks/check-scope.sh"
+            "command": ".harness-kit/hooks/check-scope.sh"
           }
         ]
       }
@@ -179,7 +179,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "scripts/harness/bin/sdd status --brief 2>/dev/null || true"
+            "command": ".harness-kit/bin/sdd status --brief 2>/dev/null || true"
           },
           {
             "type": "command",

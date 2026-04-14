@@ -89,7 +89,7 @@ main 으로 merge 해도 될까요? [Y/n]
 
 사용자 승인을 받은 후:
 
-1. **PR 본문 작성**: `agent/templates/phase-ship.md` 템플릿을 읽고 Phase PR 본문을 작성합니다.
+1. **PR 본문 작성**: `.harness-kit/agent/templates/phase-ship.md` 템플릿을 읽고 Phase PR 본문을 작성합니다.
 
 2. **PR 생성**:
 ```bash

@@ -5,12 +5,15 @@
 # 직접 실행하지 마세요.
 #
 # 변경 내용:
+#   - 디렉토리 레이아웃 변경: agent/, scripts/harness/ → .harness-kit/
+#   - .harness-kit/installed.json 신설
 #   - 5개의 PreToolUse 훅 신규 추가
 #   - /hk-spec-review 커맨드 제거 (→ /hk-code-review 통합)
 #   - hk- prefix 이전 구 커맨드 파일명 정리
 
 # ──────────────────────────────────────────────
 # 삭제할 파일 목록 (TARGET 기준 상대 경로, 한 줄에 하나)
+# layout migration 은 update.sh 에서 처리됨; 여기서는 구 commands 정리
 # ──────────────────────────────────────────────
 migration_cleanup() {
   cat <<'EOF'
@@ -32,6 +35,13 @@ EOF
 migration_new_features() {
   cat <<'EOF'
 
+  [!] BREAKING CHANGE — 디렉토리 레이아웃 변경:
+      agent/           → .harness-kit/agent/
+      scripts/harness/ → .harness-kit/ (bin/, hooks/)
+      sdd 경로 변경: bash .harness-kit/bin/sdd status
+
+  [+] .harness-kit/installed.json 신설 (버전 추적)
+
   [+] 5개의 PreToolUse 훅 추가:
       check-commit-msg    커밋 메시지 형식 검증 (type(spec-N-NNN): 패턴)
       check-diff-size     비정상적으로 큰 diff 감지 (기본: 500줄)
@@ -44,8 +54,7 @@ migration_new_features() {
   [!] 모든 새 훅은 기본값 warn 모드 (경고만, 차단 안 함)
       1주 운영 후 block 모드로 전환 권장:
         export HARNESS_HOOK_MODE=block
-        또는 개별: export HARNESS_HOOK_MODE_CHECK_SECRETS=block
-      모드 확인: ./scripts/harness/bin/sdd hooks
+      모드 확인: bash .harness-kit/bin/sdd hooks
 
 EOF
 }

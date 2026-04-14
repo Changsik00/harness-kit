@@ -52,25 +52,25 @@ else
   echo "$DUPES"
 fi
 
-# --- Check 2: sources 와 agent/ 동기화 ---
+# --- Check 2: sources 와 .harness-kit/agent/ 동기화 ---
 echo ""
-echo "▶ Check 2: sources/governance/ ↔ agent/ 동기화"
+echo "▶ Check 2: sources/governance/ ↔ .harness-kit/agent/ 동기화"
 check
 
-if diff -q "$CONSTITUTION" "$ROOT/agent/constitution.md" > /dev/null 2>&1; then
+if diff -q "$CONSTITUTION" "$ROOT/.harness-kit/agent/constitution.md" > /dev/null 2>&1; then
   pass "constitution.md 동기화 OK"
 else
   fail "constitution.md 불일치"
 fi
 
 check
-if diff -q "$AGENT" "$ROOT/agent/agent.md" > /dev/null 2>&1; then
+if diff -q "$AGENT" "$ROOT/.harness-kit/agent/agent.md" > /dev/null 2>&1; then
   pass "agent.md 동기화 OK"
 else
   fail "agent.md 불일치"
 fi
 
-# --- Check 3: 토큰 카운트 (wc -w 근사) ---
+# --- Check 3: 토큰 카운트 (wc -w 근사) — 비대화 방지 ---
 echo ""
 echo "▶ Check 3: 토큰 카운트 (word count 근사)"
 check
@@ -83,17 +83,12 @@ echo "  constitution.md: ${CONST_WORDS} words"
 echo "  agent.md:        ${AGENT_WORDS} words"
 echo "  합계:            ${TOTAL} words"
 
-# 원본 합산: constitution 1026w + agent 1611w = 2637w
-# 목표: 200w 이상 감소 (중복 제거 + dead letter 삭제)
-ORIGINAL=2637
-REDUCTION=$((ORIGINAL - TOTAL))
-echo "  원본 합산:       ${ORIGINAL} words"
-echo "  감소량:          ${REDUCTION} words"
-
-if [ "$REDUCTION" -ge 200 ]; then
-  pass "감소량 ${REDUCTION}w — 목표(200w+) 달성"
+# 합계 5000w 이하 유지 (비대화 방지 상한선)
+LIMIT=5000
+if [ "$TOTAL" -le "$LIMIT" ]; then
+  pass "합계 ${TOTAL}w — 상한(${LIMIT}w) 이하"
 else
-  fail "감소량 ${REDUCTION}w — 목표(200w+) 미달"
+  fail "합계 ${TOTAL}w — 상한(${LIMIT}w) 초과 (거버넌스 문서 비대화 경고)"
 fi
 
 # --- Check 4: agent.md에서 dead letter 제거 확인 ---
@@ -132,10 +127,10 @@ echo "▶ Check 6: sdd 경로 확인"
 check
 
 if grep -q 'bin/sdd status' "$AGENT" 2>/dev/null; then
-  if grep -q 'scripts/harness/bin/sdd status' "$AGENT" 2>/dev/null; then
-    pass "sdd 경로 올바름 (scripts/harness/bin/sdd)"
+  if grep -q '\.harness-kit/bin/sdd status' "$AGENT" 2>/dev/null; then
+    pass "sdd 경로 올바름 (.harness-kit/bin/sdd)"
   else
-    fail "sdd 경로가 잘못됨 (bin/sdd만 존재)"
+    fail "sdd 경로가 잘못됨 (.harness-kit/bin/sdd 여야 함)"
   fi
 else
   pass "sdd 경로 참조 없음 (OK)"

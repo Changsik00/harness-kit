@@ -51,7 +51,7 @@
 > ⚠️ 본 프로젝트는 *자기 자신을 만드는 중* 이라, Phase 4 도그푸딩 시점까지는 거버넌스를 자기에게 적용하지 않았습니다.
 > Phase 4 부터 `install.sh` 를 자기 자신에게도 실행하여 도그푸딩을 시작합니다.
 
-도그푸딩 이후로는 `sources/governance/` 의 원본이 install 을 거쳐 `agent/` 디렉토리로 복사되며, 그 시점부터는 `agent/constitution.md` / `agent/agent.md` 가 본 프로젝트 작업의 *실제 강제 규약* 이 됩니다. 키트 원본을 수정하는 PR 도 같은 규약을 따르게 됩니다.
+도그푸딩 이후로는 `sources/governance/` 의 원본이 install 을 거쳐 `.harness-kit/agent/` 디렉토리로 복사되며, 그 시점부터는 `.harness-kit/agent/constitution.md` / `.harness-kit/agent/agent.md` 가 본 프로젝트 작업의 *실제 강제 규약* 이 됩니다. 키트 원본을 수정하는 PR 도 같은 규약을 따르게 됩니다.
 
 ## 현재 단계
 
@@ -64,7 +64,7 @@
 - **위쪽** (이 문단까지): 키트를 *만드는 사람* (키트 작업자) 을 위한 가이드. 키트 원본 시점.
 - **아래쪽** (HARNESS-KIT 블록): 키트가 *적용된 프로젝트* 에서 작업하는 사람을 위한 운영 규약. 도그푸딩 결과 시점.
 
-도그푸딩이 진행 중인 본 프로젝트에서는 두 가지 모두 유효합니다. 키트 원본 (`sources/`, `install.sh` 등) 을 수정할 때는 위쪽 가이드를 따르고, 도그푸딩 결과물 (`agent/`, `.claude/`, `scripts/harness/` 등) 을 사용해 SDD 작업을 할 때는 아래 HARNESS-KIT 블록의 규약을 따릅니다.
+도그푸딩이 진행 중인 본 프로젝트에서는 두 가지 모두 유효합니다. 키트 원본 (`sources/`, `install.sh` 등) 을 수정할 때는 위쪽 가이드를 따르고, 도그푸딩 결과물 (`.harness-kit/`, `.claude/` 등) 을 사용해 SDD 작업을 할 때는 아래 HARNESS-KIT 블록의 규약을 따릅니다.
 
 <!-- HARNESS-KIT:BEGIN — 이 블록은 install/update.sh 가 관리합니다. 수동 편집 시 update 가 어려워질 수 있습니다. -->
 
@@ -83,6 +83,6 @@ SDD 작업 시작 시 `/hk-align` 슬래시 커맨드를 호출하면 전체 거
 - 모든 산출물은 한국어
 - main 브랜치 직접 작업 금지
 
-자세한 내용은 `agent/constitution.md` 와 `agent/agent.md` 참조.
+자세한 내용은 `.harness-kit/agent/constitution.md` 와 `.harness-kit/agent/agent.md` 참조.
 
 <!-- HARNESS-KIT:END -->

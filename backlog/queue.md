@@ -7,13 +7,13 @@
 ## 🔴 NOW
 
 <!-- sdd:now:start -->
-spec-8-001-queue-redesign  [phase-8]
+(없음 — 첫 spec 생성 대기)
 <!-- sdd:now:end -->
 
 ## ⏭ NEXT
 
 <!-- sdd:next:start -->
-spec-8-002-phase-base-branch  [phase-8]
+spec-9-001-dir-layout
 <!-- sdd:next:end -->
 
 ---
@@ -21,7 +21,7 @@ spec-8-002-phase-base-branch  [phase-8]
 ## 📦 진행 중 Phase
 
 <!-- sdd:active:start -->
-(active phase 없음. `bin/sdd phase new <slug>` 로 시작)
+- **phase-9** — 설치 충돌 방어 — 디렉토리 은닉 + CLAUDE.md @import + 충돌 감지 — 1 spec — 다음: spec-9-001-dir-layout
 <!-- sdd:active:end -->
 
 ## 📥 spec-x 대기
