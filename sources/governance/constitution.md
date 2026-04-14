@@ -119,6 +119,12 @@ Before any Spec, Plan, or execution:
 ### 5.2 Plan Accept & Critique Recognition
 - A Plan is an execution contract. No execution is allowed without an approved Plan.
 - The Plan MUST include branch creation and test execution tasks.
+- **Mandatory Offer**: When a plan is complete, the Agent MUST present both options explicitly before waiting for input:
+  ```
+  Plan 검토 완료.
+    1) Accept — 실행 시작
+    2) 비평 — 피드백 / 우려사항 제기
+  ```
 - **Plan Accept Recognition (SSOT)**: The following expressions are all treated as Plan Accept (case-insensitive):
   `1`, `Y`, `yes`, `ok`, `accept`, `plan accept`, `/hk-plan-accept`
 - **Critique Entry**: Input of `2` or `/hk-spec-critique` enters the Critique phase.
