@@ -2,13 +2,18 @@
 set -euo pipefail
 
 # test-path-config.sh
-# spec-9-003: harness.config.json 경로 config 시스템 검증
+# spec-9-003/spec-9-004: harness.config.json 경로 config 시스템 검증
 #
 # 검증 항목:
-#   1) --yes 실행 → harness.config.json 미생성, backlog/ 생성
-#   2) --prefix hk- 실행 → harness.config.json 생성, hk-backlog/ / hk-specs/ 생성
-#   3) harness.config.json 의 backlogDir/specsDir 값 정확성
-#   4) config 있는 상태에서 sdd status → 오류 없이 실행
+#   1) --yes 실행 → harness.config.json 생성 (rootDir 포함)
+#   2) --yes 실행 → rootDir 값이 설치 대상 경로와 일치
+#   3) --yes 실행 → backlog/ 생성
+#   4) --yes 실행 → specs/ 생성
+#   5) --prefix hk- 실행 → harness.config.json 생성
+#   6) --prefix hk- 실행 → hk-backlog/ / hk-specs/ 생성
+#   7) --prefix hk- 실행 → backlog/ 미생성
+#   8) harness.config.json 의 backlogDir/specsDir/rootDir 값 정확성
+#   9) config 있는 상태에서 sdd status → 오류 없이 실행
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
@@ -23,7 +28,7 @@ fail() { echo "  ❌ $1"; FAIL=$((FAIL + 1)); }
 check() { TOTAL=$((TOTAL + 1)); }
 
 echo "═══════════════════════════════════════════"
-echo " Path Config System Verification (spec-9-003)"
+echo " Path Config System Verification (spec-9-003/004)"
 echo "═══════════════════════════════════════════"
 echo ""
 
@@ -41,10 +46,22 @@ git -C "$FIXTURE_A" config user.email "test@local" && git -C "$FIXTURE_A" config
 bash "$INSTALL" --yes "$FIXTURE_A" > /dev/null 2>&1
 
 check
-if [ ! -f "$FIXTURE_A/.harness-kit/harness.config.json" ]; then
-  pass "기본값 시 harness.config.json 미생성"
+if [ -f "$FIXTURE_A/.harness-kit/harness.config.json" ]; then
+  pass "harness.config.json 생성됨 (rootDir 포함)"
 else
-  fail "기본값인데 harness.config.json 생성됨"
+  fail "harness.config.json 미생성"
+fi
+
+check
+if command -v jq >/dev/null 2>&1; then
+  rd=$(jq -r '.rootDir // empty' "$FIXTURE_A/.harness-kit/harness.config.json" 2>/dev/null || echo "")
+  if [ "$rd" = "$FIXTURE_A" ]; then
+    pass "rootDir=$FIXTURE_A"
+  else
+    fail "rootDir 불일치: expected=$FIXTURE_A actual=$rd"
+  fi
+else
+  pass "(jq 없음 — rootDir 검증 스킵)"
 fi
 
 check
@@ -111,12 +128,17 @@ echo "▶ harness.config.json 값 검증"
 
 check
 if command -v jq >/dev/null 2>&1; then
-  bd=$(jq -r '.backlogDir' "$FIXTURE_B/.harness-kit/harness.config.json" 2>/dev/null || echo "")
-  sd=$(jq -r '.specsDir'   "$FIXTURE_B/.harness-kit/harness.config.json" 2>/dev/null || echo "")
-  if [ "$bd" = "hk-backlog" ] && [ "$sd" = "hk-specs" ]; then
-    pass "backlogDir=hk-backlog, specsDir=hk-specs"
+  rd=$(jq -r '.rootDir  // empty' "$FIXTURE_B/.harness-kit/harness.config.json" 2>/dev/null || echo "")
+  bd=$(jq -r '.backlogDir // empty' "$FIXTURE_B/.harness-kit/harness.config.json" 2>/dev/null || echo "")
+  sd=$(jq -r '.specsDir   // empty' "$FIXTURE_B/.harness-kit/harness.config.json" 2>/dev/null || echo "")
+  ok=1
+  [ "$rd" = "$FIXTURE_B" ]    || ok=0
+  [ "$bd" = "hk-backlog" ]    || ok=0
+  [ "$sd" = "hk-specs" ]      || ok=0
+  if [ $ok -eq 1 ]; then
+    pass "rootDir=$FIXTURE_B, backlogDir=hk-backlog, specsDir=hk-specs"
   else
-    fail "값 불일치: backlogDir=$bd, specsDir=$sd"
+    fail "값 불일치: rootDir=$rd backlogDir=$bd specsDir=$sd"
   fi
 else
   pass "(jq 없음 — 값 검증 스킵)"
