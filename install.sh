@@ -172,19 +172,21 @@ ${C_BLU}설치 계획${C_RST}
 ${C_BLU}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${C_RST}
 
 생성/복사할 디렉토리:
-  - agent/                              (governance + templates)
+  - .harness-kit/agent/                 (governance + templates)
+  - .harness-kit/bin/                   (sdd 메타 명령)
+  - .harness-kit/hooks/                 (hook 스크립트)
   - .claude/commands/                   (slash commands)
   - .claude/state/                      (런타임 state, gitignore)
-  - scripts/harness/bin/                (sdd 메타 명령)
-  - scripts/harness/hooks/              (hook 스크립트)
-  - scripts/harness/lib/                (헬퍼 라이브러리)
   - backlog/                            (phase 정의 = todo list)
   - specs/                              (실제 spec 작업 = work log)
+
+생성할 파일:
+  - .harness-kit/installed.json         (설치 버전 기록)
 
 머지/추가할 파일:
   - .claude/settings.json               (jq 머지)
   - CLAUDE.md                           (HARNESS-KIT 블록 추가)
-  - .gitignore                          (.claude/state/ 추가)
+  - .gitignore                          (!.harness-kit/ un-ignore 추가)
 
 셸: $SHELL_MODE
 모드: $([ $DRY_RUN -eq 1 ] && echo 'DRY RUN (실제 변경 없음)' || echo '실제 설치')
@@ -232,12 +234,12 @@ do_fix_shebang() {
 # 8. 디렉토리 생성
 # ============================================================
 log "디렉토리 생성"
-do_mkdir "$TARGET/agent/templates"
+do_mkdir "$TARGET/.harness-kit/agent/templates"
+do_mkdir "$TARGET/.harness-kit/bin/lib"
+do_mkdir "$TARGET/.harness-kit/hooks"
+do_mkdir "$TARGET/.harness-kit/lib"
 do_mkdir "$TARGET/.claude/commands"
 do_mkdir "$TARGET/.claude/state"
-do_mkdir "$TARGET/scripts/harness/bin/lib"
-do_mkdir "$TARGET/scripts/harness/hooks"
-do_mkdir "$TARGET/scripts/harness/lib"
 do_mkdir "$TARGET/backlog"
 do_mkdir "$TARGET/specs"
 
@@ -246,12 +248,12 @@ do_mkdir "$TARGET/specs"
 # ============================================================
 log "거버넌스 복사"
 for f in constitution.md agent.md align.md; do
-  do_cp "$KIT_DIR/sources/governance/$f" "$TARGET/agent/$f"
+  do_cp "$KIT_DIR/sources/governance/$f" "$TARGET/.harness-kit/agent/$f"
 done
 
 log "템플릿 복사"
 for f in queue.md phase.md spec.md plan.md task.md walkthrough.md pr_description.md; do
-  do_cp "$KIT_DIR/sources/templates/$f" "$TARGET/agent/templates/$f"
+  do_cp "$KIT_DIR/sources/templates/$f" "$TARGET/.harness-kit/agent/templates/$f"
 done
 
 # ============================================================
@@ -279,7 +281,7 @@ if [ $NO_HOOKS -eq 0 ] && [ -d "$KIT_DIR/sources/hooks" ]; then
     log "Hook 스크립트 복사 ($hook_count 개)"
     for f in "$KIT_DIR/sources/hooks"/*.sh; do
       [ -e "$f" ] || continue
-      _hf="$TARGET/scripts/harness/hooks/$(basename "$f")"
+      _hf="$TARGET/.harness-kit/hooks/$(basename "$f")"
       do_cp "$f" "$_hf"
       do_fix_shebang "$_hf"
       do_run "chmod +x '$_hf'"
@@ -294,16 +296,16 @@ fi
 # ============================================================
 if [ -d "$KIT_DIR/sources/bin" ]; then
   log "bin/ 복사"
-  do_cp_r "$KIT_DIR/sources/bin/." "$TARGET/scripts/harness/bin/"
+  do_cp_r "$KIT_DIR/sources/bin/." "$TARGET/.harness-kit/bin/"
   if [ $DRY_RUN -eq 0 ]; then
-    for bf in "$TARGET/scripts/harness/bin/sdd" "$TARGET/scripts/harness/bin/bb-pr"; do
+    for bf in "$TARGET/.harness-kit/bin/sdd" "$TARGET/.harness-kit/bin/bb-pr"; do
       if [ -f "$bf" ]; then
         do_fix_shebang "$bf"
         chmod +x "$bf" 2>/dev/null || true
       fi
     done
     # lib/ 내 .sh 파일도 shebang 교체
-    for lf in "$TARGET/scripts/harness/bin/lib"/*.sh; do
+    for lf in "$TARGET/.harness-kit/bin/lib"/*.sh; do
       [ -f "$lf" ] && do_fix_shebang "$lf"
     done
   fi
@@ -394,13 +396,16 @@ fi
 log ".gitignore 갱신"
 GI="$TARGET/.gitignore"
 if [ $DRY_RUN -eq 1 ]; then
-  echo "${C_DIM}[dry-run]${C_RST} .claude/state/ 를 .gitignore 에 추가"
+  echo "${C_DIM}[dry-run]${C_RST} .gitignore 에 harness-kit 항목 추가"
 else
   touch "$GI"
-  if ! grep -qE '^\.claude/state/' "$GI"; then
+  # harness-kit 섹션이 없으면 추가
+  if ! grep -q '# harness-kit' "$GI"; then
     {
       echo ""
       echo "# harness-kit"
+      echo "!.harness-kit/"
+      echo ".harness-backup-*/"
       echo ".claude/state/"
     } >> "$GI"
   fi
@@ -410,6 +415,20 @@ fi
 # ============================================================
 # 17. State 파일 초기화
 # ============================================================
+log "installed.json 작성"
+INSTALLED_JSON="$TARGET/.harness-kit/installed.json"
+if [ $DRY_RUN -eq 1 ]; then
+  echo "${C_DIM}[dry-run]${C_RST} write $INSTALLED_JSON"
+else
+  cat > "$INSTALLED_JSON" <<EOF
+{
+  "kitVersion": "$KIT_VERSION",
+  "installedAt": "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+}
+EOF
+  ok "installed.json 작성 완료"
+fi
+
 log "초기 state 파일 작성"
 STATE_FILE="$TARGET/.claude/state/current.json"
 if [ $DRY_RUN -eq 1 ]; then
@@ -442,7 +461,7 @@ ${C_GRN}━━━━━━━━━━━━━━━━━━━━━━━━
 
 다음 단계:
   1) cd $TARGET
-  2) ${C_CYN}./scripts/harness/bin/sdd status${C_RST}    # 상태 확인 (스크립트 완성 후)
+  2) ${C_CYN}bash .harness-kit/bin/sdd status${C_RST}    # 상태 확인
   3) Claude Code 새 세션에서 ${C_CYN}/hk-align${C_RST} 호출
   4) 첫 PHASE / SPEC 만들기
 
