@@ -58,13 +58,13 @@ else
   fail "check-test-passed.sh에 hook_resolve_mode TEST_PASSED warn 누락"
 fi
 
-# --- Check 5: sources ↔ scripts/harness 동기화 ---
+# --- Check 5: sources ↔ .harness-kit/ 동기화 ---
 echo ""
-echo "▶ Check 5: sources/ ↔ scripts/harness/ 동기화"
+echo "▶ Check 5: sources/ ↔ .harness-kit/ 동기화"
 
 for f in _lib.sh check-branch.sh check-plan-accept.sh check-test-passed.sh; do
   check
-  if diff -q "$ROOT/sources/hooks/$f" "$ROOT/scripts/harness/hooks/$f" > /dev/null 2>&1; then
+  if diff -q "$ROOT/sources/hooks/$f" "$ROOT/.harness-kit/hooks/$f" > /dev/null 2>&1; then
     pass "$f 동기화 OK"
   else
     fail "$f 불일치"
@@ -72,7 +72,7 @@ for f in _lib.sh check-branch.sh check-plan-accept.sh check-test-passed.sh; do
 done
 
 check
-if diff -q "$ROOT/sources/bin/sdd" "$ROOT/scripts/harness/bin/sdd" > /dev/null 2>&1; then
+if diff -q "$ROOT/sources/bin/sdd" "$ROOT/.harness-kit/bin/sdd" > /dev/null 2>&1; then
   pass "sdd 동기화 OK"
 else
   fail "sdd 불일치"
@@ -99,7 +99,7 @@ fi
 echo ""
 echo "▶ Check 7: sdd hooks 실행 테스트"
 check
-output=$(bash "$ROOT/scripts/harness/bin/sdd" hooks 2>&1)
+output=$(bash "$ROOT/.harness-kit/bin/sdd" hooks 2>&1)
 if echo "$output" | grep -q 'check-branch.sh' 2>/dev/null; then
   pass "sdd hooks 출력에 check-branch.sh 표시"
 else

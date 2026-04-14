@@ -129,7 +129,7 @@ Before any Spec, Plan, or execution:
 - **Planning Mode**: Until approval is given, the Agent MUST remain in PLANNING mode and only edit documentation.
 
 ### 5.4 Artifact Integrity (Critical)
-- **Template Enforcement**: Generating `phase`, `spec`, `plan`, `task`, `walkthrough`, or `pr_description` WITHOUT reading and following the official templates in `agent/templates/` is a **CRITICAL VIOLATION**.
+- **Template Enforcement**: Generating `phase`, `spec`, `plan`, `task`, `walkthrough`, or `pr_description` WITHOUT reading and following the official templates in `.harness-kit/agent/templates/` is a **CRITICAL VIOLATION**.
 - **Language Requirement**: All artifacts MUST be written in **Korean** (except for code, file paths, and standard technical terms) to ensure clear communication with the User.
 - **Quality Bar**: Each artifact MUST be rich enough to be self-contained for review. Vague placeholders are not acceptable in finalized artifacts.
 

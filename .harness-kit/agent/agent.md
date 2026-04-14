@@ -21,8 +21,8 @@ The Agent acts as a delegated senior engineer.
 ## 2. Bootstrap Protocol (On Start / Re-entry)
 
 Upon activation (typically via `/hk-align`), the Agent MUST:
-1. Read `agent/constitution.md` and `agent/agent.md`.
-2. Run `scripts/harness/bin/sdd status` (if available) or fall back to `git branch --show-current` + `git log -3 --oneline`.
+1. Read `.harness-kit/agent/constitution.md` and `.harness-kit/agent/agent.md`.
+2. Run `bash .harness-kit/bin/sdd status` (if available) or fall back to `git branch --show-current` + `git log -3 --oneline`.
 3. Inspect active work in `backlog/`, `specs/`, and `backlog/queue.md`.
 4. Summarize current state to the User: active PHASE, active SPEC, NOW/NEXT, branch, plan-accept flag, last test result.
 5. Ask **ONE** question: "What context shall we proceed with?"
@@ -90,17 +90,17 @@ docs/decisions/         # ADR (referenced from phase-x.md / spec.md)
 
 ### 4.2 Template Enforcement
 
-The Agent MUST read templates from `agent/templates/` before writing any artifact (→ constitution §5.4):
+The Agent MUST read templates from `.harness-kit/agent/templates/` before writing any artifact (→ constitution §5.4):
 
 | Artifact | Template | Output Path |
 |---|---|---|
-| Queue | `agent/templates/queue.md` | `backlog/queue.md` (sdd auto-managed) |
-| Phase | `agent/templates/phase.md` | `backlog/phase-{N}.md` |
-| Spec | `agent/templates/spec.md` | `specs/spec-{N}-{seq}-{slug}/spec.md` |
-| Plan | `agent/templates/plan.md` | `specs/spec-{N}-{seq}-{slug}/plan.md` |
-| Task | `agent/templates/task.md` | `specs/spec-{N}-{seq}-{slug}/task.md` |
-| Walkthrough | `agent/templates/walkthrough.md` | `specs/spec-{N}-{seq}-{slug}/walkthrough.md` |
-| PR Description | `agent/templates/pr_description.md` | `specs/spec-{N}-{seq}-{slug}/pr_description.md` |
+| Queue | `.harness-kit/agent/templates/queue.md` | `backlog/queue.md` (sdd auto-managed) |
+| Phase | `.harness-kit/agent/templates/phase.md` | `backlog/phase-{N}.md` |
+| Spec | `.harness-kit/agent/templates/spec.md` | `specs/spec-{N}-{seq}-{slug}/spec.md` |
+| Plan | `.harness-kit/agent/templates/plan.md` | `specs/spec-{N}-{seq}-{slug}/plan.md` |
+| Task | `.harness-kit/agent/templates/task.md` | `specs/spec-{N}-{seq}-{slug}/task.md` |
+| Walkthrough | `.harness-kit/agent/templates/walkthrough.md` | `specs/spec-{N}-{seq}-{slug}/walkthrough.md` |
+| PR Description | `.harness-kit/agent/templates/pr_description.md` | `specs/spec-{N}-{seq}-{slug}/pr_description.md` |
 
 ### 4.3 sdd Auto-Update (Marker-based)
 The following marker-delimited regions are auto-updated by `bin/sdd` — do NOT manually edit:
@@ -184,7 +184,7 @@ When passing a task with `[-]`, the Agent MUST:
 | **Phase done** | Run `/hk-phase-ship`: verify success criteria + run integration tests + get User go/no-go + create Phase PR + `sdd phase done`. |
 
 - **Walkthrough & Description Protocol**:
-    1. **READ Template**: `agent/templates/walkthrough.md` and `agent/templates/pr_description.md`.
+    1. **READ Template**: `.harness-kit/agent/templates/walkthrough.md` and `.harness-kit/agent/templates/pr_description.md`.
     2. **WRITE in Korean**: Fill all sections.
     3. **Archive**: Commit `walkthrough.md` and `pr_description.md` inside the SPEC directory before pushing.
     4. **Verify task.md**: Ensure zero `[ ]` checkboxes remain.
