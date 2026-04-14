@@ -47,14 +47,24 @@ FORCE=0
 NO_HOOKS=0
 ASSUME_YES=0
 SHELL_MODE=""
+HK_PREFIX=""
+_PREV_ARG=""
 
 for arg in "$@"; do
+  if [ "$_PREV_ARG" = "--prefix" ]; then
+    HK_PREFIX="$arg"
+    _PREV_ARG=""
+    continue
+  fi
+  _PREV_ARG=""
   case "$arg" in
     --dry-run) DRY_RUN=1 ;;
     --force)   FORCE=1 ;;
     --no-hooks) NO_HOOKS=1 ;;
     --yes|-y)  ASSUME_YES=1 ;;
     --shell=*) SHELL_MODE="${arg#--shell=}" ;;
+    --prefix=*) HK_PREFIX="${arg#--prefix=}" ;;
+    --prefix)   _PREV_ARG="--prefix" ;;
     -h|--help)
       sed -n '2,18p' "$0" | sed 's/^# \{0,1\}//'
       exit 0
@@ -203,6 +213,24 @@ if [ $ASSUME_YES -eq 0 ] && [ $DRY_RUN -eq 0 ]; then
 fi
 
 # ============================================================
+# 5. prefix UX — backlog/specs 경로 설정
+# ============================================================
+if [ $ASSUME_YES -eq 0 ] && [ -z "$HK_PREFIX" ] && [ $DRY_RUN -eq 0 ]; then
+  echo ""
+  printf "  backlog/, specs/ 기본 경로를 사용합니다.\n"
+  printf "  변경하려면 prefix 입력 (예: hk-) [Enter = 기본값]: "
+  read -r HK_PREFIX < /dev/tty 2>/dev/null || HK_PREFIX=""
+fi
+
+if [ -n "$HK_PREFIX" ]; then
+  BACKLOG_DIR="${HK_PREFIX}backlog"
+  SPECS_DIR="${HK_PREFIX}specs"
+else
+  BACKLOG_DIR="backlog"
+  SPECS_DIR="specs"
+fi
+
+# ============================================================
 # 6. 헬퍼: do (DRY_RUN 분기)
 # ============================================================
 do_run() {
@@ -240,8 +268,8 @@ do_mkdir "$TARGET/.harness-kit/hooks"
 do_mkdir "$TARGET/.harness-kit/lib"
 do_mkdir "$TARGET/.claude/commands"
 do_mkdir "$TARGET/.claude/state"
-do_mkdir "$TARGET/backlog"
-do_mkdir "$TARGET/specs"
+do_mkdir "$TARGET/$BACKLOG_DIR"
+do_mkdir "$TARGET/$SPECS_DIR"
 
 # ============================================================
 # 9. 거버넌스 + 템플릿 복사
@@ -432,6 +460,17 @@ else
 }
 EOF
   ok "installed.json 작성 완료"
+fi
+
+if [ -n "$HK_PREFIX" ]; then
+  log "harness.config.json 작성 (prefix=$HK_PREFIX)"
+  HK_CONFIG="$TARGET/.harness-kit/harness.config.json"
+  if [ $DRY_RUN -eq 1 ]; then
+    echo "${C_DIM}[dry-run]${C_RST} write $HK_CONFIG"
+  else
+    printf '{"backlogDir":"%s","specsDir":"%s"}\n' "$BACKLOG_DIR" "$SPECS_DIR" > "$HK_CONFIG"
+    ok "harness.config.json 작성 완료"
+  fi
 fi
 
 log "초기 state 파일 작성"
