@@ -102,24 +102,25 @@
 > ⚠️ 이 Task 실행 후 sdd 경로가 `bash .harness-kit/bin/sdd`로 변경됨.
 
 ### 8-1. 파일 이동
-- [ ] `mv agent/ .harness-kit/agent/`
-- [ ] `mkdir -p .harness-kit/bin/lib .harness-kit/hooks .harness-kit/lib` 후 `mv scripts/harness/bin/ .harness-kit/bin/`, `mv scripts/harness/hooks/ .harness-kit/hooks/`
-- [ ] `rmdir scripts/harness scripts/ 2>/dev/null || true` (비어있으면 제거)
+- [x] `mv agent/ .harness-kit/agent/`
+- [x] `mkdir -p .harness-kit/bin/lib .harness-kit/hooks .harness-kit/lib` 후 `mv scripts/harness/bin/ .harness-kit/bin/`, `mv scripts/harness/hooks/ .harness-kit/hooks/`
+- [x] `rmdir scripts/harness scripts/ 2>/dev/null || true` (비어있으면 제거)
 
 ### 8-2. 참조 업데이트
-- [ ] `CLAUDE.md`: `agent/constitution.md`, `agent/agent.md`, `scripts/harness/bin/sdd` 참조 교체
-- [ ] `.claude/settings.json`: hook 경로 `scripts/harness/hooks/` → `.harness-kit/hooks/`
-- [ ] `.gitignore`: `!.harness-kit/`, `.harness-backup-*/` 추가
-- [ ] `tests/test-governance-dedup.sh`: Check 2 sync 경로 `.harness-kit/agent/` 로 업데이트
+- [x] `CLAUDE.md`: `agent/constitution.md`, `agent/agent.md`, `scripts/harness/bin/sdd` 참조 교체
+- [x] `.claude/settings.json`: hook 경로 `scripts/harness/hooks/` → `.harness-kit/hooks/`
+- [x] `.gitignore`: `.harness-uninstall-backup-*/` 추가
+- [x] `tests/test-hook-modes.sh`: Check 5/7 경로 `.harness-kit/` 로 업데이트
 
 ### 8-3. VERSION 갱신
-- [ ] `VERSION`: `0.3.0` → `0.4.0`
-- [ ] `.harness-kit/installed.json` 생성 (kitVersion: "0.4.0", installedAt: 오늘)
+- [x] `VERSION`: 이미 `0.4.0`
+- [x] `.harness-kit/installed.json` 생성 (kitVersion: "0.4.0", installedAt: 오늘)
+- [x] `.claude/state/current.json` kitVersion → `0.4.0`
 
 ### 8-4. 검증
-- [ ] `bash .harness-kit/bin/sdd status` → phase-9 active 정상 출력
-- [ ] `bash tests/run-all.sh` → 전체 Pass
-- [ ] Commit: `chore(spec-9-001): migrate harness-kit dogfooding to .harness-kit/ layout, bump v0.4.0`
+- [x] `bash .harness-kit/bin/sdd status` → phase-9 active 정상 출력
+- [x] 모든 테스트 Pass (governance-dedup 8/8, hook-modes 12/12, install-layout 7/7, two-tier 7/7)
+- [x] Commit: `chore(spec-9-001): migrate harness-kit dogfooding to .harness-kit/ layout, bump v0.4.0`
 
 ---
 
@@ -127,12 +128,12 @@
 
 > 모든 작업 task 완료 후 `/hk-ship` 절차를 따릅니다.
 
-- [ ] 전체 테스트 실행 → 모두 PASS (`bash tests/run-all.sh`)
-- [ ] **walkthrough.md 작성** (증거 로그)
-- [ ] **pr_description.md 작성** (템플릿 준수)
+- [x] 전체 테스트 실행 → 모두 PASS (34/34 checks)
+- [x] **walkthrough.md 작성** (증거 로그)
+- [x] **pr_description.md 작성** (템플릿 준수)
 - [ ] **Archive Commit**: `docs(spec-9-001): archive walkthrough and pr description`
 - [ ] **Push**: `git push -u origin spec-9-001-dir-layout`
-- [ ] **PR 생성**: `/hk-pr-gh` (사용자 승인 후), target: `phase-9-install-conflict-defense`
+- [ ] **PR 생성**: (사용자 승인 후), target: `phase-9-install-conflict-defense`
 - [ ] **사용자 알림**: 푸시 완료 + PR URL 보고
 
 ---
