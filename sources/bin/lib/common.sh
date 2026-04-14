@@ -20,12 +20,26 @@ die()  { err "$*"; exit 1; }
 # 프로젝트 루트 찾기 (CWD 부터 위로 올라가며 .harness-kit/installed.json 또는 .claude/state/current.json 이 있는 디렉토리)
 sdd_find_root() {
   local d="${1:-$PWD}"
-  while [ "$d" != "/" ]; do
+  local depth=0
+  while [ "$d" != "/" ] && [ $depth -lt 10 ]; do
+    if [ -f "$d/.harness-kit/harness.config.json" ]; then
+      local root=""
+      if command -v jq >/dev/null 2>&1; then
+        root=$(jq -r '.rootDir // empty' "$d/.harness-kit/harness.config.json" 2>/dev/null || true)
+      else
+        root=$(grep -o '"rootDir":"[^"]*"' "$d/.harness-kit/harness.config.json" 2>/dev/null | cut -d'"' -f4 || true)
+      fi
+      if [ -n "$root" ] && [ -d "$root" ]; then
+        echo "$root"
+        return 0
+      fi
+    fi
     if [ -f "$d/.harness-kit/installed.json" ] || [ -f "$d/.claude/state/current.json" ]; then
       echo "$d"
       return 0
     fi
     d="$(dirname "$d")"
+    depth=$((depth + 1))
   done
   return 1
 }
