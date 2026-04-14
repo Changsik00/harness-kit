@@ -74,7 +74,17 @@ echo ""
 
 # ========== 2. 디렉토리 구조 ==========
 echo "[2/7] 디렉토리 구조"
-for d in .harness-kit .harness-kit/agent .harness-kit/agent/templates .harness-kit/bin .harness-kit/hooks .claude/commands .claude/state backlog specs; do
+# harness.config.json 경로 읽기 (prefix 반영)
+_HK_CONFIG="$TARGET/.harness-kit/harness.config.json"
+_BACKLOG_DIR="backlog"
+_SPECS_DIR="specs"
+if [ -f "$_HK_CONFIG" ] && command -v jq >/dev/null; then
+  _bd=$(jq -r '.backlogDir // "backlog"' "$_HK_CONFIG" 2>/dev/null)
+  _sd=$(jq -r '.specsDir   // "specs"'  "$_HK_CONFIG" 2>/dev/null)
+  _BACKLOG_DIR="${_bd:-backlog}"
+  _SPECS_DIR="${_sd:-specs}"
+fi
+for d in .harness-kit .harness-kit/agent .harness-kit/agent/templates .harness-kit/bin .harness-kit/hooks .claude/commands .claude/state "$_BACKLOG_DIR" "$_SPECS_DIR"; do
   if [ -d "$TARGET/$d" ]; then
     check_pass "$d"
   else
@@ -136,6 +146,15 @@ if [ -f "$INSTALLED_JSON" ]; then
   fi
 else
   check_fail ".harness-kit/installed.json 없음"
+fi
+HK_CONFIG_FILE="$TARGET/.harness-kit/harness.config.json"
+if [ -f "$HK_CONFIG_FILE" ]; then
+  check_pass ".harness-kit/harness.config.json 존재"
+  if command -v jq >/dev/null; then
+    _cbd=$(jq -r '.backlogDir // "backlog"' "$HK_CONFIG_FILE" 2>/dev/null)
+    _csd=$(jq -r '.specsDir   // "specs"'  "$HK_CONFIG_FILE" 2>/dev/null)
+    echo "  ${C_DIM}backlogDir: ${_cbd:-backlog}  specsDir: ${_csd:-specs}${C_RST}"
+  fi
 fi
 if [ -f "$STATE" ]; then
   check_pass ".claude/state/current.json 존재"
