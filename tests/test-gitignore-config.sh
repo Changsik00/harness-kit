@@ -57,7 +57,7 @@ else
 fi
 
 check
-_gi_val=$(jq -r '.gitignore // "MISSING"' "$FIX_A/.harness-kit/harness.config.json" 2>/dev/null || echo "MISSING")
+_gi_val=$(jq -r 'if has("gitignore") then (.gitignore | tostring) else "MISSING" end' "$FIX_A/.harness-kit/harness.config.json" 2>/dev/null || echo "MISSING")
 if [ "$_gi_val" = "true" ]; then
   pass "A-2: harness.config.json gitignore=true"
 else
@@ -90,7 +90,7 @@ else
 fi
 
 check
-_gi_val=$(jq -r '.gitignore // "MISSING"' "$FIX_B/.harness-kit/harness.config.json" 2>/dev/null || echo "MISSING")
+_gi_val=$(jq -r 'if has("gitignore") then (.gitignore | tostring) else "MISSING" end' "$FIX_B/.harness-kit/harness.config.json" 2>/dev/null || echo "MISSING")
 if [ "$_gi_val" = "false" ]; then
   pass "B-2: harness.config.json gitignore=false"
 else
@@ -147,7 +147,7 @@ else
 fi
 
 check
-_gi_val=$(jq -r '.gitignore // "MISSING"' "$FIX_A/.harness-kit/harness.config.json" 2>/dev/null || echo "MISSING")
+_gi_val=$(jq -r 'if has("gitignore") then (.gitignore | tostring) else "MISSING" end' "$FIX_A/.harness-kit/harness.config.json" 2>/dev/null || echo "MISSING")
 if [ "$_gi_val" = "true" ]; then
   pass "E-2: update 후 harness.config.json gitignore=true 유지"
 else
@@ -170,7 +170,7 @@ else
 fi
 
 check
-_gi_val=$(jq -r '.gitignore // "MISSING"' "$FIX_B/.harness-kit/harness.config.json" 2>/dev/null || echo "MISSING")
+_gi_val=$(jq -r 'if has("gitignore") then (.gitignore | tostring) else "MISSING" end' "$FIX_B/.harness-kit/harness.config.json" 2>/dev/null || echo "MISSING")
 if [ "$_gi_val" = "false" ]; then
   pass "F-2: update 후 harness.config.json gitignore=false 유지"
 else

@@ -16,6 +16,8 @@
 #   ./install.sh --no-hooks            # hooks 설치 생략
 #   ./install.sh --shell=zsh           # 셸 선택 프롬프트 스킵, zsh 로 강제 (CI/자동화용)
 #   ./install.sh --yes                 # 모든 프롬프트 생략 (셸은 환경에 맞게 자동 선택)
+#   ./install.sh --gitignore           # .harness-kit/을 .gitignore에 추가 (기본값)
+#   ./install.sh --no-gitignore        # .harness-kit/을 .gitignore에 추가하지 않고 un-ignore 처리
 #
 # 필수 의존성 (macOS 기준 — brew install ...):
 #   bash 4.0+ (또는 --shell=zsh 사용 시 macOS 기본 zsh), jq, git
@@ -48,6 +50,7 @@ NO_HOOKS=0
 ASSUME_YES=0
 SHELL_MODE=""
 HK_PREFIX=""
+HK_GITIGNORE=-1   # -1=미결정, 1=추가, 0=un-ignore
 _PREV_ARG=""
 
 for arg in "$@"; do
@@ -65,6 +68,8 @@ for arg in "$@"; do
     --shell=*) SHELL_MODE="${arg#--shell=}" ;;
     --prefix=*) HK_PREFIX="${arg#--prefix=}" ;;
     --prefix)   _PREV_ARG="--prefix" ;;
+    --gitignore)    HK_GITIGNORE=1 ;;
+    --no-gitignore) HK_GITIGNORE=0 ;;
     -h|--help)
       sed -n '2,18p' "$0" | sed 's/^# \{0,1\}//'
       exit 0
@@ -228,6 +233,24 @@ if [ -n "$HK_PREFIX" ]; then
 else
   BACKLOG_DIR="backlog"
   SPECS_DIR="specs"
+fi
+
+# ============================================================
+# 5b. gitignore 옵션 설정
+# ============================================================
+if [ $HK_GITIGNORE -eq -1 ]; then
+  if [ $ASSUME_YES -eq 1 ] || [ $DRY_RUN -eq 1 ]; then
+    HK_GITIGNORE=1  # 기본값 Y
+  else
+    echo ""
+    printf "  .harness-kit/ 를 .gitignore 에 추가할까요?\n"
+    printf "  (권장: 하네스 설정을 git 에서 숨깁니다) [Y/n] "
+    read -r _gi_ans < /dev/tty 2>/dev/null || _gi_ans=""
+    case "$_gi_ans" in
+      n|N|no|NO) HK_GITIGNORE=0 ;;
+      *)         HK_GITIGNORE=1 ;;
+    esac
+  fi
 fi
 
 # ============================================================
@@ -434,13 +457,39 @@ else
   touch "$GI"
   # harness-kit 섹션이 없으면 추가
   if ! grep -q '# harness-kit' "$GI"; then
+    if [ $HK_GITIGNORE -eq 1 ]; then
+      _hk_line=".harness-kit/"
+    else
+      _hk_line="!.harness-kit/"
+    fi
     {
       echo ""
       echo "# harness-kit"
-      echo "!.harness-kit/"
+      echo "$_hk_line"
       echo ".harness-backup-*/"
       echo ".claude/state/"
     } >> "$GI"
+  else
+    # 섹션이 이미 있는 경우: .harness-kit/ 관련 라인 멱등 처리
+    if [ $HK_GITIGNORE -eq 1 ]; then
+      # .harness-kit/ 이 없으면 추가, !.harness-kit/ 이 있으면 제거
+      if ! grep -q '^\.harness-kit/$' "$GI"; then
+        sed -i.tmp 's|^!\.harness-kit/$|.harness-kit/|' "$GI"
+        if ! grep -q '^\.harness-kit/$' "$GI"; then
+          echo ".harness-kit/" >> "$GI"
+        fi
+        rm -f "${GI}.tmp"
+      fi
+    else
+      # !.harness-kit/ 이 없으면 추가, .harness-kit/ 이 있으면 제거
+      if ! grep -q '^!\.harness-kit/$' "$GI"; then
+        sed -i.tmp 's|^\.harness-kit/$|!.harness-kit/|' "$GI"
+        if ! grep -q '^!\.harness-kit/$' "$GI"; then
+          echo "!.harness-kit/" >> "$GI"
+        fi
+        rm -f "${GI}.tmp"
+      fi
+    fi
   fi
   ok ".gitignore 갱신"
 fi
@@ -467,11 +516,12 @@ HK_CONFIG="$TARGET/.harness-kit/harness.config.json"
 if [ $DRY_RUN -eq 1 ]; then
   echo "${C_DIM}[dry-run]${C_RST} write $HK_CONFIG"
 else
+  _gi_bool="true"; [ $HK_GITIGNORE -eq 0 ] && _gi_bool="false"
   if [ -n "$HK_PREFIX" ]; then
-    printf '{"rootDir":"%s","backlogDir":"%s","specsDir":"%s"}\n' \
-      "$TARGET" "$BACKLOG_DIR" "$SPECS_DIR" > "$HK_CONFIG"
+    printf '{"rootDir":"%s","backlogDir":"%s","specsDir":"%s","gitignore":%s}\n' \
+      "$TARGET" "$BACKLOG_DIR" "$SPECS_DIR" "$_gi_bool" > "$HK_CONFIG"
   else
-    printf '{"rootDir":"%s"}\n' "$TARGET" > "$HK_CONFIG"
+    printf '{"rootDir":"%s","gitignore":%s}\n' "$TARGET" "$_gi_bool" > "$HK_CONFIG"
   fi
   ok "harness.config.json 작성 완료"
 fi

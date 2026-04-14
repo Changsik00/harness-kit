@@ -11,7 +11,7 @@ set -euo pipefail
 #   4) .harness-kit/installed.json 존재 + kitVersion 포함
 #   5) agent/ 미생성 (충돌 방지)
 #   6) scripts/harness/ 미생성 (충돌 방지)
-#   7) .gitignore 에 !.harness-kit/ 포함
+#   7) .gitignore 에 .harness-kit/ 포함 (기본값: gitignore=true)
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
@@ -107,14 +107,14 @@ else
   fail "scripts/harness/ 가 생성됨 — scripts/ 네임스페이스 오염"
 fi
 
-# --- Check 7: .gitignore 에 !.harness-kit/ 포함 ---
-echo "▶ Check 7: .gitignore 에 !.harness-kit/ 포함"
+# --- Check 7: .gitignore 에 .harness-kit/ 포함 (기본값: gitignore=true) ---
+echo "▶ Check 7: .gitignore 에 .harness-kit/ 포함 (기본값: gitignore=true)"
 check
 GI="$FIXTURE_DIR/.gitignore"
-if [ -f "$GI" ] && grep -q '^!\.harness-kit/' "$GI"; then
-  pass ".gitignore 에 !.harness-kit/ 포함"
+if [ -f "$GI" ] && grep -q '^\.harness-kit/' "$GI"; then
+  pass ".gitignore 에 .harness-kit/ 포함 (gitignore=true 기본값)"
 else
-  fail ".gitignore 에 !.harness-kit/ 없음 — 숨김 디렉토리 미추적 위험"
+  fail ".gitignore 에 .harness-kit/ 없음"
 fi
 
 # --- 결과 ---
