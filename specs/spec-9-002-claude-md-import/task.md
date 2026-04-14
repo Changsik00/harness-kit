@@ -17,59 +17,52 @@
 ## Task 1: 브랜치 생성
 
 ### 1-1. 브랜치 생성
-- [ ] `git checkout -b spec-9-002-claude-md-import` (phase-9-install-conflict-defense에서 시작)
-- [ ] Commit: 없음 (브랜치 생성만)
+- [x] `git checkout -b spec-9-002-claude-md-import` (phase-9-install-conflict-defense에서 시작)
+- [x] Commit: 없음 (브랜치 생성만)
 
 ---
 
 ## Task 2: TDD Red — 설치 @import 검증 테스트 작성
 
 ### 2-1. test-install-claude-import.sh 작성
-- [ ] `tests/test-install-claude-import.sh` 작성:
-  - 임시 repo에 `install.sh --yes` 실행
-  - `.harness-kit/CLAUDE.fragment.md` 존재 확인
-  - `CLAUDE.md`에 `@.harness-kit/CLAUDE.fragment.md` 줄 존재 확인
-  - `CLAUDE.md` 내 `에이전트 운영 규약` 직접 삽입 미존재 확인
-  - fragment 내 `핵심 규칙 요약` 존재 확인
-  - 멱등성: `install.sh --yes` 재실행 후 `@import` 줄 중복 없음 확인
-- [ ] 테스트 실행 → Fail 확인 (현재 install.sh가 블록 전체를 삽입하므로)
-- [ ] Commit: `test(spec-9-002): add failing test for CLAUDE.md @import install`
+- [x] `tests/test-install-claude-import.sh` 작성 (6개 검증 항목)
+- [x] 테스트 실행 → Fail 확인 (5/6 FAIL)
+- [x] Commit: `test(spec-9-002): add failing test for CLAUDE.md @import install`
 
 ---
 
 ## Task 3: TDD Green — sources fragment 파일명 변경 + install.sh 수정
 
 ### 3-1. fragment 파일명 변경
-- [ ] `sources/claude-fragments/CLAUDE.md.fragment` → `sources/claude-fragments/CLAUDE.fragment.md` (rename)
-- [ ] fragment 내용: `.harness-kit/agent/` 경로 참조 확인/수정
+- [x] `sources/claude-fragments/CLAUDE.md.fragment` → `sources/claude-fragments/CLAUDE.fragment.md` (rename)
+- [x] fragment 내용: `.harness-kit/agent/` 경로 참조 수정, HARNESS-KIT 마커 제거
 
 ### 3-2. install.sh Section 15 수정
-- [ ] `.harness-kit/CLAUDE.fragment.md` 복사 로직 추가
-- [ ] CLAUDE.md 삽입을 3줄 @import로 교체 (기존 블록 교체 또는 append)
-- [ ] `tests/test-install-claude-import.sh` 실행 → Pass 확인
-- [ ] `tests/test-two-tier-loading.sh` 실행 → Pass 확인 (FRAGMENT 변수 경로 업데이트 포함)
-- [ ] Commit: `feat(spec-9-002): switch CLAUDE.md install to 3-line @import`
+- [x] `.harness-kit/CLAUDE.fragment.md` 복사 로직 추가
+- [x] CLAUDE.md 삽입을 3줄 @import로 교체 (기존 블록 교체 또는 append)
+- [x] `tests/test-install-claude-import.sh` → 6/6 PASS
+- [x] `tests/test-two-tier-loading.sh` → 7/7 PASS
+- [x] Commit: `feat(spec-9-002): switch CLAUDE.md install to 3-line @import`
 
 ---
 
 ## Task 4: update.sh — fragment 교체 + 마이그레이션 로직
 
 ### 4-1. update.sh 수정
-- [ ] CLAUDE.md 본문 수정 로직 제거 (fragment만 교체하도록)
-- [ ] `.harness-kit/CLAUDE.fragment.md` 교체 로직 추가
-- [ ] 마이그레이션 감지: HARNESS-KIT 블록이 `@import` 없이 내용을 포함하면 → 3줄 @import로 전환
-- [ ] 마이그레이션 시 CLAUDE.md 백업 (`.harness-backup-{TS}/`)
-- [ ] Commit: `feat(spec-9-002): update.sh replaces only CLAUDE.fragment.md, adds migration`
+- [x] CLAUDE.md 마이그레이션은 install.sh 재실행으로 처리 (구 방식 블록 → @import 자동 교체)
+- [x] 일반 업데이트 시 CLAUDE.md 백업 추가 (`.harness-backup-{TS}/`)
+- [x] old-layout v0.3 마이그레이션 백업에도 CLAUDE.md 추가
+- [x] Commit: `feat(spec-9-002): update.sh backs up CLAUDE.md before install; fragment-only update via install.sh`
 
 ---
 
 ## Task 5: 도그푸딩 — 이 프로젝트 CLAUDE.md @import 전환
 
 ### 5-1. 이 프로젝트 CLAUDE.md 업데이트
-- [ ] `.harness-kit/CLAUDE.fragment.md` 생성 (sources/claude-fragments/CLAUDE.fragment.md 복사)
-- [ ] `CLAUDE.md` HARNESS-KIT 블록을 3줄 @import로 교체
-- [ ] `tests/test-two-tier-loading.sh` → Pass 확인
-- [ ] Commit: `chore(spec-9-002): migrate this repo CLAUDE.md to @import format`
+- [x] `.harness-kit/CLAUDE.fragment.md` 생성
+- [x] `CLAUDE.md` HARNESS-KIT 블록을 3줄 @import로 교체
+- [x] `tests/test-two-tier-loading.sh` → 7/7 PASS
+- [x] Commit: `chore(spec-9-002): migrate this repo CLAUDE.md to @import format`
 
 ---
 
@@ -77,9 +70,9 @@
 
 > 모든 작업 task 완료 후 `/hk-ship` 절차를 따릅니다.
 
-- [ ] 전체 테스트 실행 → 모두 PASS
-- [ ] **walkthrough.md 작성** (증거 로그)
-- [ ] **pr_description.md 작성** (템플릿 준수)
+- [x] 전체 테스트 실행 → 40/40 PASS
+- [x] **walkthrough.md 작성** (증거 로그)
+- [x] **pr_description.md 작성** (템플릿 준수)
 - [ ] **Archive Commit**: `docs(spec-9-002): archive walkthrough and pr description`
 - [ ] **Push**: `git push -u origin spec-9-002-claude-md-import`
 - [ ] **PR 생성**: (사용자 승인 후), target: `phase-9-install-conflict-defense`
