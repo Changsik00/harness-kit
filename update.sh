@@ -55,12 +55,20 @@ PREV_VER=$(jq -r '.kitVersion // "unknown"' "$INSTALLED_JSON")
 NEW_VER=$(cat "$KIT_DIR/VERSION")
 
 HK_PREFIX=""
+HK_GITIGNORE_ARG=""
 _CONFIG="$TARGET/.harness-kit/harness.config.json"
 if [ -f "$_CONFIG" ] && command -v jq >/dev/null 2>&1; then
   _bd=$(jq -r '.backlogDir // empty' "$_CONFIG" 2>/dev/null || true)
   # backlogDir 에서 prefix 역산: "hk-backlog" → "hk-"
   if [ -n "$_bd" ] && [ "$_bd" != "backlog" ]; then
     HK_PREFIX="${_bd%backlog}"
+  fi
+  # gitignore 설정 보존
+  _gi=$(jq -r 'if has("gitignore") then (.gitignore | tostring) else "true" end' "$_CONFIG" 2>/dev/null || echo "true")
+  if [ "$_gi" = "false" ]; then
+    HK_GITIGNORE_ARG="--no-gitignore"
+  else
+    HK_GITIGNORE_ARG="--gitignore"
   fi
 fi
 
@@ -94,7 +102,7 @@ log "재설치 중..."
 PREFIX_ARG=""
 [ -n "$HK_PREFIX" ] && PREFIX_ARG="--prefix $HK_PREFIX"
 # shellcheck disable=SC2086
-"$KIT_DIR/install.sh" --yes $SHELL_ARG $PREFIX_ARG "$TARGET"
+"$KIT_DIR/install.sh" --yes $SHELL_ARG $PREFIX_ARG $HK_GITIGNORE_ARG "$TARGET"
 
 # ── 4. state 복원 ────────────────────────────────────────────
 if command -v jq >/dev/null 2>&1 && [ -f "$_STATE" ]; then
