@@ -462,15 +462,18 @@ EOF
   ok "installed.json 작성 완료"
 fi
 
-if [ -n "$HK_PREFIX" ]; then
-  log "harness.config.json 작성 (prefix=$HK_PREFIX)"
-  HK_CONFIG="$TARGET/.harness-kit/harness.config.json"
-  if [ $DRY_RUN -eq 1 ]; then
-    echo "${C_DIM}[dry-run]${C_RST} write $HK_CONFIG"
+log "harness.config.json 작성"
+HK_CONFIG="$TARGET/.harness-kit/harness.config.json"
+if [ $DRY_RUN -eq 1 ]; then
+  echo "${C_DIM}[dry-run]${C_RST} write $HK_CONFIG"
+else
+  if [ -n "$HK_PREFIX" ]; then
+    printf '{"rootDir":"%s","backlogDir":"%s","specsDir":"%s"}\n' \
+      "$TARGET" "$BACKLOG_DIR" "$SPECS_DIR" > "$HK_CONFIG"
   else
-    printf '{"backlogDir":"%s","specsDir":"%s"}\n' "$BACKLOG_DIR" "$SPECS_DIR" > "$HK_CONFIG"
-    ok "harness.config.json 작성 완료"
+    printf '{"rootDir":"%s"}\n' "$TARGET" > "$HK_CONFIG"
   fi
+  ok "harness.config.json 작성 완료"
 fi
 
 log "초기 state 파일 작성"
