@@ -136,13 +136,15 @@ harness-kit을 기존 프로젝트에 설치할 때 세 가지 구조적 충돌 
 - **요점**: `CHANGELOG.md` 신설. 버전별 변경 이력 기록. `update.sh` 완료 메시지에서 참조.
 - **연관 모듈**: `CHANGELOG.md`, `update.sh`
 
-### spec-9-010 — ship/agent PR→SDD 아이디어 캡처
+### spec-9-010 — 거버넌스 흐름 보호 (idea-guard)
 
-- **요점**: PR 리뷰 중 새 아이디어가 나오면 "이걸 SDD로 진행할까요?" 라고 묻고 새 spec으로 연결하는 흐름을 `hk-ship` 커맨드 / agent.md에 명시.
+- **요점**: 작업 중 새 아이디어/의견 발생 시 현재 흐름을 보호하고 문서화 없는 방향 전환을 금지하는 거버넌스 강화.
 - **방향성**:
-  - `hk-ship` 커맨드: PR 생성 후 "새 아이디어 발견 시 `/hk-spec-new`로 전환" 안내 추가
-  - `agent.md`: PR 리뷰 중 발산 방지 — 새 아이디어는 즉시 SDD 진입
-- **연관 모듈**: `sources/commands/hk-ship.md`, `sources/governance/agent.md`
+  - **Idea Capture Gate** (`constitution.md` §5.x 신설): 작업 중 새 아이디어 발생 → 즉시 backlog stub 생성 → "완료 후 진행 / 지금 전환" 명시적 게이트. 문서화 없는 방향 전환 금지.
+  - **Context Continuity Check** (`agent.md` 세션 시작 부분): 세션 시작 시 미완 spec / 파킹된 아이디어 확인. 새 미션 전 "이전 대화에서 미완된 항목이 있습니다" 알림.
+  - **Opinion Divergence Protocol** (`constitution.md` §5.x 신설): 사용자 의견 ≠ 현재 목표 → 충돌 명시 → 조율안 제안 후 사용자 선택 → 결과를 backlog/phase에 기록.
+  - PR 단계 포함: PR 리뷰 중 새 아이디어 → `hk-ship` 커맨드에 안내 추가.
+- **연관 모듈**: `sources/governance/constitution.md`, `sources/governance/agent.md`, `sources/commands/hk-ship.md`
 
 ### spec-9-011 — preflight-ux
 
