@@ -10,7 +10,7 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 
-FRAGMENT="$ROOT/sources/claude-fragments/CLAUDE.md.fragment"
+FRAGMENT="$ROOT/sources/claude-fragments/CLAUDE.fragment.md"
 CLAUDE_MD="$ROOT/CLAUDE.md"
 # hk-align.md (sources) 또는 설치된 .claude/commands/hk-align.md 중 존재하는 것 사용
 ALIGN_CMD=""
