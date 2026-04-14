@@ -21,7 +21,7 @@ spec-9-001-dir-layout
 ## 📦 진행 중 Phase
 
 <!-- sdd:active:start -->
-- **phase-9** — 설치 충돌 방어 — 디렉토리 은닉 + CLAUDE.md @import + 충돌 감지 — 3 spec — 다음: spec-9-003-conflict-detection
+- **phase-9** — 설치 충돌 방어 — 디렉토리 은닉 + CLAUDE.md @import + 충돌 감지 — 6 spec — 다음: spec-9-006-gitignore-config
 <!-- sdd:active:end -->
 
 ## 📥 spec-x 대기

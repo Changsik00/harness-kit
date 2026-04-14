@@ -54,8 +54,8 @@ harness-kit을 기존 프로젝트에 설치할 때 세 가지 구조적 충돌 
 | `spec-9-002` | claude-md-import | P1 | Done | `specs/spec-9-002-claude-md-import/` |
 | `spec-9-003` | conflict-detection | P2 | Done | `specs/spec-9-003-conflict-detection/` |
 | `spec-9-004` | root-config | P1 | Done | `specs/spec-9-004-root-config/` |
-| `spec-9-005` | update-rewrite | P1 | Active | `specs/spec-9-005-update-rewrite/` |
-| `spec-9-006` | gitignore-config | P1 | Backlog | — |
+| `spec-9-005` | update-rewrite | P1 | Done | `specs/spec-9-005-update-rewrite/` |
+| `spec-9-006` | gitignore-config | P1 | Active | `specs/spec-9-006-gitignore-config/` |
 | `spec-9-007` | cleanup-versioned | P2 | Backlog | — |
 | `spec-9-008` | readme-refresh | P2 | Backlog | — |
 | `spec-9-009` | changelog | P2 | Backlog | — |
