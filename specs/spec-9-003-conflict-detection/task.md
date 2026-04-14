@@ -22,16 +22,15 @@
 
 ---
 
-## Task 2: TDD Red — 충돌 감지 테스트 작성
+## Task 2: TDD Red — 경로 config 테스트 작성
 
-### 2-1. test-conflict-detection.sh 작성
-- [ ] `tests/test-conflict-detection.sh` 작성:
-  - 신규 빈 repo → install 정상, config 미생성 확인
-  - `backlog/` 기존 내용 있는 repo → `--yes` 실행 → `harness.config.json` 생성, `hk-backlog/` 존재 확인
-  - `specs/` 기존 내용 있는 repo → `--yes` 실행 → `harness.config.json` 생성, `hk-specs/` 존재 확인
+### 2-1. test-path-config.sh 작성
+- [ ] `tests/test-path-config.sh` 작성:
+  - `--yes` 실행 → config 미생성, `backlog/` 생성 확인
+  - prefix `hk-` 지정(`--prefix hk-`) → `harness.config.json` 생성, `hk-backlog/`, `hk-specs/` 생성 확인
   - config 있는 상태에서 `sdd status` → 오류 없이 실행 확인
 - [ ] 테스트 실행 → Fail 확인
-- [ ] Commit: `test(spec-9-003): add failing test for conflict detection and config system`
+- [ ] Commit: `test(spec-9-003): add failing test for path config system`
 
 ---
 
@@ -40,30 +39,29 @@
 ### 3-1. sources/bin/lib/common.sh 수정
 - [ ] `sdd_find_root`: `.harness-kit/installed.json` 감지 조건 추가
 - [ ] `SDD_AGENT` → `.harness-kit/agent/`, `SDD_TEMPLATES` → `.harness-kit/agent/templates/`
-- [ ] `harness.config.json` 읽기: `SDD_BACKLOG`/`SDD_SPECS` override
-- [ ] `.harness-kit/agent/` + `.harness-kit/bin/` 동기화
-- [ ] Commit: `refactor(spec-9-003): fix common.sh paths and add harness.config.json support`
+- [ ] `harness.config.json` 읽기: `SDD_BACKLOG`/`SDD_SPECS` override (jq 없으면 grep 폴백)
+- [ ] `sources/bin/` → `.harness-kit/bin/` 동기화
+- [ ] Commit: `refactor(spec-9-003): fix common.sh agent paths and add config reading`
 
 ---
 
-## Task 4: install.sh — 충돌 감지 + config 생성
+## Task 4: install.sh — prefix UX + config 생성
 
 ### 4-1. install.sh 수정
-- [ ] 충돌 감지 함수 `_check_dir_conflict()` 추가
-- [ ] install 초반에 충돌 스캔 실행
-- [ ] 충돌 시: 내역 출력 → 제안 경로 → 사용자 확인 (또는 `--yes`로 자동 채택)
-- [ ] `harness.config.json` 생성 로직 추가
-- [ ] backlog/specs 디렉토리 생성 시 config 경로 반영
-- [ ] `tests/test-conflict-detection.sh` → Pass 확인
-- [ ] Commit: `feat(spec-9-003): add conflict detection and harness.config.json to install.sh`
+- [ ] `--prefix` 플래그 파싱 추가 (비대화식 환경용)
+- [ ] 설치 계획 출력 후 prefix 프롬프트 추가 (`--yes` 시 스킵)
+- [ ] prefix 있으면 `harness.config.json` 생성, `{prefix}backlog/`/`{prefix}specs/` 사용
+- [ ] backlog/specs 디렉토리 생성 및 초기 파일 생성 시 config 경로 반영
+- [ ] `tests/test-path-config.sh` → Pass 확인
+- [ ] Commit: `feat(spec-9-003): add prefix UX and harness.config.json to install.sh`
 
 ---
 
 ## Task 5: doctor.sh — config 반영
 
 ### 5-1. doctor.sh 수정
-- [ ] `harness.config.json` 존재 시 설정 경로 출력
-- [ ] Section 2 디렉토리 체크: config 경로 반영
+- [ ] Section 5(State): `harness.config.json` 존재 + 설정 경로 출력
+- [ ] Section 2(디렉토리 구조): config 경로로 backlog/specs 체크
 - [ ] Commit: `refactor(spec-9-003): doctor.sh reflects harness.config.json paths`
 
 ---
