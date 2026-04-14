@@ -354,40 +354,45 @@ else
 fi
 
 # ============================================================
-# 15. CLAUDE.md 에 fragment append (멱등)
+# 15. CLAUDE.md 에 @import 3줄 삽입 (멱등) + CLAUDE.fragment.md 복사
 # ============================================================
 log "CLAUDE.md 갱신"
 CLAUDE_MD="$TARGET/CLAUDE.md"
-CLAUDE_FRAGMENT="$KIT_DIR/sources/claude-fragments/CLAUDE.md.fragment"
+CLAUDE_FRAGMENT_SRC="$KIT_DIR/sources/claude-fragments/CLAUDE.fragment.md"
+CLAUDE_FRAGMENT_DEST="$TARGET/.harness-kit/CLAUDE.fragment.md"
+
+# @import 3줄 블록
+IMPORT_BLOCK="$(printf '<!-- HARNESS-KIT:BEGIN -->\n@.harness-kit/CLAUDE.fragment.md\n<!-- HARNESS-KIT:END -->')"
 
 if [ $DRY_RUN -eq 1 ]; then
-  echo "${C_DIM}[dry-run]${C_RST} append CLAUDE.md.fragment to $CLAUDE_MD"
+  echo "${C_DIM}[dry-run]${C_RST} copy CLAUDE.fragment.md + insert @import into $CLAUDE_MD"
 else
+  # fragment 파일 복사
+  cp "$CLAUDE_FRAGMENT_SRC" "$CLAUDE_FRAGMENT_DEST"
+
   if [ -f "$CLAUDE_MD" ]; then
-    # 마커 검출은 라인 시작의 HTML 주석으로 엄격히 매치한다.
-    # (본문에서 마커 문자열을 인용·설명할 수 있으므로 substring 매치는 위험)
     if grep -qE '^<!-- HARNESS-KIT:BEGIN' "$CLAUDE_MD"; then
-      log "기존 HARNESS-KIT 블록 발견 → 갱신"
+      # 기존 블록(구 방식 또는 @import 방식) → @import 3줄로 교체
       tmp="$(mktemp)"
-      # 1) 기존 블록 strip
-      # 2) trailing blank line 제거 (재실행 시마다 빈 줄이 누적되는 것을 방지).
-      #    blank 카운터를 버퍼링하다 비-blank 라인 직전에만 flush, EOF 시 discard.
       awk '
-        /^<!-- HARNESS-KIT:BEGIN/ { skip=1 }
-        !skip { print }
-        /^<!-- HARNESS-KIT:END/   { skip=0; next }
-      ' "$CLAUDE_MD" | awk '
-        /[^[:space:]]/ { for (i=1; i<=blanks; i++) print ""; blanks=0; print; next }
-        { blanks++ }
-      ' > "$tmp"
+        /^<!-- HARNESS-KIT:BEGIN/ { skip=1; print; next }
+        skip && /^<!-- HARNESS-KIT:END/ {
+          print "@.harness-kit/CLAUDE.fragment.md"
+          print; skip=0; next
+        }
+        skip { next }
+        { print }
+      ' "$CLAUDE_MD" > "$tmp"
       mv "$tmp" "$CLAUDE_MD"
+    else
+      # 기존 블록 없음 → 끝에 append
+      printf "\n%s\n" "$IMPORT_BLOCK" >> "$CLAUDE_MD"
     fi
-    printf "\n" >> "$CLAUDE_MD"
-    cat "$CLAUDE_FRAGMENT" >> "$CLAUDE_MD"
   else
-    cat "$CLAUDE_FRAGMENT" > "$CLAUDE_MD"
+    # CLAUDE.md 없음 → 새로 생성
+    printf "%s\n" "$IMPORT_BLOCK" > "$CLAUDE_MD"
   fi
-  ok "CLAUDE.md 갱신 완료"
+  ok "CLAUDE.md 갱신 완료 (@import 방식)"
 fi
 
 # ============================================================

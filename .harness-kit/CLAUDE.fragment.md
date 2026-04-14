@@ -1,5 +1,3 @@
-<!-- HARNESS-KIT:BEGIN — 이 블록은 install/update.sh 가 관리합니다. 수동 편집 시 update 가 어려워질 수 있습니다. -->
-
 ## 에이전트 운영 규약 (harness-kit)
 
 이 프로젝트는 harness-kit 의 거버넌스를 따릅니다.
@@ -15,6 +13,4 @@ SDD 작업 시작 시 `/hk-align` 슬래시 커맨드를 호출하면 전체 거
 - 모든 산출물은 한국어
 - main 브랜치 직접 작업 금지
 
-자세한 내용은 `agent/constitution.md` 와 `agent/agent.md` 참조.
-
-<!-- HARNESS-KIT:END -->
+자세한 내용은 `.harness-kit/agent/constitution.md` 와 `.harness-kit/agent/agent.md` 참조.
