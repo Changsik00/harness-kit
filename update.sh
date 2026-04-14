@@ -65,10 +65,23 @@ done
 TARGET="$(cd "$TARGET" 2>/dev/null && pwd)" || die "대상 디렉토리가 존재하지 않음"
 
 # ============================================================
-# 설치 확인
+# 설치 확인 및 버전 감지
 # ============================================================
+# v0.4+: .harness-kit/installed.json
+# v0.3 : .claude/state/current.json (old layout)
+INSTALLED_JSON="$TARGET/.harness-kit/installed.json"
 STATE_FILE="$TARGET/.claude/state/current.json"
-if [ ! -f "$STATE_FILE" ]; then
+
+OLD_LAYOUT=0
+if [ -f "$INSTALLED_JSON" ]; then
+  VERSION_SOURCE="$INSTALLED_JSON"
+elif [ -f "$STATE_FILE" ] && [ -d "$TARGET/agent" ]; then
+  # v0.3 old-layout 감지
+  VERSION_SOURCE="$STATE_FILE"
+  OLD_LAYOUT=1
+elif [ -f "$STATE_FILE" ]; then
+  VERSION_SOURCE="$STATE_FILE"
+else
   err "$TARGET 에 harness-kit 이 설치되어 있지 않습니다."
   echo "  최초 설치: $KIT_DIR/install.sh $TARGET"
   exit 1
@@ -89,7 +102,7 @@ _ver_lte() { [ "$(_ver_num "$1")" -le "$(_ver_num "$2")" ]; }
 # ============================================================
 # 버전 읽기
 # ============================================================
-PREV_VER=$(jq -r '.kitVersion // "0.0.0"' "$STATE_FILE")
+PREV_VER=$(jq -r '.kitVersion // "0.0.0"' "$VERSION_SOURCE")
 NEW_VER=$(cat "$KIT_DIR/VERSION")
 
 echo ""
@@ -108,6 +121,108 @@ if _ver_gt "$PREV_VER" "$NEW_VER"; then
     read -r _ans < /dev/tty 2>/dev/null || _ans=""
     case "$_ans" in y|Y) ;; *) log "취소됨"; exit 0 ;; esac
   fi
+fi
+
+# ============================================================
+# v0.3 → v0.4 레이아웃 마이그레이션 (old-layout 감지 시)
+# ============================================================
+if [ "$OLD_LAYOUT" = "1" ]; then
+  echo ""
+  warn "v0.3 레이아웃 감지 (agent/, scripts/harness/) — v0.4 (.harness-kit/) 로 마이그레이션합니다."
+  echo ""
+  echo "  변경 내용:"
+  echo "    agent/          → .harness-kit/agent/"
+  echo "    scripts/harness/ → .harness-kit/ (bin/, hooks/)"
+  echo ""
+
+  if [ "$ASSUME_YES" = "0" ]; then
+    printf "  계속 진행할까요? [y/N] "
+    read -r _ans < /dev/tty 2>/dev/null || _ans=""
+    case "$_ans" in y|Y) ;; *) log "취소됨"; exit 0 ;; esac
+  fi
+
+  # 백업
+  TS="$(date +%Y%m%d-%H%M%S)"
+  BACKUP="$TARGET/.harness-backup-${TS}"
+  mkdir -p "$BACKUP"
+  [ -d "$TARGET/agent" ]           && cp -rf "$TARGET/agent"           "$BACKUP/"
+  [ -d "$TARGET/scripts/harness" ] && cp -rf "$TARGET/scripts/harness" "$BACKUP/scripts-harness"
+  ok "백업 완료: $BACKUP"
+
+  # .harness-kit/ 생성
+  mkdir -p "$TARGET/.harness-kit"
+
+  # agent/ 이동
+  if [ -d "$TARGET/agent" ]; then
+    mv "$TARGET/agent" "$TARGET/.harness-kit/agent"
+    ok "agent/ → .harness-kit/agent/"
+  fi
+
+  # scripts/harness/ 이동
+  if [ -d "$TARGET/scripts/harness/bin" ]; then
+    mv "$TARGET/scripts/harness/bin" "$TARGET/.harness-kit/bin"
+    ok "scripts/harness/bin/ → .harness-kit/bin/"
+  fi
+  if [ -d "$TARGET/scripts/harness/hooks" ]; then
+    mv "$TARGET/scripts/harness/hooks" "$TARGET/.harness-kit/hooks"
+    ok "scripts/harness/hooks/ → .harness-kit/hooks/"
+  fi
+  if [ -d "$TARGET/scripts/harness/lib" ]; then
+    mv "$TARGET/scripts/harness/lib" "$TARGET/.harness-kit/lib"
+    ok "scripts/harness/lib/ → .harness-kit/lib/"
+  fi
+  # 빈 디렉토리 정리
+  rmdir "$TARGET/scripts/harness" 2>/dev/null || true
+  rmdir "$TARGET/scripts" 2>/dev/null || true
+
+  # settings.json hook 경로 패치 (scripts/harness/hooks/ → .harness-kit/hooks/)
+  SETTINGS="$TARGET/.claude/settings.json"
+  if [ -f "$SETTINGS" ] && command -v jq >/dev/null 2>&1; then
+    _tmp="$(mktemp)"
+    # hooks 내 command 값에서 경로 치환
+    jq '
+      if .hooks then
+        .hooks |= (
+          to_entries | map(
+            .value |= map(
+              if .hooks then
+                .hooks |= map(
+                  if .command and (.command | test("scripts/harness/")) then
+                    .command |= gsub("scripts/harness/hooks/"; ".harness-kit/hooks/")
+                              | gsub("scripts/harness/bin/"; ".harness-kit/bin/")
+                  else . end
+                )
+              else . end
+            )
+          ) | from_entries
+        )
+      else . end
+    ' "$SETTINGS" > "$_tmp"
+    mv "$_tmp" "$SETTINGS"
+    ok "settings.json hook 경로 패치"
+  fi
+
+  # .gitignore 업데이트
+  GI="$TARGET/.gitignore"
+  touch "$GI"
+  if ! grep -q '# harness-kit' "$GI"; then
+    { echo ""; echo "# harness-kit"; echo "!.harness-kit/"; echo ".harness-backup-*/"; echo ".claude/state/"; } >> "$GI"
+  elif ! grep -q '^!\.harness-kit/' "$GI"; then
+    echo "!.harness-kit/" >> "$GI"
+  fi
+  ok ".gitignore 업데이트"
+
+  # installed.json 임시 작성 (install.sh 가 덮어씀)
+  cat > "$TARGET/.harness-kit/installed.json" <<EOF
+{"kitVersion": "$PREV_VER", "installedAt": "$(date -u +%Y-%m-%dT%H:%M:%SZ)"}
+EOF
+
+  echo ""
+  ok "v0.3 → v0.4 레이아웃 마이그레이션 완료"
+  echo ""
+
+  # 이후 버전 소스를 새 경로로 전환
+  VERSION_SOURCE="$INSTALLED_JSON"
 fi
 
 # ============================================================
@@ -214,10 +329,10 @@ fi
 # ============================================================
 # 현재 state 보존 (install.sh 가 덮어쓰므로 미리 저장)
 # ============================================================
-SAVED_PHASE=$(jq -r '.phase'          "$STATE_FILE")
-SAVED_SPEC=$(jq -r  '.spec'           "$STATE_FILE")
-SAVED_PLAN=$(jq -r  '.planAccepted'   "$STATE_FILE")
-SAVED_TEST=$(jq -r  '.lastTestPass'   "$STATE_FILE")
+SAVED_PHASE=$(jq -r '.phase // "null"'        "$STATE_FILE" 2>/dev/null || echo "null")
+SAVED_SPEC=$(jq -r  '.spec // "null"'         "$STATE_FILE" 2>/dev/null || echo "null")
+SAVED_PLAN=$(jq -r  '.planAccepted // false'  "$STATE_FILE" 2>/dev/null || echo "false")
+SAVED_TEST=$(jq -r  '.lastTestPass // "null"' "$STATE_FILE" 2>/dev/null || echo "null")
 
 # ============================================================
 # install.sh 실행
