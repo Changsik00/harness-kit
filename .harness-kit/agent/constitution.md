@@ -121,9 +121,9 @@ Before any Spec, Plan, or execution:
 - The Plan MUST include branch creation and test execution tasks.
 - **Mandatory Offer**: When a plan is complete, the Agent MUST present both options explicitly before waiting for input:
   ```
-  Plan 검토 완료.
-    1) Accept — 실행 시작
-    2) 비평 — 피드백 / 우려사항 제기
+  Plan review complete.
+    1) Accept — start execution
+    2) Critique — provide feedback / raise concerns
   ```
 - **Plan Accept Recognition (SSOT)**: The following expressions are all treated as Plan Accept (case-insensitive):
   `1`, `Y`, `yes`, `ok`, `accept`, `plan accept`, `/hk-plan-accept`

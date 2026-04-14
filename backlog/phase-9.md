@@ -55,7 +55,12 @@ harness-kit을 기존 프로젝트에 설치할 때 세 가지 구조적 충돌 
 | `spec-9-003` | conflict-detection | P2 | Done | `specs/spec-9-003-conflict-detection/` |
 | `spec-9-004` | root-config | P1 | Done | `specs/spec-9-004-root-config/` |
 | `spec-9-005` | update-rewrite | P1 | Active | `specs/spec-9-005-update-rewrite/` |
-| `spec-9-006` | preflight-ux | P2 | Backlog | — |
+| `spec-9-006` | gitignore-config | P1 | Backlog | — |
+| `spec-9-007` | cleanup-versioned | P2 | Backlog | — |
+| `spec-9-008` | readme-refresh | P2 | Backlog | — |
+| `spec-9-009` | changelog | P2 | Backlog | — |
+| `spec-9-010` | ship-idea-capture | P2 | Backlog | — |
+| `spec-9-011` | preflight-ux | P3 | Backlog | — |
 <!-- sdd:specs:end -->
 
 ### spec-9-001 — 디렉토리 레이아웃 마이그레이션
@@ -102,17 +107,47 @@ harness-kit을 기존 프로젝트에 설치할 때 세 가지 구조적 충돌 
 - **참조**: Alignment Phase 논의 (2026-04-14) — 위험 요소 E, 사용자 요청 3번
 - **연관 모듈**: `install.sh`, `update.sh`, `sources/bin/sdd`, `sources/bin/lib/`
 
-### spec-9-004 — install/update.sh 시작 시 안전 문의 통합
+### spec-9-006 — gitignore config 옵션
 
-- **요점**: `install.sh`와 `update.sh` 시작 시 충돌 스캔 결과를 요약 리포트로 출력하고, 이상이 있을 때는 사용자 확인 후 진행한다.
+- **요점**: `.harness-kit/`을 `.gitignore`에 추가할지 `install.sh`에서 묻고, 선택을 `harness.config.json`에 저장. 기본값은 gitignore(true).
 - **방향성**:
-  - 공통 함수: `_harness_preflight_check()` — 충돌 스캔, 버전 확인, migration 필요 여부 판단
-  - `install.sh`: preflight → 리포트 출력 → 충돌 있으면 확인 → 기존 설치 계획 출력 → 진행
-  - `update.sh`: preflight → 현재 버전 vs 신규 버전 diff → migration 필요 시 경고 → 사용자 확인
-  - `--yes` 플래그: preflight 리포트 출력 후 확인 없이 진행 (CI 호환)
-  - spec-9-003 완료 후 작업 (충돌 감지 함수가 먼저 필요)
-- **참조**: 사용자 요청 4번
-- **연관 모듈**: `install.sh`, `update.sh`, `sources/bin/lib/`
+  - `install.sh` 프롬프트: `.harness-kit/ 을 .gitignore 에 추가할까요? [Y/n]` (기본 Y)
+  - `harness.config.json`: `"gitignore": true` 필드 추가
+  - gitignore=true: `.gitignore` 에 `.harness-kit/` 추가 (현재 `!.harness-kit/` 반전)
+  - gitignore=false: `!.harness-kit/` 명시적 un-ignore (현재 동작 유지)
+- **연관 모듈**: `install.sh`, `.gitignore` 처리
+
+### spec-9-007 — cleanup.sh (버전별 정리)
+
+- **요점**: 버전 구간별 deprecated 파일/디렉토리 제거 로직을 `cleanup.sh`로 분리. `sources/migrations/` 인프라를 실제로 채움.
+- **방향성**:
+  - `cleanup.sh --from <ver> --to <ver> [--yes]`: 버전 구간의 migration 스크립트 순차 실행
+  - `sources/migrations/0.4.0.sh`: v0.3 잔재(`agent/`, `scripts/harness/`) 제거
+  - `update.sh`에서 `cleanup.sh` 호출
+- **연관 모듈**: `cleanup.sh`, `update.sh`, `sources/migrations/`
+
+### spec-9-008 — README 최신화
+
+- **요점**: `README.md`를 v0.4.0 기준으로 최신화. FAQ 유효성 검토, Hook 모드 섹션 갱신, 설치 경로 `.harness-kit/` 반영.
+- **연관 모듈**: `README.md`, `docs/`
+
+### spec-9-009 — CHANGELOG / version history
+
+- **요점**: `CHANGELOG.md` 신설. 버전별 변경 이력 기록. `update.sh` 완료 메시지에서 참조.
+- **연관 모듈**: `CHANGELOG.md`, `update.sh`
+
+### spec-9-010 — ship/agent PR→SDD 아이디어 캡처
+
+- **요점**: PR 리뷰 중 새 아이디어가 나오면 "이걸 SDD로 진행할까요?" 라고 묻고 새 spec으로 연결하는 흐름을 `hk-ship` 커맨드 / agent.md에 명시.
+- **방향성**:
+  - `hk-ship` 커맨드: PR 생성 후 "새 아이디어 발견 시 `/hk-spec-new`로 전환" 안내 추가
+  - `agent.md`: PR 리뷰 중 발산 방지 — 새 아이디어는 즉시 SDD 진입
+- **연관 모듈**: `sources/commands/hk-ship.md`, `sources/governance/agent.md`
+
+### spec-9-011 — preflight-ux
+
+- **요점**: `install.sh` / `update.sh` 시작 시 충돌 스캔 결과 요약 출력, 이상 있을 때 사용자 확인.
+- **연관 모듈**: `install.sh`, `update.sh`
 
 ## 🧪 통합 테스트 시나리오
 
