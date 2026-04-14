@@ -1,4 +1,4 @@
-# Spec: spec-9-005 — rootDir config
+# Spec: spec-9-004 — rootDir config
 
 ## 개요
 

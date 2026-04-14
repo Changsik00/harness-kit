@@ -1,8 +1,8 @@
-# Implementation Plan: spec-9-005
+# Implementation Plan: spec-9-004
 
 ## 📋 Branch Strategy
 
-- 신규 브랜치: `spec-9-005-root-config`
+- 신규 브랜치: `spec-9-004-root-config`
 - 시작 지점: `phase-9-install-conflict-defense`
 
 ## 🎯 핵심 전략

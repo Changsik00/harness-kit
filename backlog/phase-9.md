@@ -53,8 +53,8 @@ harness-kit을 기존 프로젝트에 설치할 때 세 가지 구조적 충돌 
 | `spec-9-001` | dir-layout | P1 | Done | `specs/spec-9-001-dir-layout/` |
 | `spec-9-002` | claude-md-import | P1 | Done | `specs/spec-9-002-claude-md-import/` |
 | `spec-9-003` | conflict-detection | P2 | Done | `specs/spec-9-003-conflict-detection/` |
-| `spec-9-004` | preflight-ux | P2 | Backlog | — |
-| `spec-9-005` | root-config | P1 | Active | `specs/spec-9-005-root-config/` |
+| `spec-9-004` | root-config | P1 | Active | `specs/spec-9-004-root-config/` |
+| `spec-9-005` | preflight-ux | P2 | Backlog | — |
 <!-- sdd:specs:end -->
 
 ### spec-9-001 — 디렉토리 레이아웃 마이그레이션

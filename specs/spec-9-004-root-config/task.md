@@ -1,4 +1,4 @@
-# Task List: spec-9-005
+# Task List: spec-9-004
 
 > 모든 task 는 한 commit 에 대응합니다 (One Task = One Commit).
 > 매 commit 직후 본 파일의 체크박스를 갱신해야 합니다.
@@ -9,7 +9,7 @@
 - [x] spec.md 작성
 - [x] plan.md 작성
 - [x] task.md 작성 (이 파일)
-- [x] 백로그 업데이트 (phase-9.md SPEC 표 spec-9-005 Active 추가)
+- [x] 백로그 업데이트 (phase-9.md SPEC 표 spec-9-004 Active 추가)
 - [ ] 사용자 Plan Accept
 
 ---
@@ -17,7 +17,7 @@
 ## Task 1: 브랜치 생성
 
 ### 1-1. 브랜치 생성
-- [ ] `git checkout -b spec-9-005-root-config` (phase-9-install-conflict-defense에서 시작)
+- [ ] `git checkout -b spec-9-004-root-config` (phase-9-install-conflict-defense에서 시작)
 - [ ] Commit: 없음 (브랜치 생성만)
 
 ---
@@ -29,7 +29,7 @@
 - [ ] Check A 추가: rootDir 값이 fixture 경로와 일치하는지 확인
 - [ ] Check B 추가: rootDir 값이 fixture B 경로와 일치하는지 확인
 - [ ] 테스트 실행 → Fail 확인
-- [ ] Commit: `test(spec-9-005): update test-path-config for rootDir`
+- [ ] Commit: `test(spec-9-004): update test-path-config for rootDir`
 
 ---
 
@@ -39,7 +39,7 @@
 - [ ] prefix 없는 경우에도 `harness.config.json` 생성 (`rootDir` only)
 - [ ] prefix 있는 경우 `rootDir` + `backlogDir` + `specsDir` 포함
 - [ ] `tests/test-path-config.sh` → Pass 확인
-- [ ] Commit: `feat(spec-9-005): always write rootDir to harness.config.json`
+- [ ] Commit: `feat(spec-9-004): always write rootDir to harness.config.json`
 
 ---
 
@@ -50,7 +50,7 @@
 - [ ] jq 없을 때 grep 폴백 포함
 - [ ] `.harness-kit/bin/lib/common.sh` 동기화
 - [ ] 전체 테스트 → Pass 확인
-- [ ] Commit: `refactor(spec-9-005): sdd_find_root reads rootDir from config`
+- [ ] Commit: `refactor(spec-9-004): sdd_find_root reads rootDir from config`
 
 ---
 
@@ -61,8 +61,8 @@
 - [ ] 전체 테스트 실행 → 모두 PASS
 - [ ] **walkthrough.md 작성**
 - [ ] **pr_description.md 작성**
-- [ ] **Archive Commit**: `docs(spec-9-005): archive walkthrough and pr description`
-- [ ] **Push**: `git push -u origin spec-9-005-root-config`
+- [ ] **Archive Commit**: `docs(spec-9-004): archive walkthrough and pr description`
+- [ ] **Push**: `git push -u origin spec-9-004-root-config`
 - [ ] **PR 생성**: target: `phase-9-install-conflict-defense`
 - [ ] **사용자 알림**: 푸시 완료 + PR URL 보고
 
