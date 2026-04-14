@@ -10,47 +10,47 @@
 - [x] plan.md 작성
 - [x] task.md 작성 (이 파일)
 - [x] 백로그 업데이트 (phase-9.md SPEC 표 spec-9-004 Active 추가)
-- [ ] 사용자 Plan Accept
+- [x] 사용자 Plan Accept
 
 ---
 
 ## Task 1: 브랜치 생성
 
 ### 1-1. 브랜치 생성
-- [ ] `git checkout -b spec-9-004-root-config` (phase-9-install-conflict-defense에서 시작)
-- [ ] Commit: 없음 (브랜치 생성만)
+- [x] `git checkout -b spec-9-004-root-config` (phase-9-install-conflict-defense에서 시작)
+- [x] Commit: 없음 (브랜치 생성만)
 
 ---
 
 ## Task 2: TDD Red — 테스트 업데이트
 
 ### 2-1. test-path-config.sh 수정
-- [ ] Check A: "harness.config.json 생성 (rootDir 포함)"으로 변경
-- [ ] Check A 추가: rootDir 값이 fixture 경로와 일치하는지 확인
-- [ ] Check B 추가: rootDir 값이 fixture B 경로와 일치하는지 확인
-- [ ] 테스트 실행 → Fail 확인
-- [ ] Commit: `test(spec-9-004): update test-path-config for rootDir`
+- [x] Check A: "harness.config.json 생성 (rootDir 포함)"으로 변경
+- [x] Check A 추가: rootDir 값이 fixture 경로와 일치하는지 확인
+- [x] Check B 추가: rootDir 값이 fixture B 경로와 일치하는지 확인
+- [x] 테스트 실행 → Fail 확인
+- [x] Commit: `test(spec-9-004): update test-path-config for rootDir`
 
 ---
 
 ## Task 3: install.sh — rootDir 항상 기록
 
 ### 3-1. install.sh 수정
-- [ ] prefix 없는 경우에도 `harness.config.json` 생성 (`rootDir` only)
-- [ ] prefix 있는 경우 `rootDir` + `backlogDir` + `specsDir` 포함
-- [ ] `tests/test-path-config.sh` → Pass 확인
-- [ ] Commit: `feat(spec-9-004): always write rootDir to harness.config.json`
+- [x] prefix 없는 경우에도 `harness.config.json` 생성 (`rootDir` only)
+- [x] prefix 있는 경우 `rootDir` + `backlogDir` + `specsDir` 포함
+- [x] `tests/test-path-config.sh` → Pass 확인 (10/10)
+- [x] Commit: `feat(spec-9-004): always write rootDir to harness.config.json`
 
 ---
 
 ## Task 4: common.sh — rootDir 우선 읽기
 
 ### 4-1. sources/bin/lib/common.sh 수정
-- [ ] `sdd_find_root`: rootDir 우선 읽기 로직 추가 (최대 10단계 탐색)
-- [ ] jq 없을 때 grep 폴백 포함
-- [ ] `.harness-kit/bin/lib/common.sh` 동기화
-- [ ] 전체 테스트 → Pass 확인
-- [ ] Commit: `refactor(spec-9-004): sdd_find_root reads rootDir from config`
+- [x] `sdd_find_root`: rootDir 우선 읽기 로직 추가 (최대 10단계 탐색)
+- [x] jq 없을 때 grep 폴백 포함
+- [x] `.harness-kit/bin/lib/common.sh` 동기화
+- [x] 전체 테스트 → Pass 확인
+- [x] Commit: `refactor(spec-9-004): sdd_find_root reads rootDir from config`
 
 ---
 
@@ -74,5 +74,5 @@
 |---|---|
 | **총 Task 수** | 4 (+ Ship) |
 | **예상 commit 수** | 4 |
-| **현재 단계** | Planning |
+| **현재 단계** | Ship |
 | **마지막 업데이트** | 2026-04-14 |
