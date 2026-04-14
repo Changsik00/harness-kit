@@ -17,11 +17,11 @@ warn() { echo "${C_YLW}⚠${C_RST} $*" >&2; }
 err()  { echo "${C_RED}✗${C_RST} $*" >&2; }
 die()  { err "$*"; exit 1; }
 
-# 프로젝트 루트 찾기 (CWD 부터 위로 올라가며 .claude/state/current.json 또는 agent/constitution.md 가 있는 디렉토리)
+# 프로젝트 루트 찾기 (CWD 부터 위로 올라가며 .harness-kit/installed.json 또는 .claude/state/current.json 이 있는 디렉토리)
 sdd_find_root() {
   local d="${1:-$PWD}"
   while [ "$d" != "/" ]; do
-    if [ -f "$d/.claude/state/current.json" ] || [ -f "$d/agent/constitution.md" ]; then
+    if [ -f "$d/.harness-kit/installed.json" ] || [ -f "$d/.claude/state/current.json" ]; then
       echo "$d"
       return 0
     fi
@@ -30,12 +30,26 @@ sdd_find_root() {
   return 1
 }
 
-SDD_ROOT="$(sdd_find_root)" || die "프로젝트 루트를 찾지 못했습니다 (.claude/state/current.json 또는 agent/constitution.md 필요)"
+SDD_ROOT="$(sdd_find_root)" || die "프로젝트 루트를 찾지 못했습니다 (.harness-kit/installed.json 또는 .claude/state/current.json 필요)"
 SDD_STATE="$SDD_ROOT/.claude/state/current.json"
-SDD_BACKLOG="$SDD_ROOT/backlog"     # phase 정의 (todo list)
-SDD_SPECS="$SDD_ROOT/specs"          # 실제 spec 작업 (work log)
-SDD_AGENT="$SDD_ROOT/agent"
-SDD_TEMPLATES="$SDD_ROOT/agent/templates"
+SDD_BACKLOG="$SDD_ROOT/backlog"
+SDD_SPECS="$SDD_ROOT/specs"
+SDD_AGENT="$SDD_ROOT/.harness-kit/agent"
+SDD_TEMPLATES="$SDD_ROOT/.harness-kit/agent/templates"
+
+# harness.config.json 읽기 (존재 시 경로 override)
+_HK_CONFIG="$SDD_ROOT/.harness-kit/harness.config.json"
+if [ -f "$_HK_CONFIG" ]; then
+  if command -v jq >/dev/null 2>&1; then
+    _bd=$(jq -r '.backlogDir // "backlog"' "$_HK_CONFIG" 2>/dev/null)
+    _sd=$(jq -r '.specsDir   // "specs"'  "$_HK_CONFIG" 2>/dev/null)
+  else
+    _bd=$(grep -o '"backlogDir":"[^"]*"' "$_HK_CONFIG" 2>/dev/null | cut -d'"' -f4)
+    _sd=$(grep -o '"specsDir":"[^"]*"'   "$_HK_CONFIG" 2>/dev/null | cut -d'"' -f4)
+  fi
+  SDD_BACKLOG="$SDD_ROOT/${_bd:-backlog}"
+  SDD_SPECS="$SDD_ROOT/${_sd:-specs}"
+fi
 
 # slug 검증
 sdd_slug_ok() {
