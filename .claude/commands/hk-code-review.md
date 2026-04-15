@@ -9,7 +9,7 @@ description: 현재 SPEC 브랜치의 코드 변경을 독립 서브에이전트
 현재 활성 spec 과 diff 범위를 확인합니다:
 
 ```bash
-bash scripts/harness/bin/sdd status --json
+bash .harness-kit/bin/sdd status --json
 ```
 
 출력에서 `spec` 필드로 spec 디렉토리를 특정합니다. spec 이 없으면 사용자에게 알리고 멈춥니다.

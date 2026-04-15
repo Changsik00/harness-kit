@@ -7,7 +7,7 @@ description: 현재 SPEC 작업 종료 — walkthrough/pr_description 검증 후
 ## 1. 사전 검증
 
 ```bash
-./scripts/harness/bin/sdd archive --check
+./.harness-kit/bin/sdd archive --check
 ```
 
 확인 항목:
@@ -32,7 +32,7 @@ description: 현재 SPEC 작업 종료 — walkthrough/pr_description 검증 후
 `sdd archive` 가 walkthrough.md / pr_description.md 를 한 commit 으로 묶어줍니다:
 
 ```bash
-./scripts/harness/bin/sdd archive
+./.harness-kit/bin/sdd archive
 # 위 명령은 내부에서:
 #   git add specs/spec-{phaseN}-{seq}-{slug}/walkthrough.md
 #   git add specs/spec-{phaseN}-{seq}-{slug}/pr_description.md
@@ -44,7 +44,7 @@ description: 현재 SPEC 작업 종료 — walkthrough/pr_description 검증 후
 **[Phase base branch 감지]** Push 전, PR 타깃 결정:
 
 ```bash
-base_branch=$(./scripts/harness/bin/sdd status --json | jq -r '.baseBranch // "null"')
+base_branch=$(./.harness-kit/bin/sdd status --json | jq -r '.baseBranch // "null"')
 if [ "$base_branch" != "null" ]; then
   # phase base branch 모드 — remote 존재 여부 확인
   if ! git ls-remote --exit-code origin "$base_branch" >/dev/null 2>&1; then
@@ -120,7 +120,7 @@ git push -u origin spec-{phaseN}-{seq}-{slug}
 ## 6. State 업데이트
 
 ```bash
-./scripts/harness/bin/sdd plan reset
+./.harness-kit/bin/sdd plan reset
 ```
 
 planAccepted 플래그를 false 로 되돌려 다음 SPEC 을 위해 깨끗한 상태로 만듭니다.
@@ -129,7 +129,7 @@ planAccepted 플래그를 false 로 되돌려 다음 SPEC 을 위해 깨끗한 �
 >
 > spec-x (`spec-x-{slug}`) 인 경우 queue.md 갱신:
 > ```bash
-> ./scripts/harness/bin/sdd specx done {slug}
+> ./.harness-kit/bin/sdd specx done {slug}
 > ```
 > 이 명령은 specx 대기 섹션에서 해당 항목을 제거하고 완료 섹션으로 이동합니다.
 
