@@ -118,7 +118,13 @@ if command -v jq >/dev/null 2>&1 && [ -f "$_STATE" ]; then
   ok "state 복원 완료"
 fi
 
-# ── 3. cleanup (백업 디렉토리 정리) ─────────────────────────
+# ── 5. cleanup (버전별 정리) ───────────────────────────────
+if [ -f "$KIT_DIR/cleanup.sh" ]; then
+  log "버전별 정리 실행 중..."
+  "$KIT_DIR/cleanup.sh" --from "$PREV_VER" --to "$NEW_VER" --yes "$TARGET" || warn "cleanup 일부 실패 (계속 진행)"
+fi
+
+# ── 6. cleanup (백업 디렉토리 정리) ─────────────────────────
 _backup_count=0
 while IFS= read -r -d '' d; do
   rm -rf "$d"
@@ -128,7 +134,7 @@ done < <(find "$TARGET" -maxdepth 1 \
   -type d -print0 2>/dev/null)
 [ "$_backup_count" -gt 0 ] && ok "백업 디렉토리 ${_backup_count}개 정리"
 
-# ── 4. doctor ────────────────────────────────────────────────
+# ── 7. doctor ────────────────────────────────────────────────
 echo ""
 log "doctor 점검"
 "$KIT_DIR/doctor.sh" "$TARGET" || true

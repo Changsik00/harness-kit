@@ -61,6 +61,8 @@ harness-kit을 기존 프로젝트에 설치할 때 세 가지 구조적 충돌 
 | `spec-9-009` | changelog | P2 | Backlog | — |
 | `spec-9-010` | ship-idea-capture | P2 | Backlog | — |
 | `spec-9-011` | preflight-ux | P3 | Backlog | — |
+| `spec-9-012` | command-path-fix | P1 | Backlog | — |
+| `spec-9-013` | archive-system | P2 | Backlog | — |
 <!-- sdd:specs:end -->
 
 ### spec-9-001 — 디렉토리 레이아웃 마이그레이션
@@ -150,6 +152,25 @@ harness-kit을 기존 프로젝트에 설치할 때 세 가지 구조적 충돌 
 
 - **요점**: `install.sh` / `update.sh` 시작 시 충돌 스캔 결과 요약 출력, 이상 있을 때 사용자 확인.
 - **연관 모듈**: `install.sh`, `update.sh`
+
+### spec-9-012 — command-path-fix
+
+- **요점**: `.claude/commands/hk-*.md` 슬래시 커맨드 내 `scripts/harness/bin/sdd` 경로를 `.harness-kit/bin/sdd`로 일괄 수정. spec-9-001에서 누락된 경로 교체.
+- **방향성**:
+  - 대상 파일: `hk-align.md`, `hk-ship.md`, `hk-code-review.md`, `hk-phase-ship.md`, `hk-plan-accept.md`, `hk-cleanup.md`, `hk-spec-critique.md`
+  - `scripts/harness/bin/sdd` → `.harness-kit/bin/sdd` 치환
+  - `sources/commands/` 원본도 동일하게 수정
+- **연관 모듈**: `.claude/commands/hk-*.md`, `sources/commands/hk-*.md`
+
+### spec-9-013 — archive-system
+
+- **요점**: 완료 spec을 `specs/_archive/`로 이동하여 진행 중/완료를 분리. `sdd archive`와 `sdd phase done`에 아카이브 이동 기능 추가.
+- **방향성**:
+  - `specs/_archive/` 디렉토리 생성, 완료 spec `git mv`로 이동
+  - `sdd archive`: spec 완료 시 `_archive/`로 자동 이동
+  - `sdd phase done`: phase 완료 시 잔여 spec 일괄 이동
+  - phase-1~8 상태 필드 `Done` 갱신
+- **연관 모듈**: `sources/bin/sdd`, `backlog/phase-*.md`, `specs/`
 
 ## 🧪 통합 테스트 시나리오
 
