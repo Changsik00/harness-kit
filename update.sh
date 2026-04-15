@@ -77,6 +77,32 @@ log "버전: ${C_YLW}${PREV_VER}${C_RST} → ${C_GRN}${NEW_VER}${C_RST}"
 [ -n "$HK_PREFIX" ] && log "prefix: ${C_CYN}${HK_PREFIX}${C_RST}"
 echo ""
 
+# ── preflight 스캔 ────────────────────────────────────────────
+semver_lt() {
+  local IFS=.
+  local i
+  # shellcheck disable=SC2206
+  local a=($1) b=($2)
+  for ((i=0; i<3; i++)); do
+    local x=${a[i]:-0} y=${b[i]:-0}
+    if ((x < y)); then return 0; fi
+    if ((x > y)); then return 1; fi
+  done
+  return 1
+}
+
+_pf_warn=0
+
+if semver_lt "$NEW_VER" "$PREV_VER"; then
+  warn "다운그레이드: $PREV_VER → $NEW_VER"
+  _pf_warn=$((_pf_warn + 1))
+fi
+
+if [ -f "$TARGET/agent/constitution.md" ] || [ -f "$TARGET/scripts/harness/bin/sdd" ]; then
+  warn "v0.3 레이아웃 잔재 감지 — cleanup 대상"
+  _pf_warn=$((_pf_warn + 1))
+fi
+
 if [ $ASSUME_YES -eq 0 ]; then
   printf "진행할까요? [y/N] "
   read -r _ans < /dev/tty 2>/dev/null || _ans=""
@@ -107,15 +133,19 @@ PREFIX_ARG=""
 # ── 4. state 복원 ────────────────────────────────────────────
 if command -v jq >/dev/null 2>&1 && [ -f "$_STATE" ]; then
   _tmp="$(mktemp)"
-  jq \
+  if jq \
     --argjson phase        "$_SAVED_PHASE" \
     --argjson spec         "$_SAVED_SPEC"  \
     --argjson planAccepted "$_SAVED_PLAN"  \
     --argjson lastTestPass "$_SAVED_TEST"  \
     '.phase=$phase | .spec=$spec | .planAccepted=$planAccepted | .lastTestPass=$lastTestPass' \
-    "$_STATE" > "$_tmp"
-  mv "$_tmp" "$_STATE"
-  ok "state 복원 완료"
+    "$_STATE" > "$_tmp" 2>/dev/null; then
+    mv "$_tmp" "$_STATE"
+    ok "state 복원 완료"
+  else
+    warn "state 복원 실패 — 기본값으로 초기화"
+    rm -f "$_tmp"
+  fi
 fi
 
 # ── 5. cleanup (버전별 정리) ───────────────────────────────
