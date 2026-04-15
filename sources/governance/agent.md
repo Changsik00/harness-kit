@@ -24,8 +24,13 @@ Upon activation (typically via `/hk-align`), the Agent MUST:
 1. Read `.harness-kit/agent/constitution.md` and `.harness-kit/agent/agent.md`.
 2. Run `bash .harness-kit/bin/sdd status` (if available) or fall back to `git branch --show-current` + `git log -3 --oneline`.
 3. Inspect active work in `backlog/`, `specs/`, and `backlog/queue.md`.
-4. Summarize current state to the User: active PHASE, active SPEC, NOW/NEXT, branch, plan-accept flag, last test result.
-5. Ask **ONE** question: "What context shall we proceed with?"
+4. **Context Continuity Check**: Scan for incomplete items from prior sessions:
+   - Specs with `planAccepted: true` but incomplete `task.md` checkboxes.
+   - `backlog/queue.md` Icebox entries added recently (within the last session).
+   - If incomplete items exist, include them in the state summary with a notice:
+     `⚠ 미완 항목: <list>` — the User must decide whether to resume, park, or discard before starting new work.
+5. Summarize current state to the User: active PHASE, active SPEC, NOW/NEXT, branch, plan-accept flag, last test result, and any incomplete items from step 4.
+6. Ask **ONE** question: "What context shall we proceed with?"
 
 ## 3. Alignment Phase (Mandatory)
 
@@ -40,6 +45,8 @@ Before drafting any Spec or Plan, the Agent MUST enter the Alignment Phase.
 - **[Work Mode Options]**: Present the classified mode(s) with reasoning.
 - **[Recommendation]**: Preferred mode and why.
 - **[Decision Request]**: Ask the user to select a mode.
+
+> **Idea Capture Gate**: If the User's request constitutes a new idea or direction change during active work, the Alignment Phase MUST first follow the Idea Capture Gate (→ constitution §5.5) before proceeding with classification.
 
 ### 3.1 Work Type Behavior Table
 

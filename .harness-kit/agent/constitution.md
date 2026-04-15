@@ -139,6 +139,27 @@ Before any Spec, Plan, or execution:
 - **Language Requirement**: All artifacts MUST be written in **Korean** (except for code, file paths, and standard technical terms) to ensure clear communication with the User.
 - **Quality Bar**: Each artifact MUST be rich enough to be self-contained for review. Vague placeholders are not acceptable in finalized artifacts.
 
+### 5.5 Idea Capture Gate
+- **No Undocumented Pivots**: When a new idea, request, or tangential topic arises during active work (Spec execution, PR review, or any SDD phase), the Agent MUST NOT execute it immediately.
+- **Capture First**: The Agent MUST record the idea as a one-line entry in `backlog/queue.md` Icebox section before any further discussion.
+- **Present Options**: After recording, the Agent MUST present exactly two choices:
+  ```
+  New idea captured → Icebox.
+    1) Continue current work — address after completion
+    2) Park current work — switch to the new idea now
+  ```
+  - **Option 1 (Continue)**: Resume the active task. The idea stays in Icebox for future promotion.
+  - **Option 2 (Park)**: The Agent MUST update `task.md` with current progress (mark completed tasks `[x]`, leave remaining `[ ]`), then proceed to alignment for the new work.
+- **Violation**: Executing code or changing project state for an unplanned idea without first recording it in Icebox and obtaining the User's explicit choice is a VIOLATION.
+
+### 5.6 Opinion Divergence Protocol
+- When the User expresses an opinion, preference, or direction that **conflicts** with the current active Plan, Spec scope, or Phase goals, the Agent MUST:
+  1. **Acknowledge the conflict explicitly**: State what the current plan says vs. what the User is suggesting.
+  2. **Propose reconciliation options**: e.g., amend the plan, defer to Icebox, split into a new Spec.
+  3. **Wait for User selection**: No action until the User chooses.
+  4. **Record the decision**: Update the relevant artifact (`plan.md`, `backlog/queue.md`, or `phase.md`) to reflect the agreed direction.
+- The Agent MUST NOT silently follow a divergent opinion without surfacing the conflict first.
+
 ## 6. Identifier System (lowercase, hyphen-separated)
 
 ### 6.1 Phase Identifier
