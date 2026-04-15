@@ -178,6 +178,31 @@ if [ ! -d "$TARGET/.git" ]; then
 fi
 
 # ============================================================
+# 3.5 Preflight 스캔
+# ============================================================
+_pf_warn=0
+
+if [ -f "$TARGET/.harness-kit/installed.json" ]; then
+  warn "이미 설치됨 — update.sh 사용을 권장합니다"
+  _pf_warn=$((_pf_warn + 1))
+fi
+
+if [ -f "$TARGET/agent/constitution.md" ] || [ -f "$TARGET/scripts/harness/bin/sdd" ]; then
+  warn "v0.3 레이아웃 감지 — update.sh 로 마이그레이션을 권장합니다"
+  _pf_warn=$((_pf_warn + 1))
+fi
+
+if [ -f "$TARGET/.claude/settings.json" ] && command -v jq >/dev/null 2>&1 && jq -e '.hooks' "$TARGET/.claude/settings.json" >/dev/null 2>&1; then
+  log "ℹ 기존 hooks 설정 있음 (키트가 덮어씀)"
+fi
+
+if [ "$_pf_warn" -gt 0 ] && [ "$ASSUME_YES" -eq 0 ] && [ "$FORCE" -eq 0 ] && [ "$DRY_RUN" -eq 0 ]; then
+  printf "경고가 있습니다. 계속 진행할까요? [y/N] "
+  read -r _pf_ans < /dev/tty 2>/dev/null || _pf_ans=""
+  case "$_pf_ans" in y|Y) ;; *) log "취소됨"; exit 0 ;; esac
+fi
+
+# ============================================================
 # 4. 설치 계획 출력
 # ============================================================
 cat <<EOF
