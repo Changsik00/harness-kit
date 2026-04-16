@@ -211,6 +211,15 @@ _status_diagnose() {
     warnings="${warnings}  💡 specs/ 에 ${spec_dir_count}개 디렉토리 — sdd archive 로 정리 가능\n"
   fi
 
+  # archive 항목 수 표시
+  local archive_spec_count=0
+  if [ -d "$SDD_ROOT/archive/specs" ]; then
+    archive_spec_count=$(find "$SDD_ROOT/archive/specs" -maxdepth 1 -type d -name "spec-*" 2>/dev/null | wc -l | tr -d ' ')
+  fi
+  if [ "$archive_spec_count" -gt 0 ]; then
+    warnings="${warnings}  ℹ archive/ 에 ${archive_spec_count}개 spec 보관 중\n"
+  fi
+
   # 4. 출력
   if [ -n "$warnings" ]; then
     echo ""
@@ -383,6 +392,11 @@ cmd_status() {
       echo ""
       echo "📁 specs/"
       ls -d "$SDD_SPECS"/spec-* 2>/dev/null | xargs -I{} basename {} | sed 's/^/  /' || echo "  (없음)"
+      if [ -d "$SDD_ROOT/archive/specs" ]; then
+        local archive_count
+        archive_count=$(find "$SDD_ROOT/archive/specs" -maxdepth 1 -type d -name "spec-*" 2>/dev/null | wc -l | tr -d ' ')
+        [ "$archive_count" -gt 0 ] && echo "  (+ archive/ 에 ${archive_count}개 보관 중)"
+      fi
     fi
 
     if [ $verbose -eq 1 ]; then
@@ -577,24 +591,50 @@ phase_list() {
     [ "$id" = "$active" ] && marker="${C_GRN}*${C_RST}"
     printf "%-15s %-10s %s\n" "$id" "$n" "$marker"
   done
+
+  # archive fallback
+  local archive_backlog="$SDD_ROOT/archive/backlog"
+  if [ -d "$archive_backlog" ]; then
+    for f in "$archive_backlog"/phase-*.md; do
+      [ -f "$f" ] || continue
+      local id n pn
+      id="$(basename "$f" .md)"
+      pn="${id#phase-}"
+      # Count specs in both archive and main
+      n=$(find "$SDD_ROOT/archive/specs" -maxdepth 1 -type d -name "spec-${pn}-*" 2>/dev/null | wc -l | tr -d ' ')
+      printf "%-15s %-10s %s\n" "$id" "$n" "${C_DIM}(archived)${C_RST}"
+    done
+  fi
 }
 
 phase_show() {
   local id="${1:-$(state_get phase)}"
   [ -z "$id" ] || [ "$id" = "null" ] && die "active phase 없음. sdd phase new <slug>"
   local file="$SDD_BACKLOG/${id}.md"
-  [ -f "$file" ] || die "phase 파일 없음: $file"
+  local archived=0
+  if [ ! -f "$file" ]; then
+    file="$SDD_ROOT/archive/backlog/${id}.md"
+    [ -f "$file" ] || die "phase 파일 없음: $SDD_BACKLOG/${id}.md (archive 도 확인함)"
+    archived=1
+  fi
   local pn="${id#phase-}"
   local lines
   lines=$(wc -l < "$file" | tr -d ' ')
   echo "${C_BLD}$id${C_RST}  ($lines lines)"
   echo "  경로: $file"
+  [ $archived -eq 1 ] && echo "  ${C_YEL}⚠ archived${C_RST}"
   echo "  Specs (실제 디렉토리):"
   local s
   for s in "$SDD_SPECS"/spec-${pn}-*; do
     [ -d "$s" ] || continue
     echo "    - $(basename "$s")"
   done
+  if [ -d "$SDD_ROOT/archive/specs" ]; then
+    for s in "$SDD_ROOT/archive/specs"/spec-${pn}-*; do
+      [ -d "$s" ] || continue
+      echo "    - $(basename "$s") ${C_DIM}(archived)${C_RST}"
+    done
+  fi
 }
 
 cmd_queue() {
@@ -738,15 +778,40 @@ spec_list() {
     [ "$id" = "$active" ] && marker=" ${C_GRN}*${C_RST}"
     printf "  %s%s\n" "$id" "$marker"
   done
+
+  # archive fallback
+  local archive_specs="$SDD_ROOT/archive/specs"
+  if [ -d "$archive_specs" ]; then
+    local aglob
+    if [ -n "$phase_filter" ]; then
+      aglob="$archive_specs/spec-${phase_filter}-*"
+    else
+      aglob="$archive_specs/spec-*"
+    fi
+    for s in $aglob; do
+      [ -d "$s" ] || continue
+      id="$(basename "$s")"
+      printf "  %s ${C_DIM}(archived)${C_RST}\n" "$id"
+    done
+  fi
 }
 
 spec_show() {
   local id="${1:-$(state_get spec)}"
   [ -z "$id" ] || [ "$id" = "null" ] && die "active spec 없음"
-  local dir
-  dir="$(state_spec_dir 2>/dev/null)"
-  [ -z "$dir" ] && die "현재 spec 디렉토리를 찾을 수 없음"
+  local dir="$SDD_SPECS/$id"
+  local archived=0
+  if [ ! -d "$dir" ]; then
+    dir="$SDD_ROOT/archive/specs/$id"
+    if [ ! -d "$dir" ]; then
+      # try state_spec_dir as last resort
+      dir="$(state_spec_dir 2>/dev/null)" || die "spec 디렉토리를 찾을 수 없음: $id"
+    else
+      archived=1
+    fi
+  fi
   echo "${C_BLD}$id${C_RST}"
+  [ $archived -eq 1 ] && echo "  ${C_YEL}⚠ archived${C_RST}"
   echo "  경로: $dir"
   echo "  파일:"
   for f in spec plan task walkthrough pr_description; do
