@@ -194,7 +194,7 @@ Before any Spec, Plan, or execution:
 
 ### 7.1 Delegation Rule
 Once a Plan is explicitly accepted (Plan Accept), the Agent is authorized to:
-- Execute tasks in `task.md`, commit per Task, run tests, archive walkthrough, and push the feature branch.
+- Execute tasks in `task.md`, commit per Task, run tests, archive walkthrough, push the feature branch, and create a Pull Request.
 
 ### 7.2 Delegation Limits
 - Valid ONLY if execution stays within Plan scope.
@@ -231,7 +231,7 @@ Once a Plan is explicitly accepted (Plan Accept), the Agent is authorized to:
 - **Commit Title Format**: MUST follow `<type>(spec-{phaseN}-{seq}): <description>` (all lowercase).
   - Allowed types: `feat`, `fix`, `refactor`, `test`, `docs`, `chore`, `style`, `perf`, `build`, `ci`.
   - Example: `feat(spec-1-001): introduce row-level lock for stock decrement`.
-- **Pull Request Creation**: The Agent MAY create a PR via slash commands (`/hk-pr-gh`, `/hk-pr-bb`) after pushing the feature branch, but MUST obtain explicit User confirmation before executing. The Agent MUST archive `walkthrough.md` / `pr_description.md` under the SPEC directory before PR creation.
+- **Pull Request Creation**: Once a Plan is accepted (→ §7.1), the Agent is authorized to push the feature branch and create a PR as part of the Ship task. Explicit per-action confirmation is not required. The Agent MUST archive `walkthrough.md` / `pr_description.md` under the SPEC directory before PR creation.
 
 ## 11. Backlog Law
 
