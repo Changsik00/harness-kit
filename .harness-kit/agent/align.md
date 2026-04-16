@@ -26,7 +26,15 @@
 - **Strict Loop**: 한 task 완료 시마다 task.md 업데이트. 이슈 없으면 자동 진행, 이슈 시 멈추고 보고. Hand-off 전에는 반드시 사용자 확인
 - **Plan Accept Gate**: 사용자가 "Plan Accept" 또는 `/hk-plan-accept` 호출하기 전까지는 PLANNING 모드. 코드 편집 금지
 
-## 4. 상태 요약 보고 (State Summary)
+## 4. 아카이브 제안 (Archive Suggestion)
+
+`sdd status` 진단에 아카이브 제안이 포함되어 있으면 (specs/ 디렉토리 20개 이상), 상태 보고에 포함하여 사용자에게 안내한다:
+
+> "완료된 항목이 많습니다. `sdd archive`로 정리하시겠습니까?"
+
+사용자의 선택 전에 아카이브를 실행하지 않는다. 사용자가 원하면 `sdd archive --dry-run`으로 대상을 먼저 확인 후 실행.
+
+## 5. 상태 요약 보고 (State Summary)
 
 위 점검 결과를 다음 형식으로 사용자에게 한 번에 보고한다:
 
@@ -45,7 +53,7 @@
 - ...
 ```
 
-## 5. 단 하나의 질문 (One Question)
+## 6. 단 하나의 질문 (One Question)
 
 상태 보고 후, **단 하나의 질문**만 사용자에게 던진다:
 

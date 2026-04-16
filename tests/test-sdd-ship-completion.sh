@@ -304,36 +304,8 @@ else
   fail "specx=$has_in_specx done=$has_in_done (expected: specx=0 done>0)"
 fi
 
-# ─────────────────────────────────────────────────────────
-# Check 7: sdd archive (deprecated) → 경고 출력 + 정상 동작
-# ─────────────────────────────────────────────────────────
-echo ""
-echo "Check 7: sdd archive (deprecated) → 경고 출력 + 정상 동작"
-
-F7="$(make_fixture)"
-trap "rm -rf '$F1' '$F2' '$F4' '$F5' '$F6' '$F7'" EXIT
-
-cat > "$F7/backlog/phase-7.md" <<'EOF'
-# phase-7: test
-<!-- sdd:specs:start -->
-| ID | 슬러그 | 우선순위 | 상태 | 디렉토리 |
-|---|---|:---:|---|---|
-| spec-7-001 | dep-test | P1 | In Progress | `specs/spec-7-001-dep-test/` |
-<!-- sdd:specs:end -->
-EOF
-
-setup_spec_for_ship "$F7" "phase-7" "spec-7-001-dep-test"
-
-archive_out7=$(cd "$F7" && bash .harness-kit/bin/sdd archive 2>&1)
-
-has_deprecation=$(echo "$archive_out7" | grep -c "deprecated" || true)
-status_after7=$(grep "spec-7-001" "$F7/backlog/phase-7.md" | grep -o "Merged" || echo "NOT_MERGED")
-
-if [ "$has_deprecation" -gt 0 ] && [ "$status_after7" = "Merged" ]; then
-  ok "deprecated 경고 출력 + 정상 동작 (Merged)"
-else
-  fail "deprecation=$has_deprecation status=$status_after7 (expected: deprecation>0, Merged)"
-fi
+# (Check 7 제거됨 — sdd archive 는 spec-11-003 에서 디렉토리 아카이브로 교체.
+#  deprecated 경로 테스트는 test-sdd-dir-archive.sh 로 이관.)
 
 # ─────────────────────────────────────────────────────────
 # 결과 요약

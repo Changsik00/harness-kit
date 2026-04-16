@@ -50,7 +50,9 @@ sdd — harness-kit 메타 명령
   ship [--check]                walkthrough/pr_description 작성 검증 (--check 시 변경 없음)
                                 통과 시 docs(spec-N-NNN): ship ... commit 생성
 
-  archive                       (deprecated → ship 사용)
+  archive [--keep=N] [--dry-run]  완료된 phase 의 spec/backlog 를 archive/ 로 이동
+                                  --keep=N: 최근 N 개 완료 phase 유지 (기본: 0)
+                                  --dry-run: 이동 대상만 출력 (변경 없음)
 
   hooks [status]                hook 모드 현황 출력
   hooks block|warn|off <name>  특정 hook 모드 전환 안내
@@ -202,7 +204,14 @@ _status_diagnose() {
     fi
   fi
 
-  # 3. 출력
+  # 3. specs 디렉토리 수 검사
+  local spec_dir_count
+  spec_dir_count=$(find "$SDD_SPECS" -maxdepth 1 -type d -name "spec-*" 2>/dev/null | wc -l | tr -d ' ')
+  if [ "$spec_dir_count" -ge 20 ]; then
+    warnings="${warnings}  💡 specs/ 에 ${spec_dir_count}개 디렉토리 — sdd archive 로 정리 가능\n"
+  fi
+
+  # 4. 출력
   if [ -n "$warnings" ]; then
     echo ""
     echo "🔍 진단"
@@ -1082,6 +1091,142 @@ specx_done() {
 }
 
 # ============================================================
+# archive
+# ============================================================
+cmd_archive() {
+  local keep=0 dry_run=0
+  for a in "$@"; do
+    case "$a" in
+      --keep=*) keep="${a#--keep=}" ;;
+      --dry-run) dry_run=1 ;;
+    esac
+  done
+
+  # Parse done phases from queue.md
+  local queue_file="$SDD_BACKLOG/queue.md"
+  [ -f "$queue_file" ] || die "queue.md 없음: $queue_file"
+
+  # Extract phase IDs from done section
+  # The done section is between <!-- sdd:done:start --> and <!-- sdd:done:end -->
+  # Format varies:
+  #   | [phase-01](phase-01.md) | title | N (Merged) |
+  #   - **phase-08** — title — completed date
+  #   - **10** — title — completed date
+  local done_phases
+  done_phases=$(awk '
+    /<!-- sdd:done:start -->/ { in_d=1; next }
+    /<!-- sdd:done:end -->/ { in_d=0; next }
+    in_d {
+      # Table format: | [phase-NN](phase-NN.md) | ...
+      if (match($0, /phase-[0-9]+/)) {
+        print substr($0, RSTART, RLENGTH)
+      }
+      # Plain format: - **NN** — ... or - **phase-NN** — ...
+      else if (match($0, /\*\*([0-9]+)\*\*/)) {
+        num = substr($0, RSTART+2, RLENGTH-4)
+        printf "phase-%02d\n", num
+      }
+    }
+  ' "$queue_file" | sort -t- -k2 -n)
+
+  if [ -z "$done_phases" ]; then
+    log "완료된 phase 가 없습니다."
+    return 0
+  fi
+
+  # Get active phase to exclude
+  local active_phase=""
+  if [ -f "$SDD_STATE" ]; then
+    active_phase="$(jq -r '.phase // empty' "$SDD_STATE" 2>/dev/null)"
+    [ "$active_phase" = "null" ] && active_phase=""
+  fi
+
+  # Apply --keep=N: remove the last N done phases from the list
+  local total
+  total=$(echo "$done_phases" | wc -l | tr -d ' ')
+  local to_archive=$((total - keep))
+  [ "$to_archive" -le 0 ] && { log "keep=$keep 로 모든 완료 phase 가 유지됩니다."; return 0; }
+
+  local target_phases
+  target_phases=$(echo "$done_phases" | head -n "$to_archive")
+
+  # Build lists of files/dirs to move
+  local specs_to_move="" backlog_to_move=""
+  local spec_count=0 backlog_count=0
+
+  while IFS= read -r pid; do
+    [ -z "$pid" ] && continue
+    # Skip active phase
+    [ "$pid" = "$active_phase" ] && continue
+
+    local pn="${pid#phase-}"
+    # Find spec dirs for this phase
+    for d in "$SDD_SPECS"/spec-${pn}-*; do
+      [ -d "$d" ] || continue
+      # Skip spec-x dirs
+      local base
+      base="$(basename "$d")"
+      case "$base" in spec-x-*) continue ;; esac
+      specs_to_move="${specs_to_move}${d}\n"
+      spec_count=$((spec_count + 1))
+    done
+
+    # Find backlog file
+    local bf="$SDD_BACKLOG/${pid}.md"
+    if [ -f "$bf" ]; then
+      backlog_to_move="${backlog_to_move}${bf}\n"
+      backlog_count=$((backlog_count + 1))
+    fi
+  done <<< "$target_phases"
+
+  if [ "$spec_count" -eq 0 ] && [ "$backlog_count" -eq 0 ]; then
+    log "이동할 항목이 없습니다."
+    return 0
+  fi
+
+  # Summary
+  echo ""
+  echo "📦 아카이브 대상"
+  echo "  spec 디렉토리: ${spec_count}개"
+  echo "  backlog 파일:  ${backlog_count}개"
+  echo ""
+  if [ "$dry_run" -eq 1 ]; then
+    echo "📂 이동 대상 (--dry-run):"
+    printf "%b" "$specs_to_move" | while IFS= read -r f; do
+      [ -n "$f" ] && echo "  $(basename "$f") → archive/specs/"
+    done
+    printf "%b" "$backlog_to_move" | while IFS= read -r f; do
+      [ -n "$f" ] && echo "  $(basename "$f") → archive/backlog/"
+    done
+    echo ""
+    ok "dry-run 완료 (변경 없음)"
+    return 0
+  fi
+
+  # Create archive directories
+  mkdir -p "$SDD_ROOT/archive/specs"
+  mkdir -p "$SDD_ROOT/archive/backlog"
+
+  # Move spec directories
+  printf "%b" "$specs_to_move" | while IFS= read -r f; do
+    [ -n "$f" ] || continue
+    git -C "$SDD_ROOT" mv "$f" "$SDD_ROOT/archive/specs/"
+  done
+
+  # Move backlog files
+  printf "%b" "$backlog_to_move" | while IFS= read -r f; do
+    [ -n "$f" ] || continue
+    git -C "$SDD_ROOT" mv "$f" "$SDD_ROOT/archive/backlog/"
+  done
+
+  # Commit
+  git -C "$SDD_ROOT" add -A
+  git -C "$SDD_ROOT" commit -m "chore: archive ${spec_count} spec dirs + ${backlog_count} backlog files"
+
+  ok "아카이브 완료: spec ${spec_count}개 + backlog ${backlog_count}개 → archive/"
+}
+
+# ============================================================
 main() {
   local cmd="${1:-help}"; shift || true
   case "$cmd" in
@@ -1094,7 +1239,7 @@ main() {
     task)    cmd_task "$@" ;;
     test)    cmd_test "$@" ;;
     ship)    cmd_ship "$@" ;;
-    archive) warn "sdd archive 는 deprecated 됩니다. sdd ship 을 사용하세요."; cmd_ship "$@" ;;
+    archive) cmd_archive "$@" ;;
     queue)   cmd_queue "$@" ;;
     hooks)   cmd_hooks "$@" ;;
     specx)   cmd_specx "$@" ;;
