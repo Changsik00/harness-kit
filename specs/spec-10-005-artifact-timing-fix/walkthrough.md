@@ -26,7 +26,7 @@
 
 ## 🔍 발견 사항
 
-- **phase-10.md 중복 행 반복 발생**: `sdd spec new`가 Active 행 추가 → `sdd archive`가 Merged 행 추가 → 같은 spec이 2행. 이 현상이 spec-10-002, 003, 004에서 반복됨. phase.md 정리 커밋을 매번 수동으로 해야 했음. `sdd archive`의 상태 전이 로직이 기존 행을 업데이트하지 않고 새 행을 추가하는 것으로 보임 → **별도 수정 필요 (Icebox)**
+- **phase-10.md 중복 행 반복 발생 → 수정 완료**: `sdd spec new`가 기존 Backlog 행을 무시하고 새 Active 행을 append → `sdd archive`가 Active 행만 Merged로 전환 → Backlog 행이 잔류하여 2행. spec-10-002~004에서 매번 수동 정리 필요했음. 근본 원인: `spec_new()`의 `sdd_marker_append`가 무조건 추가. 수정: 기존 행이 있으면 `sdd_marker_update_row`로 업데이트, 없으면 append.
 - **기존 테스트 실패 2건**: `test-hook-modes.sh` (1/12 FAIL), `test-zsh-compat.sh` (1/20 FAIL). exit code는 0이라 전체 스위트는 통과하지만 실제 실패가 있음. spec-10-005 변경과 무관한 기존 이슈. 조사되지 않은 채 방치 중 → **별도 조사 필요 (Icebox)**
 - **walkthrough 작성 타이밍 문제**: 현재 에이전트는 Ship task에서 한 번에 walkthrough를 작성. 하지만 작업 중 실시간으로 갱신해야 의미 있는 내용이 담김. `sdd spec new`에서 walkthrough를 안 만드므로, 에이전트가 첫 Task 시작 시 빈 walkthrough를 생성하고 작업 중 갱신하는 흐름이 필요 → **agent.md Strict Loop에 walkthrough 갱신 규칙 추가 필요 (Icebox)**
 
@@ -36,4 +36,4 @@
 |---|---|
 | **작성자** | Agent + ck |
 | **작성 기간** | 2026-04-16 |
-| **최종 commit** | `74f784b` |
+| **최종 commit** | `20a812e` |
