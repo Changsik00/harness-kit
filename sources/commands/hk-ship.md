@@ -8,7 +8,7 @@ description: 현재 SPEC 작업 종료 — walkthrough/pr_description 검증 후
 ## 1. 사전 검증
 
 ```bash
-./.harness-kit/bin/sdd archive --check
+./.harness-kit/bin/sdd ship --check
 ```
 
 확인 항목:
@@ -28,16 +28,16 @@ description: 현재 SPEC 작업 종료 — walkthrough/pr_description 검증 후
 
 실패 시 멈추고 사용자에게 보고. 에이전트가 임의로 fix 시도 금지 — 사용자 결정 대기.
 
-## 3. Archive Commit
+## 3. Ship Commit
 
-`sdd archive` 가 walkthrough.md / pr_description.md 를 한 commit 으로 묶어줍니다:
+`sdd ship` 가 walkthrough.md / pr_description.md 를 한 commit 으로 묶어줍니다:
 
 ```bash
-./.harness-kit/bin/sdd archive
+./.harness-kit/bin/sdd ship
 # 위 명령은 내부에서:
 #   git add specs/spec-{phaseN}-{seq}-{slug}/walkthrough.md
 #   git add specs/spec-{phaseN}-{seq}-{slug}/pr_description.md
-#   git commit -m "docs(spec-{phaseN}-{seq}): archive walkthrough and pr description"
+#   git commit -m "docs(spec-{phaseN}-{seq}): ship walkthrough and pr description"
 ```
 
 ## 4. Push (자동 진행)
@@ -114,7 +114,7 @@ push 완료 후 수동 PR 생성을 안내:
 
 ## 6. State 업데이트
 
-`sdd archive` 가 이미 state.json 을 초기화합니다 (spec=null, planAccepted=false).
+`sdd ship` 가 이미 state.json 을 초기화합니다 (spec=null, planAccepted=false).
 별도 `sdd plan reset` 호출은 불필요합니다.
 
 > **[spec-x 한정] queue.md 완료 갱신**

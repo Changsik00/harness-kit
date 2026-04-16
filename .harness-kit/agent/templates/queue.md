@@ -48,7 +48,7 @@
 | `sdd phase new <slug> --base` | Phase base branch 모드로 생성 (opt-in) |
 | `sdd spec new <slug>` | 진행 중 Phase에 다음 spec 등록 |
 | `sdd plan accept` | spec Plan Accept → 실행 모드 진입 |
-| `sdd archive` | spec 완료 처리 → Merged 갱신 + state 초기화 + NEXT 안내 |
+| `sdd ship` | spec 완료 처리 → Merged 갱신 + state 초기화 + NEXT 안내 |
 | `sdd phase done <N>` | Phase 완료 → 완료 섹션으로 이동 |
 
 자세한 사용법: `agent/constitution.md` §3 Work Type Model, `agent/agent.md`

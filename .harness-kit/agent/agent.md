@@ -53,7 +53,7 @@ Before drafting any Spec or Plan, the Agent MUST enter the Alignment Phase.
 | Work Type | Entry Action | Execution | Completion Action |
 |---|---|---|---|
 | **Phase (SDD-P)** | `sdd phase new <slug> [--base]` → spec planning | Strict Loop per spec | All specs Merged → `/hk-phase-ship` (go/no-go → Phase PR → `sdd phase done`) |
-| **Spec** | `sdd spec new <slug>` → plan/task authoring | Strict Loop → archive → push → PR | PR merge → phase.md auto-Merged by `sdd archive` |
+| **Spec** | `sdd spec new <slug>` → plan/task authoring | Strict Loop → ship → push → PR | PR merge → phase.md auto-Merged by `sdd ship` |
 | **spec-x (SDD-x)** | `sdd spec new <slug>` (no phase) | Same as Spec | `sdd specx done <slug>` → queue.md update |
 | **FF** | User approval only | Direct commit (no state.json change) | No `sdd` commands needed — state untouched |
 | **Icebox** | Add to queue.md Icebox section | **NON-EXECUTABLE** — no code/commit | Promote to Phase or spec-x when ready |
@@ -185,7 +185,7 @@ When passing a task with `[-]`, the Agent MUST:
 
 | Work Type | After PR Merge / Commit |
 |---|---|
-| **Spec (SDD-P)** | `sdd archive` auto-updates phase.md → Merged, resets state.json (spec=null, planAccepted=false), outputs NEXT spec guidance. If all specs Merged, run `sdd phase done`. |
+| **Spec (SDD-P)** | `sdd ship` auto-updates phase.md → Merged, resets state.json (spec=null, planAccepted=false), outputs NEXT spec guidance. If all specs Merged, run `sdd phase done`. |
 | **spec-x (SDD-x)** | Run `sdd specx done <slug>` to move item from specx → done in queue.md. |
 | **FF** | No `sdd` state changes. Do NOT modify `state.json` — FF work is invisible to state. |
 | **Phase done** | Run `/hk-phase-ship`: verify success criteria + run integration tests + get User go/no-go + create Phase PR + `sdd phase done`. |
@@ -193,7 +193,7 @@ When passing a task with `[-]`, the Agent MUST:
 - **Walkthrough & Description Protocol**:
     1. **READ Template**: `.harness-kit/agent/templates/walkthrough.md` and `.harness-kit/agent/templates/pr_description.md`.
     2. **WRITE in Korean**: Fill all sections.
-    3. **Archive**: Commit `walkthrough.md` and `pr_description.md` inside the SPEC directory before pushing.
+    3. **Ship**: Commit `walkthrough.md` and `pr_description.md` inside the SPEC directory before pushing.
     4. **Verify task.md**: Ensure zero `[ ]` checkboxes remain.
     5. **Push**: `git push -u origin spec-{phaseN}-{seq}-{slug}`.
     6. **Ship**: Push and create PR automatically. Report the PR URL to the User and wait for merge.
@@ -202,7 +202,7 @@ When passing a task with `[-]`, the Agent MUST:
 
 When the User signals that a PR has been merged (e.g., "머지 했어", "병합 완료", "merged"), the Agent MUST:
 
-1. **Run `sdd status`** to verify current state (spec should be `null` after `sdd archive`).
+1. **Run `sdd status`** to verify current state (spec should be `null` after `sdd ship`).
 2. **Check NEXT**: `sdd status` outputs the next Backlog spec from phase.md.
 3. **Propose next step**: If NEXT exists, suggest starting it: `sdd spec new <slug>`.
    If no NEXT (all specs done), suggest phase completion: `/hk-phase-ship`.
