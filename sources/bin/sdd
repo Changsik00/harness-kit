@@ -74,6 +74,31 @@ cmd_version() {
 # ============================================================
 # status
 # ============================================================
+
+# 브랜치명에서 work mode 를 추론한다.
+# 반환: "SDD-P (phase-{N})" | "phase base (phase-{N})" | "SDD-x" | "" (미식별/main)
+_infer_work_mode() {
+  local br="$1"
+  case "$br" in
+    spec-x-*)
+      echo "SDD-x"
+      ;;
+    spec-[0-9]*-[0-9][0-9][0-9]-*)
+      local phase_num
+      phase_num="$(echo "$br" | sed 's/^spec-\([0-9]*\)-.*/\1/')"
+      echo "SDD-P (phase-${phase_num})"
+      ;;
+    phase-[0-9]*-*)
+      local phase_num
+      phase_num="$(echo "$br" | sed 's/^phase-\([0-9]*\)-.*/\1/')"
+      echo "phase base (phase-${phase_num})"
+      ;;
+    *)
+      echo ""
+      ;;
+  esac
+}
+
 # phase.md spec 표에서 다음 실행 대기 중인 spec ID를 반환한다.
 # 첫 번째 'Backlog' 상태 행의 ID 컬럼 값을 출력. 없으면 '없음'.
 compute_next_spec() {
@@ -146,7 +171,15 @@ cmd_status() {
   printf "  Active Phase: %s\n" "${phase:-${C_DIM}없음${C_RST}}"
   printf "  Active Spec:  %s\n" "${spec:-${C_DIM}없음${C_RST}}"
   printf "  NEXT:         %s\n" "${next_spec:-${C_DIM}없음${C_RST}}"
-  printf "  Branch:       %s\n" "${branch:-${C_DIM}?${C_RST}}"
+  local work_mode=""
+  if [ -n "${branch:-}" ]; then
+    work_mode="$(_infer_work_mode "$branch")"
+  fi
+  if [ -n "$work_mode" ]; then
+    printf "  Branch:       %s (%s)\n" "${branch}" "${C_CYN}${work_mode}${C_RST}"
+  else
+    printf "  Branch:       %s\n" "${branch:-${C_DIM}?${C_RST}}"
+  fi
   printf "  Plan Accept:  %s\n" "$([ "$plan_accepted" = "true" ] && echo "${C_GRN}yes${C_RST}" || echo "${C_DIM}no${C_RST}")"
   printf "  Last Test:    %s\n" "${last_test:-${C_DIM}없음${C_RST}}"
 
