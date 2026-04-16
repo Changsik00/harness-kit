@@ -293,6 +293,41 @@ cmd_status() {
       "${C_GRN}$done_cnt${C_RST}" "${C_YLW}$pending_cnt${C_RST}" "${C_DIM}$pass_cnt${C_RST}" "$total"
   fi
 
+  # 산출물 완성도 체크리스트
+  if [ -n "${spec:-}" ] && [ "$spec" != "null" ]; then
+    local sd
+    sd="$SDD_SPECS/$spec"
+    if [ -d "$sd" ]; then
+      local art_line="" stage=""
+      local has_spec=0 has_plan=0 has_task=0 has_walk=0 has_pr=0
+      [ -f "$sd/spec.md" ] && has_spec=1
+      [ -f "$sd/plan.md" ] && has_plan=1
+      [ -f "$sd/task.md" ] && has_task=1
+      [ -f "$sd/walkthrough.md" ] && has_walk=1
+      [ -f "$sd/pr_description.md" ] && has_pr=1
+
+      local ck_spec ck_plan ck_task ck_walk ck_pr
+      ck_spec=$([ $has_spec -eq 1 ] && echo "${C_GRN}✓${C_RST}" || echo "${C_RED}✗${C_RST}")
+      ck_plan=$([ $has_plan -eq 1 ] && echo "${C_GRN}✓${C_RST}" || echo "${C_RED}✗${C_RST}")
+      ck_task=$([ $has_task -eq 1 ] && echo "${C_GRN}✓${C_RST}" || echo "${C_RED}✗${C_RST}")
+      ck_walk=$([ $has_walk -eq 1 ] && echo "${C_GRN}✓${C_RST}" || echo "${C_RED}✗${C_RST}")
+      ck_pr=$([ $has_pr -eq 1 ] && echo "${C_GRN}✓${C_RST}" || echo "${C_RED}✗${C_RST}")
+
+      if [ $has_walk -eq 1 ] && [ $has_pr -eq 1 ]; then
+        stage="Ship-ready"
+      elif [ $has_task -eq 1 ]; then
+        stage="Executing"
+      elif [ $has_spec -eq 1 ] || [ $has_plan -eq 1 ]; then
+        stage="Planning"
+      else
+        stage="Empty"
+      fi
+
+      printf "  Artifacts:    %s spec %s plan %s task %s walkthrough %s pr_description (%s)\n" \
+        "$ck_spec" "$ck_plan" "$ck_task" "$ck_walk" "$ck_pr" "${C_CYN}${stage}${C_RST}"
+    fi
+  fi
+
   # verbose 또는 폴백 시 추가 정보 출력
   if [ $verbose -eq 1 ] || [ $has_state -eq 0 ]; then
     echo ""
