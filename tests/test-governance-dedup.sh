@@ -114,7 +114,7 @@ echo ""
 echo "▶ Check 5: 섹션 번호 중복 확인"
 check
 
-DUP_SECTIONS=$(grep -oE '^### [0-9]+\.[0-9]+' "$AGENT" | sort | uniq -d)
+DUP_SECTIONS=$(grep -oE '^### [0-9]+\.[0-9]+(\.[0-9]+)?' "$AGENT" | sort | uniq -d)
 if [ -z "$DUP_SECTIONS" ]; then
   pass "섹션 번호 중복 없음"
 else

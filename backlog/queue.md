@@ -7,7 +7,7 @@
 ## 📦 진행 중 Phase
 
 <!-- sdd:active:start -->
-- **phase-9** — 설치 충돌 방어 — 디렉토리 은닉 + CLAUDE.md @import + 충돌 감지 — 13 spec — 다음: (spec 없음)
+- **phase-10** — sdd 상태 진단 신뢰성 강화 — 1 spec — 다음: (spec 없음)
 <!-- sdd:active:end -->
 
 ## 📥 spec-x 대기
@@ -21,6 +21,7 @@
 > 아이디어·보류 항목 보관소. 실행 불가. 관련 항목이 쌓이면 Phase로, 단발이면 spec-x로 승격.
 
 - [ ] spec-5-002 (deferred — dependency 해소 후 재검토)
+- [ ] 식별자 2자리 패딩 — phase/spec 번호를 2자리로 통일 (phase-01, spec-01-01) → 파일 정렬 문제 해결. constitution §6, sdd 코드, 기존 디렉토리 전면 영향.
 
 ## 📋 대기 Phase
 

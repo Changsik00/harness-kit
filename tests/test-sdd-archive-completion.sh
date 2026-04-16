@@ -152,6 +152,36 @@ else
 fi
 
 # ─────────────────────────────────────────────────────────
+# Check 2b: sdd archive 후 phase.md spec 상태 Done → Merged
+# ─────────────────────────────────────────────────────────
+echo ""
+echo "Check 2b: sdd archive → phase.md spec 상태 Done → Merged"
+
+F2b="$(make_fixture)"
+trap "rm -rf '$F1' '$F2' '$F2b'" EXIT
+
+cat > "$F2b/backlog/phase-2b.md" <<'EOF'
+# phase-2b: test
+<!-- sdd:specs:start -->
+| ID | 슬러그 | 우선순위 | 상태 | 디렉토리 |
+|---|---|:---:|---|---|
+| spec-2b-001 | done-test | P1 | Done | `specs/spec-2b-001-done-test/` |
+<!-- sdd:specs:end -->
+EOF
+
+setup_spec_for_archive "$F2b" "phase-2b" "spec-2b-001-done-test"
+
+(cd "$F2b" && bash .harness-kit/bin/sdd archive >/dev/null 2>&1)
+
+status_after2b=$(grep "spec-2b-001" "$F2b/backlog/phase-2b.md" | grep -o "Merged" || echo "NOT_MERGED")
+
+if [ "$status_after2b" = "Merged" ]; then
+  ok "spec-2b-001 상태 = Merged (Done → Merged)"
+else
+  fail "spec-2b-001 상태 expected=Merged got=$(grep 'spec-2b-001' "$F2b/backlog/phase-2b.md")"
+fi
+
+# ─────────────────────────────────────────────────────────
 # Check 3: sdd archive 후 state.json 초기화 (spec=null, planAccepted=false)
 # ─────────────────────────────────────────────────────────
 echo ""
