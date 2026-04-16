@@ -1,8 +1,9 @@
 ---
-description: 현재 SPEC 작업 종료 — walkthrough/pr_description 검증 후 push 준비
+description: 현재 SPEC 작업 종료 — walkthrough/pr_description 검증 후 push + PR 자동 진행
 ---
 
 현재 SPEC 의 모든 작업 task 가 완료되었을 때 이 명령으로 hand-off 절차를 시작합니다.
+**모든 검증이 통과하면 push + PR 생성까지 자동 진행합니다.** 실패 시에만 멈추고 보고합니다.
 
 ## 1. 사전 검증
 
@@ -39,7 +40,7 @@ description: 현재 SPEC 작업 종료 — walkthrough/pr_description 검증 후
 #   git commit -m "docs(spec-{phaseN}-{seq}): archive walkthrough and pr description"
 ```
 
-## 4. Push 확인 (사용자 승인 필요)
+## 4. Push (자동 진행)
 
 **[Phase base branch 감지]** Push 전, PR 타깃 결정:
 
@@ -59,31 +60,26 @@ else
 fi
 ```
 
-`git log --oneline origin/<branch>..HEAD 2>/dev/null` 로 커밋 수를, 위에서 결정한 `PR_BASE` 를 타깃으로 확인 블록 표시:
+정보 블록을 표시한 후 **자동으로 push** 합니다:
 
 ```
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-🔍 Push 확인
+🚀 Push
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   브랜치    <head>  ▶  🎯 <PR_BASE>
   제목      <pr_description.md 첫 줄>
   커밋 수   <N>개
   변경 파일 <M>개
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-push 할까요? [Y/n]
 ```
-
-긍정/거부 규칙 → constitution §4.2 참조
-- **`--no-confirm`**: 확인 블록 생략하고 바로 push
-
-승인 시 (브랜치 이름 = spec 디렉토리 이름, `feature/` prefix 없음):
 
 ```bash
 git push -u origin spec-{phaseN}-{seq}-{slug}
 ```
 
-## 5. PR 생성
+push 실패 시 멈추고 사용자에게 보고.
+
+## 5. PR 생성 (자동 진행)
 
 `git remote get-url origin` 의 호스트로 분기:
 
@@ -103,7 +99,7 @@ git push -u origin spec-{phaseN}-{seq}-{slug}
 
 ### 5-C. 그 외 (GitLab, GitHub Enterprise, 사내 Bitbucket Server 등)
 
-기존대로 hosted git UI 에서 수동 생성하도록 안내:
+push 완료 후 수동 PR 생성을 안내:
 
 ```
 ✅ Push 완료: spec-{phaseN}-{seq}-{slug}
@@ -112,18 +108,14 @@ git push -u origin spec-{phaseN}-{seq}-{slug}
 1. <hosted git URL>/pull-requests/new?source=spec-{phaseN}-{seq}-{slug}
 2. PR 본문에 specs/spec-{phaseN}-{seq}-{slug}/pr_description.md 내용 복사
 3. 리뷰어 지정
-4. 머지 후 backlog/phase-{phaseN}/phase.md 의 SPEC 표 갱신 (Status: Merged)
 ```
 
-성공 시 어느 경로든 출력되는 PR URL/번호를 그대로 사용자에게 보고합니다.
+성공 시 PR URL/번호를 사용자에게 보고하고 **머지를 기다립니다**.
 
 ## 6. State 업데이트
 
-```bash
-./.harness-kit/bin/sdd plan reset
-```
-
-planAccepted 플래그를 false 로 되돌려 다음 SPEC 을 위해 깨끗한 상태로 만듭니다.
+`sdd archive` 가 이미 state.json 을 초기화합니다 (spec=null, planAccepted=false).
+별도 `sdd plan reset` 호출은 불필요합니다.
 
 > **[spec-x 한정] queue.md 완료 갱신**
 >
