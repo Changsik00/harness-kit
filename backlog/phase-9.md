@@ -55,14 +55,13 @@ harness-kit을 기존 프로젝트에 설치할 때 세 가지 구조적 충돌 
 | `spec-9-003` | conflict-detection | P2 | Done | `specs/spec-9-003-conflict-detection/` |
 | `spec-9-004` | root-config | P1 | Done | `specs/spec-9-004-root-config/` |
 | `spec-9-005` | update-rewrite | P1 | Done | `specs/spec-9-005-update-rewrite/` |
-| `spec-9-006` | gitignore-config | P1 | Active | `specs/spec-9-006-gitignore-config/` |
-| `spec-9-007` | cleanup-versioned | P2 | Backlog | — |
-| `spec-9-008` | readme-refresh | P2 | Backlog | — |
-| `spec-9-009` | changelog | P2 | Backlog | — |
-| `spec-9-010` | ship-idea-capture | P2 | Backlog | — |
-| `spec-9-011` | preflight-ux | P3 | Backlog | — |
-| `spec-9-012` | command-path-fix | P1 | Backlog | — |
-| `spec-9-013` | archive-system | P2 | Backlog | — |
+| `spec-9-006` | gitignore-config | P1 | Done | `specs/spec-9-006-gitignore-config/` |
+| `spec-9-007` | cleanup-versioned | P1 | Done | `specs/spec-9-007-cleanup-versioned/` |
+| `spec-9-008` | ship-idea-capture | P2 | Done | `specs/spec-9-008-ship-idea-capture/` |
+| `spec-9-009` | preflight-ux | P3 | Done | `specs/spec-9-009-preflight-ux/` |
+| `spec-9-010` | command-path-fix | P1 | Done | `specs/spec-9-010-command-path-fix/` |
+| `spec-9-011` | backlog-sync | P2 | Merged | `specs/spec-9-011-backlog-sync/` |
+| `spec-9-012` | readme-refresh | P2 | Backlog | — |
 <!-- sdd:specs:end -->
 
 ### spec-9-001 — 디렉토리 레이아웃 마이그레이션
@@ -128,49 +127,38 @@ harness-kit을 기존 프로젝트에 설치할 때 세 가지 구조적 충돌 
   - `update.sh`에서 `cleanup.sh` 호출
 - **연관 모듈**: `cleanup.sh`, `update.sh`, `sources/migrations/`
 
-### spec-9-008 — README 최신화
-
-- **요점**: `README.md`를 v0.4.0 기준으로 최신화. FAQ 유효성 검토, Hook 모드 섹션 갱신, 설치 경로 `.harness-kit/` 반영.
-- **연관 모듈**: `README.md`, `docs/`
-
-### spec-9-009 — CHANGELOG / version history
-
-- **요점**: `CHANGELOG.md` 신설. 버전별 변경 이력 기록. `update.sh` 완료 메시지에서 참조.
-- **연관 모듈**: `CHANGELOG.md`, `update.sh`
-
-### spec-9-010 — 거버넌스 흐름 보호 (idea-guard)
+### spec-9-008 — 거버넌스 흐름 보호 (idea-guard)
 
 - **요점**: 작업 중 새 아이디어/의견 발생 시 현재 흐름을 보호하고 문서화 없는 방향 전환을 금지하는 거버넌스 강화.
 - **방향성**:
-  - **Idea Capture Gate** (`constitution.md` §5.x 신설): 작업 중 새 아이디어 발생 → 즉시 backlog stub 생성 → "완료 후 진행 / 지금 전환" 명시적 게이트. 문서화 없는 방향 전환 금지.
-  - **Context Continuity Check** (`agent.md` 세션 시작 부분): 세션 시작 시 미완 spec / 파킹된 아이디어 확인. 새 미션 전 "이전 대화에서 미완된 항목이 있습니다" 알림.
-  - **Opinion Divergence Protocol** (`constitution.md` §5.x 신설): 사용자 의견 ≠ 현재 목표 → 충돌 명시 → 조율안 제안 후 사용자 선택 → 결과를 backlog/phase에 기록.
-  - PR 단계 포함: PR 리뷰 중 새 아이디어 → `hk-ship` 커맨드에 안내 추가.
+  - **Idea Capture Gate** (`constitution.md` §5.5 신설): 작업 중 새 아이디어 발생 → 즉시 backlog stub 생성 → "완료 후 진행 / 지금 전환" 명시적 게이트.
+  - **Context Continuity Check** (`agent.md` 세션 시작 부분): 세션 시작 시 미완 spec / 파킹된 아이디어 확인.
+  - **Opinion Divergence Protocol** (`constitution.md` §5.6 신설): 사용자 의견 ≠ 현재 목표 → 충돌 명시 → 조율안 제안.
 - **연관 모듈**: `sources/governance/constitution.md`, `sources/governance/agent.md`, `sources/commands/hk-ship.md`
 
-### spec-9-011 — preflight-ux
+### spec-9-009 — preflight-ux
 
 - **요점**: `install.sh` / `update.sh` 시작 시 충돌 스캔 결과 요약 출력, 이상 있을 때 사용자 확인.
 - **연관 모듈**: `install.sh`, `update.sh`
 
-### spec-9-012 — command-path-fix
+### spec-9-010 — command-path-fix
 
 - **요점**: `.claude/commands/hk-*.md` 슬래시 커맨드 내 `scripts/harness/bin/sdd` 경로를 `.harness-kit/bin/sdd`로 일괄 수정. spec-9-001에서 누락된 경로 교체.
-- **방향성**:
-  - 대상 파일: `hk-align.md`, `hk-ship.md`, `hk-code-review.md`, `hk-phase-ship.md`, `hk-plan-accept.md`, `hk-cleanup.md`, `hk-spec-critique.md`
-  - `scripts/harness/bin/sdd` → `.harness-kit/bin/sdd` 치환
-  - `sources/commands/` 원본도 동일하게 수정
 - **연관 모듈**: `.claude/commands/hk-*.md`, `sources/commands/hk-*.md`
 
-### spec-9-013 — archive-system
+### spec-9-011 — backlog-sync
 
-- **요점**: 완료 spec을 `specs/_archive/`로 이동하여 진행 중/완료를 분리. `sdd archive`와 `sdd phase done`에 아카이브 이동 기능 추가.
+- **요점**: `sdd archive` 후처리 보강 + 에이전트 PR 머지 후 절차 정의. archive 후 대시보드 불일치 근본 버그 수정, "다음 뭐 하지?" UX 흐름 확립.
 - **방향성**:
-  - `specs/_archive/` 디렉토리 생성, 완료 spec `git mv`로 이동
-  - `sdd archive`: spec 완료 시 `_archive/`로 자동 이동
-  - `sdd phase done`: phase 완료 시 잔여 spec 일괄 이동
-  - phase-1~8 상태 필드 `Done` 갱신
-- **연관 모듈**: `sources/bin/sdd`, `backlog/phase-*.md`, `specs/`
+  1. `cmd_archive`: state.json 초기화 + `| Active |` 매칭 + queue.md 갱신 + NEXT 안내
+  2. queue.md 템플릿 NOW/NEXT dead code 제거 (compute, don't store)
+  3. agent.md §6.3.1 Post-Merge Protocol 추가
+- **연관 모듈**: `sources/bin/sdd`, `sources/templates/queue.md`, `sources/governance/agent.md`
+
+### spec-9-012 — README 최신화
+
+- **요점**: `README.md`를 v0.4.0 기준으로 최신화. FAQ 유효성 검토, Hook 모드 섹션 갱신, 설치 경로 `.harness-kit/` 반영.
+- **연관 모듈**: `README.md`, `docs/`
 
 ## 🧪 통합 테스트 시나리오
 
