@@ -1,7 +1,7 @@
-# phase-11: sdd 상태 진단 신뢰성 강화
+# phase-10: sdd 상태 진단 신뢰성 강화
 
 > 본 phase 의 모든 SPEC 을 한 파일에 요점/방향성으로 나열합니다.
-> *구체적* 작업 내용은 `specs/spec-11-{seq}-{slug}/spec.md` 에서 다룹니다.
+> *구체적* 작업 내용은 `specs/spec-10-{seq}-{slug}/spec.md` 에서 다룹니다.
 >
 > 본 문서는 "이번 phase 에서 무엇을 어디까지 할 것인가" 를 한 번에 보기 위한 *업무 지도* 입니다.
 
@@ -9,8 +9,8 @@
 
 | 항목 | 값 |
 |---|---|
-| **Phase ID** | `phase-11` |
-| **Base Branch** | `phase-11-status-reliability` |
+| **Phase ID** | `phase-10` |
+| **Base Branch** | `phase-10-status-reliability` |
 | **상태** | Planning |
 | **시작일** | 2026-04-16 |
 | **목표 종료일** | 미정 |
@@ -54,13 +54,13 @@
 <!-- sdd:specs:start -->
 | ID | 슬러그 | 우선순위 | 상태 | 디렉토리 |
 |---|---|:---:|---|---|
-| `spec-11-001` | archive-status-fix | P1 | Merged | `specs/spec-11-001-archive-status-fix/` |
-| `spec-11-002` | status-cross-check | P1 | Backlog | `specs/spec-11-002-status-cross-check/` |
-| `spec-11-003` | spec-completeness | P2 | Backlog | `specs/spec-11-003-spec-completeness/` |
-| `spec-11-004` | phase-done-accuracy | P2 | Backlog | `specs/spec-11-004-phase-done-accuracy/` |
+| `spec-10-001` | archive-status-fix | P1 | Merged | `specs/spec-10-001-archive-status-fix/` |
+| `spec-10-002` | status-cross-check | P1 | Backlog | `specs/spec-10-002-status-cross-check/` |
+| `spec-10-003` | spec-completeness | P2 | Backlog | `specs/spec-10-003-spec-completeness/` |
+| `spec-10-004` | phase-done-accuracy | P2 | Backlog | `specs/spec-10-004-phase-done-accuracy/` |
 <!-- sdd:specs:end -->
 
-### spec-11-001 — archive 상태 전이 수정
+### spec-10-001 — archive 상태 전이 수정
 
 - **요점**: `cmd_archive`의 awk 패턴에 `| Done |` 매칭을 추가하여 모든 유효 상태에서 Merged로 전환되도록 수정.
 - **방향성**:
@@ -69,7 +69,7 @@
   - 테스트: Done 상태 spec에 archive 실행 → Merged 전환 확인
 - **연관 모듈**: `sources/bin/sdd`, `.harness-kit/bin/sdd`, `tests/test-sdd-archive-completion.sh`
 
-### spec-11-002 — status 교차 검증
+### spec-10-002 — status 교차 검증
 
 - **요점**: `sdd status`에 phase.md ↔ git 이력 교차 검증 + state.json 정합성 검사를 추가.
 - **방향성**:
@@ -78,7 +78,7 @@
   - 기본 출력에 경고 포함 (verbose 플래그 불필요). `--quiet` 시 경고 숨김.
 - **연관 모듈**: `sources/bin/sdd` (`cmd_status`), `sources/bin/lib/state.sh`
 
-### spec-11-003 — spec 완성도 검증
+### spec-10-003 — spec 완성도 검증
 
 - **요점**: active spec의 필수 산출물(spec.md, plan.md, task.md) 존재 여부를 status에서 표시. archive 전 walkthrough.md, pr_description.md도 확인.
 - **방향성**:
@@ -87,7 +87,7 @@
   - `cmd_archive` 진입 시 기존 검증 유지 (walkthrough/pr_description 비어있으면 거부)
 - **연관 모듈**: `sources/bin/sdd` (`cmd_status`, `cmd_archive`)
 
-### spec-11-004 — phase 완료 감지 정확도
+### spec-10-004 — phase 완료 감지 정확도
 
 - **요점**: `_check_phase_all_merged()`가 phase.md 테이블뿐 아니라 git 이력도 참조하여 phase done 시점을 정확히 판단.
 - **방향성**:
@@ -103,35 +103,35 @@
 - **Given**: phase.md에 spec-X가 `| Done |` 상태로 기록됨
 - **When**: `sdd archive` 실행
 - **Then**: phase.md에서 해당 spec이 `| Merged |`로 갱신됨
-- **연관 SPEC**: spec-11-001
+- **연관 SPEC**: spec-10-001
 
 ### 시나리오 2: phase.md ↔ git 불일치 감지
 
 - **Given**: phase.md에 spec-X가 `| Done |`이지만, git log에 해당 spec PR 머지 커밋이 존재
 - **When**: `sdd status` 실행
 - **Then**: `⚠ spec-X: phase.md(Done) ≠ git(머지됨)` 경고 출력
-- **연관 SPEC**: spec-11-002
+- **연관 SPEC**: spec-10-002
 
 ### 시나리오 3: state.json 모순 감지
 
-- **Given**: state.json에 `phase=phase-11`, `spec=null`
+- **Given**: state.json에 `phase=phase-10`, `spec=null`
 - **When**: `sdd status` 실행
 - **Then**: "Active Spec 없음 — 모든 spec 완료 시 `/hk-phase-ship` 가능" 안내 출력
-- **연관 SPEC**: spec-11-002
+- **연관 SPEC**: spec-10-002
 
 ### 시나리오 4: spec 산출물 완성도 표시
 
 - **Given**: active spec 디렉토리에 spec.md, plan.md만 존재 (task.md 없음)
 - **When**: `sdd status` 실행
 - **Then**: `산출물: ✓ spec ✓ plan ✗ task ✗ walkthrough ✗ pr_description` 표시
-- **연관 SPEC**: spec-11-003
+- **연관 SPEC**: spec-10-003
 
 ### 시나리오 5: git 기반 phase 완료 감지
 
 - **Given**: phase.md에 일부 spec이 `| Done |`이지만, git log 상 모든 spec PR이 머지됨
 - **When**: `sdd archive` (마지막 spec) 또는 `sdd status` 실행
 - **Then**: "모든 spec 머지 완료 — `/hk-phase-ship` 실행 가능" 유도 메시지 출력
-- **연관 SPEC**: spec-11-004
+- **연관 SPEC**: spec-10-004
 
 ### 통합 테스트 실행
 

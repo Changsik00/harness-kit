@@ -1,4 +1,4 @@
-# fix(spec-11-001): archive 상태 전이에 Done 매칭 추가
+# fix(spec-10-001): archive 상태 전이에 Done 매칭 추가
 
 ## 📋 Summary
 
@@ -11,7 +11,7 @@
 - [x] Done → Merged 전환 테스트(Check 2b) 추가
 
 ### Phase 컨텍스트
-- **Phase**: `phase-11` (sdd 상태 진단 신뢰성 강화)
+- **Phase**: `phase-10` (sdd 상태 진단 신뢰성 강화)
 - **본 SPEC 의 역할**: 상태 전이의 가장 기본적인 버그를 수정하여, 후속 spec(교차 검증, 완성도 검증)의 기반을 확보
 
 ## 🎯 Key Review Points
@@ -50,5 +50,5 @@ bash tests/test-sdd-archive-completion.sh
 
 ## 🔗 관련 자료
 
-- Phase: `backlog/phase-11.md`
-- Walkthrough: `specs/spec-11-001-archive-status-fix/walkthrough.md`
+- Phase: `backlog/phase-10.md`
+- Walkthrough: `specs/spec-10-001-archive-status-fix/walkthrough.md`

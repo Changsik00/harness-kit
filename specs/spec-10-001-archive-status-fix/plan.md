@@ -1,8 +1,8 @@
-# Implementation Plan: spec-11-001
+# Implementation Plan: spec-10-001
 
 ## 📋 Branch Strategy
 
-- 신규 브랜치: `spec-11-001-archive-status-fix`
+- 신규 브랜치: `spec-10-001-archive-status-fix`
 - 시작 지점: `main`
 - 첫 task가 브랜치 생성을 수행함
 

@@ -1,12 +1,12 @@
-# spec-11-001: archive 상태 전이 수정
+# spec-10-001: archive 상태 전이 수정
 
 ## 📋 메타
 
 | 항목 | 값 |
 |---|---|
-| **Spec ID** | `spec-11-001` |
-| **Phase** | `phase-11` |
-| **Branch** | `spec-11-001-archive-status-fix` |
+| **Spec ID** | `spec-10-001` |
+| **Phase** | `phase-10` |
+| **Branch** | `spec-10-001-archive-status-fix` |
 | **상태** | Planning |
 | **타입** | Fix |
 | **Integration Test Required** | no |
@@ -49,13 +49,13 @@ awk 조건에 `| Done |` 매칭을 추가하고, 상태 전이 모델을 코드 
 
 ## 🚫 Out of Scope
 
-- `sdd status`의 교차 검증 로직 추가 (spec-11-002)
-- phase 완료 감지 로직 개선 (spec-11-004)
+- `sdd status`의 교차 검증 로직 추가 (spec-10-002)
+- phase 완료 감지 로직 개선 (spec-10-004)
 - 상태 전이를 코드로 강제하는 state machine 구현
 
 ## ✅ Definition of Done
 
 - [ ] 모든 단위 테스트 PASS
 - [ ] `walkthrough.md`와 `pr_description.md` 작성 및 archive commit
-- [ ] `spec-11-001-archive-status-fix` 브랜치 push 완료
+- [ ] `spec-10-001-archive-status-fix` 브랜치 push 완료
 - [ ] 사용자 검토 요청 알림 완료

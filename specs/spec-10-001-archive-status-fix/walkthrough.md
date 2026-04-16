@@ -1,4 +1,4 @@
-# Walkthrough: spec-11-001
+# Walkthrough: spec-10-001
 
 > 본 문서는 *증거 로그* 입니다.
 
