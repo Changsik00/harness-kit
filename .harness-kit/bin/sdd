@@ -684,10 +684,13 @@ cmd_archive() {
     if [ -f "$phase_file" ]; then
       local tmp_pf
       tmp_pf="$(mktemp)"
+      # 상태 전이 모델: Backlog → Active → In Progress → Done → Merged
+      # archive는 Active/In Progress/Done 어느 상태에서든 Merged로 전환
       awk -v sid="$spec_id" '
-        index($0, sid) && (/\| In Progress \|/ || /\| Active \|/) {
+        index($0, sid) && (/\| In Progress \|/ || /\| Active \|/ || /\| Done \|/) {
           sub(/\| In Progress \|/, "| Merged |")
           sub(/\| Active \|/, "| Merged |")
+          sub(/\| Done \|/, "| Merged |")
         }
         { print }
       ' "$phase_file" > "$tmp_pf" && mv "$tmp_pf" "$phase_file"
