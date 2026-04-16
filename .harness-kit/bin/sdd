@@ -164,7 +164,30 @@ _status_diagnose() {
         if [ "$has_non_merged" -eq 0 ]; then
           warnings="${warnings}  ℹ 모든 spec Merged — phase done 가능 여부 확인 필요\n"
         else
-          warnings="${warnings}  ℹ Active Spec 없음 — 다음 spec 시작 필요\n"
+          # non-Merged spec이 있지만, git에 모두 머지되었는지 교차 확인
+          local all_in_git=1
+          local nm_ids
+          nm_ids=$(awk -F'|' '
+            /<!-- sdd:specs:start -->/ { in_t=1; next }
+            /<!-- sdd:specs:end -->/ { in_t=0; next }
+            in_t {
+              id = $2; gsub(/[[:space:]]/, "", id); gsub(/`/, "", id)
+              st = $5; gsub(/[[:space:]]/, "", st)
+              if (id != "" && id !~ /^-+$/ && id !~ /^ID$/ && st != "Merged" && st != "") print id
+            }
+          ' "$phase_file")
+          while IFS= read -r sid; do
+            [ -z "$sid" ] && continue
+            if ! echo "$git_log_cache" | grep -q "$sid"; then
+              all_in_git=0
+              break
+            fi
+          done <<< "$nm_ids"
+          if [ "$all_in_git" -eq 1 ] && [ -n "$git_log_cache" ]; then
+            warnings="${warnings}  ℹ git 기준 모든 spec 머지 완료 — phase done 가능 (phase.md 상태 갱신 필요)\n"
+          else
+            warnings="${warnings}  ℹ Active Spec 없음 — 다음 spec 시작 필요\n"
+          fi
         fi
       fi
     fi
@@ -185,8 +208,8 @@ _status_diagnose() {
   fi
 }
 
-# phase.md spec 표에서 다음 실행 대기 중인 spec ID를 반환한다.
-# 첫 번째 'Backlog' 상태 행의 ID 컬럼 값을 출력. 없으면 '없음'.
+# phase.md spec 표에서 다음 처리 필요한 spec ID를 반환한다.
+# 우선순위: Done(archive 필요) > Backlog(새 작업). 없으면 '없음'.
 compute_next_spec() {
   local phase_id="$1"
   local phase_file="$SDD_BACKLOG/${phase_id}.md"
@@ -195,9 +218,17 @@ compute_next_spec() {
   next=$(awk -F'|' '
     /<!-- sdd:specs:start -->/ { in_table=1; next }
     /<!-- sdd:specs:end -->/ { in_table=0; next }
-    in_table && /\| Backlog \|/ {
-      gsub(/[[:space:]]/, "", $2)
-      if ($2 != "" && $2 !~ /^-+$/ && $2 !~ /^ID$/) { print $2; exit }
+    in_table {
+      id = $2; gsub(/[[:space:]]/, "", id); gsub(/`/, "", id)
+      st = $5; gsub(/[[:space:]]/, "", st)
+      if (id != "" && id !~ /^-+$/ && id !~ /^ID$/) {
+        if (st == "Done" && done_id == "") done_id = id
+        if (st == "Backlog" && backlog_id == "") backlog_id = id
+      }
+    }
+    END {
+      if (done_id != "") print done_id
+      else if (backlog_id != "") print backlog_id
     }
   ' "$phase_file")
   echo "${next:-없음}"
@@ -886,13 +917,15 @@ _check_phase_all_merged() {
   local phase_file="$SDD_BACKLOG/${phase_id}.md"
   [ -f "$phase_file" ] || return
 
+  # Merged가 아닌 모든 상태를 미완료로 카운트 ($5 필드 직접 비교)
   local remaining
   remaining=$(awk -F'|' '
     /<!-- sdd:specs:start -->/ { in_t=1; next }
     /<!-- sdd:specs:end -->/ { in_t=0; next }
-    in_t && (/\| Backlog \|/ || /\| In Progress \|/) {
-      gsub(/[[:space:]]/, "", $2)
-      if ($2 != "" && $2 !~ /^-+$/ && $2 !~ /^ID$/) { print $2 }
+    in_t {
+      id = $2; gsub(/[[:space:]]/, "", id); gsub(/`/, "", id)
+      st = $5; gsub(/[[:space:]]/, "", st)
+      if (id != "" && id !~ /^-+$/ && id !~ /^ID$/ && st != "Merged" && st != "") print id
     }
   ' "$phase_file" | wc -l | tr -d ' ')
 
@@ -901,6 +934,44 @@ _check_phase_all_merged() {
     echo "🎉 모든 Spec이 Merged 상태입니다."
     echo "   sdd phase done 을 실행하여 phase를 완료하세요."
     echo ""
+  else
+    # git 기반 교차 확인: phase.md에 non-Merged가 있지만 git에 모두 머지됨
+    local base_branch="main"
+    if [ -f "$SDD_STATE" ]; then
+      local bb
+      bb="$(jq -r '.baseBranch // empty' "$SDD_STATE" 2>/dev/null)"
+      [ -n "$bb" ] && base_branch="$bb"
+    fi
+
+    local git_log_cache
+    git_log_cache="$(git -C "$SDD_ROOT" log --oneline "$base_branch" 2>/dev/null || true)"
+
+    local all_in_git=1
+    local non_merged_ids
+    non_merged_ids=$(awk -F'|' '
+      /<!-- sdd:specs:start -->/ { in_t=1; next }
+      /<!-- sdd:specs:end -->/ { in_t=0; next }
+      in_t {
+        id = $2; gsub(/[[:space:]]/, "", id); gsub(/`/, "", id)
+        st = $5; gsub(/[[:space:]]/, "", st)
+        if (id != "" && id !~ /^-+$/ && id !~ /^ID$/ && st != "Merged" && st != "") print id
+      }
+    ' "$phase_file")
+
+    while IFS= read -r sid; do
+      [ -z "$sid" ] && continue
+      if ! echo "$git_log_cache" | grep -q "$sid"; then
+        all_in_git=0
+        break
+      fi
+    done <<< "$non_merged_ids"
+
+    if [ "$all_in_git" -eq 1 ]; then
+      echo ""
+      echo "ℹ git 기준 모든 spec이 머지 완료되었지만, phase.md에 non-Merged 상태가 남아있습니다."
+      echo "  sdd archive 실행 후 phase done 가능 여부를 확인하세요."
+      echo ""
+    fi
   fi
 }
 
