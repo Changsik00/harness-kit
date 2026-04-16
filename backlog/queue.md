@@ -7,7 +7,7 @@
 ## 📦 진행 중 Phase
 
 <!-- sdd:active:start -->
-- **phase-10** — sdd 상태 진단 신뢰성 강화 — 4 spec — 다음: (spec 없음)
+- **phase-10** — sdd 상태 진단 신뢰성 강화 — 5 spec — 다음: (spec 없음)
 <!-- sdd:active:end -->
 
 ## 📥 spec-x 대기
@@ -22,6 +22,10 @@
 
 - [ ] spec-5-002 (deferred — dependency 해소 후 재검토)
 - [ ] 식별자 2자리 패딩 — phase/spec 번호를 2자리로 통일 (phase-01, spec-01-01) → 파일 정렬 문제 해결. constitution §6, sdd 코드, 기존 디렉토리 전면 영향.
+- [ ] 기존 테스트 실패 조사 — `test-hook-modes.sh` 1/12 FAIL, `test-zsh-compat.sh` 1/20 FAIL. exit code 0이라 묻혀있음. 원인 파악 및 수정 필요.
+- [ ] walkthrough 실시간 갱신 흐름 — `sdd spec new`에서 walkthrough 미생성이므로 에이전트가 첫 Task 시작 시 빈 walkthrough 생성 + 작업 중 갱신하는 규칙 필요. agent.md Strict Loop에 반영.
+- [ ] walkthrough 템플릿 `📋 실제 구현된 변경사항` 축소/삭제 검토 — diff로 확인 가능한 내용이라 가치 낮음.
+- [ ] `sdd archive` 리네이밍 검토 — 실제 동작(상태 전이 + state 초기화 + 커밋)이 "archive"보다 "ship/finalize"에 가까움.
 
 ## 📋 대기 Phase
 
