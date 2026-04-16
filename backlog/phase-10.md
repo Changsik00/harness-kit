@@ -172,7 +172,7 @@ bash tests/run-all.sh
 
 ## 🔗 의존성
 
-- **선행 phase**: phase-9 (완료, PR #44 머지됨)
+- **선행 phase**: phase-09 (완료, PR #44 머지됨)
 - **외부 시스템**: 없음 (bash, jq, git만 사용)
 - **연관 ADR**: 없음
 

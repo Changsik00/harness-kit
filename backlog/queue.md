@@ -7,7 +7,7 @@
 ## 📦 진행 중 Phase
 
 <!-- sdd:active:start -->
-- **phase-11** — 식별자 체계 개선 및 디렉토리 아카이브 — 1 spec — 다음: spec-11-001-ship-rename
+- **phase-11** — 식별자 체계 개선 및 디렉토리 아카이브 — 2 spec — 다음: spec-11-002-id-padding
 <!-- sdd:active:end -->
 
 ## 📥 spec-x 대기
@@ -20,8 +20,7 @@
 
 > 아이디어·보류 항목 보관소. 실행 불가. 관련 항목이 쌓이면 Phase로, 단발이면 spec-x로 승격.
 
-- [ ] spec-5-002 (deferred — dependency 해소 후 재검토)
-- [ ] 식별자 2자리 패딩 — phase/spec 번호를 2자리로 통일 (phase-01, spec-01-01) → 파일 정렬 문제 해결. constitution §6, sdd 코드, 기존 디렉토리 전면 영향.
+- [ ] spec-05-002 (deferred — dependency 해소 후 재검토)
 - [ ] 기존 테스트 실패 조사 — `test-hook-modes.sh` 1/12 FAIL, `test-zsh-compat.sh` 1/20 FAIL. exit code 0이라 묻혀있음. 원인 파악 및 수정 필요.
 - [ ] walkthrough 실시간 갱신 흐름 — `sdd spec new`에서 walkthrough 미생성이므로 에이전트가 첫 Task 시작 시 빈 walkthrough 생성 + 작업 중 갱신하는 규칙 필요. agent.md Strict Loop에 반영.
 - [ ] walkthrough 템플릿 `📋 실제 구현된 변경사항` 축소/삭제 검토 — diff로 확인 가능한 내용이라 가치 낮음.
@@ -38,14 +37,14 @@
 <!-- sdd:done:start -->
 | Phase | 제목 | SPECs |
 |-------|------|-------|
-| [phase-1](phase-1.md) | 설치/운영 마찰 해소 | 2 (Merged) |
-| [phase-2](phase-2.md) | 토큰 최적화 & 거버넌스 경량화 | 3 (Merged) |
-| [phase-3](phase-3.md) | macOS 네이티브 설치 모드 | 1 (Merged) |
-| [phase-4](phase-4.md) | 옵셔널 Sub-agent 리뷰 시스템 | 2 (Merged) |
-| [phase-5](phase-5.md) | spec-kit 패턴 도입 & 크로스 에이전트 | 1 (Merged, spec-5-002 icebox) |
-| [phase-6](phase-6.md) | SDD UX 개선 및 커맨드 정리 | 2 (Merged) |
-| [phase-7](phase-7.md) | SDD 프로세스 일관성 및 품질 강화 | 4 (Merged) |
-- **phase-8** — 작업 관리 모델 재정립 — Queue·Phase base branch·완료 흐름 강제 — completed 2026-04-12
+| [phase-01](phase-01.md) | 설치/운영 마찰 해소 | 2 (Merged) |
+| [phase-02](phase-02.md) | 토큰 최적화 & 거버넌스 경량화 | 3 (Merged) |
+| [phase-03](phase-03.md) | macOS 네이티브 설치 모드 | 1 (Merged) |
+| [phase-04](phase-04.md) | 옵셔널 Sub-agent 리뷰 시스템 | 2 (Merged) |
+| [phase-05](phase-05.md) | spec-kit 패턴 도입 & 크로스 에이전트 | 1 (Merged, spec-05-002 icebox) |
+| [phase-06](phase-06.md) | SDD UX 개선 및 커맨드 정리 | 2 (Merged) |
+| [phase-07](phase-07.md) | SDD 프로세스 일관성 및 품질 강화 | 4 (Merged) |
+- **phase-08** — 작업 관리 모델 재정립 — Queue·Phase base branch·완료 흐름 강제 — completed 2026-04-12
 - **10** — ? — completed 2026-04-16
 <!-- sdd:done:end -->
 
