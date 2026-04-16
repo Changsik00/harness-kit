@@ -675,9 +675,15 @@ spec_new() {
     fi
   done
 
-  # phase-{N}.md 의 spec 표에 한 줄 자동 append
+  # phase-{N}.md 의 spec 표에 행 추가 또는 갱신
+  # 기존 Backlog 행이 있으면 Active 로 업데이트, 없으면 새 행 append
   local row="| \`${short_id}\` | ${slug} | P? | Active | \`specs/${id}/\` |"
-  sdd_marker_append "$phase_file" "specs" "$row"
+  if grep -q "${short_id}" "$phase_file" 2>/dev/null; then
+    local updated_row="| \`${short_id}\` | ${slug} | P? | Active | \`specs/${id}/\` |"
+    sdd_marker_update_row "$phase_file" "specs" "${short_id}" "$updated_row"
+  else
+    sdd_marker_append "$phase_file" "specs" "$row"
+  fi
 
   state_set spec "$id"
   state_set planAccepted "false"
