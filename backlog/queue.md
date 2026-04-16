@@ -7,7 +7,7 @@
 ## 📦 진행 중 Phase
 
 <!-- sdd:active:start -->
-- **phase-10** — sdd 상태 진단 신뢰성 강화 — 5 spec — 다음: (spec 없음)
+- **phase-11** — 식별자 체계 개선 및 디렉토리 아카이브 — 1 spec — 다음: spec-11-001-ship-rename
 <!-- sdd:active:end -->
 
 ## 📥 spec-x 대기
@@ -25,7 +25,6 @@
 - [ ] 기존 테스트 실패 조사 — `test-hook-modes.sh` 1/12 FAIL, `test-zsh-compat.sh` 1/20 FAIL. exit code 0이라 묻혀있음. 원인 파악 및 수정 필요.
 - [ ] walkthrough 실시간 갱신 흐름 — `sdd spec new`에서 walkthrough 미생성이므로 에이전트가 첫 Task 시작 시 빈 walkthrough 생성 + 작업 중 갱신하는 규칙 필요. agent.md Strict Loop에 반영.
 - [ ] walkthrough 템플릿 `📋 실제 구현된 변경사항` 축소/삭제 검토 — diff로 확인 가능한 내용이라 가치 낮음.
-- [ ] `sdd archive` 리네이밍 검토 — 실제 동작(상태 전이 + state 초기화 + 커밋)이 "archive"보다 "ship/finalize"에 가까움.
 
 ## 📋 대기 Phase
 
@@ -47,6 +46,7 @@
 | [phase-6](phase-6.md) | SDD UX 개선 및 커맨드 정리 | 2 (Merged) |
 | [phase-7](phase-7.md) | SDD 프로세스 일관성 및 품질 강화 | 4 (Merged) |
 - **phase-8** — 작업 관리 모델 재정립 — Queue·Phase base branch·완료 흐름 강제 — completed 2026-04-12
+- **10** — ? — completed 2026-04-16
 <!-- sdd:done:end -->
 
 ---
@@ -59,7 +59,7 @@
 | `sdd phase new <slug> --base` | Phase base branch 모드로 생성 (opt-in) |
 | `sdd spec new <slug>` | 진행 중 Phase에 다음 spec 등록 |
 | `sdd plan accept` | spec Plan Accept → 실행 모드 진입 |
-| `sdd archive` | spec 완료 처리 → Merged 갱신 + state 초기화 + NEXT 안내 |
+| `sdd ship` | spec 완료 처리 → Merged 갱신 + state 초기화 + NEXT 안내 |
 | `sdd phase done <N>` | Phase 완료 → 완료 섹션으로 이동 |
 
 자세한 사용법: `agent/constitution.md` §3 Work Type Model, `agent/agent.md`

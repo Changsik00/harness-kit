@@ -61,8 +61,8 @@
 
 - [x] 모든 단위 테스트 통과
 - [x] (해당 시) 통합 테스트 통과
-- [x] `walkthrough.md` archive commit 완료
-- [x] `pr_description.md` archive commit 완료
+- [x] `walkthrough.md` ship commit 완료
+- [x] `pr_description.md` ship commit 완료
 - [x] lint / type check 통과
 - [x] 사용자 검토 요청 알림 완료
 

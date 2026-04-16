@@ -78,11 +78,12 @@
 |---|---|
 | `sdd test passed` | `lastTestPass = now` 기록 (commit 직전 호출) |
 
-### archive
+### ship
 | 명령 | 설명 |
 |---|---|
-| `sdd archive --check` | walkthrough/pr_description 검증만 (변경 없음) |
-| `sdd archive` | 검증 + git add + commit |
+| `sdd ship --check` | walkthrough/pr_description 검증만 (변경 없음) |
+| `sdd ship` | 검증 + git add + commit |
+| `sdd archive` | **(deprecated)** → `sdd ship` 으로 위임, 경고 출력 |
 
 ---
 

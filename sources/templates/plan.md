@@ -77,4 +77,4 @@
 - [ ] task.md 작성 (다음 단계)
 - [ ] 사용자 Plan Accept 받음
 - [ ] (실행 후) 모든 task 완료
-- [ ] (실행 후) walkthrough.md / pr_description.md archive
+- [ ] (실행 후) walkthrough.md / pr_description.md ship

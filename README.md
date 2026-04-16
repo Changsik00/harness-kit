@@ -60,7 +60,7 @@ harness-kit 은 다섯 가지 작업 유형을 정의합니다:
 | 유형 | 역할 | PR? | 진입 | 완료 |
 |---|---|:---:|---|---|
 | **Phase** | 연관 Spec 묶음 (Epic) | — | `sdd phase new <slug> [--base]` | 모든 Spec Merged → `sdd phase done` |
-| **Spec** | Phase 내 단일 PR 단위 | ✅ | `sdd spec new <slug>` + Plan Accept | archive → push → PR merge |
+| **Spec** | Phase 내 단일 PR 단위 | ✅ | `sdd spec new <slug>` + Plan Accept | ship → push → PR merge |
 | **spec-x** | Phase 비소속 단독 PR | ✅ | `sdd spec new <slug>` (Phase 없이) | PR merge + `sdd specx done <slug>` |
 | **FF** | 인라인 수정 (Fast Flow) | ❌ | 사용자 승인만 | state.json 변경 없음 |
 | **Icebox** | 아이디어 보관소 | — | queue.md Icebox 섹션에 기록 | Phase 또는 spec-x 로 승격 |
@@ -193,7 +193,7 @@ Claude Code 안에서:
 |---|---|
 | `/hk-align` | 세션 부트스트랩 (규약 로드 + `sdd status` 로 현재 상태 확인) |
 | `/hk-plan-accept` | plan.md 승인 → Strict Loop 시작 |
-| `/hk-ship` | Spec 완료 — 검증 + archive + push + PR 생성 |
+| `/hk-ship` | Spec 완료 — 검증 + ship + push + PR 생성 |
 | `/hk-phase-ship` | Phase 완료 — 성공 기준 검증 + 통합 테스트 + go/no-go + main PR |
 | `/hk-pr-gh` | GitHub PR 생성 (gh CLI) |
 | `/hk-pr-bb` | Bitbucket PR 생성 |
@@ -287,9 +287,9 @@ Plan Accept (1 / Y / accept)    ← 사용자 승인
 │  5. 이슈 없으면 자동 진행, 이슈 시 멈추고 보고    │
 └───────────────────────────────────────────────┘
     ↓
-/hk-ship (archive + push + PR 생성)
+/hk-ship (ship + push + PR 생성)
     ↓
-sdd archive → Merged 갱신 + state 초기화 + NEXT 안내
+sdd ship → Merged 갱신 + state 초기화 + NEXT 안내
     ↓
 PR merge → sdd status 로 NEXT 확인 → 다음 Spec 시작
     ↓

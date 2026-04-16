@@ -146,13 +146,13 @@ Plan Accept 후 에이전트는 task.md 의 첫 task 부터 다음을 반복:
 모든 task 완료 후:
 
 ```bash
-./scripts/harness/bin/sdd archive --check    # walkthrough/pr_description 검증
+./scripts/harness/bin/sdd ship --check    # walkthrough/pr_description 검증
 ```
 
 부족한 부분 보완 후:
 
 ```bash
-./scripts/harness/bin/sdd archive            # archive commit 생성
+./scripts/harness/bin/sdd ship            # ship commit 생성
 git push -u origin spec-1-001-webhook-lock-fail-throw
 ./scripts/harness/bin/sdd plan reset
 ```

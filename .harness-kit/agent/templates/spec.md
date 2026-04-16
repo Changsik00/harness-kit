@@ -55,6 +55,6 @@
 
 - [ ] 모든 단위 테스트 PASS
 - [ ] (Integration Test Required = yes 인 경우) 선언된 통합 테스트 PASS
-- [ ] `walkthrough.md` 와 `pr_description.md` 작성 및 archive commit
+- [ ] `walkthrough.md` 와 `pr_description.md` 작성 및 ship commit
 - [ ] `spec-{phaseN}-{seq}-{slug}` 브랜치 push 완료
 - [ ] 사용자 검토 요청 알림 완료
