@@ -40,12 +40,15 @@
 
 ### 성공 기준 (Success Criteria)
 
-1. `sdd archive` 실행 시 `| Done |` 상태의 spec도 `| Merged |`로 정상 전환된다.
-2. `sdd status`가 phase.md spec 상태와 실제 git 머지 이력이 불일치할 때 `⚠` 경고를 출력한다.
-3. `sdd status`가 state.json의 모순(spec=null + phase active, planAccepted=true + plan.md 부재)을 감지하고 경고한다.
-4. `sdd status`가 active spec의 필수 산출물 누락을 감지하고 안내한다.
-5. phase의 모든 spec이 실제 머지 완료 시 phase-ship 유도 메시지가 정확히 출력된다.
-6. 모든 기존 테스트(`bash tests/run-all.sh`) PASS.
+1. `sdd archive` 실행 시 `| Done |` 상태의 spec도 `| Merged |`로 정상 전환된다. (spec-10-001 완료)
+2. `sdd status`가 브랜치 패턴에서 work mode(SDD-P/SDD-x/phase-base)를 자동 추론하여 표시한다.
+3. `sdd status`가 phase.md ↔ git 불일치 감지 시 경고 + 구체적 정리 명령을 안내한다.
+4. `sdd status`가 state.json 모순(spec=null + phase active, planAccepted=true + plan.md 부재)을 감지하고 경고한다.
+5. `sdd status`가 active spec의 필수 산출물 누락을 감지하고 안내한다.
+6. `_check_phase_all_merged`가 Done 상태를 미완료로 정확히 카운트한다.
+7. `compute_next_spec`이 Done(archive 누락) spec을 NEXT에 포함한다.
+8. phase의 모든 spec이 실제 머지 완료 시 phase-ship 유도 메시지가 정확히 출력된다.
+9. 모든 기존 테스트(`bash tests/run-all.sh`) PASS.
 
 ## 🧩 작업 단위 (SPECs)
 
@@ -55,7 +58,7 @@
 | ID | 슬러그 | 우선순위 | 상태 | 디렉토리 |
 |---|---|:---:|---|---|
 | `spec-10-001` | archive-status-fix | P1 | Merged | `specs/spec-10-001-archive-status-fix/` |
-| `spec-10-002` | status-cross-check | P1 | Backlog | `specs/spec-10-002-status-cross-check/` |
+| `spec-10-002` | status-cross-check | P1 | Merged | `specs/spec-10-002-status-cross-check/` |
 | `spec-10-003` | spec-completeness | P2 | Backlog | `specs/spec-10-003-spec-completeness/` |
 | `spec-10-004` | phase-done-accuracy | P2 | Backlog | `specs/spec-10-004-phase-done-accuracy/` |
 <!-- sdd:specs:end -->
@@ -69,13 +72,19 @@
   - 테스트: Done 상태 spec에 archive 실행 → Merged 전환 확인
 - **연관 모듈**: `sources/bin/sdd`, `.harness-kit/bin/sdd`, `tests/test-sdd-archive-completion.sh`
 
-### spec-10-002 — status 교차 검증
+### spec-10-002 — status 자기 진단 엔진
 
-- **요점**: `sdd status`에 phase.md ↔ git 이력 교차 검증 + state.json 정합성 검사를 추가.
+- **요점**: `sdd status`가 경고만 출력하는 게 아니라, 현재 상황을 스스로 판단하고 다음 행동을 제안하는 자기 진단 도구로 강화.
 - **방향성**:
-  - **phase.md ↔ git 교차 검증**: phase.md에서 "Merged" 아닌 spec에 대해, git log에 해당 spec의 커밋이 phase 브랜치에 존재하는지 확인. 존재하면 `⚠ spec-X-NNN: phase.md는 Done이지만 git에는 머지됨` 경고.
-  - **state.json 정합성**: spec=null + phase active → "phase done 가능" 안내. planAccepted=true + plan.md 부재 → 경고.
-  - 기본 출력에 경고 포함 (verbose 플래그 불필요). `--quiet` 시 경고 숨김.
+  - **브랜치 패턴 해석**: 현재 브랜치명에서 work mode 자동 추론
+    - `spec-{N}-{seq}-*` → SDD-P, phase-{N}의 spec 작업 브랜치
+    - `phase-{N}-*` → phase base 브랜치 (spec 전환 중)
+    - `spec-x-*` → SDD-x, main 기반
+    - `main` → 대기 상태
+  - **phase.md ↔ git 교차 검증**: phase.md에서 "Merged" 아닌 spec에 대해, git log에 해당 spec의 머지 커밋이 phase 브랜치에 존재하는지 확인. 불일치 시 경고.
+  - **state.json 정합성**: spec=null + phase active → 안내. planAccepted=true + plan.md 부재 → 경고.
+  - **잔재 감지 + 행동 제안**: 이전 spec의 미정리 항목(archive 누락, task.md 미체크) 감지 시 구체적 정리 명령 안내. 예: `⚠ spec-10-001: phase.md(Done) ↔ git(머지됨) → sdd archive 실행 권장`
+  - 기본 출력에 진단 섹션 포함. `--brief`/`--json` 에서는 생략.
 - **연관 모듈**: `sources/bin/sdd` (`cmd_status`), `sources/bin/lib/state.sh`
 
 ### spec-10-003 — spec 완성도 검증
@@ -87,14 +96,14 @@
   - `cmd_archive` 진입 시 기존 검증 유지 (walkthrough/pr_description 비어있으면 거부)
 - **연관 모듈**: `sources/bin/sdd` (`cmd_status`, `cmd_archive`)
 
-### spec-10-004 — phase 완료 감지 정확도
+### spec-10-004 — phase 완료 판단 정확도
 
-- **요점**: `_check_phase_all_merged()`가 phase.md 테이블뿐 아니라 git 이력도 참조하여 phase done 시점을 정확히 판단.
+- **요점**: `_check_phase_all_merged()`와 `compute_next_spec()`의 상태 판별 정확도를 개선하여 phase-ship 유도와 NEXT 안내가 정확하게 동작.
 - **방향성**:
-  - phase.md 테이블의 모든 spec ID를 추출 → 각 spec의 PR 머지 커밋이 phase 브랜치(또는 main)에 존재하는지 git log로 확인
-  - phase.md 테이블과 git 이력 모두 "전체 완료"일 때만 phase-ship 유도
-  - phase.md 테이블이 부정확해도 git 기반으로 올바르게 판단 → phase.md 자동 보정 제안
-- **연관 모듈**: `sources/bin/sdd` (`_check_phase_all_merged`, `cmd_archive`), `sources/bin/lib/common.sh`
+  - **`_check_phase_all_merged` 수정**: awk 조건에 `Done` 상태 추가 — Done은 archive 안 된 것이므로 미완료로 카운트
+  - **`compute_next_spec` 개선**: Backlog만 검색하는 현재 로직에서, Done(archive 누락) spec도 "아직 처리 필요"로 인식하여 NEXT에 포함
+  - **git 기반 phase 완료 판별**: phase.md 테이블과 git 이력 모두 "전체 완료"일 때만 phase-ship 유도. phase.md가 부정확해도 git 기반으로 올바르게 판단 → 자동 보정 제안
+- **연관 모듈**: `sources/bin/sdd` (`_check_phase_all_merged`, `compute_next_spec`, `cmd_archive`), `sources/bin/lib/common.sh`
 
 ## 🧪 통합 테스트 시나리오
 
@@ -105,28 +114,49 @@
 - **Then**: phase.md에서 해당 spec이 `| Merged |`로 갱신됨
 - **연관 SPEC**: spec-10-001
 
-### 시나리오 2: phase.md ↔ git 불일치 감지
+### 시나리오 2: 브랜치 패턴 기반 work mode 추론
+
+- **Given**: 현재 브랜치가 `spec-10-001-archive-status-fix`
+- **When**: `sdd status` 실행
+- **Then**: `Work Mode: SDD-P (phase-10)` 표시 + 브랜치가 이전 spec의 것임을 감지
+- **연관 SPEC**: spec-10-002
+
+### 시나리오 3: phase.md ↔ git 불일치 + 행동 제안
 
 - **Given**: phase.md에 spec-X가 `| Done |`이지만, git log에 해당 spec PR 머지 커밋이 존재
 - **When**: `sdd status` 실행
-- **Then**: `⚠ spec-X: phase.md(Done) ≠ git(머지됨)` 경고 출력
+- **Then**: `⚠ spec-X: phase.md(Done) ↔ git(머지됨) → sdd archive 실행 권장` 출력
 - **연관 SPEC**: spec-10-002
 
-### 시나리오 3: state.json 모순 감지
+### 시나리오 4: state.json 모순 감지
 
 - **Given**: state.json에 `phase=phase-10`, `spec=null`
 - **When**: `sdd status` 실행
 - **Then**: "Active Spec 없음 — 모든 spec 완료 시 `/hk-phase-ship` 가능" 안내 출력
 - **연관 SPEC**: spec-10-002
 
-### 시나리오 4: spec 산출물 완성도 표시
+### 시나리오 5: spec 산출물 완성도 표시
 
 - **Given**: active spec 디렉토리에 spec.md, plan.md만 존재 (task.md 없음)
 - **When**: `sdd status` 실행
 - **Then**: `산출물: ✓ spec ✓ plan ✗ task ✗ walkthrough ✗ pr_description` 표시
 - **연관 SPEC**: spec-10-003
 
-### 시나리오 5: git 기반 phase 완료 감지
+### 시나리오 6: _check_phase_all_merged Done 오판 수정
+
+- **Given**: phase.md에 spec-X가 `| Done |` (archive 안 됨), 나머지는 `| Merged |`
+- **When**: `_check_phase_all_merged` 호출
+- **Then**: "모든 Spec Merged" 판정하지 않음 (Done은 미완료로 카운트)
+- **연관 SPEC**: spec-10-004
+
+### 시나리오 7: compute_next_spec Done 건너뛰기 수정
+
+- **Given**: phase.md에 spec-X가 `| Done |` (archive 누락), spec-Y가 `| Backlog |`
+- **When**: `compute_next_spec` 호출
+- **Then**: NEXT로 spec-X를 반환 (Done이 Backlog보다 우선)
+- **연관 SPEC**: spec-10-004
+
+### 시나리오 8: git 기반 phase 완료 감지
 
 - **Given**: phase.md에 일부 spec이 `| Done |`이지만, git log 상 모든 spec PR이 머지됨
 - **When**: `sdd archive` (마지막 spec) 또는 `sdd status` 실행
