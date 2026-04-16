@@ -22,5 +22,6 @@ tests/fixtures/_target/
 # Personal Claude Code overrides (should never be committed)
 .claude/settings.local.json
 
-# install.sh 가 만드는 백업 디렉토리 (멱등 재설치용)
+# install.sh / uninstall.sh 가 만드는 백업 디렉토리
 .harness-backup-*/
+.harness-uninstall-backup-*/

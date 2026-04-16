@@ -10,9 +10,13 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 
-FRAGMENT="$ROOT/sources/claude-fragments/CLAUDE.md.fragment"
+FRAGMENT="$ROOT/sources/claude-fragments/CLAUDE.fragment.md"
 CLAUDE_MD="$ROOT/CLAUDE.md"
-ALIGN_CMD="$ROOT/.claude/commands/align.md"
+# hk-align.md (sources) 또는 설치된 .claude/commands/hk-align.md 중 존재하는 것 사용
+ALIGN_CMD=""
+for _f in "$ROOT/sources/commands/hk-align.md" "$ROOT/.claude/commands/hk-align.md" "$ROOT/.claude/commands/align.md"; do
+  [ -f "$_f" ] && ALIGN_CMD="$_f" && break
+done
 
 FAIL=0
 TOTAL_CHECKS=0
@@ -47,28 +51,28 @@ else
   pass "@agent/ import 제거됨"
 fi
 
-# --- Check 3: align 커맨드에 @agent/ import 존재 ---
+# --- Check 3: align 커맨드에 @.harness-kit/agent/ import 존재 ---
 echo ""
-echo "▶ Check 3: align 커맨드에 @agent/ import 유지"
+echo "▶ Check 3: align 커맨드에 @.harness-kit/agent/ import 유지"
 check
-if grep -q '@agent/constitution.md' "$ALIGN_CMD" 2>/dev/null; then
-  pass "align 커맨드에 @agent/constitution.md 존재"
+if grep -q '@\.harness-kit/agent/constitution\.md' "$ALIGN_CMD" 2>/dev/null; then
+  pass "align 커맨드에 @.harness-kit/agent/constitution.md 존재"
 else
-  fail "align 커맨드에 @agent/constitution.md 누락"
+  fail "align 커맨드에 @.harness-kit/agent/constitution.md 누락"
 fi
 
 check
-if grep -q '@agent/agent.md' "$ALIGN_CMD" 2>/dev/null; then
-  pass "align 커맨드에 @agent/agent.md 존재"
+if grep -q '@\.harness-kit/agent/agent\.md' "$ALIGN_CMD" 2>/dev/null; then
+  pass "align 커맨드에 @.harness-kit/agent/agent.md 존재"
 else
-  fail "align 커맨드에 @agent/agent.md 누락"
+  fail "align 커맨드에 @.harness-kit/agent/agent.md 누락"
 fi
 
 check
-if grep -q '@agent/align.md' "$ALIGN_CMD" 2>/dev/null; then
-  pass "align 커맨드에 @agent/align.md 존재"
+if grep -q '@\.harness-kit/agent/align\.md' "$ALIGN_CMD" 2>/dev/null; then
+  pass "align 커맨드에 @.harness-kit/agent/align.md 존재"
 else
-  fail "align 커맨드에 @agent/align.md 누락"
+  fail "align 커맨드에 @.harness-kit/agent/align.md 누락"
 fi
 
 # --- Check 4: fragment word count ---

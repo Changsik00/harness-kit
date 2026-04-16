@@ -24,17 +24,17 @@ diff <(ls sources/commands/ | sort) <(ls .claude/commands/ | sort)
 
 ### 1-2. 거버넌스 동기화
 ```bash
-diff sources/governance/constitution.md agent/constitution.md
-diff sources/governance/agent.md agent/agent.md
-diff sources/governance/align.md agent/align.md
+diff sources/governance/constitution.md .harness-kit/agent/constitution.md
+diff sources/governance/agent.md .harness-kit/agent/agent.md
+diff sources/governance/align.md .harness-kit/agent/align.md
 ```
 
 ### 1-3. 템플릿 동기화
 ```bash
-diff <(ls sources/templates/ | sort) <(ls agent/templates/ | sort)
+diff <(ls sources/templates/ | sort) <(ls .harness-kit/agent/templates/ | sort)
 ```
 
-불일치 발견 시 `cp sources/... agent/...` 로 동기화를 제안합니다.
+불일치 발견 시 `cp sources/... .harness-kit/agent/...` 로 동기화를 제안합니다.
 
 ## 2. 잔여 파일/디렉토리 감지
 
@@ -60,7 +60,7 @@ find . -type d -empty -not -path './.git/*' 2>/dev/null
 ## 3. sdd 바이너리 동기화
 
 ```bash
-diff scripts/harness/bin/sdd sources/bin/sdd
+diff .harness-kit/bin/sdd sources/bin/sdd
 ```
 
 불일치 시 어느 쪽이 최신인지 git log로 판단하여 동기화 방향을 제안합니다.
@@ -68,7 +68,7 @@ diff scripts/harness/bin/sdd sources/bin/sdd
 ## 4. State 정합성 검사
 
 ```bash
-./scripts/harness/bin/sdd status --json
+bash .harness-kit/bin/sdd status --json
 ```
 
 - `phase` 가 설정되어 있는데 해당 `backlog/phase-{N}.md` 파일이 없는 경우

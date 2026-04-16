@@ -1,15 +1,16 @@
 #!/usr/bin/env bash
 # tests/test-sdd-archive-completion.sh
-# spec-8-003: sdd archive 완료 흐름 강제 단위 테스트
+# sdd archive 완료 흐름 단위 테스트
+# 검증: phase.md 상태 전이, state.json 초기화, NEXT 안내, specx done
 
 set -uo pipefail
 
 PASS=0; FAIL=0
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
-SDD="$PROJECT_ROOT/scripts/harness/bin/sdd"
-SDD_LIB_DIR="$PROJECT_ROOT/scripts/harness/bin/lib"
-SDD_TEMPLATES_DIR="$PROJECT_ROOT/agent/templates"
+SDD="$PROJECT_ROOT/sources/bin/sdd"
+SDD_LIB_DIR="$PROJECT_ROOT/sources/bin/lib"
+SDD_TEMPLATES_DIR="$PROJECT_ROOT/sources/templates"
 
 ok()   { echo "  ✅ PASS: $*"; ((PASS++)); }
 fail() { echo "  ❌ FAIL: $*"; ((FAIL++)); }
@@ -21,18 +22,33 @@ make_fixture() {
   local dir="$(mktemp -d)"
   mkdir -p "$dir/.claude/state"
   mkdir -p "$dir/backlog"
-  mkdir -p "$dir/scripts/harness/bin/lib"
-  mkdir -p "$dir/agent/templates"
+  mkdir -p "$dir/.harness-kit/bin/lib"
+  mkdir -p "$dir/.harness-kit/agent/templates"
 
-  ln -s "$SDD" "$dir/scripts/harness/bin/sdd"
+  # sdd 바이너리 복사 (심링크 대신 복사 — bash 가 BASH_SOURCE 기준으로 lib 을 찾으므로)
+  cp "$SDD" "$dir/.harness-kit/bin/sdd"
   for f in "$SDD_LIB_DIR"/*.sh; do
-    ln -s "$f" "$dir/scripts/harness/bin/lib/$(basename "$f")" 2>/dev/null || true
+    cp "$f" "$dir/.harness-kit/bin/lib/$(basename "$f")"
   done
   for f in "$SDD_TEMPLATES_DIR"/*.md; do
-    ln -s "$f" "$dir/agent/templates/$(basename "$f")" 2>/dev/null || true
+    cp "$f" "$dir/.harness-kit/agent/templates/$(basename "$f")"
   done
 
+  # 초기 state.json
+  cat > "$dir/.claude/state/current.json" <<'EOF'
+{
+  "kitVersion": "0.3.0",
+  "stack": "generic",
+  "phase": null,
+  "spec": null,
+  "planAccepted": false,
+  "lastTestPass": null
+}
+EOF
+
   git -C "$dir" init -q
+  git -C "$dir" config user.email "test@local"
+  git -C "$dir" config user.name "test"
   git -C "$dir" commit --allow-empty -m "init" -q
 
   echo "$dir"
@@ -83,7 +99,6 @@ echo "Check 1: sdd archive → phase.md spec 상태 In Progress → Merged"
 F1="$(make_fixture)"
 trap "rm -rf '$F1'" EXIT
 
-# phase.md 생성 (spec-1-001 In Progress, spec-1-002 Backlog)
 cat > "$F1/backlog/phase-1.md" <<'EOF'
 # phase-1: test
 <!-- sdd:specs:start -->
@@ -96,88 +111,131 @@ EOF
 
 setup_spec_for_archive "$F1" "phase-1" "spec-1-001-test-a"
 
-(cd "$F1" && bash scripts/harness/bin/sdd archive >/dev/null 2>&1)
+(cd "$F1" && bash .harness-kit/bin/sdd archive >/dev/null 2>&1)
 
 status_after=$(grep "spec-1-001" "$F1/backlog/phase-1.md" | grep -o "Merged" || echo "NOT_MERGED")
 
 if [ "$status_after" = "Merged" ]; then
-  ok "spec-1-001 상태 = Merged"
+  ok "spec-1-001 상태 = Merged (In Progress → Merged)"
 else
   fail "spec-1-001 상태 expected=Merged got=$(grep 'spec-1-001' "$F1/backlog/phase-1.md")"
 fi
 
 # ─────────────────────────────────────────────────────────
-# Check 2: 모든 spec Merged → phase done 유도 메시지 출력
+# Check 2: sdd archive 후 phase.md spec 상태 Active → Merged
 # ─────────────────────────────────────────────────────────
 echo ""
-echo "Check 2: 모든 spec Merged → phase done 유도 메시지"
+echo "Check 2: sdd archive → phase.md spec 상태 Active → Merged"
 
 F2="$(make_fixture)"
 trap "rm -rf '$F1' '$F2'" EXIT
 
-# phase.md: spec-2-001만 있고 In Progress
 cat > "$F2/backlog/phase-2.md" <<'EOF'
 # phase-2: test
 <!-- sdd:specs:start -->
 | ID | 슬러그 | 우선순위 | 상태 | 디렉토리 |
 |---|---|:---:|---|---|
-| spec-2-001 | only-one | P1 | In Progress | `specs/spec-2-001-only-one/` |
+| spec-2-001 | only-one | P1 | Active | `specs/spec-2-001-only-one/` |
 <!-- sdd:specs:end -->
 EOF
 
 setup_spec_for_archive "$F2" "phase-2" "spec-2-001-only-one"
 
-archive_out=$(cd "$F2" && bash scripts/harness/bin/sdd archive 2>&1)
+(cd "$F2" && bash .harness-kit/bin/sdd archive >/dev/null 2>&1)
 
-if echo "$archive_out" | grep -q "phase done"; then
-  ok "phase done 유도 메시지 출력됨"
+status_after2=$(grep "spec-2-001" "$F2/backlog/phase-2.md" | grep -o "Merged" || echo "NOT_MERGED")
+
+if [ "$status_after2" = "Merged" ]; then
+  ok "spec-2-001 상태 = Merged (Active → Merged)"
 else
-  fail "phase done 유도 메시지 없음 — 출력: $archive_out"
+  fail "spec-2-001 상태 expected=Merged got=$(grep 'spec-2-001' "$F2/backlog/phase-2.md")"
 fi
 
 # ─────────────────────────────────────────────────────────
-# Check 3: 잔여 Backlog 있으면 유도 메시지 없음
+# Check 3: sdd archive 후 state.json 초기화 (spec=null, planAccepted=false)
 # ─────────────────────────────────────────────────────────
 echo ""
-echo "Check 3: 잔여 Backlog 있으면 유도 메시지 없음"
+echo "Check 3: sdd archive 후 state.json 초기화"
 
-# F1 에서 spec-1-002가 아직 Backlog — Check 1 에서 이미 archive 실행됨
-# 유도 메시지가 없었는지 확인 (재실행)
+# F1 의 state.json 확인 (Check 1 에서 이미 archive 실행됨)
+spec_val=$(jq -r '.spec' "$F1/.claude/state/current.json")
+plan_val=$(jq -r '.planAccepted' "$F1/.claude/state/current.json")
 
-F3="$(make_fixture)"
-trap "rm -rf '$F1' '$F2' '$F3'" EXIT
+if [ "$spec_val" = "null" ] && [ "$plan_val" = "false" ]; then
+  ok "state.json: spec=null, planAccepted=false"
+else
+  fail "state.json: spec=$spec_val (expected null), planAccepted=$plan_val (expected false)"
+fi
 
-cat > "$F3/backlog/phase-3.md" <<'EOF'
-# phase-3: test
+# ─────────────────────────────────────────────────────────
+# Check 4: 모든 spec Merged → phase done 유도 메시지
+# ─────────────────────────────────────────────────────────
+echo ""
+echo "Check 4: 모든 spec Merged → phase done 유도 메시지"
+
+# F2 에서 spec-2-001 하나뿐이므로 archive 후 모든 spec Merged
+# 다시 실행하지 않고 출력을 캡처해야 하므로 새 fixture 생성
+F4="$(make_fixture)"
+trap "rm -rf '$F1' '$F2' '$F4'" EXIT
+
+cat > "$F4/backlog/phase-4.md" <<'EOF'
+# phase-4: test
 <!-- sdd:specs:start -->
 | ID | 슬러그 | 우선순위 | 상태 | 디렉토리 |
 |---|---|:---:|---|---|
-| spec-3-001 | first | P1 | In Progress | `specs/spec-3-001-first/` |
-| spec-3-002 | second | P1 | Backlog | `specs/spec-3-002-second/` |
+| spec-4-001 | single | P1 | In Progress | `specs/spec-4-001-single/` |
 <!-- sdd:specs:end -->
 EOF
 
-setup_spec_for_archive "$F3" "phase-3" "spec-3-001-first"
+setup_spec_for_archive "$F4" "phase-4" "spec-4-001-single"
 
-archive_out3=$(cd "$F3" && bash scripts/harness/bin/sdd archive 2>&1)
+archive_out4=$(cd "$F4" && bash .harness-kit/bin/sdd archive 2>&1)
 
-if echo "$archive_out3" | grep -q "phase done"; then
-  fail "잔여 Backlog 있는데 phase done 메시지가 출력됨"
+if echo "$archive_out4" | grep -q "phase done"; then
+  ok "phase done 유도 메시지 출력됨"
 else
-  ok "잔여 Backlog 있어서 phase done 메시지 없음"
+  fail "phase done 유도 메시지 없음 — 출력: $archive_out4"
 fi
 
 # ─────────────────────────────────────────────────────────
-# Check 4: sdd specx done <slug> → queue.md specx→done 이동
+# Check 5: 잔여 Backlog 있으면 NEXT 안내 출력
 # ─────────────────────────────────────────────────────────
 echo ""
-echo "Check 4: sdd specx done <slug> → queue.md specx→done 이동"
+echo "Check 5: 잔여 Backlog 있으면 NEXT 안내 출력"
 
-F4="$(make_fixture)"
-trap "rm -rf '$F1' '$F2' '$F3' '$F4'" EXIT
+F5="$(make_fixture)"
+trap "rm -rf '$F1' '$F2' '$F4' '$F5'" EXIT
 
-# state.json (phase 없음 — spec-x는 phase 비소속)
-cat > "$F4/.claude/state/current.json" <<'EOF'
+cat > "$F5/backlog/phase-5.md" <<'EOF'
+# phase-5: test
+<!-- sdd:specs:start -->
+| ID | 슬러그 | 우선순위 | 상태 | 디렉토리 |
+|---|---|:---:|---|---|
+| `spec-5-001` | first | P1 | In Progress | `specs/spec-5-001-first/` |
+| `spec-5-002` | second | P1 | Backlog | — |
+<!-- sdd:specs:end -->
+EOF
+
+setup_spec_for_archive "$F5" "phase-5" "spec-5-001-first"
+
+archive_out5=$(cd "$F5" && bash .harness-kit/bin/sdd archive 2>&1)
+
+if echo "$archive_out5" | grep -q "다음:"; then
+  ok "NEXT spec 안내 출력됨"
+else
+  fail "NEXT spec 안내 없음 — 출력: $archive_out5"
+fi
+
+# ─────────────────────────────────────────────────────────
+# Check 6: sdd specx done <slug> → queue.md specx→done 이동
+# ─────────────────────────────────────────────────────────
+echo ""
+echo "Check 6: sdd specx done <slug> → queue.md specx→done 이동"
+
+F6="$(make_fixture)"
+trap "rm -rf '$F1' '$F2' '$F4' '$F5' '$F6'" EXIT
+
+cat > "$F6/.claude/state/current.json" <<'EOF'
 {
   "kitVersion": "0.3.0",
   "stack": "generic",
@@ -188,8 +246,7 @@ cat > "$F4/.claude/state/current.json" <<'EOF'
 }
 EOF
 
-# queue.md 생성 (specx 섹션에 항목 있음)
-cat > "$F4/backlog/queue.md" <<'EOF'
+cat > "$F6/backlog/queue.md" <<'EOF'
 ## 📥 spec-x 대기
 <!-- sdd:specx:start -->
 - [ ] spec-x-fix-typo — 오탈자 수정
@@ -200,13 +257,13 @@ cat > "$F4/backlog/queue.md" <<'EOF'
 <!-- sdd:done:end -->
 EOF
 
-git -C "$F4" add -A
-git -C "$F4" commit -m "setup" -q
+git -C "$F6" add -A
+git -C "$F6" commit -m "setup" -q
 
-(cd "$F4" && bash scripts/harness/bin/sdd specx done fix-typo >/dev/null 2>&1)
+(cd "$F6" && bash .harness-kit/bin/sdd specx done fix-typo >/dev/null 2>&1)
 
-specx_section=$(sed -n '/sdd:specx:start/,/sdd:specx:end/p' "$F4/backlog/queue.md")
-done_section=$(sed -n '/sdd:done:start/,/sdd:done:end/p' "$F4/backlog/queue.md")
+specx_section=$(sed -n '/sdd:specx:start/,/sdd:specx:end/p' "$F6/backlog/queue.md")
+done_section=$(sed -n '/sdd:done:start/,/sdd:done:end/p' "$F6/backlog/queue.md")
 
 has_in_specx=$(echo "$specx_section" | grep -c "fix-typo" || true)
 has_in_done=$(echo "$done_section" | grep -c "fix-typo" || true)

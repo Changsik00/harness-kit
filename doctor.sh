@@ -41,7 +41,7 @@ command -v git >/dev/null && check_pass "git" || check_fail "git 없음"
 command -v jq  >/dev/null && check_pass "jq"  || check_fail "jq 없음 (brew install jq / apt install jq)"
 # 셸 모드 감지: 설치된 스크립트의 shebang 으로 판별
 _detect_shell_mode() {
-  local sdd="$TARGET/scripts/harness/bin/sdd"
+  local sdd="$TARGET/.harness-kit/bin/sdd"
   if [ -f "$sdd" ] && head -1 "$sdd" | grep -q 'zsh'; then
     echo "zsh"
   else
@@ -74,7 +74,17 @@ echo ""
 
 # ========== 2. 디렉토리 구조 ==========
 echo "[2/7] 디렉토리 구조"
-for d in agent agent/templates .claude/commands .claude/state scripts/harness/bin scripts/harness/hooks scripts/harness/lib backlog specs; do
+# harness.config.json 경로 읽기 (prefix 반영)
+_HK_CONFIG="$TARGET/.harness-kit/harness.config.json"
+_BACKLOG_DIR="backlog"
+_SPECS_DIR="specs"
+if [ -f "$_HK_CONFIG" ] && command -v jq >/dev/null; then
+  _bd=$(jq -r '.backlogDir // "backlog"' "$_HK_CONFIG" 2>/dev/null)
+  _sd=$(jq -r '.specsDir   // "specs"'  "$_HK_CONFIG" 2>/dev/null)
+  _BACKLOG_DIR="${_bd:-backlog}"
+  _SPECS_DIR="${_sd:-specs}"
+fi
+for d in .harness-kit .harness-kit/agent .harness-kit/agent/templates .harness-kit/bin .harness-kit/hooks .claude/commands .claude/state "$_BACKLOG_DIR" "$_SPECS_DIR"; do
   if [ -d "$TARGET/$d" ]; then
     check_pass "$d"
   else
@@ -85,11 +95,11 @@ echo ""
 
 # ========== 3. 거버넌스 + 템플릿 ==========
 echo "[3/7] 거버넌스 + 템플릿"
-for f in agent/constitution.md agent/agent.md agent/align.md; do
+for f in .harness-kit/agent/constitution.md .harness-kit/agent/agent.md .harness-kit/agent/align.md; do
   [ -f "$TARGET/$f" ] && check_pass "$f" || check_fail "$f 없음"
 done
 for f in queue.md phase.md spec.md plan.md task.md walkthrough.md pr_description.md; do
-  [ -f "$TARGET/agent/templates/$f" ] && check_pass "agent/templates/$f" || check_fail "agent/templates/$f 없음"
+  [ -f "$TARGET/.harness-kit/agent/templates/$f" ] && check_pass ".harness-kit/agent/templates/$f" || check_fail ".harness-kit/agent/templates/$f 없음"
 done
 echo ""
 
@@ -126,13 +136,30 @@ echo ""
 
 # ========== 5. State ==========
 echo "[5/7] State"
+INSTALLED_JSON="$TARGET/.harness-kit/installed.json"
 STATE="$TARGET/.claude/state/current.json"
+if [ -f "$INSTALLED_JSON" ]; then
+  check_pass ".harness-kit/installed.json 존재"
+  if command -v jq >/dev/null; then
+    kit_ver=$(jq -r '.kitVersion // "unknown"' "$INSTALLED_JSON")
+    echo "  ${C_DIM}kit version: $kit_ver${C_RST}"
+  fi
+else
+  check_fail ".harness-kit/installed.json 없음"
+fi
+HK_CONFIG_FILE="$TARGET/.harness-kit/harness.config.json"
+if [ -f "$HK_CONFIG_FILE" ]; then
+  check_pass ".harness-kit/harness.config.json 존재"
+  if command -v jq >/dev/null; then
+    _cbd=$(jq -r '.backlogDir // "backlog"' "$HK_CONFIG_FILE" 2>/dev/null)
+    _csd=$(jq -r '.specsDir   // "specs"'  "$HK_CONFIG_FILE" 2>/dev/null)
+    echo "  ${C_DIM}backlogDir: ${_cbd:-backlog}  specsDir: ${_csd:-specs}${C_RST}"
+  fi
+fi
 if [ -f "$STATE" ]; then
   check_pass ".claude/state/current.json 존재"
   if command -v jq >/dev/null; then
-    kit_ver=$(jq -r '.kitVersion // "unknown"' "$STATE")
     plan_accepted=$(jq -r '.planAccepted // false' "$STATE")
-    echo "  ${C_DIM}kit version: $kit_ver${C_RST}"
     echo "  ${C_DIM}plan accepted: $plan_accepted${C_RST}"
   fi
 else
@@ -142,12 +169,12 @@ echo ""
 
 # ========== 6. Hook 권한 ==========
 echo "[6/7] Hook 권한"
-if [ -d "$TARGET/scripts/harness/hooks" ]; then
-  hook_count=$(find "$TARGET/scripts/harness/hooks" -maxdepth 1 -name '*.sh' 2>/dev/null | wc -l | tr -d ' ')
+if [ -d "$TARGET/.harness-kit/hooks" ]; then
+  hook_count=$(find "$TARGET/.harness-kit/hooks" -maxdepth 1 -name '*.sh' 2>/dev/null | wc -l | tr -d ' ')
   if [ "$hook_count" -eq 0 ]; then
-    check_warn "hook 스크립트 없음 (Phase 3-6 미완 또는 --no-hooks 설치)"
+    check_warn "hook 스크립트 없음 (--no-hooks 설치 또는 hooks 미완성)"
   else
-    for f in "$TARGET/scripts/harness/hooks"/*.sh; do
+    for f in "$TARGET/.harness-kit/hooks"/*.sh; do
       if [ -x "$f" ]; then
         check_pass "$(basename "$f") (executable)"
       else
@@ -155,6 +182,8 @@ if [ -d "$TARGET/scripts/harness/hooks" ]; then
       fi
     done
   fi
+else
+  check_warn ".harness-kit/hooks/ 없음"
 fi
 echo ""
 

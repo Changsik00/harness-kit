@@ -4,24 +4,10 @@
 > sdd 가 마커 사이를 자동 갱신하므로 마커 (`<!-- sdd:... -->`) 는 그대로 두세요.
 > 🧊 Icebox 섹션만 사람이 직접 편집합니다.
 
-## 🔴 NOW
-
-<!-- sdd:now:start -->
-spec-8-001-queue-redesign  [phase-8]
-<!-- sdd:now:end -->
-
-## ⏭ NEXT
-
-<!-- sdd:next:start -->
-spec-8-002-phase-base-branch  [phase-8]
-<!-- sdd:next:end -->
-
----
-
 ## 📦 진행 중 Phase
 
 <!-- sdd:active:start -->
-(active phase 없음. `bin/sdd phase new <slug>` 로 시작)
+- **phase-9** — 설치 충돌 방어 — 디렉토리 은닉 + CLAUDE.md @import + 충돌 감지 — 13 spec — 다음: (spec 없음)
 <!-- sdd:active:end -->
 
 ## 📥 spec-x 대기
@@ -67,8 +53,8 @@ spec-8-002-phase-base-branch  [phase-8]
 | `sdd phase new <slug>` | 새 Phase 생성 → 진행 중으로 등록 |
 | `sdd phase new <slug> --base` | Phase base branch 모드로 생성 (opt-in) |
 | `sdd spec new <slug>` | 진행 중 Phase에 다음 spec 등록 |
-| `sdd plan accept` | spec Plan Accept → NOW 갱신 |
-| `sdd archive` | spec 완료 처리 → Merged 갱신 + NEXT 갱신 |
+| `sdd plan accept` | spec Plan Accept → 실행 모드 진입 |
+| `sdd archive` | spec 완료 처리 → Merged 갱신 + state 초기화 + NEXT 안내 |
 | `sdd phase done <N>` | Phase 완료 → 완료 섹션으로 이동 |
 
 자세한 사용법: `agent/constitution.md` §3 Work Type Model, `agent/agent.md`

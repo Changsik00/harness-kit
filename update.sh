@@ -1,9 +1,6 @@
 #!/usr/bin/env bash
 # harness-kit updater
 #
-# 기존 설치 위에 새 키트 버전을 덮어씁니다.
-# state / 사용자 산출물(specs/, backlog/)은 보존됩니다.
-#
 # Usage:
 #   ./update.sh                    # 현재 디렉토리 갱신
 #   ./update.sh /path/to/project   # 지정 디렉토리 갱신
@@ -11,19 +8,16 @@
 #   ./update.sh --shell=bash       # 셸 재선택 (bash 또는 zsh)
 #
 # 동작:
-#   1. 설치 버전 vs 키트 버전 비교
-#   2. 해당 구간 마이그레이션 실행 (폐기 파일 제거 + 신규 기능 안내)
-#   3. 구버전 백업 디렉토리 정리 안내
-#   4. install.sh --yes 호출 (state 보존 후 복원)
-#   5. doctor.sh 실행
+#   1. prefix / 버전 읽기 (uninstall 전)
+#   2. uninstall --yes --keep-state
+#   3. install --yes [--prefix ...] [--shell ...]
+#   4. cleanup (백업 디렉토리 정리)
+#   5. doctor
 
 set -euo pipefail
 
 KIT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-# ============================================================
-# 색상
-# ============================================================
 if [ -t 1 ]; then
   C_RED=$'\033[31m'; C_GRN=$'\033[32m'; C_YLW=$'\033[33m'
   C_CYN=$'\033[36m'; C_DIM=$'\033[2m'; C_RST=$'\033[0m'
@@ -36,9 +30,7 @@ warn() { echo "${C_YLW}⚠${C_RST} $*" >&2; }
 err()  { echo "${C_RED}✗${C_RST} $*" >&2; }
 die()  { err "$*"; exit 1; }
 
-# ============================================================
-# 인자 파싱
-# ============================================================
+# ── 인자 파싱 ────────────────────────────────────────────────
 TARGET=""
 ASSUME_YES=0
 SHELL_ARG=""
@@ -47,216 +39,138 @@ for arg in "$@"; do
   case "$arg" in
     --yes|-y)  ASSUME_YES=1 ;;
     --shell=*) SHELL_ARG="$arg" ;;
-    -h|--help)
-      sed -n '2,10p' "$0" | sed 's/^# \{0,1\}//'
-      exit 0
-      ;;
-    -*)
-      die "알 수 없는 옵션: $arg"
-      ;;
-    *)
-      [ -z "$TARGET" ] || die "대상 디렉토리는 하나만 지정 가능"
-      TARGET="$arg"
-      ;;
+    -h|--help) sed -n '2,10p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
+    -*)        die "알 수 없는 옵션: $arg" ;;
+    *)         [ -z "$TARGET" ] || die "대상 디렉토리는 하나만 지정 가능"; TARGET="$arg" ;;
   esac
 done
-
 [ -z "$TARGET" ] && TARGET="$(pwd)"
 TARGET="$(cd "$TARGET" 2>/dev/null && pwd)" || die "대상 디렉토리가 존재하지 않음"
 
-# ============================================================
-# 설치 확인
-# ============================================================
-STATE_FILE="$TARGET/.claude/state/current.json"
-if [ ! -f "$STATE_FILE" ]; then
-  err "$TARGET 에 harness-kit 이 설치되어 있지 않습니다."
-  echo "  최초 설치: $KIT_DIR/install.sh $TARGET"
-  exit 1
-fi
+INSTALLED_JSON="$TARGET/.harness-kit/installed.json"
+[ -f "$INSTALLED_JSON" ] || die "$TARGET 에 harness-kit 이 설치되어 있지 않습니다. (설치: $KIT_DIR/install.sh $TARGET)"
 
-# ============================================================
-# 버전 비교 유틸
-# ============================================================
-# X.Y.Z → 정수 (비교용)
-_ver_num() {
-  echo "$1" | awk -F. '{ printf "%d%03d%03d", $1, $2, $3 }'
-}
-# $1 > $2 이면 true
-_ver_gt() { [ "$(_ver_num "$1")" -gt "$(_ver_num "$2")" ]; }
-# $1 <= $2 이면 true
-_ver_lte() { [ "$(_ver_num "$1")" -le "$(_ver_num "$2")" ]; }
-
-# ============================================================
-# 버전 읽기
-# ============================================================
-PREV_VER=$(jq -r '.kitVersion // "0.0.0"' "$STATE_FILE")
+# ── 버전 / prefix 읽기 (uninstall 전에) ──────────────────────
+PREV_VER=$(jq -r '.kitVersion // "unknown"' "$INSTALLED_JSON")
 NEW_VER=$(cat "$KIT_DIR/VERSION")
+
+HK_PREFIX=""
+HK_GITIGNORE_ARG=""
+_CONFIG="$TARGET/.harness-kit/harness.config.json"
+if [ -f "$_CONFIG" ] && command -v jq >/dev/null 2>&1; then
+  _bd=$(jq -r '.backlogDir // empty' "$_CONFIG" 2>/dev/null || true)
+  # backlogDir 에서 prefix 역산: "hk-backlog" → "hk-"
+  if [ -n "$_bd" ] && [ "$_bd" != "backlog" ]; then
+    HK_PREFIX="${_bd%backlog}"
+  fi
+  # gitignore 설정 보존
+  _gi=$(jq -r 'if has("gitignore") then (.gitignore | tostring) else "true" end' "$_CONFIG" 2>/dev/null || echo "true")
+  if [ "$_gi" = "false" ]; then
+    HK_GITIGNORE_ARG="--no-gitignore"
+  else
+    HK_GITIGNORE_ARG="--gitignore"
+  fi
+fi
 
 echo ""
 log "버전: ${C_YLW}${PREV_VER}${C_RST} → ${C_GRN}${NEW_VER}${C_RST}"
+[ -n "$HK_PREFIX" ] && log "prefix: ${C_CYN}${HK_PREFIX}${C_RST}"
 echo ""
 
-if [ "$PREV_VER" = "$NEW_VER" ]; then
-  warn "이미 ${NEW_VER} 입니다. 재설치를 진행합니다."
-fi
-
-# 다운그레이드 경고
-if _ver_gt "$PREV_VER" "$NEW_VER"; then
-  warn "다운그레이드: ${PREV_VER} → ${NEW_VER}"
-  if [ "$ASSUME_YES" = "0" ]; then
-    printf "  계속 진행할까요? [y/N] "
-    read -r _ans < /dev/tty 2>/dev/null || _ans=""
-    case "$_ans" in y|Y) ;; *) log "취소됨"; exit 0 ;; esac
-  fi
-fi
-
-# ============================================================
-# 마이그레이션 실행
-# ============================================================
-MIG_DIR="$KIT_DIR/sources/migrations"
-MIG_COUNT=0
-
-if [ -d "$MIG_DIR" ]; then
-  # 버전 순 정렬 실행
-  for mig in $(ls "$MIG_DIR"/*.sh 2>/dev/null | sort -V); do
-    mig_ver="$(basename "$mig" .sh)"
-
-    # 이 마이그레이션이 prev < mig_ver <= new_ver 구간에 해당하는지 확인
-    if _ver_gt "$mig_ver" "$PREV_VER" && _ver_lte "$mig_ver" "$NEW_VER"; then
-      log "마이그레이션 적용: ${C_CYN}${mig_ver}${C_RST}"
-
-      # 함수 정의 로드
-      # shellcheck source=/dev/null
-      source "$mig"
-
-      # ── 폐기 파일 제거 ──────────────────────────────────
-      REMOVED=0
-      SKIPPED=0
-      while IFS= read -r rel_path; do
-        [ -z "$rel_path" ] && continue
-        full_path="$TARGET/$rel_path"
-        [ -f "$full_path" ] || continue
-
-        if [ "$ASSUME_YES" = "1" ]; then
-          rm -f "$full_path"
-          echo "  ${C_DIM}[삭제]${C_RST} $rel_path"
-          REMOVED=$((REMOVED + 1))
-        else
-          printf "  삭제: ${C_YLW}%-50s${C_RST} [Y/n] " "$rel_path"
-          read -r _ans < /dev/tty 2>/dev/null || _ans=""
-          case "$_ans" in
-            n|N)
-              echo "  ${C_DIM}[건너뜀]${C_RST} $rel_path"
-              SKIPPED=$((SKIPPED + 1))
-              ;;
-            *)
-              rm -f "$full_path"
-              REMOVED=$((REMOVED + 1))
-              ;;
-          esac
-        fi
-      done < <(migration_cleanup)
-
-      if [ "$REMOVED" -gt 0 ] || [ "$SKIPPED" -gt 0 ]; then
-        ok "폐기 파일: ${REMOVED}개 삭제, ${SKIPPED}개 유지"
-      else
-        echo "  ${C_DIM}(폐기 파일 없음)${C_RST}"
-      fi
-
-      # ── 신규 기능 안내 ──────────────────────────────────
-      echo ""
-      echo "${C_CYN}━━ v${mig_ver} 신규 기능 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${C_RST}"
-      migration_new_features
-      echo "${C_CYN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${C_RST}"
-
-      MIG_COUNT=$((MIG_COUNT + 1))
-
-      # 함수 정의 언로드 (다음 마이그레이션과 충돌 방지)
-      unset -f migration_cleanup migration_new_features 2>/dev/null || true
-    fi
+# ── preflight 스캔 ────────────────────────────────────────────
+semver_lt() {
+  local IFS=.
+  local i
+  # shellcheck disable=SC2206
+  local a=($1) b=($2)
+  for ((i=0; i<3; i++)); do
+    local x=${a[i]:-0} y=${b[i]:-0}
+    if ((x < y)); then return 0; fi
+    if ((x > y)); then return 1; fi
   done
+  return 1
+}
+
+_pf_warn=0
+
+if semver_lt "$NEW_VER" "$PREV_VER"; then
+  warn "다운그레이드: $PREV_VER → $NEW_VER"
+  _pf_warn=$((_pf_warn + 1))
 fi
 
-# ============================================================
-# 구버전 백업 디렉토리 정리
-# ============================================================
-BACKUP_DIRS=()
-while IFS= read -r -d '' d; do
-  BACKUP_DIRS+=("$d")
-done < <(find "$TARGET" -maxdepth 1 -name '.harness-backup-*' -type d -print0 2>/dev/null)
-
-if [ "${#BACKUP_DIRS[@]}" -gt 0 ]; then
-  echo ""
-  warn "구버전 백업 디렉토리 ${#BACKUP_DIRS[@]}개 발견:"
-  for d in "${BACKUP_DIRS[@]}"; do
-    echo "  ${C_DIM}$(basename "$d")${C_RST}"
-  done
-  echo "  (백업 역할은 git history 가 대체합니다. 삭제 권장)"
-
-  if [ "$ASSUME_YES" = "1" ]; then
-    rm -rf "${BACKUP_DIRS[@]}"
-    ok "백업 디렉토리 삭제 완료"
-  else
-    printf "  모두 삭제할까요? [y/N] "
-    read -r _ans < /dev/tty 2>/dev/null || _ans=""
-    case "$_ans" in
-      y|Y)
-        rm -rf "${BACKUP_DIRS[@]}"
-        ok "백업 디렉토리 삭제 완료"
-        ;;
-      *)
-        echo "  ${C_DIM}(건너뜀)${C_RST}"
-        ;;
-    esac
-  fi
+if [ -f "$TARGET/agent/constitution.md" ] || [ -f "$TARGET/scripts/harness/bin/sdd" ]; then
+  warn "v0.3 레이아웃 잔재 감지 — cleanup 대상"
+  _pf_warn=$((_pf_warn + 1))
 fi
 
-# ============================================================
-# 현재 state 보존 (install.sh 가 덮어쓰므로 미리 저장)
-# ============================================================
-SAVED_PHASE=$(jq -r '.phase'          "$STATE_FILE")
-SAVED_SPEC=$(jq -r  '.spec'           "$STATE_FILE")
-SAVED_PLAN=$(jq -r  '.planAccepted'   "$STATE_FILE")
-SAVED_TEST=$(jq -r  '.lastTestPass'   "$STATE_FILE")
+if [ $ASSUME_YES -eq 0 ]; then
+  printf "진행할까요? [y/N] "
+  read -r _ans < /dev/tty 2>/dev/null || _ans=""
+  case "$_ans" in y|Y) ;; *) log "취소됨"; exit 0 ;; esac
+fi
 
-# ============================================================
-# install.sh 실행
-# ============================================================
-echo ""
-log "파일 설치 중..."
-"$KIT_DIR/install.sh" --yes $SHELL_ARG "$TARGET"
+# ── 1. uninstall (state 보존) ────────────────────────────────
+log "기존 설치 제거 중..."
+"$KIT_DIR/uninstall.sh" --yes --keep-state "$TARGET"
 
-# ============================================================
-# state 복원 (phase / spec / planAccepted / lastTestPass)
-# ============================================================
-if command -v jq >/dev/null 2>&1 && [ -f "$STATE_FILE" ]; then
+# ── 2. state 임시 저장 (install.sh 가 덮어쓰므로) ────────────
+_STATE="$TARGET/.claude/state/current.json"
+_SAVED_PHASE="null"; _SAVED_SPEC="null"; _SAVED_PLAN="false"; _SAVED_TEST="null"
+if command -v jq >/dev/null 2>&1 && [ -f "$_STATE" ]; then
+  _SAVED_PHASE=$(jq '.phase // null'        "$_STATE")
+  _SAVED_SPEC=$(jq  '.spec  // null'        "$_STATE")
+  _SAVED_PLAN=$(jq  '.planAccepted // false' "$_STATE")
+  _SAVED_TEST=$(jq  '.lastTestPass // null'  "$_STATE")
+fi
+
+# ── 3. install ───────────────────────────────────────────────
+log "재설치 중..."
+PREFIX_ARG=""
+[ -n "$HK_PREFIX" ] && PREFIX_ARG="--prefix $HK_PREFIX"
+# shellcheck disable=SC2086
+"$KIT_DIR/install.sh" --yes $SHELL_ARG $PREFIX_ARG $HK_GITIGNORE_ARG "$TARGET"
+
+# ── 4. state 복원 ────────────────────────────────────────────
+if command -v jq >/dev/null 2>&1 && [ -f "$_STATE" ]; then
   _tmp="$(mktemp)"
-  jq \
-    --argjson phase        "$([ "$SAVED_PHASE" = "null" ] && echo 'null' || echo "\"$SAVED_PHASE\"")" \
-    --argjson spec         "$([ "$SAVED_SPEC"  = "null" ] && echo 'null' || echo "\"$SAVED_SPEC\"")"  \
-    --argjson planAccepted "$SAVED_PLAN" \
-    --argjson lastTestPass "$([ "$SAVED_TEST"  = "null" ] && echo 'null' || echo "\"$SAVED_TEST\"")"  \
-    '.phase = $phase | .spec = $spec | .planAccepted = $planAccepted | .lastTestPass = $lastTestPass' \
-    "$STATE_FILE" > "$_tmp"
-  mv "$_tmp" "$STATE_FILE"
-  ok "state 복원 완료 (phase=${SAVED_PHASE}, spec=${SAVED_SPEC})"
+  if jq \
+    --argjson phase        "$_SAVED_PHASE" \
+    --argjson spec         "$_SAVED_SPEC"  \
+    --argjson planAccepted "$_SAVED_PLAN"  \
+    --argjson lastTestPass "$_SAVED_TEST"  \
+    '.phase=$phase | .spec=$spec | .planAccepted=$planAccepted | .lastTestPass=$lastTestPass' \
+    "$_STATE" > "$_tmp" 2>/dev/null; then
+    mv "$_tmp" "$_STATE"
+    ok "state 복원 완료"
+  else
+    warn "state 복원 실패 — 기본값으로 초기화"
+    rm -f "$_tmp"
+  fi
 fi
 
-# ============================================================
-# doctor 점검
-# ============================================================
+# ── 5. cleanup (버전별 정리) ───────────────────────────────
+if [ -f "$KIT_DIR/cleanup.sh" ]; then
+  log "버전별 정리 실행 중..."
+  "$KIT_DIR/cleanup.sh" --from "$PREV_VER" --to "$NEW_VER" --yes "$TARGET" || warn "cleanup 일부 실패 (계속 진행)"
+fi
+
+# ── 6. cleanup (백업 디렉토리 정리) ─────────────────────────
+_backup_count=0
+while IFS= read -r -d '' d; do
+  rm -rf "$d"
+  _backup_count=$((_backup_count + 1))
+done < <(find "$TARGET" -maxdepth 1 \
+  \( -name '.harness-backup-*' -o -name '.harness-uninstall-backup-*' \) \
+  -type d -print0 2>/dev/null)
+[ "$_backup_count" -gt 0 ] && ok "백업 디렉토리 ${_backup_count}개 정리"
+
+# ── 7. doctor ────────────────────────────────────────────────
 echo ""
 log "doctor 점검"
 "$KIT_DIR/doctor.sh" "$TARGET" || true
 
-# ============================================================
-# 완료
-# ============================================================
 echo ""
 echo "${C_GRN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${C_RST}"
 echo "${C_GRN}업데이트 완료: ${PREV_VER} → ${NEW_VER}${C_RST}"
-[ "$MIG_COUNT" -gt 0 ] && echo "  마이그레이션 ${MIG_COUNT}건 적용"
-echo ""
-echo "  CHANGELOG: $KIT_DIR/CHANGELOG.md"
 echo "${C_GRN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${C_RST}"
 echo ""
