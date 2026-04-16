@@ -7,7 +7,7 @@
 ## 📦 진행 중 Phase
 
 <!-- sdd:active:start -->
-- **phase-10** — sdd 상태 진단 신뢰성 강화 — 2 spec — 다음: (spec 없음)
+- **phase-10** — sdd 상태 진단 신뢰성 강화 — 3 spec — 다음: (spec 없음)
 <!-- sdd:active:end -->
 
 ## 📥 spec-x 대기
