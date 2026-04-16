@@ -23,6 +23,7 @@
       "Bash(find:*)",
       "Bash(gh:*)",
       "Bash(git:*)",
+      "Bash(git push:*)",
       "Bash(grep:*)",
       "Bash(head:*)",
       "Bash(jq:*)",
