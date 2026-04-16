@@ -886,13 +886,15 @@ _check_phase_all_merged() {
   local phase_file="$SDD_BACKLOG/${phase_id}.md"
   [ -f "$phase_file" ] || return
 
+  # Merged가 아닌 모든 상태를 미완료로 카운트 ($5 필드 직접 비교)
   local remaining
   remaining=$(awk -F'|' '
     /<!-- sdd:specs:start -->/ { in_t=1; next }
     /<!-- sdd:specs:end -->/ { in_t=0; next }
-    in_t && (/\| Backlog \|/ || /\| In Progress \|/) {
-      gsub(/[[:space:]]/, "", $2)
-      if ($2 != "" && $2 !~ /^-+$/ && $2 !~ /^ID$/) { print $2 }
+    in_t {
+      id = $2; gsub(/[[:space:]]/, "", id); gsub(/`/, "", id)
+      st = $5; gsub(/[[:space:]]/, "", st)
+      if (id != "" && id !~ /^-+$/ && id !~ /^ID$/ && st != "Merged" && st != "") print id
     }
   ' "$phase_file" | wc -l | tr -d ' ')
 
@@ -901,6 +903,44 @@ _check_phase_all_merged() {
     echo "🎉 모든 Spec이 Merged 상태입니다."
     echo "   sdd phase done 을 실행하여 phase를 완료하세요."
     echo ""
+  else
+    # git 기반 교차 확인: phase.md에 non-Merged가 있지만 git에 모두 머지됨
+    local base_branch="main"
+    if [ -f "$SDD_STATE" ]; then
+      local bb
+      bb="$(jq -r '.baseBranch // empty' "$SDD_STATE" 2>/dev/null)"
+      [ -n "$bb" ] && base_branch="$bb"
+    fi
+
+    local git_log_cache
+    git_log_cache="$(git -C "$SDD_ROOT" log --oneline "$base_branch" 2>/dev/null || true)"
+
+    local all_in_git=1
+    local non_merged_ids
+    non_merged_ids=$(awk -F'|' '
+      /<!-- sdd:specs:start -->/ { in_t=1; next }
+      /<!-- sdd:specs:end -->/ { in_t=0; next }
+      in_t {
+        id = $2; gsub(/[[:space:]]/, "", id); gsub(/`/, "", id)
+        st = $5; gsub(/[[:space:]]/, "", st)
+        if (id != "" && id !~ /^-+$/ && id !~ /^ID$/ && st != "Merged" && st != "") print id
+      }
+    ' "$phase_file")
+
+    while IFS= read -r sid; do
+      [ -z "$sid" ] && continue
+      if ! echo "$git_log_cache" | grep -q "$sid"; then
+        all_in_git=0
+        break
+      fi
+    done <<< "$non_merged_ids"
+
+    if [ "$all_in_git" -eq 1 ]; then
+      echo ""
+      echo "ℹ git 기준 모든 spec이 머지 완료되었지만, phase.md에 non-Merged 상태가 남아있습니다."
+      echo "  sdd archive 실행 후 phase done 가능 여부를 확인하세요."
+      echo ""
+    fi
   fi
 }
 
