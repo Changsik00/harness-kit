@@ -60,7 +60,7 @@
 | `spec-10-001` | archive-status-fix | P1 | Merged | `specs/spec-10-001-archive-status-fix/` |
 | `spec-10-002` | status-cross-check | P1 | Merged | `specs/spec-10-002-status-cross-check/` |
 | `spec-10-003` | spec-completeness | P2 | Merged | `specs/spec-10-003-spec-completeness/` |
-| `spec-10-004` | phase-done-accuracy | P2 | Backlog | `specs/spec-10-004-phase-done-accuracy/` |
+| `spec-10-004` | phase-done-accuracy | P2 | Merged | `specs/spec-10-004-phase-done-accuracy/` |
 <!-- sdd:specs:end -->
 
 ### spec-10-001 — archive 상태 전이 수정
