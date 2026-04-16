@@ -622,7 +622,7 @@ phase_show() {
   lines=$(wc -l < "$file" | tr -d ' ')
   echo "${C_BLD}$id${C_RST}  ($lines lines)"
   echo "  경로: $file"
-  [ $archived -eq 1 ] && echo "  ${C_YEL}⚠ archived${C_RST}"
+  [ $archived -eq 1 ] && echo "  ${C_YLW}⚠ archived${C_RST}"
   echo "  Specs (실제 디렉토리):"
   local s
   for s in "$SDD_SPECS"/spec-${pn}-*; do
@@ -811,7 +811,7 @@ spec_show() {
     fi
   fi
   echo "${C_BLD}$id${C_RST}"
-  [ $archived -eq 1 ] && echo "  ${C_YEL}⚠ archived${C_RST}"
+  [ $archived -eq 1 ] && echo "  ${C_YLW}⚠ archived${C_RST}"
   echo "  경로: $dir"
   echo "  파일:"
   for f in spec plan task walkthrough pr_description; do
