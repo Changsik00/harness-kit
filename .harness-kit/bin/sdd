@@ -47,8 +47,10 @@ sdd — harness-kit 메타 명령
   test passed                   .claude/state/current.json 에 lastTestPass 갱신
                                 (테스트 직후 호출 — hook 가 검사함)
 
-  archive [--check]             walkthrough/pr_description 작성 검증 (--check 시 변경 없음)
-                                통과 시 docs(spec-N-NNN): archive ... commit 생성
+  ship [--check]                walkthrough/pr_description 작성 검증 (--check 시 변경 없음)
+                                통과 시 docs(spec-N-NNN): ship ... commit 생성
+
+  archive                       (deprecated → ship 사용)
 
   hooks [status]                hook 모드 현황 출력
   hooks block|warn|off <name>  특정 hook 모드 전환 안내
@@ -138,7 +140,7 @@ _status_diagnose() {
       while IFS='|' read -r sid sstatus; do
         [ -z "$sid" ] && continue
         if echo "$git_log_cache" | grep -q "$sid"; then
-          warnings="${warnings}  ⚠ ${sid}: phase.md(${sstatus}) ↔ git(머지됨) → sdd archive 실행 권장\n"
+          warnings="${warnings}  ⚠ ${sid}: phase.md(${sstatus}) ↔ git(머지됨) → sdd ship 실행 권장\n"
         fi
       done <<< "$non_merged"
     fi
@@ -209,7 +211,7 @@ _status_diagnose() {
 }
 
 # phase.md spec 표에서 다음 처리 필요한 spec ID를 반환한다.
-# 우선순위: Done(archive 필요) > Backlog(새 작업). 없으면 '없음'.
+# 우선순위: Done(ship 필요) > Backlog(새 작업). 없으면 '없음'.
 compute_next_spec() {
   local phase_id="$1"
   local phase_file="$SDD_BACKLOG/${phase_id}.md"
@@ -834,9 +836,9 @@ test_passed() {
 }
 
 # ============================================================
-# archive
+# ship (was: archive)
 # ============================================================
-cmd_archive() {
+cmd_ship() {
   local check_only=0
   for a in "$@"; do
     [ "$a" = "--check" ] && check_only=1
@@ -857,11 +859,11 @@ cmd_archive() {
   [ $missing -eq 1 ] && exit 1
 
   if [ $check_only -eq 1 ]; then
-    ok "archive 검증 통과 (변경 없음)"
+    ok "ship 검증 통과 (변경 없음)"
     return 0
   fi
 
-  # archive commit (사용자 동의 가정 — 본 명령은 실행 단계)
+  # ship commit (사용자 동의 가정 — 본 명령은 실행 단계)
   local spec_id
   spec_id="$(state_get spec)"
   # spec-{phaseN}-{seq}-{slug} → spec-{phaseN}-{seq}
@@ -869,8 +871,8 @@ cmd_archive() {
   scope="$(echo "$spec_id" | awk -F- '{print $1"-"$2"-"$3}')"
   log "git add ..."
   git -C "$SDD_ROOT" add "$spec_dir/walkthrough.md" "$spec_dir/pr_description.md"
-  git -C "$SDD_ROOT" commit -m "docs(${scope}): archive walkthrough and pr description"
-  ok "archive commit 완료"
+  git -C "$SDD_ROOT" commit -m "docs(${scope}): ship walkthrough and pr description"
+  ok "ship commit 완료"
 
   # phase.md spec 상태 → Merged 자동 갱신
   local phase_id
@@ -881,7 +883,7 @@ cmd_archive() {
       local tmp_pf
       tmp_pf="$(mktemp)"
       # 상태 전이 모델: Backlog → Active → In Progress → Done → Merged
-      # archive는 Active/In Progress/Done 어느 상태에서든 Merged로 전환
+      # ship은 Active/In Progress/Done 어느 상태에서든 Merged로 전환
       awk -v sid="$spec_id" '
         index($0, sid) && (/\| In Progress \|/ || /\| Active \|/ || /\| Done \|/) {
           sub(/\| In Progress \|/, "| Merged |")
@@ -976,7 +978,7 @@ _check_phase_all_merged() {
     if [ "$all_in_git" -eq 1 ]; then
       echo ""
       echo "ℹ git 기준 모든 spec이 머지 완료되었지만, phase.md에 non-Merged 상태가 남아있습니다."
-      echo "  sdd archive 실행 후 phase done 가능 여부를 확인하세요."
+      echo "  sdd ship 실행 후 phase done 가능 여부를 확인하세요."
       echo ""
     fi
   fi
@@ -1091,7 +1093,8 @@ main() {
     plan)    cmd_plan "$@" ;;
     task)    cmd_task "$@" ;;
     test)    cmd_test "$@" ;;
-    archive) cmd_archive "$@" ;;
+    ship)    cmd_ship "$@" ;;
+    archive) warn "sdd archive 는 deprecated 됩니다. sdd ship 을 사용하세요."; cmd_ship "$@" ;;
     queue)   cmd_queue "$@" ;;
     hooks)   cmd_hooks "$@" ;;
     specx)   cmd_specx "$@" ;;
