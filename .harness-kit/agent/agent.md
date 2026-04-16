@@ -185,7 +185,7 @@ When passing a task with `[-]`, the Agent MUST:
 
 | Work Type | After PR Merge / Commit |
 |---|---|
-| **Spec (SDD-P)** | `sdd archive` auto-updates phase.md → Merged. If all specs Merged, run `sdd phase done`. |
+| **Spec (SDD-P)** | `sdd archive` auto-updates phase.md → Merged, resets state.json (spec=null, planAccepted=false), outputs NEXT spec guidance. If all specs Merged, run `sdd phase done`. |
 | **spec-x (SDD-x)** | Run `sdd specx done <slug>` to move item from specx → done in queue.md. |
 | **FF** | No `sdd` state changes. Do NOT modify `state.json` — FF work is invisible to state. |
 | **Phase done** | Run `/hk-phase-ship`: verify success criteria + run integration tests + get User go/no-go + create Phase PR + `sdd phase done`. |
@@ -197,6 +197,18 @@ When passing a task with `[-]`, the Agent MUST:
     4. **Verify task.md**: Ensure zero `[ ]` checkboxes remain.
     5. **Push**: `git push -u origin spec-{phaseN}-{seq}-{slug}`.
     6. **Ship**: Notify the User. The Agent MAY create a PR via `/hk-pr-gh` or `/hk-pr-bb` with User confirmation.
+
+### 6.3.1 Post-Merge Protocol
+
+When the User signals that a PR has been merged (e.g., "머지 했어", "병합 완료", "merged"), the Agent MUST:
+
+1. **Run `sdd status`** to verify current state (spec should be `null` after `sdd archive`).
+2. **Check NEXT**: `sdd status` outputs the next Backlog spec from phase.md.
+3. **Propose next step**: If NEXT exists, suggest starting it: `sdd spec new <slug>`.
+   If no NEXT (all specs done), suggest phase completion: `/hk-phase-ship`.
+4. **Wait for User approval** before proceeding.
+
+This protocol ensures context continuity across PR boundaries — the Agent always knows "what's next" without the User having to manually look up phase.md.
 
 ### 6.4 Bash Single-Command Principle
 

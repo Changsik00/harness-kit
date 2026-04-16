@@ -329,7 +329,7 @@ queue_set_active_progress() {
   [ -z "$phase_id" ] || [ "$phase_id" = "null" ] && return 0
 
   local pn="${phase_id#phase-}"
-  local total merged active_spec next_spec
+  local total active_spec
   total=$(find "$SDD_SPECS" -maxdepth 1 -type d -name "spec-${pn}-*" 2>/dev/null | wc -l | tr -d ' ')
   active_spec="$(state_get spec)"
   [ "$active_spec" = "null" ] && active_spec=""
@@ -686,14 +686,32 @@ cmd_archive() {
       local tmp_pf
       tmp_pf="$(mktemp)"
       awk -v sid="$spec_id" '
-        index($0, sid) && /\| In Progress \|/ {
+        index($0, sid) && (/\| In Progress \|/ || /\| Active \|/) {
           sub(/\| In Progress \|/, "| Merged |")
+          sub(/\| Active \|/, "| Merged |")
         }
         { print }
       ' "$phase_file" > "$tmp_pf" && mv "$tmp_pf" "$phase_file"
       ok "phase.md spec 상태 → Merged: $spec_id"
     else
       warn "phase.md 없음, 수동 갱신 필요: $phase_file"
+    fi
+
+    # state 초기화 — 이 spec 작업 완료
+    state_set spec "null"
+    state_set planAccepted "false"
+
+    # queue.md active 섹션 갱신
+    queue_set_active_progress
+
+    # NEXT spec 안내
+    local next
+    next="$(compute_next_spec "$phase_id")"
+    if [ "$next" != "없음" ]; then
+      local next_slug="${next#*-*-*-}"
+      log "⏭ 다음: $next → sdd spec new $next_slug"
+    else
+      log "⏭ 다음 Backlog spec 없음"
     fi
 
     # 모든 spec Merged 여부 확인 → phase done 유도
