@@ -441,7 +441,7 @@ phase_new() {
       | sed 's|.*/phase-||;s|\.md$||' | sort -n | tail -1)
   [ -n "$n" ] && next=$((n+1))
 
-  local id="phase-${next}"
+  local id="phase-$(printf '%02d' "$next")"
   local file="$SDD_BACKLOG/${id}.md"
   [ -f "$file" ] && die "이미 존재: $file"
 
