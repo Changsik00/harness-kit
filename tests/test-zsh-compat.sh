@@ -113,18 +113,18 @@ else
 fi
 echo ""
 
-# ── Check 9: sources/ ↔ scripts/harness/ 동기화
-echo "▶ Check 9: sources/ ↔ scripts/harness/ 동기화"
+# ── Check 9: sources/ ↔ .harness-kit/ 동기화
+echo "▶ Check 9: sources/ ↔ .harness-kit/ 동기화"
 sync_ok="ok"
 for f in hooks/_lib.sh hooks/check-branch.sh hooks/check-plan-accept.sh hooks/check-test-passed.sh; do
-  if diff -q "$ROOT/sources/$f" "$ROOT/scripts/harness/$f" >/dev/null 2>&1; then
+  if diff -q "$ROOT/sources/$f" "$ROOT/.harness-kit/$f" >/dev/null 2>&1; then
     check "$f 동기화 OK" "ok"
   else
     check "$f 동기화 OK" "fail"
     sync_ok="fail"
   fi
 done
-if diff -q "$ROOT/sources/bin/sdd" "$ROOT/scripts/harness/bin/sdd" >/dev/null 2>&1; then
+if diff -q "$ROOT/sources/bin/sdd" "$ROOT/.harness-kit/bin/sdd" >/dev/null 2>&1; then
   check "sdd 동기화 OK" "ok"
 else
   check "sdd 동기화 OK" "fail"
@@ -148,7 +148,7 @@ echo ""
 
 # ── Check 11: sdd hooks 서브커맨드 동작 (배열 제거 후)
 echo "▶ Check 11: sdd hooks 서브커맨드 동작"
-hooks_output="$(bash "$ROOT/scripts/harness/bin/sdd" hooks 2>/dev/null || true)"
+hooks_output="$(bash "$ROOT/.harness-kit/bin/sdd" hooks 2>/dev/null || true)"
 if echo "$hooks_output" | grep -q 'check-branch.sh'; then
   check "sdd hooks 출력에 check-branch.sh 표시" "ok"
 else
