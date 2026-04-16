@@ -588,7 +588,7 @@ ${C_GRN}━━━━━━━━━━━━━━━━━━━━━━━━
   4) 첫 PHASE / SPEC 만들기
 
 문제가 생기면:
-  - ${C_CYN}./scripts/harness/doctor.sh${C_RST}  (점검)
+  - ${C_CYN}$KIT_DIR/doctor.sh $TARGET${C_RST}  (점검)
   - 제거: ${C_CYN}$KIT_DIR/uninstall.sh $TARGET${C_RST}
 
 EOF

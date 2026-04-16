@@ -7,39 +7,31 @@ set -uo pipefail
 PASS=0; FAIL=0
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
-SDD="$PROJECT_ROOT/scripts/harness/bin/sdd"
-SDD_LIB_DIR="$PROJECT_ROOT/scripts/harness/bin/lib"
-SDD_TEMPLATES_DIR="$PROJECT_ROOT/agent/templates"
+SDD="$PROJECT_ROOT/sources/bin/sdd"
+SDD_LIB_DIR="$PROJECT_ROOT/sources/bin/lib"
+SDD_TEMPLATES_DIR="$PROJECT_ROOT/sources/templates"
 
 ok()   { echo "  ✅ PASS: $*"; ((PASS++)); }
 fail() { echo "  ❌ FAIL: $*"; ((FAIL++)); }
 
 # ─────────────────────────────────────────────────────────
 # Fixture 설정 헬퍼
-# sdd 는 ${BASH_SOURCE[0]} 기준으로 lib 를 찾으므로
-# bin/lib/ 하위에 심링크를 생성해야 함
 # ─────────────────────────────────────────────────────────
 make_fixture() {
   local dir="$(mktemp -d)"
   mkdir -p "$dir/.claude/state"
   mkdir -p "$dir/backlog"
-  mkdir -p "$dir/scripts/harness/bin/lib"
-  mkdir -p "$dir/agent/templates"
+  mkdir -p "$dir/.harness-kit/bin/lib"
+  mkdir -p "$dir/.harness-kit/agent/templates"
 
-  # sdd 바이너리 심링크 (bin/ 에 위치)
-  ln -s "$SDD" "$dir/scripts/harness/bin/sdd"
-
-  # lib 심링크 (bin/lib/ 에 위치 — sdd 가 ${BASH_SOURCE[0]} 기준으로 찾음)
+  cp "$SDD" "$dir/.harness-kit/bin/sdd"
   for f in "$SDD_LIB_DIR"/*.sh; do
-    ln -s "$f" "$dir/scripts/harness/bin/lib/$(basename "$f")" 2>/dev/null || true
+    cp "$f" "$dir/.harness-kit/bin/lib/$(basename "$f")"
   done
-
-  # templates 심링크
   for f in "$SDD_TEMPLATES_DIR"/*.md; do
-    ln -s "$f" "$dir/agent/templates/$(basename "$f")" 2>/dev/null || true
+    cp "$f" "$dir/.harness-kit/agent/templates/$(basename "$f")"
   done
 
-  # 초기 state.json
   cat > "$dir/.claude/state/current.json" <<'EOF'
 {
   "kitVersion": "0.3.0",
@@ -51,8 +43,9 @@ make_fixture() {
 }
 EOF
 
-  # git init (sdd_find_root 가 .git 을 찾아야 함)
   git -C "$dir" init -q
+  git -C "$dir" config user.email "test@local"
+  git -C "$dir" config user.name "test"
   git -C "$dir" commit --allow-empty -m "init" -q
 
   echo "$dir"
@@ -67,7 +60,7 @@ echo "Check 1: sdd phase new slug --base → state.json에 baseBranch 저장"
 F1="$(make_fixture)"
 trap "rm -rf '$F1'" EXIT
 
-(cd "$F1" && bash scripts/harness/bin/sdd phase new work-model --base >/dev/null 2>&1)
+(cd "$F1" && bash .harness-kit/bin/sdd phase new work-model --base >/dev/null 2>&1)
 
 phase_n=$(jq -r '.phase // ""' "$F1/.claude/state/current.json" 2>/dev/null)
 expected_base="${phase_n}-work-model"
@@ -88,7 +81,7 @@ echo "Check 2: sdd phase new slug (no --base) → baseBranch = null"
 F2="$(make_fixture)"
 trap "rm -rf '$F1' '$F2'" EXIT
 
-(cd "$F2" && bash scripts/harness/bin/sdd phase new simple-phase >/dev/null 2>&1)
+(cd "$F2" && bash .harness-kit/bin/sdd phase new simple-phase >/dev/null 2>&1)
 
 base_raw=$(jq -r '.baseBranch' "$F2/.claude/state/current.json" 2>/dev/null)
 
@@ -104,7 +97,7 @@ fi
 echo ""
 echo "Check 3: sdd status --json → baseBranch 키 포함"
 
-json_out=$(cd "$F1" && bash scripts/harness/bin/sdd status --json 2>/dev/null)
+json_out=$(cd "$F1" && bash .harness-kit/bin/sdd status --json 2>/dev/null)
 
 if echo "$json_out" | jq -e '.baseBranch != undefined' >/dev/null 2>&1 || echo "$json_out" | grep -q '"baseBranch"'; then
   ok "status --json 출력에 baseBranch 키 존재 (값: $(echo "$json_out" | jq -r '.baseBranch' 2>/dev/null))"
@@ -118,7 +111,7 @@ fi
 echo ""
 echo "Check 4: sdd phase done → baseBranch = null"
 
-(cd "$F1" && bash scripts/harness/bin/sdd phase done >/dev/null 2>&1)
+(cd "$F1" && bash .harness-kit/bin/sdd phase done >/dev/null 2>&1)
 
 after_done=$(jq -r '.baseBranch' "$F1/.claude/state/current.json" 2>/dev/null)
 

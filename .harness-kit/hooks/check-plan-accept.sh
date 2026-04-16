@@ -28,12 +28,11 @@ esac
 
 # 안전 경로 화이트리스트
 case "$rel" in
-  agent/*|agent|\
+  .harness-kit/*|\
   docs/*|docs|\
   backlog/*|backlog|\
   specs/*|specs|\
   .claude/*|.claude|\
-  scripts/harness/*|\
   .gitignore|README.md|CLAUDE.md|VERSION)
     exit 0 ;;
 esac

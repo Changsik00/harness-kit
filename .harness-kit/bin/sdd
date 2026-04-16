@@ -62,9 +62,8 @@ sdd — harness-kit 메타 명령
   HARNESS_TEST_WINDOW_MIN         기본 30 (test passed 만료 분)
 
 문서:
-  agent/constitution.md   거버넌스 규약
-  agent/agent.md          작업 절차
-  docs/USAGE.md           사용자 가이드 (있다면)
+  .harness-kit/agent/constitution.md   거버넌스 규약
+  .harness-kit/agent/agent.md          작업 절차
 EOF
 }
 
