@@ -7,7 +7,7 @@
 ## 📦 진행 중 Phase
 
 <!-- sdd:active:start -->
-- **phase-9** — 설치 충돌 방어 — 디렉토리 은닉 + CLAUDE.md @import + 충돌 감지 — 11 spec — 다음: spec-9-011-backlog-sync
+- **phase-9** — 설치 충돌 방어 — 디렉토리 은닉 + CLAUDE.md @import + 충돌 감지 — 13 spec — 다음: (spec 없음)
 <!-- sdd:active:end -->
 
 ## 📥 spec-x 대기

@@ -61,7 +61,8 @@ harness-kit을 기존 프로젝트에 설치할 때 세 가지 구조적 충돌 
 | `spec-9-009` | preflight-ux | P3 | Done | `specs/spec-9-009-preflight-ux/` |
 | `spec-9-010` | command-path-fix | P1 | Done | `specs/spec-9-010-command-path-fix/` |
 | `spec-9-011` | backlog-sync | P2 | Merged | `specs/spec-9-011-backlog-sync/` |
-| `spec-9-012` | readme-refresh | P2 | Backlog | — |
+| `spec-9-012` | readme-refresh | P2 | Merged | `specs/spec-9-012-readme-refresh/` |
+| `spec-9-013` | auto-ship | P1 | Merged | `specs/spec-9-013-auto-ship/` |
 <!-- sdd:specs:end -->
 
 ### spec-9-001 — 디렉토리 레이아웃 마이그레이션
