@@ -5,6 +5,13 @@ harness-kit의 주요 변경 사항을 버전별로 정리합니다.
 
 ---
 
+## [Unreleased]
+
+### Changed
+- **`sdd archive` → `sdd ship` 리네이밍** — 실제 동작(spec 완료 처리 + 상태 전이)에 맞는 이름으로 변경. 기존 `sdd archive` 호출은 deprecation 경고 후 정상 동작.
+
+---
+
 ## [0.4.0] — 2026-04-11
 
 ### Added

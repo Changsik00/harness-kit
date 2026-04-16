@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-# tests/test-sdd-archive-completion.sh
-# sdd archive 완료 흐름 단위 테스트
-# 검증: phase.md 상태 전이, state.json 초기화, NEXT 안내, specx done
+# tests/test-sdd-ship-completion.sh
+# sdd ship 완료 흐름 단위 테스트 (was: sdd archive)
+# 검증: phase.md 상태 전이, state.json 초기화, NEXT 안내, specx done, deprecated 경로
 
 set -uo pipefail
 
@@ -55,7 +55,7 @@ EOF
 }
 
 # spec 디렉토리 + 필수 파일 생성 헬퍼
-setup_spec_for_archive() {
+setup_spec_for_ship() {
   local dir="$1" phase_id="$2" spec_id="$3"
   local spec_dir="$dir/specs/${spec_id}"
   mkdir -p "$spec_dir"
@@ -91,10 +91,10 @@ EOF
 }
 
 # ─────────────────────────────────────────────────────────
-# Check 1: sdd archive 후 phase.md spec 상태 In Progress → Merged
+# Check 1: sdd ship 후 phase.md spec 상태 In Progress → Merged
 # ─────────────────────────────────────────────────────────
 echo ""
-echo "Check 1: sdd archive → phase.md spec 상태 In Progress → Merged"
+echo "Check 1: sdd ship → phase.md spec 상태 In Progress → Merged"
 
 F1="$(make_fixture)"
 trap "rm -rf '$F1'" EXIT
@@ -109,9 +109,9 @@ cat > "$F1/backlog/phase-1.md" <<'EOF'
 <!-- sdd:specs:end -->
 EOF
 
-setup_spec_for_archive "$F1" "phase-1" "spec-1-001-test-a"
+setup_spec_for_ship "$F1" "phase-1" "spec-1-001-test-a"
 
-(cd "$F1" && bash .harness-kit/bin/sdd archive >/dev/null 2>&1)
+(cd "$F1" && bash .harness-kit/bin/sdd ship >/dev/null 2>&1)
 
 status_after=$(grep "spec-1-001" "$F1/backlog/phase-1.md" | grep -o "Merged" || echo "NOT_MERGED")
 
@@ -122,10 +122,10 @@ else
 fi
 
 # ─────────────────────────────────────────────────────────
-# Check 2: sdd archive 후 phase.md spec 상태 Active → Merged
+# Check 2: sdd ship 후 phase.md spec 상태 Active → Merged
 # ─────────────────────────────────────────────────────────
 echo ""
-echo "Check 2: sdd archive → phase.md spec 상태 Active → Merged"
+echo "Check 2: sdd ship → phase.md spec 상태 Active → Merged"
 
 F2="$(make_fixture)"
 trap "rm -rf '$F1' '$F2'" EXIT
@@ -139,9 +139,9 @@ cat > "$F2/backlog/phase-2.md" <<'EOF'
 <!-- sdd:specs:end -->
 EOF
 
-setup_spec_for_archive "$F2" "phase-2" "spec-2-001-only-one"
+setup_spec_for_ship "$F2" "phase-2" "spec-2-001-only-one"
 
-(cd "$F2" && bash .harness-kit/bin/sdd archive >/dev/null 2>&1)
+(cd "$F2" && bash .harness-kit/bin/sdd ship >/dev/null 2>&1)
 
 status_after2=$(grep "spec-2-001" "$F2/backlog/phase-2.md" | grep -o "Merged" || echo "NOT_MERGED")
 
@@ -152,10 +152,10 @@ else
 fi
 
 # ─────────────────────────────────────────────────────────
-# Check 2b: sdd archive 후 phase.md spec 상태 Done → Merged
+# Check 2b: sdd ship 후 phase.md spec 상태 Done → Merged
 # ─────────────────────────────────────────────────────────
 echo ""
-echo "Check 2b: sdd archive → phase.md spec 상태 Done → Merged"
+echo "Check 2b: sdd ship → phase.md spec 상태 Done → Merged"
 
 F2b="$(make_fixture)"
 trap "rm -rf '$F1' '$F2' '$F2b'" EXIT
@@ -169,9 +169,9 @@ cat > "$F2b/backlog/phase-2b.md" <<'EOF'
 <!-- sdd:specs:end -->
 EOF
 
-setup_spec_for_archive "$F2b" "phase-2b" "spec-2b-001-done-test"
+setup_spec_for_ship "$F2b" "phase-2b" "spec-2b-001-done-test"
 
-(cd "$F2b" && bash .harness-kit/bin/sdd archive >/dev/null 2>&1)
+(cd "$F2b" && bash .harness-kit/bin/sdd ship >/dev/null 2>&1)
 
 status_after2b=$(grep "spec-2b-001" "$F2b/backlog/phase-2b.md" | grep -o "Merged" || echo "NOT_MERGED")
 
@@ -182,12 +182,12 @@ else
 fi
 
 # ─────────────────────────────────────────────────────────
-# Check 3: sdd archive 후 state.json 초기화 (spec=null, planAccepted=false)
+# Check 3: sdd ship 후 state.json 초기화 (spec=null, planAccepted=false)
 # ─────────────────────────────────────────────────────────
 echo ""
-echo "Check 3: sdd archive 후 state.json 초기화"
+echo "Check 3: sdd ship 후 state.json 초기화"
 
-# F1 의 state.json 확인 (Check 1 에서 이미 archive 실행됨)
+# F1 의 state.json 확인 (Check 1 에서 이미 ship 실행됨)
 spec_val=$(jq -r '.spec' "$F1/.claude/state/current.json")
 plan_val=$(jq -r '.planAccepted' "$F1/.claude/state/current.json")
 
@@ -203,7 +203,7 @@ fi
 echo ""
 echo "Check 4: 모든 spec Merged → phase done 유도 메시지"
 
-# F2 에서 spec-2-001 하나뿐이므로 archive 후 모든 spec Merged
+# F2 에서 spec-2-001 하나뿐이므로 ship 후 모든 spec Merged
 # 다시 실행하지 않고 출력을 캡처해야 하므로 새 fixture 생성
 F4="$(make_fixture)"
 trap "rm -rf '$F1' '$F2' '$F4'" EXIT
@@ -217,9 +217,9 @@ cat > "$F4/backlog/phase-4.md" <<'EOF'
 <!-- sdd:specs:end -->
 EOF
 
-setup_spec_for_archive "$F4" "phase-4" "spec-4-001-single"
+setup_spec_for_ship "$F4" "phase-4" "spec-4-001-single"
 
-archive_out4=$(cd "$F4" && bash .harness-kit/bin/sdd archive 2>&1)
+archive_out4=$(cd "$F4" && bash .harness-kit/bin/sdd ship 2>&1)
 
 if echo "$archive_out4" | grep -q "phase done"; then
   ok "phase done 유도 메시지 출력됨"
@@ -246,9 +246,9 @@ cat > "$F5/backlog/phase-5.md" <<'EOF'
 <!-- sdd:specs:end -->
 EOF
 
-setup_spec_for_archive "$F5" "phase-5" "spec-5-001-first"
+setup_spec_for_ship "$F5" "phase-5" "spec-5-001-first"
 
-archive_out5=$(cd "$F5" && bash .harness-kit/bin/sdd archive 2>&1)
+archive_out5=$(cd "$F5" && bash .harness-kit/bin/sdd ship 2>&1)
 
 if echo "$archive_out5" | grep -q "다음:"; then
   ok "NEXT spec 안내 출력됨"
@@ -302,6 +302,37 @@ if [ "$has_in_specx" -eq 0 ] && [ "$has_in_done" -gt 0 ]; then
   ok "spec-x-fix-typo: specx 섹션 제거 + done 섹션 추가"
 else
   fail "specx=$has_in_specx done=$has_in_done (expected: specx=0 done>0)"
+fi
+
+# ─────────────────────────────────────────────────────────
+# Check 7: sdd archive (deprecated) → 경고 출력 + 정상 동작
+# ─────────────────────────────────────────────────────────
+echo ""
+echo "Check 7: sdd archive (deprecated) → 경고 출력 + 정상 동작"
+
+F7="$(make_fixture)"
+trap "rm -rf '$F1' '$F2' '$F4' '$F5' '$F6' '$F7'" EXIT
+
+cat > "$F7/backlog/phase-7.md" <<'EOF'
+# phase-7: test
+<!-- sdd:specs:start -->
+| ID | 슬러그 | 우선순위 | 상태 | 디렉토리 |
+|---|---|:---:|---|---|
+| spec-7-001 | dep-test | P1 | In Progress | `specs/spec-7-001-dep-test/` |
+<!-- sdd:specs:end -->
+EOF
+
+setup_spec_for_ship "$F7" "phase-7" "spec-7-001-dep-test"
+
+archive_out7=$(cd "$F7" && bash .harness-kit/bin/sdd archive 2>&1)
+
+has_deprecation=$(echo "$archive_out7" | grep -c "deprecated" || true)
+status_after7=$(grep "spec-7-001" "$F7/backlog/phase-7.md" | grep -o "Merged" || echo "NOT_MERGED")
+
+if [ "$has_deprecation" -gt 0 ] && [ "$status_after7" = "Merged" ]; then
+  ok "deprecated 경고 출력 + 정상 동작 (Merged)"
+else
+  fail "deprecation=$has_deprecation status=$status_after7 (expected: deprecation>0, Merged)"
 fi
 
 # ─────────────────────────────────────────────────────────
