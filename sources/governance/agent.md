@@ -73,19 +73,19 @@ Once SDD is selected:
 ```
 backlog/
 ├── queue.md            # Dashboard: active / queued / done phases at a glance
-├── phase-1.md          # All specs for phase 1 in one file (summary + direction + integration tests + ADR refs)
-├── phase-2.md
+├── phase-01.md          # All specs for phase 1 in one file (summary + direction + integration tests + ADR refs)
+├── phase-02.md
 └── ...
 
 specs/                  # Actual work (flat layout)
-├── spec-1-001-{slug}/
-│   ├── spec.md         # Detailed spec expanding phase-1.md's spec-1-001 entry
+├── spec-01-001-{slug}/
+│   ├── spec.md         # Detailed spec expanding phase-01.md's spec-01-001 entry
 │   ├── plan.md
 │   ├── task.md
 │   ├── walkthrough.md
 │   └── pr_description.md
-├── spec-1-002-{slug}/
-├── spec-2-001-{slug}/
+├── spec-01-002-{slug}/
+├── spec-02-001-{slug}/
 └── ...
 
 docs/decisions/         # ADR (referenced from phase-x.md / spec.md)
