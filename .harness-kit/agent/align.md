@@ -21,9 +21,9 @@
 - 거버넌스 문서 (constitution, agent.md 등): 영어 (내부 시스템 문서)
 
 ### 절차 규칙
-- **SDD Process**: Phase → Spec → Plan → Task → Walkthrough → Hand-off
+- **SDD Process**: Phase → Spec → Plan → Task → Walkthrough → Ship
 - **TDD**: Test 작성 → Fail 확인 → Implement → Pass → Commit
-- **Strict Loop**: 한 task 완료 시마다 task.md 업데이트. 이슈 없으면 자동 진행, 이슈 시 멈추고 보고. Hand-off 전에는 반드시 사용자 확인
+- **Strict Loop**: 한 task 완료 시마다 task.md 업데이트. 이슈 없으면 자동 진행, 이슈 시 멈추고 보고. Ship 전에는 반드시 사용자 확인
 - **Plan Accept Gate**: 사용자가 "Plan Accept" 또는 `/hk-plan-accept` 호출하기 전까지는 PLANNING 모드. 코드 편집 금지
 
 ## 4. 아카이브 제안 (Archive Suggestion)

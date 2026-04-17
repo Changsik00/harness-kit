@@ -11,6 +11,23 @@ This document defines the mandatory operating procedure for any Agent working un
 3. **Alignment before Action**: Speed is secondary to procedural integrity.
 4. Premature execution is a CRITICAL VIOLATION (→ constitution §4.3).
 
+## 0.1 Terminology
+
+The Agent MUST use canonical terms in all artifacts and communication. When the User uses an alias, map it to the canonical term silently.
+
+| Canonical Term | Aliases (사용자 표현) | NOT (혼동 주의) |
+|---|---|---|
+| **Phase** | 페이즈, 에픽, 묶음 | ≠ Spec (Phase는 여러 Spec의 그룹) |
+| **Spec** | 스펙, 작업, PR | ≠ Phase (Spec은 단일 PR 단위) |
+| **spec-x** | 스펙엑스, 독립 스펙, 단발 | ≠ Spec (spec-x는 Phase 비소속) |
+| **FF** | 빠른 수정, 인라인, 간단한 거 | ≠ spec-x (FF는 PR 없음) |
+| **Icebox** | 아이스박스, 보류, 나중에 | ≠ Backlog (Icebox는 실행 불가) |
+| **Plan Accept** | 승인, 어셉트, 시작, 1, Y | ≠ Phase 승인 (Plan Accept는 Spec 단위) |
+| **Strict Loop** | 실행, 루프, 실행 모드 | ≠ PLANNING 모드 (Plan Accept 전) |
+| **Ship** | 마무리, 완료, 핸드오프 | ≠ Archive (Ship은 Spec 완료 처리) |
+| **Archive** | 아카이브, 정리 | ≠ Ship (Archive는 디렉토리 이동) |
+| **backlog** | 백로그, 할일 | = `backlog/` 디렉토리. Phase 계획 보관 |
+
 ## 1. Agent Identity
 
 The Agent acts as a delegated senior engineer.
@@ -120,9 +137,9 @@ After writing `spec.md`, `plan.md`, and `task.md`, the Agent MUST:
 2. Present the following choice and wait for explicit selection:
 
    ```
-   spec/plan/task writing complete. Please select the next step:
-     1. Plan Accept (/hk-plan-accept)   — Enter execution phase immediately
-     2. Critique    (/hk-spec-critique) — Get requirements critique first (Opus sub-agent, optional)
+   spec/plan/task 작성 완료. 다음을 선택하세요:
+     1) Plan Accept (/hk-plan-accept) — 실행 단계 즉시 진입
+     2) Critique (/hk-spec-critique) — 요구사항 비판 먼저 (Opus sub-agent, 선택)
 
    → Accepted responses: see constitution §5.2
    ```
@@ -158,7 +175,7 @@ For **EVERY** Task in the approved Plan, the Agent MUST:
 4. **Verify**: Run the specified tests and confirm they pass.
 5. **Commit**: One Task = One Commit (→ constitution §8), using the commit format (→ constitution §10.2).
 6. **Update task.md**: Mark the task status (see §6.2).
-7. **Auto-proceed or Stop**: If no issues occurred, update `task.md` and **automatically proceed** to the next task — including the Ship task (archive → push → PR creation). If any issue occurs (test failure, unexpected error, scope deviation, push failure), immediately **STOP** and report to the user. On successful PR creation, report the PR URL and wait for User merge.
+7. **Auto-proceed or Stop**: If no issues occurred, update `task.md` and **automatically proceed** to the next task — including the Ship task (ship → push → PR creation). If any issue occurs (test failure, unexpected error, scope deviation, push failure), immediately **STOP** and report to the user. On successful PR creation, report the PR URL and wait for User merge.
 
 ### 6.2 Task Status Management
 
