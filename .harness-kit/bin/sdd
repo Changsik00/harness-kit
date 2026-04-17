@@ -52,6 +52,9 @@ sdd — harness-kit 메타 명령
                                   --keep=N: 최근 N 개 완료 phase 유지 (기본: 0)
                                   --dry-run: 이동 대상만 출력 (변경 없음)
 
+  specx new <slug>             spec-x-{slug} 디렉토리 생성 + 템플릿 복사
+  specx done <slug>            spec-x 완료 → queue.md done 이동
+
   hooks [status]                hook 모드 현황 출력
   hooks block|warn|off <name>  특정 hook 모드 전환 안내
 
@@ -548,6 +551,10 @@ queue_set_active_progress() {
   # phase 파일에서 제목 추출 (첫 줄 # phase-N: 제목)
   local title=""
   local pf="$(state_phase_file 2>/dev/null)"
+  # archive fallback
+  if [ ! -f "$pf" ]; then
+    pf="$SDD_ROOT/archive/backlog/$(basename "$pf")"
+  fi
   if [ -f "$pf" ]; then
     title=$(head -1 "$pf" | sed 's|^# *phase-[0-9]*: *||')
   fi
@@ -563,6 +570,10 @@ queue_mark_done() {
   ensure_queue_file
   local title=""
   local pf="$SDD_BACKLOG/${phase_id}.md"
+  # archive fallback
+  if [ ! -f "$pf" ]; then
+    pf="$SDD_ROOT/archive/backlog/$(basename "$pf")"
+  fi
   [ -f "$pf" ] && title=$(head -1 "$pf" | sed 's|^# *phase-[0-9]*: *||')
   sdd_marker_append "$q" "done" "- **${phase_id}** — ${title:-?} — completed $(date -u +%Y-%m-%d)"
   # active 를 비움
@@ -1121,14 +1132,58 @@ cmd_hooks() {
 }
 
 # ============================================================
-# specx done
+# specx
 # ============================================================
 cmd_specx() {
   local sub="${1:-}"; shift || true
   case "$sub" in
+    new)  specx_new "$@" ;;
     done) specx_done "$@" ;;
-    *)    die "사용법: sdd specx done <slug>" ;;
+    *)    die "사용법: sdd specx {new|done} <slug>" ;;
   esac
+}
+
+specx_new() {
+  local slug="${1:-}"
+  [ -z "$slug" ] && die "사용법: sdd specx new <slug>"
+  sdd_slug_ok "$slug" || die "slug 형식 오류 (소문자, 하이픈, 1-40자): $slug"
+
+  local id="spec-x-${slug}"
+  local dir="$SDD_SPECS/$id"
+  [ -d "$dir" ] && die "이미 존재: $dir"
+
+  log "spec-x 생성: $id"
+  mkdir -p "$dir"
+
+  # 템플릿 복사 (spec, plan, task, walkthrough)
+  for f in spec plan task walkthrough; do
+    if [ -f "$SDD_TEMPLATES/$f.md" ]; then
+      sed "s/{phaseN}/x/g; s/{seq}/${slug}/g; s/{slug}/${slug}/g" \
+        "$SDD_TEMPLATES/$f.md" > "$dir/$f.md"
+    else
+      : > "$dir/$f.md"
+    fi
+  done
+
+  # state 설정
+  state_set spec "$id"
+  state_set planAccepted "false"
+
+  # queue.md specx 섹션에 등록
+  local q
+  q="$(state_queue_file)"
+  if [ -f "$q" ]; then
+    sdd_marker_append "$q" "specx" "- [ ] ${id} — ${slug}"
+  fi
+
+  ok "생성 완료: $dir"
+  echo ""
+  echo "다음 단계:"
+  echo "  1. $dir/spec.md — 요구사항 작성"
+  echo "  2. $dir/plan.md — 실행 계획 작성"
+  echo "  3. $dir/task.md — 태스크 작성"
+  echo "  4. sdd plan accept"
+  echo "  5. git checkout -b $id"
 }
 
 specx_done() {
@@ -1241,6 +1296,13 @@ cmd_archive() {
       backlog_count=$((backlog_count + 1))
     fi
   done <<< "$target_phases"
+
+  # spec-x 디렉토리도 아카이브 대상에 포함
+  for d in "$SDD_SPECS"/spec-x-*; do
+    [ -d "$d" ] || continue
+    specs_to_move="${specs_to_move}${d}\n"
+    spec_count=$((spec_count + 1))
+  done
 
   if [ "$spec_count" -eq 0 ] && [ "$backlog_count" -eq 0 ]; then
     log "이동할 항목이 없습니다."
