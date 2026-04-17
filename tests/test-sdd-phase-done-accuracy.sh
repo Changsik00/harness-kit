@@ -59,7 +59,7 @@ EOF
 }
 
 # spec 디렉토리 + archive 필수 파일 생성 헬퍼
-setup_spec_for_archive() {
+setup_spec_for_ship() {
   local dir="$1" phase_id="$2" spec_id="$3"
   local spec_dir="$dir/specs/${spec_id}"
   mkdir -p "$spec_dir"
@@ -97,7 +97,7 @@ EOF
 # 버그: _check_phase_all_merged 가 Done 을 무시하므로 잘못 출력됨 → FAIL 예상
 # ─────────────────────────────────────────────────────────
 echo ""
-echo "Check 1: Done 잔류 시 archive 출력에 '모든 Merged' 메시지 없어야 함"
+echo "Check 1: Done 잔류 시 ship 출력에 '모든 Merged' 메시지 없어야 함"
 
 F1="$(make_fixture)"
 trap "rm -rf '$F1'" EXIT
@@ -113,9 +113,22 @@ cat > "$F1/backlog/phase-1.md" <<'EOF'
 <!-- sdd:specs:end -->
 EOF
 
-setup_spec_for_archive "$F1" "phase-1" "spec-1-001-feature-a"
+setup_spec_for_ship "$F1" "phase-1" "spec-1-001-feature-a"
 
-archive_out1=$(cd "$F1" && bash .harness-kit/bin/sdd archive 2>&1)
+cat > "$F1/backlog/queue.md" <<'QEOF'
+## 📦 진행 중 Phase
+<!-- sdd:active:start -->
+- **phase-1** — test — 2 spec
+<!-- sdd:active:end -->
+## ✅ 완료
+<!-- sdd:done:start -->
+없음
+<!-- sdd:done:end -->
+QEOF
+git -C "$F1" add -A
+git -C "$F1" commit -m "add queue" -q
+
+archive_out1=$(cd "$F1" && bash .harness-kit/bin/sdd ship 2>&1)
 
 # Done 이 남아있으므로 "모든 Spec" 또는 "phase done" 메시지가 없어야 함
 if echo "$archive_out1" | grep -qE "모든 Spec|모든.*Merged|phase done|모두.*머지"; then
@@ -129,7 +142,7 @@ fi
 # 현재도 정상 동작 → PASS 예상
 # ─────────────────────────────────────────────────────────
 echo ""
-echo "Check 2: 모든 spec Merged → archive 출력에 '모든 Merged' 메시지 있어야 함"
+echo "Check 2: 모든 spec Merged → ship 출력에 '모든 Merged' 메시지 있어야 함"
 
 F2="$(make_fixture)"
 trap "rm -rf '$F1' '$F2'" EXIT
@@ -144,9 +157,23 @@ cat > "$F2/backlog/phase-2.md" <<'EOF'
 <!-- sdd:specs:end -->
 EOF
 
-setup_spec_for_archive "$F2" "phase-2" "spec-2-001-solo-spec"
+setup_spec_for_ship "$F2" "phase-2" "spec-2-001-solo-spec"
 
-archive_out2=$(cd "$F2" && bash .harness-kit/bin/sdd archive 2>&1)
+# queue.md 필요 (cmd_ship → queue_set_active_progress)
+cat > "$F2/backlog/queue.md" <<'QEOF'
+## 📦 진행 중 Phase
+<!-- sdd:active:start -->
+- **phase-2** — test — 1 spec
+<!-- sdd:active:end -->
+## ✅ 완료
+<!-- sdd:done:start -->
+없음
+<!-- sdd:done:end -->
+QEOF
+git -C "$F2" add -A
+git -C "$F2" commit -m "add queue" -q
+
+archive_out2=$(cd "$F2" && bash .harness-kit/bin/sdd ship 2>&1)
 
 # archive 후 유일한 spec 이 Merged → "모든 Spec" 또는 "phase done" 메시지가 있어야 함
 if echo "$archive_out2" | grep -qE "모든 Spec|모든.*Merged|phase done|모두.*머지"; then
