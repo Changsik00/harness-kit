@@ -45,11 +45,11 @@
 <!-- sdd:specs:start -->
 | ID | 슬러그 | 우선순위 | 상태 | 디렉토리 |
 |---|---|:---:|---|---|
-| spec-01-001 | permission-friction | P0 | Backlog | `specs/spec-01-001-permission-friction/` |
-| spec-01-002 | backup-policy | P0 | Backlog | `specs/spec-01-002-backup-policy/` |
+| spec-01-01 | permission-friction | P0 | Backlog | `specs/spec-01-01-permission-friction/` |
+| spec-01-02 | backup-policy | P0 | Backlog | `specs/spec-01-02-backup-policy/` |
 <!-- sdd:specs:end -->
 
-### spec-01-001 — 권한 프롬프트 마찰 해소
+### spec-01-01 — 권한 프롬프트 마찰 해소
 
 - **요점**: 에이전트가 복합 명령을 보내지 않도록 거버넌스 규칙을 추가하고, sdd CLI가 복합 로직을 내부 처리하도록 개선
 - **방향성**:
@@ -62,7 +62,7 @@
   - `.claude/settings.json` permissions.allow 배열
 - **연관 모듈**: `sources/governance/agent.md`, `sources/bin/sdd`, `sources/claude-fragments/settings.json.fragment`, `sources/commands/align.md`
 
-### spec-01-002 — .harness-backup 보존 정책
+### spec-01-02 — .harness-backup 보존 정책
 
 - **요점**: install.sh의 백업 전략을 "무조건 생성"에서 "스마트 보존"으로 변경
 - **방향성**:
@@ -81,13 +81,13 @@
 - **Given**: harness-kit이 설치된 프로젝트에서 `/align` 호출
 - **When**: 에이전트가 컨텍스트 점검을 위해 Bash 명령 실행
 - **Then**: 모든 Bash 호출이 단일 명령이며, 권한 프롬프트 0회
-- **연관 SPEC**: spec-01-001
+- **연관 SPEC**: spec-01-01
 
 ### 시나리오 2: 백업 보존 정책
 - **Given**: install.sh를 5회 반복 실행
 - **When**: 실행 완료
 - **Then**: `.harness-backup-*` 디렉토리가 최대 3개만 존재
-- **연관 SPEC**: spec-01-002
+- **연관 SPEC**: spec-01-02
 
 ### 통합 테스트 실행
 ```bash

@@ -95,14 +95,14 @@ backlog/
 └── ...
 
 specs/                  # Actual work (flat layout)
-├── spec-01-001-{slug}/
-│   ├── spec.md         # Detailed spec expanding phase-01.md's spec-01-001 entry
+├── spec-01-01-{slug}/
+│   ├── spec.md         # Detailed spec expanding phase-01.md's spec-01-01 entry
 │   ├── plan.md
 │   ├── task.md
 │   ├── walkthrough.md
 │   └── pr_description.md
-├── spec-01-002-{slug}/
-├── spec-02-001-{slug}/
+├── spec-01-02-{slug}/
+├── spec-02-01-{slug}/
 └── ...
 
 docs/decisions/         # ADR (referenced from phase-x.md / spec.md)

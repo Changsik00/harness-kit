@@ -45,7 +45,7 @@ harness-kit은 그 격차를 메꿉니다. **의도를 문서로 적는 것**에
 |---|---|
 | `backlog/queue.md` | 📊 대시보드 — 진행 중/대기/완료 Phase + Icebox. `sdd`가 자동 갱신 |
 | `backlog/phase-{NN}.md` | 📋 Phase별 작업 지도 — Spec 표 + 통합 테스트 시나리오 |
-| `specs/spec-{NN}-{NNN}-{slug}/` | 📁 작업 산출물 — spec.md, plan.md, task.md, walkthrough.md, pr_description.md |
+| `specs/spec-{NN}-{NN}-{slug}/` | 📁 작업 산출물 — spec.md, plan.md, task.md, walkthrough.md, pr_description.md |
 | `archive/` | 🗄 완료 항목 보관 — `sdd archive`로 정리. 조회 시 `(archived)` 표시 |
 | `.claude/state/current.json` | ⚙️ 런타임 상태 — `phase`, `spec`, `planAccepted`, `lastTestPass` 등. hook이 읽어 Plan Accept·테스트 통과 여부를 판단. `.gitignore` 대상 |
 
@@ -136,7 +136,7 @@ Claude Code 안에서 `/hk-align`을 실행합니다. 이 커맨드가 자동으
 에이전트: sdd spec new retry-logic
 ```
 
-`sdd spec new`가 실행되면 `specs/spec-{N}-{NNN}-retry-logic/` 디렉토리가 생성되고 세 개의 파일이 만들어집니다:
+`sdd spec new`가 실행되면 `specs/spec-{N}-{NN}-retry-logic/` 디렉토리가 생성되고 세 개의 파일이 만들어집니다:
 
 - **`spec.md`** — 무엇을 왜 만드는가. 배경, 요구사항, 범위, 완료 기준.
 - **`plan.md`** — 어떻게 만드는가. 기술 결정, 아키텍처, 구현 접근법.
@@ -275,7 +275,7 @@ sdd archive --keep=2
 │   └── phase-{N}.md                #   phase별 spec 표 + 통합 테스트
 │
 ├── specs/                          # 실제 작업 (work log)
-│   └── spec-{N}-{NNN}-{slug}/
+│   └── spec-{N}-{NN}-{slug}/
 │       ├── spec.md, plan.md, task.md
 │       └── walkthrough.md, pr_description.md
 │

@@ -38,12 +38,12 @@
 <!-- sdd:specs:start -->
 | ID | 슬러그 | 우선순위 | 상태 | 디렉토리 |
 |---|---|:---:|---|---|
-| spec-02-001 | governance-dedup | P0 | Backlog | `specs/spec-02-001-governance-dedup/` |
-| spec-02-002 | two-tier-loading | P0 | Backlog | `specs/spec-02-002-two-tier-loading/` |
-| spec-02-003 | enforce-to-suggest | P1 | Backlog | `specs/spec-02-003-enforce-to-suggest/` |
+| spec-02-01 | governance-dedup | P0 | Backlog | `specs/spec-02-01-governance-dedup/` |
+| spec-02-02 | two-tier-loading | P0 | Backlog | `specs/spec-02-02-two-tier-loading/` |
+| spec-02-03 | enforce-to-suggest | P1 | Backlog | `specs/spec-02-03-enforce-to-suggest/` |
 <!-- sdd:specs:end -->
 
-### spec-02-001 — 거버넌스 문서 중복 제거
+### spec-02-01 — 거버넌스 문서 중복 제거
 
 - **요점**: constitution.md와 agent.md의 중복 기술을 제거하고, 각 문서의 역할을 명확히 분리
 - **방향성**: constitution = "무엇이 허용/금지되는가" (법률), agent.md = "어떻게 행동하는가" (절차). 현재 커밋 형식, 브랜치 규칙 등이 양쪽에 중복. constitution에서 규칙 정의, agent.md에서는 참조만. 예상 절감: ~1,200 토큰
@@ -52,7 +52,7 @@
   - `sources/governance/constitution.md` §9.2 vs `sources/governance/agent.md` §6.3
 - **연관 모듈**: `sources/governance/`, `agent/`
 
-### spec-02-002 — 2단계 로딩 전략
+### spec-02-02 — 2단계 로딩 전략
 
 - **요점**: CLAUDE.md에는 핵심 규칙 요약(~10줄)만 인라인하고, `/align` 호출 시에만 전체 거버넌스를 Read로 로드하는 구조로 변경
 - **방향성**: 현재 CLAUDE.md가 `@agent/constitution.md`, `@agent/agent.md`, `@agent/align.md`를 @import하여 매 세션 전량 로드. 대안: (1) 핵심 규칙 10줄을 CLAUDE.md에 직접 기술, (2) @import 제거, (3) `/align` 커맨드에서 전체 문서 Read. 일상적 작업(FF 모드 등)에서 ~3,000 토큰 절감
@@ -61,7 +61,7 @@
   - `sources/claude-fragments/CLAUDE.md.append`
 - **연관 모듈**: `sources/claude-fragments/`, `CLAUDE.md`, `sources/commands/align.md`
 
-### spec-02-003 — 강제 → 제안 전환
+### spec-02-03 — 강제 → 제안 전환
 
 - **요점**: hook의 기본 동작을 "차단(exit 2)"에서 "경고(exit 0 + stderr)"로 변경. 사용자가 원하면 `sdd hooks block`으로 강제 모드 전환 가능
 - **방향성**: (1) check-plan-accept.sh — 현재 planAccepted=false일 때 Edit/Write를 차단. FF 모드나 문서 작업 시 과도한 차단 발생. 기본값을 warn으로. (2) check-test-passed.sh — push 전 테스트 통과 강제. 문서 전용 커밋에서도 차단되어 불편. 예외 경로 추가. (3) `sdd hooks` 서브커맨드로 모드 전환 UX 제공
@@ -77,13 +77,13 @@
 - **Given**: harness-kit이 설치된 프로젝트에서 새 세션 시작
 - **When**: CLAUDE.md가 로드됨 (align 미호출 상태)
 - **Then**: 거버넌스 관련 자동 로드 토큰이 2,000 이하
-- **연관 SPEC**: spec-02-001, spec-02-002
+- **연관 SPEC**: spec-02-01, spec-02-02
 
 ### 시나리오 2: Hook 경고 모드 기본 동작
 - **Given**: 기본 설치 상태 (hook mode 미지정)
 - **When**: planAccepted=false 상태에서 Edit 시도
 - **Then**: stderr에 경고 출력되지만 편집은 허용됨
-- **연관 SPEC**: spec-02-003
+- **연관 SPEC**: spec-02-03
 
 ### 통합 테스트 실행
 ```bash

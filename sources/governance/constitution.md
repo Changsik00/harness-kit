@@ -170,7 +170,7 @@ Before any Spec, Plan, or execution:
 
 ### 6.2 Spec Identifier
 - Format: `spec-{phaseN}-{seq}` where `phaseN` matches the parent phase number and `seq` is a 3-digit number reset per phase.
-- Examples: `spec-01-001`, `spec-01-002`, `spec-02-001`.
+- Examples: `spec-01-01`, `spec-01-02`, `spec-02-01`.
 - A Spec ID is immutable once assigned.
 - **Solo Spec format**: `spec-x-{slug}` — used when no Phase affiliation exists (→ §5.1 Solo Spec conditions).
   - `x` is a literal character, not a phase number.
@@ -187,7 +187,7 @@ Before any Spec, Plan, or execution:
 ### 6.4 Branch Naming
 - Spec branch name = spec directory name. **No `feature/` prefix.**
 - Format: `spec-{phaseN}-{seq}-{slug}`
-- Example: `spec-01-001-stock-row-locking`
+- Example: `spec-01-01-stock-row-locking`
 - Phase base branch format: `phase-{N}-{slug}` (→ §6.1). Example: `phase-08-work-model`
 
 ## 7. Execution Delegation
@@ -230,7 +230,7 @@ Once a Plan is explicitly accepted (Plan Accept), the Agent is authorized to:
 - **Pre-Push Validation**: The Agent MUST execute the project's local test suite and confirm it passes before pushing a feature branch for review.
 - **Commit Title Format**: MUST follow `<type>(spec-{phaseN}-{seq}): <description>` (all lowercase).
   - Allowed types: `feat`, `fix`, `refactor`, `test`, `docs`, `chore`, `style`, `perf`, `build`, `ci`.
-  - Example: `feat(spec-01-001): introduce row-level lock for stock decrement`.
+  - Example: `feat(spec-01-01): introduce row-level lock for stock decrement`.
 - **Pull Request Creation**: Once a Plan is accepted (→ §7.1), the Agent is authorized to push the feature branch and create a PR as part of the Ship task. Explicit per-action confirmation is not required. The Agent MUST ship `walkthrough.md` / `pr_description.md` under the SPEC directory before PR creation.
 
 ## 11. Backlog Law

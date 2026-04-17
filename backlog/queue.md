@@ -22,7 +22,6 @@
 
 - [ ] 크로스 에이전트 호환 (AGENTS.md) — Cursor/Copilot/Codex 등에서 프로젝트 컨텍스트를 인식할 수 있도록 install.sh에서 AGENTS.md 자동 생성. 현재 Claude Code 전용으로 충분하나, 멀티 에이전트 환경이 보편화되면 재검토. (보류 2026-04-11)
 - [ ] 크로스 플랫폼 지원 — 현재 macOS + bash 4.0+ 전용. Linux CI 환경(GitHub Actions 등)은 bash 호환이라 즉시 가능하나, Windows는 WSL2 필수. 검토 사항: (1) GitHub Actions CI에서 테스트 자동화 (2) Linux 공식 지원 선언 (3) WSL2 설치 가이드 추가. macOS 외 실사용자가 나타나면 승격.
-- [ ] Spec 시퀀스 2자리 패딩 — 현재 `spec-01-001`(3자리) → `spec-01-01`(2자리)로 변경. sdd `printf '%03d'` → `'%02d'` + 기존 디렉토리 마이그레이션 필요. Phase당 최대 13 Spec(phase-09)이므로 2자리 충분.
 
 ## 📋 대기 Phase
 
