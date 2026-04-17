@@ -60,7 +60,6 @@
 
       "Bash(bash:*)",
       "Bash(sh:*)",
-      "Bash(zsh:*)",
 
       "Bash(npm:*)",
       "Bash(pnpm:*)",

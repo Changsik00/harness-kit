@@ -39,7 +39,6 @@ sdd — harness-kit 메타 명령
   spec show [spec-N-NNN-slug]   spec 상세 (생략 시 active)
 
   plan accept                   현재 spec 의 plan 을 승인 (planAccepted=true)
-  plan reset                    승인 해제 (다음 spec 시작 시 호출)
 
   task done <num>               task.md 의 N 번 항목을 [x] 로 마킹
 

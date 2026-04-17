@@ -23,7 +23,7 @@
 
 <!-- 예시:
 - [ ] 아이디어: sdd stale detection 자동화
-- [ ] 보류: spec-5-002 (dependency 해소 후 재검토)
+- [ ] 보류: spec-05-002 (dependency 해소 후 재검토)
 -->
 
 ## 📋 대기 Phase

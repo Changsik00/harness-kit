@@ -62,7 +62,6 @@
       "Bash(xargs:*)",
       "Bash(yarn:*)",
       "Bash(yq:*)",
-      "Bash(zsh:*)",
       "Edit",
       "Glob",
       "Grep",

@@ -5,10 +5,24 @@ harness-kit의 주요 변경 사항을 버전별로 정리합니다.
 
 ---
 
-## [Unreleased]
+## [0.5.0] — 2026-04-16
 
 ### Changed
-- **`sdd archive` → `sdd ship` 리네이밍** — 실제 동작(spec 완료 처리 + 상태 전이)에 맞는 이름으로 변경. 기존 `sdd archive` 호출은 deprecation 경고 후 정상 동작.
+- **`sdd archive` → `sdd ship` 리네이밍** — 실제 동작에 맞는 이름으로 변경. 기존 `sdd archive` 호출은 deprecation 경고 후 동작 (→ phase-11에서 디렉토리 아카이브로 교체)
+- **식별자 2자리 패딩** — `phase-01`, `spec-01-001` 형식. 파일 시스템 정렬 보장
+- **zsh 호환 코드 제거** — bash 4.0+ 전용. `_self()` ZSH 분기, `install.sh --shell=zsh`, `test-zsh-compat.sh` 삭제
+
+### Added
+- **`sdd archive [--keep=N] [--dry-run]`** — 완료된 phase의 spec/backlog를 `archive/` 디렉토리로 이동
+- **아카이브 검색 통합** — `sdd spec list`, `sdd phase list/show` 등에서 `archive/` fallback + `(archived)` 표시
+- **`/hk-archive` 슬래시 커맨드** — dry-run 미리보기 → 확인 → 실행 대화형 UX
+- **`sdd status` 아카이브 진단** — specs/ 20개+ 시 아카이브 제안, archive 항목 수 표시
+- **walkthrough 실시간 갱신** — `sdd spec new` 시 walkthrough.md 생성, Strict Loop step 7 추가
+
+### Removed
+- `test-zsh-compat.sh`
+- `docs/REFERENCE.md` (README.md에 통합)
+- `install.sh --shell` 옵션 및 `do_fix_shebang()`
 
 ---
 
