@@ -98,4 +98,4 @@ Agent tool (`subagent_type: general-purpose`, `model: "opus"`) 을 사용하여 
 - Critical: N / Major: N / Minor: N
 ```
 
-Critical 이슈가 있으면 handoff 전에 해결을 권고합니다.
+Critical 이슈가 있으면 ship 전에 해결을 권고합니다.

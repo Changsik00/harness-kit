@@ -120,9 +120,9 @@ After writing `spec.md`, `plan.md`, and `task.md`, the Agent MUST:
 2. Present the following choice and wait for explicit selection:
 
    ```
-   spec/plan/task writing complete. Please select the next step:
-     1. Plan Accept (/hk-plan-accept)   — Enter execution phase immediately
-     2. Critique    (/hk-spec-critique) — Get requirements critique first (Opus sub-agent, optional)
+   spec/plan/task 작성 완료. 다음을 선택하세요:
+     1) Plan Accept (/hk-plan-accept) — 실행 단계 즉시 진입
+     2) Critique (/hk-spec-critique) — 요구사항 비판 먼저 (Opus sub-agent, 선택)
 
    → Accepted responses: see constitution §5.2
    ```
@@ -158,7 +158,7 @@ For **EVERY** Task in the approved Plan, the Agent MUST:
 4. **Verify**: Run the specified tests and confirm they pass.
 5. **Commit**: One Task = One Commit (→ constitution §8), using the commit format (→ constitution §10.2).
 6. **Update task.md**: Mark the task status (see §6.2).
-7. **Auto-proceed or Stop**: If no issues occurred, update `task.md` and **automatically proceed** to the next task — including the Ship task (archive → push → PR creation). If any issue occurs (test failure, unexpected error, scope deviation, push failure), immediately **STOP** and report to the user. On successful PR creation, report the PR URL and wait for User merge.
+7. **Auto-proceed or Stop**: If no issues occurred, update `task.md` and **automatically proceed** to the next task — including the Ship task (ship → push → PR creation). If any issue occurs (test failure, unexpected error, scope deviation, push failure), immediately **STOP** and report to the user. On successful PR creation, report the PR URL and wait for User merge.
 
 ### 6.2 Task Status Management
 

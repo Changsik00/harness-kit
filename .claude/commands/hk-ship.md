@@ -2,7 +2,7 @@
 description: 현재 SPEC 작업 종료 — walkthrough/pr_description 검증 후 push + PR 자동 진행
 ---
 
-현재 SPEC 의 모든 작업 task 가 완료되었을 때 이 명령으로 hand-off 절차를 시작합니다.
+현재 SPEC 의 모든 작업 task 가 완료되었을 때 이 명령으로 ship 절차를 시작합니다.
 **모든 검증이 통과하면 push + PR 생성까지 자동 진행합니다.** 실패 시에만 멈추고 보고합니다.
 
 ## 1. 사전 검증
