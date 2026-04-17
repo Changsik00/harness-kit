@@ -1,7 +1,6 @@
 # harness-kit 사용 가이드
 
 > 본 문서는 **사용자(사람) 관점의 워크플로 가이드** 입니다.
-> 명령/슬래시/hook 의 사전식 레퍼런스는 [REFERENCE.md](./REFERENCE.md) 를 보세요.
 
 ## 설치
 
@@ -69,7 +68,7 @@ Claude Code 안:   /align
 새 비즈니스 가치/위험 영역을 다룰 때.
 
 ```bash
-./scripts/harness/bin/sdd phase new payment-stability
+./.harness-kit/bin/sdd phase new payment-stability
 ```
 
 이 명령은:
@@ -88,7 +87,7 @@ Claude Code 안:   /align
 ### 📝 3. 새 SPEC 시작 (한 PR 단위 작업)
 
 ```bash
-./scripts/harness/bin/sdd spec new webhook-lock-fail-throw
+./.harness-kit/bin/sdd spec new webhook-lock-fail-throw
 ```
 
 이 명령은:
@@ -111,7 +110,7 @@ Claude Code 안:   /align
 plan.md / task.md 가 충분하다고 판단되면:
 
 ```bash
-./scripts/harness/bin/sdd plan accept
+./.harness-kit/bin/sdd plan accept
 ```
 
 이 명령은:
@@ -132,9 +131,9 @@ Plan Accept 후 에이전트는 task.md 의 첫 task 부터 다음을 반복:
 2. **Test 작성** — TDD red
 3. **Implement** — 최소 코드
 4. **Test Pass** — TDD green
-5. **`./scripts/harness/bin/sdd test passed`** — 테스트 통과 시각 기록
+5. **`./.harness-kit/bin/sdd test passed`** — 테스트 통과 시각 기록
 6. **Commit** — `<type>(spec-1-001): description` (모두 소문자)
-7. **`./scripts/harness/bin/sdd task done <num>`** — task.md 갱신
+7. **`./.harness-kit/bin/sdd task done <num>`** — task.md 갱신
 8. **사용자에게 보고 + 다음 task 진행 신호 대기**
 
 > ⚠️ Strict Loop 은 batching 금지. 한 task 끝낼 때마다 사용자 확인을 받습니다.
@@ -146,15 +145,15 @@ Plan Accept 후 에이전트는 task.md 의 첫 task 부터 다음을 반복:
 모든 task 완료 후:
 
 ```bash
-./scripts/harness/bin/sdd ship --check    # walkthrough/pr_description 검증
+./.harness-kit/bin/sdd ship --check    # walkthrough/pr_description 검증
 ```
 
 부족한 부분 보완 후:
 
 ```bash
-./scripts/harness/bin/sdd ship            # ship commit 생성
+./.harness-kit/bin/sdd ship            # ship commit 생성
 git push -u origin spec-1-001-webhook-lock-fail-throw
-./scripts/harness/bin/sdd plan reset
+./.harness-kit/bin/sdd plan reset
 ```
 
 PR 은 hosted git UI 에서 사용자가 직접 생성. 본문은 `pr_description.md` 그대로 복사.
@@ -177,12 +176,12 @@ PR 은 hosted git UI 에서 사용자가 직접 생성. 본문은 `pr_descriptio
 ### "에이전트가 코드를 못 만져요"
 - 원인 1: `planAccepted=false` (예상된 동작 — Plan Accept 를 안 했음)
 - 원인 2: hook 가 차단 모드인데 main 브랜치 위에 있음
-- 확인: `./scripts/harness/bin/sdd status`
+- 확인: `./.harness-kit/bin/sdd status`
 - 해결: `sdd plan accept` 또는 `git checkout -b feature/...`
 
 ### "테스트는 통과했는데 commit 이 차단돼요"
 - 원인: hook check-test-passed 가 lastTestPass 시각을 못 찾음
-- 해결: `./scripts/harness/bin/sdd test passed` 호출 후 commit 재시도
+- 해결: `./.harness-kit/bin/sdd test passed` 호출 후 commit 재시도
 - 또는: hook 를 일시 비활성 — `HARNESS_HOOK_MODE=off git commit ...`
 
 ### "Hook 메시지가 너무 시끄러워요 (warn 모드)"
