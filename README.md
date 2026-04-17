@@ -27,65 +27,40 @@ harness-kit은 그 격차를 메꿉니다. **의도를 문서로 적는 것**에
 
 ## 📖 핵심 개념
 
-### SDD (Spec-Driven Development)
+**SDD (Spec-Driven Development)** — 코드를 작성하기 전에 Spec(명세)과 Plan(실행 계획)을 문서로 먼저 작성하고, 사람이 검토·승인한 뒤에만 구현에 들어가는 개발 방식입니다. 에이전트의 "먼저 짜고 나중에 생각하는" 충동을 구조적으로 막습니다.
 
-SDD는 코드를 작성하기 전에 Spec(명세)과 Plan(실행 계획)을 문서로 먼저 작성하고, 사람이 검토·승인한 뒤에만 구현에 들어가는 개발 방식입니다. 에이전트의 "먼저 짜고 나중에 생각하는" 충동을 구조적으로 막아, 의도한 대로만 코드가 작성되게 합니다.
-
-### 작업 유형 모델
-
-harness-kit은 다섯 가지 작업 유형을 정의합니다. 상황에 맞는 유형을 선택하면 그에 맞는 절차가 자동으로 따라옵니다.
+### 작업 유형
 
 | 유형 | 역할 | PR? | 언제 쓰나 |
 |---|---|:---:|---|
-| 🏗 **Phase** | 연관 Spec 묶음 (Epic) | ✅ | 3개 이상의 Spec이 묶이거나, 통합 테스트가 필요한 큰 작업. 각 Spec PR + Phase 완료 PR |
-| 📝 **Spec** | Phase 내 단일 PR 단위 | ✅ | Phase 안의 각 PR. 하나의 Spec = 하나의 Pull Request |
-| 🔧 **spec-x** | Phase 없이 독립 단발 PR | ✅ | 버그 수정, 문서 정리 등 Phase에 속하지 않는 독립 작업 |
-| ⚡ **FF (Fast Flow)** | PR 없이 직접 커밋 | ❌ | 오탈자, 설정 값 변경 등 사소한 인라인 수정 |
-| 🧊 **Icebox** | 아이디어 보관소 | — | 지금 실행 불가능한 아이디어. `queue.md`에 기록 후 나중에 Phase나 spec-x로 승격 |
+| 🏗 **Phase** | 연관 Spec 묶음 (Epic) | ✅ | 3개+ Spec이 묶이거나 통합 테스트가 필요할 때. `--base`로 Phase 전용 브랜치 생성 가능 |
+| 📝 **Spec** | Phase 내 단일 PR 단위 | ✅ | 1 Spec = 1 PR. `spec.md` → `plan.md` → `task.md` 작성 후 Plan Accept |
+| 🔧 **spec-x** | Phase 없이 독립 단발 PR | ✅ | 버그 수정, 문서 정리 등. `sdd specx done <slug>`으로 마무리 |
+| ⚡ **FF** | PR 없이 직접 커밋 | ❌ | 오탈자, 설정 변경 등 사소한 수정. state.json 변경 없음 |
+| 🧊 **Icebox** | 아이디어 보관소 | — | 실행 불가. `queue.md`에 기록 후 나중에 Phase나 spec-x로 승격 |
 
-**Phase (SDD-P)**: 연관된 작업을 묶는 단위입니다. GitHub의 Epic에 해당합니다. 단독 Spec이 아니라 여러 Spec을 순서대로 처리해야 할 때, 또는 마지막에 통합 테스트가 필요할 때 Phase를 만듭니다. `sdd phase new <slug> [--base]`로 생성하며, `--base` 옵션을 붙이면 Phase 전용 base branch가 생성되어 Spec PR들이 main이 아닌 phase 브랜치로 병합됩니다.
-
-**Spec**: Phase 안의 단일 PR 단위입니다. `spec.md`(무엇을), `plan.md`(어떻게), `task.md`(단계별 체크리스트)를 작성한 뒤 사용자가 Plan Accept를 해야 구현을 시작할 수 있습니다.
-
-**spec-x (SDD-x)**: Phase 없이 독립적으로 처리하는 단발 PR입니다. Phase를 만들 필요 없이 바로 `sdd spec new <slug>`로 시작합니다. 완료 후 `sdd specx done <slug>`으로 마무리합니다.
-
-**FF (Fast Flow)**: PR 없이 직접 커밋합니다. state.json이 변경되지 않으며, 사용자가 명시적으로 승인한 뒤 바로 커밋합니다.
-
-**Icebox**: 실행 불가능한 아이디어를 버리지 않고 `backlog/queue.md`의 Icebox 섹션에 기록해 둡니다. 적절한 시점이 오면 Phase나 spec-x로 승격합니다.
-
-### backlog 시스템
+### 프로젝트 구조와 상태 관리
 
 | 경로 | 역할 |
 |---|---|
-| `backlog/queue.md` | 대시보드. 진행 중/대기/완료 Phase를 한눈에. `sdd`가 자동 갱신 |
-| `backlog/phase-{NN}.md` | Phase별 작업 지도. Spec 표 + 통합 테스트 시나리오 |
-| `specs/spec-{NN}-{NNN}-{slug}/` | 실제 작업 산출물 (spec.md, plan.md, task.md, walkthrough.md, pr_description.md) |
-| `archive/` | 완료된 항목 보관. `sdd archive`로 정리 |
+| `backlog/queue.md` | 📊 대시보드 — 진행 중/대기/완료 Phase + Icebox. `sdd`가 자동 갱신 |
+| `backlog/phase-{NN}.md` | 📋 Phase별 작업 지도 — Spec 표 + 통합 테스트 시나리오 |
+| `specs/spec-{NN}-{NNN}-{slug}/` | 📁 작업 산출물 — spec.md, plan.md, task.md, walkthrough.md, pr_description.md |
+| `archive/` | 🗄 완료 항목 보관 — `sdd archive`로 정리. 조회 시 `(archived)` 표시 |
+| `.claude/state/current.json` | ⚙️ 런타임 상태 — `phase`, `spec`, `planAccepted`, `lastTestPass` 등. hook이 읽어 Plan Accept·테스트 통과 여부를 판단. `.gitignore` 대상 |
 
-### state.json (런타임 상태)
+### 핵심 규칙
 
-`.claude/state/current.json`은 현재 작업 상태를 추적하는 파일입니다. `sdd` 명령이 자동으로 관리하며, 사용자가 직접 편집할 필요는 없습니다.
-
-| 키 | 역할 | 예시 |
+| | 규칙 | 강제 수단 |
 |---|---|---|
-| `phase` | 현재 진행 중인 Phase | `"phase-11"` 또는 `null` |
-| `spec` | 현재 진행 중인 Spec | `"spec-11-003-dir-archive"` 또는 `null` |
-| `planAccepted` | Plan Accept 상태 | `true` / `false` |
-| `lastTestPass` | 마지막 테스트 통과 시각 (UTC) | `"2026-04-16T10:30:00Z"` |
-| `baseBranch` | Phase base branch (opt-in) | `"phase-08-work-model"` 또는 `null` |
-
-> hook이 이 파일을 읽어 Plan Accept 여부, 테스트 통과 여부를 판단합니다. `.gitignore`에 포함되어 git에 추적되지 않습니다.
-
-### 워크플로 핵심 규칙
-
-- 🛑 **Plan Accept 전에는 코드 편집 금지** — spec.md / plan.md / task.md 작성이 끝나면 사용자가 명시적으로 승인해야 구현을 시작할 수 있습니다. `check-plan-accept.sh` hook이 강제합니다.
-- 1️⃣ **One Task = One Commit** — task.md의 각 항목은 하나의 커밋에 대응합니다.
-- 🚫 **main 브랜치 직접 작업 금지** — 모든 작업은 feature 브랜치에서. `check-branch.sh` hook이 강제합니다.
-- 🧪 **TDD** — 테스트 작성 → 실패 확인 → 구현 → 통과(`sdd test passed`) → 커밋 순서를 지킵니다.
+| 🛑 | **Plan Accept 전 코드 편집 금지** | `check-plan-accept.sh` hook |
+| 1️⃣ | **One Task = One Commit** | task.md 체크박스 |
+| 🚫 | **main 브랜치 직접 작업 금지** | `check-branch.sh` hook |
+| 🧪 | **TDD: 테스트 → 구현 → 커밋** | `check-test-passed.sh` hook |
 
 ---
 
-## 🖥 대상 환경
+## 🖥 대상 환경 및 의존성
 
 | 항목 | 지원 | 비고 |
 |---|:---:|---|
@@ -93,53 +68,30 @@ harness-kit은 다섯 가지 작업 유형을 정의합니다. 상황에 맞는 
 | **Linux** | △ | bash 4.0+, jq, git이 있으면 동작 가능 (best-effort) |
 | **Windows** | △ 미검증 | Git Bash (bash 4.0+ 포함) + jq 환경에서 동작 가능성 있음. WSL2 권장 |
 | **AI 호스트** | Claude Code 전용 | `.claude/` 구조 + hooks + settings.json에 의존 |
-| **Shell** | bash 4.0+ | 모든 스크립트는 `#!/usr/bin/env bash` |
-
-### 필수 의존성
 
 ```bash
-brew install bash jq git
-# macOS 기본 bash는 3.2 — 4.0+ 필요
+# 필수 의존성 설치 (macOS)
+brew install bash jq git    # macOS 기본 bash는 3.2 — 4.0+ 필요
 ```
 
 ---
 
 ## 📦 설치
 
-### 첫 설치
-
 ```bash
-# 대상 프로젝트에 설치
+# 설치
 ~/path/to/harness-kit/install.sh ~/Project/my-app
 
 # 미리 보기 (변경 없음)
 ~/path/to/harness-kit/install.sh --dry-run ~/Project/my-app
 
-# 대화형 확인 없이 설치
-~/path/to/harness-kit/install.sh --yes ~/Project/my-app
-```
-
-### 점검
-
-설치 후 의존성, 구조, 권한, hook, state를 한 번에 확인합니다.
-
-```bash
+# 점검 — 의존성, 구조, 권한, hook, state 한 번에 확인
 ~/path/to/harness-kit/doctor.sh ~/Project/my-app
-```
 
-### 갱신
-
-이미 설치된 프로젝트에 키트의 최신 버전을 반영합니다. state와 사용자 설정은 보존됩니다.
-
-```bash
+# 갱신 — state + 사용자 설정 보존
 ~/path/to/harness-kit/update.sh ~/Project/my-app
-```
 
-### 제거
-
-키트 런타임을 제거합니다. `backlog/`, `specs/`, `archive/` 등 작업 산출물은 보존됩니다.
-
-```bash
+# 제거 — backlog/, specs/, archive/ 산출물은 보존
 ~/path/to/harness-kit/uninstall.sh ~/Project/my-app
 ```
 
@@ -246,27 +198,17 @@ Phase의 모든 Spec이 merge되면 `/hk-phase-ship`을 실행합니다. 이 커
 
 ### 워크플로 한눈에 보기
 
-```
-/hk-align ──→ Phase 생성 ──→ Spec 생성 ──→ PLANNING 모드
-                                              │
-                                    spec.md / plan.md / task.md 작성
-                                              │
-                                         Plan Accept
-                                              │
-                                    ┌─── Strict Loop ───┐
-                                    │ 🧪 테스트 작성      │
-                                    │ ⚙️  구현             │
-                                    │ ✅ 커밋             │
-                                    │ 🔄 다음 task        │
-                                    └────────────────────┘
-                                              │
-                                    /hk-ship (push + PR)
-                                              │
-                                    PR merge → 다음 Spec
-                                              │
-                                    모든 Spec 완료
-                                              │
-                                    /hk-phase-ship (Phase PR)
+```mermaid
+flowchart TD
+    A["/hk-align"] --> B["Phase / Spec 생성"]
+    B --> C["PLANNING: spec.md / plan.md / task.md"]
+    C --> D{"Plan Accept?"}
+    D -->|Yes| E["Strict Loop"]
+    E --> F["Test -> Implement -> Commit -> Next Task"]
+    F --> G["/hk-ship: push + PR"]
+    G --> H{"모든 Spec 완료?"}
+    H -->|No| B
+    H -->|Yes| I["/hk-phase-ship: Phase PR"]
 ```
 
 ---
@@ -456,7 +398,7 @@ HARNESS_HOOK_MODE=off git commit -m "..."
 `/hk-pr-bb` 사용 시 Bitbucket Cloud API 토큰이 필요합니다.
 
 1. **Bitbucket 설정** → Personal Settings → API Key (또는 App Password)
-2. 필요 권한: **Pull Request — Read, Write** (`pullrequest:write` 스코프)
+2. 필요 권한: **Pull Request — Read + Write** (`pullrequest:read`, `pullrequest:write` 스코프)
 3. 토큰을 파일로 저장:
 
 ```bash
