@@ -158,7 +158,8 @@ For **EVERY** Task in the approved Plan, the Agent MUST:
 4. **Verify**: Run the specified tests and confirm they pass.
 5. **Commit**: One Task = One Commit (→ constitution §8), using the commit format (→ constitution §10.2).
 6. **Update task.md**: Mark the task status (see §6.2).
-7. **Auto-proceed or Stop**: If no issues occurred, update `task.md` and **automatically proceed** to the next task — including the Ship task (archive → push → PR creation). If any issue occurs (test failure, unexpected error, scope deviation, push failure), immediately **STOP** and report to the user. On successful PR creation, report the PR URL and wait for User merge.
+7. **Update walkthrough.md**: Record any decisions, discoveries, or user agreements from this task. Skip if nothing noteworthy occurred.
+8. **Auto-proceed or Stop**: If no issues occurred, update `task.md` and **automatically proceed** to the next task — including the Ship task (archive → push → PR creation). If any issue occurs (test failure, unexpected error, scope deviation, push failure), immediately **STOP** and report to the user. On successful PR creation, report the PR URL and wait for User merge.
 
 ### 6.2 Task Status Management
 

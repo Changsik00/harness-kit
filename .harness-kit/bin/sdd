@@ -715,8 +715,8 @@ spec_new() {
   log "spec 생성: $id"
   mkdir -p "$dir"
 
-  # walkthrough, pr_description 은 Ship 시점에 생성 (Artifacts 단계 오판 방지)
-  for f in spec plan task; do
+  # walkthrough 는 작업 중 실시간 갱신을 위해 함께 생성. pr_description 은 Ship 시점에 생성.
+  for f in spec plan task walkthrough; do
     if [ -f "$SDD_TEMPLATES/$f.md" ]; then
       sed "s/{phaseN}/$phase_n/g; s/{seq}/$seq/g; s/{slug}/$slug/g" \
         "$SDD_TEMPLATES/$f.md" > "$dir/$f.md"

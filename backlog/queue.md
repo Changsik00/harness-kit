@@ -21,7 +21,6 @@
 > 아이디어·보류 항목 보관소. 실행 불가. 관련 항목이 쌓이면 Phase로, 단발이면 spec-x로 승격.
 
 - [ ] spec-05-002 AGENTS.md 호환 레이어 — Cursor/Copilot/Codex 등 멀티 에이전트 대응. 현재 Claude Code 전용으로 충분하여 보류 (2026-04-11)
-- [ ] walkthrough 실시간 갱신 흐름 — `sdd spec new`에서 walkthrough 미생성이므로 에이전트가 첫 Task 시작 시 빈 walkthrough 생성 + 작업 중 갱신하는 규칙 필요. agent.md Strict Loop에 반영.
 
 ## 📋 대기 Phase
 
