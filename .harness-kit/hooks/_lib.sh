@@ -16,19 +16,9 @@
 
 set -uo pipefail
 
-# 셸 호환: 현재 스크립트의 디렉토리를 반환
-# bash → ${BASH_SOURCE[0]}, zsh → ${(%):-%x}, 그 외 → $0
+# 현재 스크립트의 디렉토리를 반환 (bash 4.0+)
 _script_dir() {
-  local src
-  if [ -n "${BASH_VERSION:-}" ]; then
-    src="${BASH_SOURCE[0]}"
-  elif [ -n "${ZSH_VERSION:-}" ]; then
-    # zsh prompt expansion: %x = 현재 소스 파일 경로
-    src="${(%):-%x}"
-  else
-    src="$0"
-  fi
-  (cd "$(dirname "$src")" && pwd)
+  cd "$(dirname "${BASH_SOURCE[0]}")" && pwd
 }
 
 # Per-hook 모드 해석: HARNESS_HOOK_MODE_{NAME} → HARNESS_HOOK_MODE → default
@@ -104,7 +94,7 @@ hook_branch() {
 
 # Claude Code 가 도구 호출 시 전달하는 입력 환경변수 이름은 버전에 따라 다를 수 있음.
 # 가장 가능성 높은 후보를 모두 확인.
-# bash 3.2 호환: ${key^^} 같은 4+ 문법 사용 금지. tr 로 대문자 변환.
+# tr 로 대문자 변환.
 hook_tool_input() {
   local key="$1"   # e.g. command, file_path
   local KEY

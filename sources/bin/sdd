@@ -2,13 +2,12 @@
 # sdd — harness-kit 메타 명령
 # Spec-Driven Development 작업을 사람과 AI 가 같은 인터페이스로 진행하기 위한 진입점.
 #
-# 환경: macOS + bash 3.2 호환 + jq 필요
+# 환경: macOS + bash 4.0+ + jq 필요
 
 set -uo pipefail
 
-# 자기 위치에서 lib 찾기 (bash/zsh 호환)
-_self() { if [ -n "${BASH_VERSION:-}" ]; then echo "${BASH_SOURCE[0]}"; elif [ -n "${ZSH_VERSION:-}" ]; then echo "${(%):-%x}"; else echo "$0"; fi; }
-SDD_BIN_DIR="$(cd "$(dirname "$(_self)")" && pwd)"
+# 자기 위치에서 lib 찾기
+SDD_BIN_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=lib/common.sh
 source "$SDD_BIN_DIR/lib/common.sh"
 # shellcheck source=lib/state.sh
@@ -1066,7 +1065,7 @@ _check_phase_all_merged() {
 cmd_hooks() {
   local sub="${1:-status}"; shift || true
 
-  # hook 목록과 기본 모드 (배열 대신 문자열 — bash/zsh 호환)
+  # hook 목록과 기본 모드 (공백 구분 문자열)
   local hook_data="BRANCH:block:check-branch.sh PLAN_ACCEPT:warn:check-plan-accept.sh TEST_PASSED:warn:check-test-passed.sh"
 
   case "$sub" in
@@ -1112,7 +1111,7 @@ cmd_hooks() {
       echo ""
       echo "  export HARNESS_HOOK_MODE_${TARGET}=${sub}"
       echo ""
-      echo "영구 적용: .zshrc 또는 .claude/settings.json 의 env 섹션에 추가"
+      echo "영구 적용: .bashrc 또는 .claude/settings.json 의 env 섹션에 추가"
       ;;
     *)
       err "알 수 없는 hooks 서브명령: $sub"

@@ -5,12 +5,11 @@
 #   ./update.sh                    # 현재 디렉토리 갱신
 #   ./update.sh /path/to/project   # 지정 디렉토리 갱신
 #   ./update.sh --yes              # 모든 프롬프트 자동 수락
-#   ./update.sh --shell=bash       # 셸 재선택 (bash 또는 zsh)
 #
 # 동작:
 #   1. prefix / 버전 읽기 (uninstall 전)
 #   2. uninstall --yes --keep-state
-#   3. install --yes [--prefix ...] [--shell ...]
+#   3. install --yes [--prefix ...]
 #   4. cleanup (백업 디렉토리 정리)
 #   5. doctor
 
@@ -33,13 +32,11 @@ die()  { err "$*"; exit 1; }
 # ── 인자 파싱 ────────────────────────────────────────────────
 TARGET=""
 ASSUME_YES=0
-SHELL_ARG=""
 
 for arg in "$@"; do
   case "$arg" in
     --yes|-y)  ASSUME_YES=1 ;;
-    --shell=*) SHELL_ARG="$arg" ;;
-    -h|--help) sed -n '2,10p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
+    -h|--help) sed -n '2,9p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
     -*)        die "알 수 없는 옵션: $arg" ;;
     *)         [ -z "$TARGET" ] || die "대상 디렉토리는 하나만 지정 가능"; TARGET="$arg" ;;
   esac
@@ -128,7 +125,7 @@ log "재설치 중..."
 PREFIX_ARG=""
 [ -n "$HK_PREFIX" ] && PREFIX_ARG="--prefix $HK_PREFIX"
 # shellcheck disable=SC2086
-"$KIT_DIR/install.sh" --yes $SHELL_ARG $PREFIX_ARG $HK_GITIGNORE_ARG "$TARGET"
+"$KIT_DIR/install.sh" --yes $PREFIX_ARG $HK_GITIGNORE_ARG "$TARGET"
 
 # ── 4. state 복원 ────────────────────────────────────────────
 if command -v jq >/dev/null 2>&1 && [ -f "$_STATE" ]; then

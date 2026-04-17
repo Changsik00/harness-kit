@@ -8,8 +8,7 @@
 #   - 일반 토큰: password=, secret=, token=, api_key= (값이 있는 경우)
 #   - .env 파일 staged 여부
 
-_self() { if [ -n "${BASH_VERSION:-}" ]; then echo "${BASH_SOURCE[0]}"; elif [ -n "${ZSH_VERSION:-}" ]; then echo "${(%):-%x}"; else echo "$0"; fi; }
-HOOK_DIR="$(cd "$(dirname "$(_self)")" && pwd)"
+HOOK_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$HOOK_DIR/_lib.sh"
 hook_resolve_mode "SECRETS" "block"
 

@@ -2,8 +2,7 @@
 # PreToolUse hook (matcher: Bash)
 # 목적: push 전 task.md 에 미완료 체크박스 [ ] 가 남아있지 않은지 검증 (agent.md §6.3)
 
-_self() { if [ -n "${BASH_VERSION:-}" ]; then echo "${BASH_SOURCE[0]}"; elif [ -n "${ZSH_VERSION:-}" ]; then echo "${(%):-%x}"; else echo "$0"; fi; }
-HOOK_DIR="$(cd "$(dirname "$(_self)")" && pwd)"
+HOOK_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$HOOK_DIR/_lib.sh"
 hook_resolve_mode "TASK_CHECKBOX" "warn"
 

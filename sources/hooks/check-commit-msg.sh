@@ -5,8 +5,7 @@
 # 허용 type: feat, fix, refactor, test, docs, chore, style, perf, build, ci
 # docs(...), chore(...) 등 모두 형식은 지켜야 함
 
-_self() { if [ -n "${BASH_VERSION:-}" ]; then echo "${BASH_SOURCE[0]}"; elif [ -n "${ZSH_VERSION:-}" ]; then echo "${(%):-%x}"; else echo "$0"; fi; }
-HOOK_DIR="$(cd "$(dirname "$(_self)")" && pwd)"
+HOOK_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$HOOK_DIR/_lib.sh"
 hook_resolve_mode "COMMIT_MSG" "warn"
 

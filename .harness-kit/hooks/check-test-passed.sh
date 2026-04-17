@@ -7,9 +7,8 @@
 # 사용자가 수동으로 테스트 통과를 기록하려면:
 #   bin/sdd test passed       (테스트 직후 호출 권장)
 
-# bash/zsh 호환 자기 위치 탐지
-_self() { if [ -n "${BASH_VERSION:-}" ]; then echo "${BASH_SOURCE[0]}"; elif [ -n "${ZSH_VERSION:-}" ]; then echo "${(%):-%x}"; else echo "$0"; fi; }
-HOOK_DIR="$(cd "$(dirname "$(_self)")" && pwd)"
+# 자기 위치 탐지
+HOOK_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=_lib.sh
 source "$HOOK_DIR/_lib.sh"
 hook_resolve_mode "TEST_PASSED" "warn"
