@@ -38,12 +38,12 @@ zsh는 bash 대비 내장 기능이 풍부하고(associative arrays, glob qualif
 <!-- sdd:specs:start -->
 | ID | 슬러그 | 우선순위 | 상태 | 디렉토리 |
 |---|---|:---:|---|---|
-| spec-03-001 | zsh-native-scripts | P0 | Backlog | `specs/spec-03-001-zsh-native-scripts/` |
-| spec-03-002 | macos-install-guide | P1 | Backlog | `specs/spec-03-002-macos-install-guide/` |
-| spec-03-003 | linux-ci-validation | P1 | Backlog | `specs/spec-03-003-linux-ci-validation/` |
+| spec-03-01 | zsh-native-scripts | P0 | Backlog | `specs/spec-03-01-zsh-native-scripts/` |
+| spec-03-02 | macos-install-guide | P1 | Backlog | `specs/spec-03-02-macos-install-guide/` |
+| spec-03-03 | linux-ci-validation | P1 | Backlog | `specs/spec-03-03-linux-ci-validation/` |
 <!-- sdd:specs:end -->
 
-### spec-03-001 — zsh 네이티브 스크립트 모드
+### spec-03-01 — zsh 네이티브 스크립트 모드
 
 - **요점**: hook/sdd 스크립트를 zsh로도 실행 가능하게 하는 듀얼 모드 구현
 - **방향성**: 두 가지 접근 중 택 1: (A) POSIX sh 호환으로 다운그레이드 — 의존성 0, 하지만 기능 제한. (B) zsh 전용 스크립트 세트를 별도 유지 — macOS 최적화, 하지만 유지보수 2배. 권장은 **(C) 셸 추상화 레이어**: `lib/shell-compat.sh`에서 `bash`/`zsh` 분기하고, 스크립트 본문은 공통 함수 호출. install.sh가 `--shell=zsh|bash` 옵션으로 shebang을 선택
@@ -51,14 +51,14 @@ zsh는 bash 대비 내장 기능이 풍부하고(associative arrays, glob qualif
   - `docs/retrospective-2026-04-10-dogfooding-v1.md` §2
 - **연관 모듈**: `sources/hooks/`, `sources/bin/`, `install.sh`
 
-### spec-03-002 — macOS 설치 가이드
+### spec-03-02 — macOS 설치 가이드
 
 - **요점**: macOS 사용자를 위한 step-by-step 설치 가이드 작성
 - **방향성**: (1) Homebrew 의존성 최소화 (jq만 필요, bash는 선택). (2) Apple Silicon / Intel 분기 안내. (3) Claude Code 설치 → harness-kit 설치 → doctor 검증까지 원스톱 가이드. (4) `docs/guides/macos-setup.md`에 배치
 - **참조**: 없음
 - **연관 모듈**: `docs/`, `install.sh`
 
-### spec-03-003 — Linux CI 검증
+### spec-03-03 — Linux CI 검증
 
 - **요점**: GitHub Actions에 ubuntu-latest matrix를 추가하여 bash 모드 크로스 플랫폼 검증
 - **방향성**: `.github/workflows/ci.yml` 생성. install.sh + doctor.sh + hook 스크립트를 fixture 프로젝트에 대해 실행. macOS-latest + ubuntu-latest 매트릭스
@@ -72,13 +72,13 @@ zsh는 bash 대비 내장 기능이 풍부하고(associative arrays, glob qualif
 - **Given**: macOS, bash 미설치, zsh 기본 셸
 - **When**: `./install.sh --shell=zsh /tmp/test-project`
 - **Then**: 모든 스크립트 shebang이 `#!/bin/zsh`, sdd status 정상 출력
-- **연관 SPEC**: spec-03-001, spec-03-002
+- **연관 SPEC**: spec-03-01, spec-03-02
 
 ### 시나리오 2: Linux bash 모드 설치
 - **Given**: Ubuntu latest, bash 5.x
 - **When**: `./install.sh /tmp/test-project`
 - **Then**: install 성공, doctor.sh 전 항목 PASS
-- **연관 SPEC**: spec-03-003
+- **연관 SPEC**: spec-03-03
 
 ### 통합 테스트 실행
 ```bash

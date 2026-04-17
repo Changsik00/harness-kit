@@ -38,12 +38,12 @@
 <!-- sdd:specs:start -->
 | ID | 슬러그 | 우선순위 | 상태 | 디렉토리 |
 |---|---|:---:|---|---|
-| spec-04-001 | spec-review-cmd | P1 | Backlog | `specs/spec-04-001-spec-review-cmd/` |
-| spec-04-002 | code-review-cmd | P2 | Backlog | `specs/spec-04-002-code-review-cmd/` |
-| `spec-04-002` | spec-review-cmd | P? | Active | `specs/spec-04-002-spec-review-cmd/` |
+| spec-04-01 | spec-review-cmd | P1 | Backlog | `specs/spec-04-01-spec-review-cmd/` |
+| spec-04-02 | code-review-cmd | P2 | Backlog | `specs/spec-04-02-code-review-cmd/` |
+| `spec-04-02` | spec-review-cmd | P? | Active | `specs/spec-04-02-spec-review-cmd/` |
 <!-- sdd:specs:end -->
 
-### spec-04-001 — /spec-review 슬래시 커맨드
+### spec-04-01 — /spec-review 슬래시 커맨드
 
 - **요점**: 독립 sub-agent가 현재 spec.md + plan.md를 비판적으로 리뷰하는 옵셔널 커맨드
 - **방향성**: (1) `.claude/commands/spec-review.md` 생성. (2) Agent tool을 사용하여 별도 컨텍스트에서 리뷰 수행 지시. (3) 리뷰 관점: 요구사항 빈틈, 모호한 DoD, 누락된 엣지 케이스, 과도한 범위. (4) 결과를 `specs/spec-{N}-{seq}-{slug}/review.md`에 저장. (5) 사용자가 `/spec-review` 를 호출하지 않으면 토큰 소모 없음
@@ -52,7 +52,7 @@
   - prove_it 프로젝트의 독립 검증 에이전트 패턴
 - **연관 모듈**: `sources/commands/`
 
-### spec-04-002 — /code-review 슬래시 커맨드
+### spec-04-02 — /code-review 슬래시 커맨드
 
 - **요점**: 독립 sub-agent가 현재 브랜치의 코드 변경을 리뷰하는 옵셔널 커맨드
 - **방향성**: (1) `.claude/commands/code-review.md` 생성. (2) `git diff main...HEAD`를 sub-agent에 전달. (3) 리뷰 관점: 보안 취약점, 성능 이슈, 테스트 커버리지, 코딩 컨벤션. (4) `/handoff` 전 호출을 권장하되 강제하지 않음
@@ -66,13 +66,13 @@
 - **Given**: spec.md와 plan.md가 작성된 상태
 - **When**: 사용자가 `/spec-review` 호출
 - **Then**: 독립 에이전트가 리뷰 결과를 반환하고 review.md에 저장
-- **연관 SPEC**: spec-04-001
+- **연관 SPEC**: spec-04-01
 
 ### 시나리오 2: 미호출 시 토큰 영향 없음
 - **Given**: 전체 SDD 워크플로 진행
 - **When**: `/spec-review`, `/code-review` 미호출
 - **Then**: 추가 토큰 소모 0
-- **연관 SPEC**: spec-04-001, spec-04-002
+- **연관 SPEC**: spec-04-01, spec-04-02
 
 ### 통합 테스트 실행
 ```bash

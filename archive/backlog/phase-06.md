@@ -36,11 +36,11 @@
 <!-- sdd:specs:start -->
 | ID | 슬러그 | 우선순위 | 상태 | 디렉토리 |
 |---|---|:---:|---|---|
-| spec-06-001 | cmd-prefix-rename | P1 | Backlog | `specs/spec-06-001-cmd-prefix-rename/` |
-| spec-06-002 | task-auto-proceed | P1 | Backlog | `specs/spec-06-002-task-auto-proceed/` |
+| spec-06-01 | cmd-prefix-rename | P1 | Backlog | `specs/spec-06-01-cmd-prefix-rename/` |
+| spec-06-02 | task-auto-proceed | P1 | Backlog | `specs/spec-06-02-task-auto-proceed/` |
 <!-- sdd:specs:end -->
 
-### spec-06-001 — 슬래시 커맨드 `hk-` prefix 일괄 변경
+### spec-06-01 — 슬래시 커맨드 `hk-` prefix 일괄 변경
 
 - **요점**: `sources/commands/` 내 모든 `.md` 파일명에 `hk-` prefix 부여, 관련 참조 일괄 갱신
 - **방향성**:
@@ -51,7 +51,7 @@
   5. 도그푸딩 반영 (`.claude/commands/`)
 - **연관 모듈**: `sources/commands/`, `install.sh`, `sources/governance/`, `sources/bin/sdd`
 
-### spec-06-002 — Task 자동 진행
+### spec-06-02 — Task 자동 진행
 
 - **요점**: Strict Loop에서 이슈 없으면 사용자 대기 없이 다음 task로 자동 진행
 - **방향성**:

@@ -7,7 +7,7 @@ SDD 작업 시작 시 `/hk-align` 슬래시 커맨드를 호출하면 전체 거
 - Plan Accept 전에는 PLANNING 모드 (코드 편집 금지)
 - One Task = One Commit
 - Phase ID: `phase-{N}` (예: `phase-01`) — 디렉토리는 `backlog/phase-{N}/`
-- Spec ID:  `spec-{phaseN}-{seq}` (예: `spec-01-001`) — 디렉토리는 `specs/spec-{phaseN}-{seq}-{slug}/`
+- Spec ID:  `spec-{phaseN}-{seq}` (예: `spec-01-01`) — 디렉토리는 `specs/spec-{phaseN}-{seq}-{slug}/`
 - Branch: `spec-{phaseN}-{seq}-{slug}` (브랜치 = spec 디렉토리 이름, `feature/` prefix 없음)
 - Commit subject: `<type>(spec-{phaseN}-{seq}): <설명>` (모두 소문자)
 - 모든 산출물은 한국어

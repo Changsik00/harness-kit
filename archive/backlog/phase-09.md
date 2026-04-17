@@ -50,22 +50,22 @@ harness-kit을 기존 프로젝트에 설치할 때 세 가지 구조적 충돌 
 <!-- sdd:specs:start -->
 | ID | 슬러그 | 우선순위 | 상태 | 디렉토리 |
 |---|---|:---:|---|---|
-| `spec-09-001` | dir-layout | P1 | Done | `specs/spec-09-001-dir-layout/` |
-| `spec-09-002` | claude-md-import | P1 | Done | `specs/spec-09-002-claude-md-import/` |
-| `spec-09-003` | conflict-detection | P2 | Done | `specs/spec-09-003-conflict-detection/` |
-| `spec-09-004` | root-config | P1 | Done | `specs/spec-09-004-root-config/` |
-| `spec-09-005` | update-rewrite | P1 | Done | `specs/spec-09-005-update-rewrite/` |
-| `spec-09-006` | gitignore-config | P1 | Done | `specs/spec-09-006-gitignore-config/` |
-| `spec-09-007` | cleanup-versioned | P1 | Done | `specs/spec-09-007-cleanup-versioned/` |
-| `spec-09-008` | ship-idea-capture | P2 | Done | `specs/spec-09-008-ship-idea-capture/` |
-| `spec-09-009` | preflight-ux | P3 | Done | `specs/spec-09-009-preflight-ux/` |
-| `spec-09-010` | command-path-fix | P1 | Done | `specs/spec-09-010-command-path-fix/` |
-| `spec-09-011` | backlog-sync | P2 | Merged | `specs/spec-09-011-backlog-sync/` |
-| `spec-09-012` | readme-refresh | P2 | Merged | `specs/spec-09-012-readme-refresh/` |
-| `spec-09-013` | auto-ship | P1 | Merged | `specs/spec-09-013-auto-ship/` |
+| `spec-09-01` | dir-layout | P1 | Done | `specs/spec-09-01-dir-layout/` |
+| `spec-09-02` | claude-md-import | P1 | Done | `specs/spec-09-02-claude-md-import/` |
+| `spec-09-03` | conflict-detection | P2 | Done | `specs/spec-09-03-conflict-detection/` |
+| `spec-09-04` | root-config | P1 | Done | `specs/spec-09-04-root-config/` |
+| `spec-09-05` | update-rewrite | P1 | Done | `specs/spec-09-05-update-rewrite/` |
+| `spec-09-06` | gitignore-config | P1 | Done | `specs/spec-09-06-gitignore-config/` |
+| `spec-09-07` | cleanup-versioned | P1 | Done | `specs/spec-09-07-cleanup-versioned/` |
+| `spec-09-08` | ship-idea-capture | P2 | Done | `specs/spec-09-08-ship-idea-capture/` |
+| `spec-09-09` | preflight-ux | P3 | Done | `specs/spec-09-09-preflight-ux/` |
+| `spec-09-10` | command-path-fix | P1 | Done | `specs/spec-09-10-command-path-fix/` |
+| `spec-09-11` | backlog-sync | P2 | Merged | `specs/spec-09-11-backlog-sync/` |
+| `spec-09-12` | readme-refresh | P2 | Merged | `specs/spec-09-12-readme-refresh/` |
+| `spec-09-13` | auto-ship | P1 | Merged | `specs/spec-09-13-auto-ship/` |
 <!-- sdd:specs:end -->
 
-### spec-09-001 — 디렉토리 레이아웃 마이그레이션
+### spec-09-01 — 디렉토리 레이아웃 마이그레이션
 
 - **요점**: `agent/` → `.harness-kit/agent/`, `scripts/harness/` → `.harness-kit/bin/` + `.harness-kit/hooks/`로 이동. install/update/uninstall/doctor.sh 및 sdd 바이너리의 경로 참조를 전면 교체한다.
 - **방향성**:
@@ -79,7 +79,7 @@ harness-kit을 기존 프로젝트에 설치할 때 세 가지 구조적 충돌 
 - **참조**: Alignment Phase 논의 (2026-04-14) — 위험 요소 A, B, C, D
 - **연관 모듈**: `install.sh`, `update.sh`, `uninstall.sh`, `doctor.sh`, `sources/bin/sdd`, `sources/hooks/`, `sources/claude-fragments/settings.json.fragment`, `sources/governance/*.md`
 
-### spec-09-002 — CLAUDE.md @import 방식 전환
+### spec-09-02 — CLAUDE.md @import 방식 전환
 
 - **요점**: CLAUDE.md에 전체 블록을 직접 삽입하는 방식에서 `@.harness-kit/CLAUDE.fragment.md` @import 3줄로 교체. 기존 CLAUDE.md 내용을 보존하면서 HARNESS-KIT 블록만 교체한다.
 - **방향성**:
@@ -92,11 +92,11 @@ harness-kit을 기존 프로젝트에 설치할 때 세 가지 구조적 충돌 
     @.harness-kit/CLAUDE.fragment.md
     <!-- HARNESS-KIT:END -->
     ```
-  - spec-09-001 완료 후 작업 (`.harness-kit/` 디렉토리가 먼저 존재해야 함)
+  - spec-09-01 완료 후 작업 (`.harness-kit/` 디렉토리가 먼저 존재해야 함)
 - **참조**: Alignment Phase 논의 (2026-04-14) — CLAUDE.md 충돌 위험, 사용자 요청 1번
 - **연관 모듈**: `install.sh`, `update.sh`, `sources/claude-fragments/CLAUDE.md.fragment`
 
-### spec-09-003 — 충돌 감지 + config 시스템
+### spec-09-03 — 충돌 감지 + config 시스템
 
 - **요점**: 설치 전 기존 디렉토리 충돌을 스캔하고, 충돌 시 경로 변경 옵션을 제안한다. `harness.config.json`으로 `backlog/`, `specs/` 경로를 override할 수 있다.
 - **방향성**:
@@ -105,11 +105,11 @@ harness-kit을 기존 프로젝트에 설치할 때 세 가지 구조적 충돌 
   - 충돌 시 UX: 충돌 내역 출력 → 제안 경로 자동 생성 (예: `hk-backlog/`, `hk-specs/`) → 사용자 확인 (y/N 또는 직접 경로 입력) → `harness.config.json` 자동 작성
   - `harness.config.json` 스키마: `{ "backlogDir": "backlog", "specsDir": "specs" }`
   - `sdd` 바이너리가 `harness.config.json`을 읽어 경로 반영
-  - spec-09-001 완료 후 작업
+  - spec-09-01 완료 후 작업
 - **참조**: Alignment Phase 논의 (2026-04-14) — 위험 요소 E, 사용자 요청 3번
 - **연관 모듈**: `install.sh`, `update.sh`, `sources/bin/sdd`, `sources/bin/lib/`
 
-### spec-09-006 — gitignore config 옵션
+### spec-09-06 — gitignore config 옵션
 
 - **요점**: `.harness-kit/`을 `.gitignore`에 추가할지 `install.sh`에서 묻고, 선택을 `harness.config.json`에 저장. 기본값은 gitignore(true).
 - **방향성**:
@@ -119,7 +119,7 @@ harness-kit을 기존 프로젝트에 설치할 때 세 가지 구조적 충돌 
   - gitignore=false: `!.harness-kit/` 명시적 un-ignore (현재 동작 유지)
 - **연관 모듈**: `install.sh`, `.gitignore` 처리
 
-### spec-09-007 — cleanup.sh (버전별 정리)
+### spec-09-07 — cleanup.sh (버전별 정리)
 
 - **요점**: 버전 구간별 deprecated 파일/디렉토리 제거 로직을 `cleanup.sh`로 분리. `sources/migrations/` 인프라를 실제로 채움.
 - **방향성**:
@@ -128,7 +128,7 @@ harness-kit을 기존 프로젝트에 설치할 때 세 가지 구조적 충돌 
   - `update.sh`에서 `cleanup.sh` 호출
 - **연관 모듈**: `cleanup.sh`, `update.sh`, `sources/migrations/`
 
-### spec-09-008 — 거버넌스 흐름 보호 (idea-guard)
+### spec-09-08 — 거버넌스 흐름 보호 (idea-guard)
 
 - **요점**: 작업 중 새 아이디어/의견 발생 시 현재 흐름을 보호하고 문서화 없는 방향 전환을 금지하는 거버넌스 강화.
 - **방향성**:
@@ -137,17 +137,17 @@ harness-kit을 기존 프로젝트에 설치할 때 세 가지 구조적 충돌 
   - **Opinion Divergence Protocol** (`constitution.md` §5.6 신설): 사용자 의견 ≠ 현재 목표 → 충돌 명시 → 조율안 제안.
 - **연관 모듈**: `sources/governance/constitution.md`, `sources/governance/agent.md`, `sources/commands/hk-ship.md`
 
-### spec-09-009 — preflight-ux
+### spec-09-09 — preflight-ux
 
 - **요점**: `install.sh` / `update.sh` 시작 시 충돌 스캔 결과 요약 출력, 이상 있을 때 사용자 확인.
 - **연관 모듈**: `install.sh`, `update.sh`
 
-### spec-09-010 — command-path-fix
+### spec-09-10 — command-path-fix
 
-- **요점**: `.claude/commands/hk-*.md` 슬래시 커맨드 내 `scripts/harness/bin/sdd` 경로를 `.harness-kit/bin/sdd`로 일괄 수정. spec-09-001에서 누락된 경로 교체.
+- **요점**: `.claude/commands/hk-*.md` 슬래시 커맨드 내 `scripts/harness/bin/sdd` 경로를 `.harness-kit/bin/sdd`로 일괄 수정. spec-09-01에서 누락된 경로 교체.
 - **연관 모듈**: `.claude/commands/hk-*.md`, `sources/commands/hk-*.md`
 
-### spec-09-011 — backlog-sync
+### spec-09-11 — backlog-sync
 
 - **요점**: `sdd archive` 후처리 보강 + 에이전트 PR 머지 후 절차 정의. archive 후 대시보드 불일치 근본 버그 수정, "다음 뭐 하지?" UX 흐름 확립.
 - **방향성**:
@@ -156,7 +156,7 @@ harness-kit을 기존 프로젝트에 설치할 때 세 가지 구조적 충돌 
   3. agent.md §6.3.1 Post-Merge Protocol 추가
 - **연관 모듈**: `sources/bin/sdd`, `sources/templates/queue.md`, `sources/governance/agent.md`
 
-### spec-09-012 — README 최신화
+### spec-09-12 — README 최신화
 
 - **요점**: `README.md`를 v0.4.0 기준으로 최신화. FAQ 유효성 검토, Hook 모드 섹션 갱신, 설치 경로 `.harness-kit/` 반영.
 - **연관 모듈**: `README.md`, `docs/`
@@ -170,35 +170,35 @@ harness-kit을 기존 프로젝트에 설치할 때 세 가지 구조적 충돌 
 - **Given**: git 초기화만 된 빈 디렉토리
 - **When**: `install.sh <dir>` 실행
 - **Then**: `.harness-kit/agent/`, `.harness-kit/bin/`, `.harness-kit/hooks/` 생성됨. `agent/`, `scripts/harness/`는 생성되지 않음. CLAUDE.md에 @import 3줄만 추가됨.
-- **연관 SPEC**: spec-09-001, spec-09-002
+- **연관 SPEC**: spec-09-01, spec-09-02
 
 ### 시나리오 2: 충돌 있는 프로젝트 설치
 
 - **Given**: `agent/` 디렉토리가 이미 존재하는 프로젝트 (비harness-kit 콘텐츠)
 - **When**: `install.sh <dir>` 실행
 - **Then**: `agent/` 충돌 없이 통과 (`.harness-kit/`에 설치되므로). `backlog/`가 비어있지 않으면 경로 변경 제안 출력.
-- **연관 SPEC**: spec-09-001, spec-09-003
+- **연관 SPEC**: spec-09-01, spec-09-03
 
 ### 시나리오 3: v0.3 → v0.4 마이그레이션
 
 - **Given**: v0.3(`agent/`, `scripts/harness/`)이 설치된 프로젝트
 - **When**: `update.sh` 실행
 - **Then**: preflight에서 old-layout 감지 경고 출력 → 사용자 확인 → `agent/` → `.harness-kit/agent/`, `scripts/harness/` → `.harness-kit/`로 이동. 구 디렉토리 제거.
-- **연관 SPEC**: spec-09-001, spec-09-004
+- **연관 SPEC**: spec-09-01, spec-09-04
 
 ### 시나리오 4: CLAUDE.md 기존 내용 보존
 
 - **Given**: 내용이 있는 CLAUDE.md (HARNESS-KIT 블록 없음)
 - **When**: `install.sh` 실행
 - **Then**: 기존 CLAUDE.md 내용 그대로 유지. 파일 끝에 @import 3줄만 추가됨.
-- **연관 SPEC**: spec-09-002
+- **연관 SPEC**: spec-09-02
 
 ### 시나리오 5: harness.config.json 경로 override
 
 - **Given**: `harness.config.json`에 `{ "backlogDir": "hk-backlog", "specsDir": "hk-specs" }` 설정
 - **When**: `sdd status` 실행
 - **Then**: `hk-backlog/queue.md`를 기준으로 상태 출력. `backlog/`는 참조하지 않음.
-- **연관 SPEC**: spec-09-003
+- **연관 SPEC**: spec-09-03
 
 ### 통합 테스트 실행
 
@@ -216,9 +216,9 @@ bash tests/run-all.sh
 
 | 위험 | 영향 | 완화책 |
 |---|---|---|
-| `.harness-kit/`가 기존 `.gitignore`의 `.*` 패턴에 걸림 | `.harness-kit/` 전체 미추적 | `install.sh`에서 `!.harness-kit/` un-ignore 추가 (spec-09-001) |
+| `.harness-kit/`가 기존 `.gitignore`의 `.*` 패턴에 걸림 | `.harness-kit/` 전체 미추적 | `install.sh`에서 `!.harness-kit/` un-ignore 추가 (spec-09-01) |
 | v0.3 migration 중 실패 시 partial state | 구/신 레이아웃 혼재 | migration 전 `.harness-backup-{TS}/` 백업 + 실패 시 rollback |
-| settings.json hook 경로 갱신 누락 | 모든 hook silently 실패 | spec-09-001에서 fragment 교체 후 hook 경로 검증 스텝 추가 |
+| settings.json hook 경로 갱신 누락 | 모든 hook silently 실패 | spec-09-01에서 fragment 교체 후 hook 경로 검증 스텝 추가 |
 | `backlog/`, `specs/` config 변경 후 sdd 경로 불일치 | sdd status/archive 오동작 | `harness.config.json` 읽기를 sdd 공통 lib 함수로 통일 |
 
 ## 🏁 Phase Done 조건
