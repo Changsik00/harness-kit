@@ -42,10 +42,10 @@
 | [phase-05](phase-05.md) | spec-kit 패턴 도입 & 크로스 에이전트 | 1 (Merged) |
 | [phase-06](phase-06.md) | SDD UX 개선 및 커맨드 정리 | 2 (Merged) |
 | [phase-07](phase-07.md) | SDD 프로세스 일관성 및 품질 강화 | 4 (Merged) |
-- **phase-08** — 작업 관리 모델 재정립 — Queue·Phase base branch·완료 흐름 강제 — completed 2026-04-12
-- **10** — ? — completed 2026-04-16
-- **11** — ? — completed 2026-04-17
-- **09** — ? — completed 2026-04-17
+- **phase-08** — 작업 관리 모델 재정립 — completed 2026-04-12
+- **phase-09** — 설치 충돌 방어 — completed 2026-04-17
+- **phase-10** — sdd 상태 진단 신뢰성 강화 — completed 2026-04-16
+- **phase-11** — 식별자 체계 개선 및 디렉토리 아카이브 — completed 2026-04-17
 <!-- sdd:done:end -->
 
 ---
