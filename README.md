@@ -414,27 +414,19 @@ HARNESS_HOOK_MODE=off git commit -m "..."
 
 ## Bitbucket PR 설정
 
-`/hk-pr-bb` 사용 시 Bitbucket App Password가 필요합니다:
+`/hk-pr-bb` 사용 시 Bitbucket Cloud API 토큰이 필요합니다.
 
-1. **Bitbucket 설정** → Personal Settings → App passwords
-2. **Create app password** 클릭
-3. 권한 선택:
-   - **Repositories**: Read, Write
-   - **Pull requests**: Read, Write
-4. 생성된 토큰을 저장:
+1. **Bitbucket 설정** → Personal Settings → API Key (또는 App Password)
+2. 필요 권한: **Pull Request — Read, Write** (`pullrequest:write` 스코프)
+3. 토큰을 파일로 저장:
 
 ```bash
 mkdir -p ~/.config/bitbucket
-echo "YOUR_APP_PASSWORD" > ~/.config/bitbucket/token
+echo "YOUR_API_TOKEN" > ~/.config/bitbucket/token
 chmod 600 ~/.config/bitbucket/token
 ```
 
-5. username 설정 (토큰과 별도):
-
-```bash
-echo "YOUR_BITBUCKET_USERNAME" > ~/.config/bitbucket/username
-chmod 600 ~/.config/bitbucket/username
-```
+> 다른 경로를 사용하려면 `BITBUCKET_TOKEN_FILE` 환경변수로 지정할 수 있습니다.
 
 > GitHub 사용자는 `gh auth login`만 하면 `/hk-pr-gh`가 바로 동작합니다.
 
