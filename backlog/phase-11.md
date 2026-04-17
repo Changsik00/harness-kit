@@ -136,11 +136,28 @@ bash tests/test-sdd-archive-search.sh
 
 ## 🏁 Phase Done 조건
 
-- [ ] 모든 SPEC 이 main 에 merge (위 표의 상태 = Merged)
-- [ ] 통합 테스트 전 시나리오 PASS
-- [ ] 성공 기준 정량 측정 결과 (본 문서 하단 "검증 결과" 섹션에 기록)
+- [x] 모든 SPEC 이 main 에 merge (5/5 — PR #51~#55)
+- [x] 통합 테스트 전 시나리오 PASS (28/28)
+- [x] 성공 기준 정량 측정 결과 (아래 기록)
 - [ ] 사용자 최종 승인
 
-## 📊 검증 결과 (phase 완료 시 작성)
+## 📊 검증 결과
 
-<!-- 통합 테스트 로그, 성공 기준 측정값, 회귀 점검 결과 등을 여기 첨부 -->
+### 성공 기준
+
+| # | 기준 | 결과 | 증거 |
+|:---:|---|:---:|---|
+| 1 | `ls specs/` 정렬 = numeric 순서 | ✅ PASS | spec-01 ~ spec-11 순서 |
+| 2 | `sdd ship` 정상 + `sdd archive` 교체 | ✅ PASS | help 텍스트 확인 |
+| 3 | `sdd archive` → archive/ 이동 | ✅ PASS | test-sdd-dir-archive 10/10 |
+| 4 | `sdd status` archive 탐색 | ✅ PASS | test-sdd-archive-search 11/11 |
+| 5 | align 시 아카이브 제안 | ✅ PASS | specs/ 47개 → 진단 메시지 출력 |
+
+### 통합 테스트
+
+| 테스트 파일 | 결과 |
+|---|---|
+| test-sdd-ship-completion.sh | 7/7 PASS |
+| test-sdd-dir-archive.sh | 10/10 PASS |
+| test-sdd-archive-search.sh | 11/11 PASS |
+| **합계** | **28/28 PASS** |
