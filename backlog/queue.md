@@ -7,7 +7,7 @@
 ## 📦 진행 중 Phase
 
 <!-- sdd:active:start -->
-- **phase-11** — 식별자 체계 개선 및 디렉토리 아카이브 — 2 spec — 다음: spec-11-002-id-padding
+(active phase 없음. `bin/sdd phase new <slug>` 로 시작)
 <!-- sdd:active:end -->
 
 ## 📥 spec-x 대기
@@ -20,10 +20,8 @@
 
 > 아이디어·보류 항목 보관소. 실행 불가. 관련 항목이 쌓이면 Phase로, 단발이면 spec-x로 승격.
 
-- [ ] spec-05-002 (deferred — dependency 해소 후 재검토)
-- [ ] 기존 테스트 실패 조사 — `test-hook-modes.sh` 1/12 FAIL, `test-zsh-compat.sh` 1/20 FAIL. exit code 0이라 묻혀있음. 원인 파악 및 수정 필요.
+- [ ] spec-05-002 AGENTS.md 호환 레이어 — Cursor/Copilot/Codex 등 멀티 에이전트 대응. 현재 Claude Code 전용으로 충분하여 보류 (2026-04-11)
 - [ ] walkthrough 실시간 갱신 흐름 — `sdd spec new`에서 walkthrough 미생성이므로 에이전트가 첫 Task 시작 시 빈 walkthrough 생성 + 작업 중 갱신하는 규칙 필요. agent.md Strict Loop에 반영.
-- [ ] walkthrough 템플릿 `📋 실제 구현된 변경사항` 축소/삭제 검토 — diff로 확인 가능한 내용이라 가치 낮음.
 
 ## 📋 대기 Phase
 
@@ -46,6 +44,7 @@
 | [phase-07](phase-07.md) | SDD 프로세스 일관성 및 품질 강화 | 4 (Merged) |
 - **phase-08** — 작업 관리 모델 재정립 — Queue·Phase base branch·완료 흐름 강제 — completed 2026-04-12
 - **10** — ? — completed 2026-04-16
+- **11** — ? — completed 2026-04-17
 <!-- sdd:done:end -->
 
 ---
