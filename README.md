@@ -77,7 +77,7 @@ harness-kit은 다섯 가지 작업 유형을 정의합니다. 상황에 맞는 
 |---|:---:|---|
 | **macOS** | ✅ 1차 | Sonoma+, Apple Silicon / Intel |
 | **Linux** | △ | bash 4.0+, jq, git이 있으면 동작 가능 (best-effort) |
-| **Windows** | ❌ | WSL2 내에서는 Linux와 동일 |
+| **Windows** | △ 미검증 | Git Bash (bash 4.0+ 포함) + jq 환경에서 동작 가능성 있음. WSL2 권장 |
 | **AI 호스트** | Claude Code 전용 | `.claude/` 구조 + hooks + settings.json에 의존 |
 | **Shell** | bash 4.0+ | 모든 스크립트는 `#!/usr/bin/env bash` |
 
