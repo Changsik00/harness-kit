@@ -22,7 +22,6 @@
 
 - [ ] spec-05-002 AGENTS.md 호환 레이어 — Cursor/Copilot/Codex 등 멀티 에이전트 대응. 현재 Claude Code 전용으로 충분하여 보류 (2026-04-11)
 - [ ] walkthrough 실시간 갱신 흐름 — `sdd spec new`에서 walkthrough 미생성이므로 에이전트가 첫 Task 시작 시 빈 walkthrough 생성 + 작업 중 갱신하는 규칙 필요. agent.md Strict Loop에 반영.
-- [ ] walkthrough 템플릿 `📋 실제 구현된 변경사항` 축소/삭제 검토 — diff로 확인 가능한 내용이라 가치 낮음.
 
 ## 📋 대기 Phase
 
