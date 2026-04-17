@@ -40,8 +40,8 @@
 ## 작업 원칙 (이 프로젝트 자체에 적용)
 
 1. **도그푸딩 가능성**: 모든 변경은 결국 `nextmarket-api` 에 install 되어야 함. 추상화는 첫 사용자(NestJS)에서 검증된 후에만.
-2. **컨텍스트 비용 0 우선**: zsh 스크립트 > Slash 커맨드 > Skill > MCP
-3. **bash 호환**: 사용자는 zsh 환경이지만 모든 스크립트는 `#!/usr/bin/env bash` 로 작성하여 다른 환경에서도 동작하도록 함 (단, `set -euo pipefail` 필수)
+2. **컨텍스트 비용 0 우선**: bash 스크립트 > Slash 커맨드 > Skill > MCP
+3. **bash 4.0+ 전용**: 모든 스크립트는 `#!/usr/bin/env bash` 로 작성 (단, `set -euo pipefail` 필수)
 4. **한국어 산출물**: 사용자 검토 가능성 우선
 5. **Hook 단계론**: 새 hook 은 항상 *경고 모드(exit 0 + stderr)* 로 시작. 1주 운영 후 차단 모드(exit 2) 로 승격
 6. **No Over-engineering**: NestJS 1차 타깃

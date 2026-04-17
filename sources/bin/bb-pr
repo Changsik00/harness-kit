@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # bb-pr — Bitbucket Cloud Pull Request 생성기
 #
-# 환경: macOS + bash 3.2 호환, 의존: jq, curl, git
+# 환경: macOS + bash 4.0+, 의존: jq, curl, git
 #
 # 사용법:
 #   bb-pr [옵션]

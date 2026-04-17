@@ -6,8 +6,7 @@
 # 편집 대상 파일이 그 범위에 포함되는지 확인.
 # plan.md 가 없거나 active spec 이 없으면 통과.
 
-_self() { if [ -n "${BASH_VERSION:-}" ]; then echo "${BASH_SOURCE[0]}"; elif [ -n "${ZSH_VERSION:-}" ]; then echo "${(%):-%x}"; else echo "$0"; fi; }
-HOOK_DIR="$(cd "$(dirname "$(_self)")" && pwd)"
+HOOK_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$HOOK_DIR/_lib.sh"
 hook_resolve_mode "SCOPE" "warn"
 
