@@ -9,7 +9,7 @@ harness-kit의 주요 변경 사항을 버전별로 정리합니다.
 
 ### Changed
 - **`sdd archive` → `sdd ship` 리네이밍** — 실제 동작에 맞는 이름으로 변경. 기존 `sdd archive` 호출은 deprecation 경고 후 동작 (→ phase-11에서 디렉토리 아카이브로 교체)
-- **식별자 2자리 패딩** — `phase-01`, `spec-01-001` 형식. 파일 시스템 정렬 보장
+- **식별자 2자리 패딩** — `phase-01`, `spec-01-01` 형식. 파일 시스템 정렬 보장
 - **zsh 호환 코드 제거** — bash 4.0+ 전용. `_self()` ZSH 분기, `install.sh --shell=zsh`, `test-zsh-compat.sh` 삭제
 
 ### Added
@@ -30,7 +30,7 @@ harness-kit의 주요 변경 사항을 버전별로 정리합니다.
 
 ### Added
 - **5개의 PreToolUse 훅 신규 추가**
-  - `check-commit-msg` — 커밋 메시지 형식 검증 (`type(spec-N-NNN): 설명` 패턴)
+  - `check-commit-msg` — 커밋 메시지 형식 검증 (`type(spec-NN-NN): 설명` 패턴)
   - `check-diff-size` — 비정상적으로 큰 diff 감지 (기본 임계값: 500줄, `HARNESS_DIFF_LIMIT` 으로 조정)
   - `check-scope` — 스펙 범위 이탈 감지
   - `check-secrets` — 시크릿/자격증명 노출 방지 (API 키, 토큰 패턴 스캔)

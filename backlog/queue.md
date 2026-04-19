@@ -46,6 +46,7 @@
 - **phase-09** — 설치 충돌 방어 — completed 2026-04-17
 - **phase-10** — sdd 상태 진단 신뢰성 강화 — completed 2026-04-16
 - **phase-11** — 식별자 체계 개선 및 디렉토리 아카이브 — completed 2026-04-17
+- [x] spec-x-sdd-ux-fixes (완료)
 <!-- sdd:done:end -->
 
 ---

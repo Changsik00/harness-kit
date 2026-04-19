@@ -36,7 +36,7 @@ sdd — harness-kit 메타 명령
   spec new <slug>               active phase 안에 새 spec-{phaseN}-{seq}-{slug} 생성
                                 phase-{N}.md 의 spec 표 자동 append + queue 갱신
   spec list [--phase=N]         spec 목록
-  spec show [spec-N-NN-slug]   spec 상세 (생략 시 active)
+  spec show [spec-NN-NN-slug]  spec 상세 (생략 시 active)
 
   plan accept                   현재 spec 의 plan 을 승인 (planAccepted=true)
 
@@ -46,7 +46,7 @@ sdd — harness-kit 메타 명령
                                 (테스트 직후 호출 — hook 가 검사함)
 
   ship [--check]                walkthrough/pr_description 작성 검증 (--check 시 변경 없음)
-                                통과 시 docs(spec-N-NN): ship ... commit 생성
+                                통과 시 docs(spec-NN-NN): ship ... commit 생성
 
   archive [--keep=N] [--dry-run]  완료된 phase 의 spec/backlog 를 archive/ 로 이동
                                   --keep=N: 최근 N 개 완료 phase 유지 (기본: 0)

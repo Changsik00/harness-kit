@@ -169,7 +169,7 @@ Before any Spec, Plan, or execution:
 - **Phase Base Branch**: In phase base branch mode, a `phase-{N}-{slug}` branch is created. The slug is a concise identifier derived from the phase.md title. Example: `phase-08-work-model`.
 
 ### 6.2 Spec Identifier
-- Format: `spec-{phaseN}-{seq}` where `phaseN` matches the parent phase number and `seq` is a 3-digit number reset per phase.
+- Format: `spec-{phaseN}-{seq}` where `phaseN` matches the parent phase number and `seq` is a 2-digit number reset per phase.
 - Examples: `spec-01-01`, `spec-01-02`, `spec-02-01`.
 - A Spec ID is immutable once assigned.
 - **Solo Spec format**: `spec-x-{slug}` — used when no Phase affiliation exists (→ §5.1 Solo Spec conditions).

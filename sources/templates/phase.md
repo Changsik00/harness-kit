@@ -43,7 +43,7 @@
 > 상태 허용값: `Backlog` / `In Progress` / `Merged`
 > sdd가 ship 시 자동으로 `Merged`로 갱신합니다. `In Progress`는 active spec에 자동 마킹됩니다.
 
-### spec-{N}-001 — <한글 슬러그>
+### spec-{N}-01 — <한글 슬러그>
 
 - **요점**: <한 줄 — 무엇을 바꾸는가>
 - **방향성**: <어떻게 접근하는가, 1~2 줄>
@@ -52,7 +52,7 @@
   - `docs/decisions/ADR-<NNN>-<slug>.md` (있다면)
 - **연관 모듈**: `<src/path/...>`
 
-### spec-{N}-002 — <한글 슬러그>
+### spec-{N}-02 — <한글 슬러그>
 
 - **요점**:
 - **방향성**:
@@ -69,7 +69,7 @@
 - **Given**: ...
 - **When**: ...
 - **Then**: ...
-- **연관 SPEC**: spec-{N}-001, spec-{N}-002
+- **연관 SPEC**: spec-{N}-01, spec-{N}-02
 
 ### 시나리오 2: <제목>
 - **Given**: ...

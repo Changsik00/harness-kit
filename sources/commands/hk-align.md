@@ -39,7 +39,7 @@ bash .harness-kit/bin/sdd status
 ```
 📊 현재 상태
 - Active Phase: <PHASE-N-slug 또는 "없음">
-- Active Spec:  <SPEC-N-NNN-slug 또는 "없음">  ← NOW
+- Active Spec:  <SPEC-NN-NN-slug 또는 "없음">  ← NOW
 - NEXT:         <다음 spec 또는 "없음">
 - Branch:       <current branch>
 - Plan Accept:  <yes / no>
