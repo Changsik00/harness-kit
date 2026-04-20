@@ -62,14 +62,14 @@ F1="$(make_fixture)"
 trap "rm -rf '$F1'" EXIT
 
 # spec-{phaseN}-{seq}-{slug} 브랜치 → SDD-P 출력 확인
-git -C "$F1" checkout -b "spec-10-001-test-slug" -q 2>/dev/null
+git -C "$F1" checkout -b "spec-10-01-test-slug" -q 2>/dev/null
 
 status_out1=$(cd "$F1" && bash .harness-kit/bin/sdd status 2>&1)
 
 if echo "$status_out1" | grep -q "SDD-P"; then
-  ok "spec-10-001-test-slug 브랜치 → SDD-P work mode 추론됨"
+  ok "spec-10-01-test-slug 브랜치 → SDD-P work mode 추론됨"
 else
-  fail "spec-10-001-test-slug 브랜치 → SDD-P 없음 — 출력: $status_out1"
+  fail "spec-10-01-test-slug 브랜치 → SDD-P 없음 — 출력: $status_out1"
 fi
 
 # phase base 브랜치 → phase base 출력 확인
