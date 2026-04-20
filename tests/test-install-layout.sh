@@ -39,7 +39,7 @@ git -C "$FIXTURE_DIR" config user.email "test@harness-kit.local"
 git -C "$FIXTURE_DIR" config user.name "harness-kit test"
 
 echo "▶ install.sh --yes 실행 중..."
-if ! bash "$INSTALL" --yes --shell=bash "$FIXTURE_DIR" > /dev/null 2>&1; then
+if ! bash "$INSTALL" --yes "$FIXTURE_DIR" > /dev/null 2>&1; then
   echo "  ❌ install.sh 실행 실패"
   exit 1
 fi

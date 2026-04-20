@@ -88,7 +88,7 @@ _infer_work_mode() {
     spec-x-*)
       echo "SDD-x"
       ;;
-    spec-[0-9]*-[0-9][0-9]-*)
+    spec-[0-9]*-[0-9][0-9][0-9]*-*)
       local phase_num
       phase_num="$(echo "$br" | sed 's/^spec-\([0-9]*\)-.*/\1/')"
       echo "SDD-P (phase-${phase_num})"
@@ -1296,13 +1296,6 @@ cmd_archive() {
       backlog_count=$((backlog_count + 1))
     fi
   done <<< "$target_phases"
-
-  # spec-x 디렉토리도 아카이브 대상에 포함
-  for d in "$SDD_SPECS"/spec-x-*; do
-    [ -d "$d" ] || continue
-    specs_to_move="${specs_to_move}${d}\n"
-    spec_count=$((spec_count + 1))
-  done
 
   if [ "$spec_count" -eq 0 ] && [ "$backlog_count" -eq 0 ]; then
     log "이동할 항목이 없습니다."
