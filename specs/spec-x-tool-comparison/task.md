@@ -29,13 +29,13 @@
 
 ## Task 2: Ship
 
-- [ ] 전체 테스트 실행 → 모두 PASS (`for t in tests/test-*.sh; do bash "$t"; done`)
-- [ ] **walkthrough.md 작성**
-- [ ] **pr_description.md 작성**
-- [ ] **Ship Commit**: `docs(spec-x-tool-comparison): ship walkthrough and pr description`
-- [ ] **Push**: `git push -u origin spec-x-tool-comparison`
-- [ ] **PR 생성** (사용자 승인 후)
-- [ ] **사용자 알림**
+- [x] 전체 테스트 실행 → 모두 PASS (`for t in tests/test-*.sh; do bash "$t"; done`)
+- [x] **walkthrough.md 작성**
+- [x] **pr_description.md 작성**
+- [x] **Ship Commit**: `docs(spec-x-tool-comparison): ship walkthrough and pr description`
+- [x] **Push**: `git push -u origin spec-x-tool-comparison`
+- [x] **PR 생성** (사용자 승인 후)
+- [x] **사용자 알림**
 
 ---
 
@@ -45,5 +45,5 @@
 |---|---|
 | **총 Task 수** | 2 |
 | **예상 commit 수** | 2 |
-| **현재 단계** | Planning |
+| **현재 단계** | Done |
 | **마지막 업데이트** | 2026-04-20 |
