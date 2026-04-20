@@ -255,6 +255,9 @@ elif [ -f "$TARGET/pyproject.toml" ] || [ -f "$TARGET/setup.py" ]; then
   _check_python
 elif [ -f "$TARGET/go.mod" ]; then
   _check_go
+elif ls "$TARGET"/*.sh "$TARGET"/install.sh "$TARGET"/sources/bin/* 2>/dev/null | grep -q .; then
+  echo "  ${C_DIM}프로젝트 타입: Shell 스크립트 프로젝트${C_RST}"
+  check_pass "Shell 프로젝트 감지 — lint/test 불필요"
 else
   check_warn "프로젝트 타입 감지 불가 — lint/test 설정을 직접 확인하세요"
 fi
