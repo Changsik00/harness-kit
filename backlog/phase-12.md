@@ -35,6 +35,7 @@ phase-11까지 harness-kit의 핵심 설치/거버넌스/식별자 체계가 완
 <!-- sdd:specs:start -->
 | ID | 슬러그 | 우선순위 | 상태 | 디렉토리 |
 |---|---|:---:|---|---|
+| `spec-12-01` | staged-lint | P1 | Merged | `specs/spec-12-01-staged-lint/` |
 <!-- sdd:specs:end -->
 
 ### spec-12-001 — staged linting 훅
