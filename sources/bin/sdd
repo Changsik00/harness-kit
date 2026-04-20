@@ -1076,7 +1076,7 @@ cmd_hooks() {
   local sub="${1:-status}"; shift || true
 
   # hook 목록과 기본 모드 (공백 구분 문자열)
-  local hook_data="BRANCH:block:check-branch.sh PLAN_ACCEPT:warn:check-plan-accept.sh TEST_PASSED:warn:check-test-passed.sh"
+  local hook_data="BRANCH:block:check-branch.sh PLAN_ACCEPT:warn:check-plan-accept.sh TEST_PASSED:warn:check-test-passed.sh STAGED_LINT:warn:check-staged-lint.sh"
 
   case "$sub" in
     status|"")
@@ -1112,7 +1112,7 @@ cmd_hooks() {
       local target="${1:-}"
       if [ -z "$target" ]; then
         echo "사용법: sdd hooks $sub <hook-name>"
-        echo "  hook-name: BRANCH, PLAN_ACCEPT, TEST_PASSED"
+        echo "  hook-name: BRANCH, PLAN_ACCEPT, TEST_PASSED, STAGED_LINT"
         exit 1
       fi
       local TARGET

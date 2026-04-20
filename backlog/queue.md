@@ -7,7 +7,7 @@
 ## 📦 진행 중 Phase
 
 <!-- sdd:active:start -->
-(active phase 없음. `bin/sdd phase new <slug>` 로 시작)
+- **phase-12** — 프로젝트 확장성 강화 — 1 spec — 다음: spec-12-01-staged-lint
 <!-- sdd:active:end -->
 
 ## 📥 spec-x 대기
