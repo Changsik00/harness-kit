@@ -88,7 +88,7 @@ _infer_work_mode() {
     spec-x-*)
       echo "SDD-x"
       ;;
-    spec-[0-9]*-[0-9][0-9][0-9]*-*)
+    spec-[0-9]*-[0-9][0-9]-*)
       local phase_num
       phase_num="$(echo "$br" | sed 's/^spec-\([0-9]*\)-.*/\1/')"
       echo "SDD-P (phase-${phase_num})"
@@ -458,10 +458,10 @@ phase_new() {
 
   mkdir -p "$SDD_BACKLOG"
 
-  # 다음 phase 번호 (backlog/phase-{N}.md 패턴 스캔)
+  # 다음 phase 번호 (backlog/ + archive/backlog/ 모두 스캔)
   local next=1
   local n
-  n=$(find "$SDD_BACKLOG" -maxdepth 1 -type f -name 'phase-*.md' 2>/dev/null \
+  n=$(find "$SDD_BACKLOG" "$SDD_ROOT/archive/backlog" -maxdepth 1 -type f -name 'phase-*.md' 2>/dev/null \
       | sed 's|.*/phase-||;s|\.md$||' | sort -n | tail -1)
   [ -n "$n" ] && next=$((n+1))
 
@@ -1076,7 +1076,7 @@ cmd_hooks() {
   local sub="${1:-status}"; shift || true
 
   # hook 목록과 기본 모드 (공백 구분 문자열)
-  local hook_data="BRANCH:block:check-branch.sh PLAN_ACCEPT:warn:check-plan-accept.sh TEST_PASSED:warn:check-test-passed.sh"
+  local hook_data="BRANCH:block:check-branch.sh PLAN_ACCEPT:warn:check-plan-accept.sh TEST_PASSED:warn:check-test-passed.sh STAGED_LINT:warn:check-staged-lint.sh"
 
   case "$sub" in
     status|"")
@@ -1112,7 +1112,7 @@ cmd_hooks() {
       local target="${1:-}"
       if [ -z "$target" ]; then
         echo "사용법: sdd hooks $sub <hook-name>"
-        echo "  hook-name: BRANCH, PLAN_ACCEPT, TEST_PASSED"
+        echo "  hook-name: BRANCH, PLAN_ACCEPT, TEST_PASSED, STAGED_LINT"
         exit 1
       fi
       local TARGET
