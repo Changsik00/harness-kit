@@ -102,7 +102,7 @@ fi
 
 if [ $ASSUME_YES -eq 0 ]; then
   printf "진행할까요? [y/N] "
-  read -r _ans < /dev/tty 2>/dev/null || _ans=""
+  read -r _ans < /dev/tty 2>/dev/null || read -r _ans 2>/dev/null || _ans=""
   case "$_ans" in y|Y) ;; *) log "취소됨"; exit 0 ;; esac
 fi
 
