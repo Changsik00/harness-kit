@@ -458,10 +458,10 @@ phase_new() {
 
   mkdir -p "$SDD_BACKLOG"
 
-  # 다음 phase 번호 (backlog/phase-{N}.md 패턴 스캔)
+  # 다음 phase 번호 (backlog/ + archive/backlog/ 모두 스캔)
   local next=1
   local n
-  n=$(find "$SDD_BACKLOG" -maxdepth 1 -type f -name 'phase-*.md' 2>/dev/null \
+  n=$(find "$SDD_BACKLOG" "$SDD_ROOT/archive/backlog" -maxdepth 1 -type f -name 'phase-*.md' 2>/dev/null \
       | sed 's|.*/phase-||;s|\.md$||' | sort -n | tail -1)
   [ -n "$n" ] && next=$((n+1))
 
