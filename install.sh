@@ -17,6 +17,8 @@
 #   ./install.sh --yes                 # 모든 프롬프트 생략
 #   ./install.sh --gitignore           # .harness-kit/을 .gitignore에 추가 (기본값)
 #   ./install.sh --no-gitignore        # .harness-kit/을 .gitignore에 추가하지 않고 un-ignore 처리
+#   ./install.sh --export-format=cursor   # .cursorrules 생성 (Cursor IDE용)
+#   ./install.sh --export-format=copilot  # .github/copilot-instructions.md 생성
 #
 # 필수 의존성 (macOS 기준 — brew install ...):
 #   bash 4.0+, jq, git
@@ -49,6 +51,7 @@ NO_HOOKS=0
 ASSUME_YES=0
 HK_PREFIX=""
 HK_GITIGNORE=-1   # -1=미결정, 1=추가, 0=un-ignore
+EXPORT_FORMAT=""  # cursor | copilot | none (기본: 없음 = none)
 _PREV_ARG=""
 
 for arg in "$@"; do
@@ -67,6 +70,7 @@ for arg in "$@"; do
     --prefix)   _PREV_ARG="--prefix" ;;
     --gitignore)    HK_GITIGNORE=1 ;;
     --no-gitignore) HK_GITIGNORE=0 ;;
+    --export-format=*) EXPORT_FORMAT="${arg#--export-format=}" ;;
     -h|--help)
       sed -n '2,17p' "$0" | sed 's/^# \{0,1\}//'
       exit 0
@@ -491,7 +495,46 @@ EOF
 fi
 
 # ============================================================
-# 18. 결과 출력
+# 18. AI 인스트럭션 포맷 내보내기 (--export-format)
+# ============================================================
+_export_ai_instructions() {
+  local fmt="$1"
+  local src="$KIT_DIR/sources/claude-fragments/CLAUDE.fragment.md"
+
+  [ -z "$fmt" ] || [ "$fmt" = "none" ] && return 0
+  [ ! -f "$src" ] && { warn "CLAUDE.fragment.md 없음 — export 건너뜀"; return 0; }
+
+  local dest
+  case "$fmt" in
+    cursor)
+      dest="$TARGET/.cursorrules"
+      ;;
+    copilot)
+      dest="$TARGET/.github/copilot-instructions.md"
+      mkdir -p "$TARGET/.github"
+      ;;
+    *)
+      warn "알 수 없는 export-format: $fmt (cursor|copilot 만 지원)"
+      return 0
+      ;;
+  esac
+
+  if [ -f "$dest" ]; then
+    warn "이미 존재함 — 덮어쓰기: $dest"
+  fi
+
+  if [ $DRY_RUN -eq 0 ]; then
+    cp "$src" "$dest"
+    log "AI 인스트럭션 내보내기 완료: $dest"
+  else
+    log "[dry-run] AI 인스트럭션 내보내기: $dest"
+  fi
+}
+
+_export_ai_instructions "$EXPORT_FORMAT"
+
+# ============================================================
+# 19. 결과 출력
 # ============================================================
 cat <<EOF
 
