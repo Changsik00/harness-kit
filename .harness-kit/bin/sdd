@@ -88,7 +88,7 @@ _infer_work_mode() {
     spec-x-*)
       echo "SDD-x"
       ;;
-    spec-[0-9]*-[0-9][0-9]-*)
+    spec-[0-9]*-[0-9][0-9][0-9]*-*)
       local phase_num
       phase_num="$(echo "$br" | sed 's/^spec-\([0-9]*\)-.*/\1/')"
       echo "SDD-P (phase-${phase_num})"
