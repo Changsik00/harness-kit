@@ -82,6 +82,12 @@ brew install bash jq git    # macOS 기본 bash는 3.2 — 4.0+ 필요
 # 설치
 ~/path/to/harness-kit/install.sh ~/Project/my-app
 
+# Cursor IDE용 .cursorrules 함께 생성
+~/path/to/harness-kit/install.sh --export-format=cursor ~/Project/my-app
+
+# GitHub Copilot용 .github/copilot-instructions.md 함께 생성
+~/path/to/harness-kit/install.sh --export-format=copilot ~/Project/my-app
+
 # 미리 보기 (변경 없음)
 ~/path/to/harness-kit/install.sh --dry-run ~/Project/my-app
 
@@ -300,7 +306,7 @@ sdd archive --keep=2
 
 | 명령 | 설명 |
 |---|---|
-| `install.sh [TARGET]` | 설치 (`--dry-run`, `--force`, `--yes`, `--no-gitignore`) |
+| `install.sh [TARGET]` | 설치 (`--dry-run`, `--force`, `--yes`, `--no-gitignore`, `--export-format=cursor\|copilot`) |
 | `update.sh [TARGET]` | 키트 갱신 (state 보존) |
 | `uninstall.sh [TARGET]` | 제거 (작업 산출물 보존) |
 | `doctor.sh [TARGET]` | 점검 (의존성, 구조, 권한, hook, state) |
