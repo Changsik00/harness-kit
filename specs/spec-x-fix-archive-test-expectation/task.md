@@ -48,10 +48,11 @@
 ## Task 4: P3 — `sdd specx done` 회귀 테스트 추가
 
 ### 4-1. 테스트 확장
-- [ ] `tests/test-sdd-ship-completion.sh` 에 Check 6b (prefix 포함 호출) 추가.
-- [ ] `tests/test-sdd-ship-completion.sh` 에 Check 6c (state 리셋) 추가.
-- [ ] `bash tests/test-sdd-ship-completion.sh` → 새 체크 포함 전체 PASS 확인.
-- [ ] Commit: `test(spec-x-fix-archive-test-expectation): add specx done regression tests for prefix normalization and state reset`
+- [x] `tests/test-sdd-ship-completion.sh` 에 Check 6b (prefix 포함 호출) 추가.
+- [x] `tests/test-sdd-ship-completion.sh` 에 Check 6c (state 리셋) 추가.
+- [x] `bash tests/test-sdd-ship-completion.sh` → 9/9 PASS.
+- [x] 전체 `for t in tests/test-*.sh; do bash "$t"; done` → 19/19 PASS.
+- [x] Commit: `test(spec-x-fix-archive-test-expectation): add specx done regression tests for prefix normalization and state reset`
 
 ---
 
