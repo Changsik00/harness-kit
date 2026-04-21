@@ -60,10 +60,10 @@
 
 > 모든 작업 task 완료 후 `/hk-ship` 절차를 따릅니다.
 
-- [ ] 코드 품질 점검: N/A (bash 테스트/문서 수정만)
-- [ ] 전체 테스트 실행 → 19/19 PASS
-- [ ] **walkthrough.md 작성** (증거 로그: 감사 경로, 세 문제 각각 진단과 해결)
-- [ ] **pr_description.md 작성** (템플릿 준수)
+- [x] 코드 품질 점검: N/A (bash 테스트/문서 수정만)
+- [x] 전체 테스트 실행 → 19/19 PASS
+- [x] **walkthrough.md 작성** (증거 로그: 감사 경로, 세 문제 각각 진단과 해결)
+- [x] **pr_description.md 작성** (템플릿 준수)
 - [ ] **Ship Commit**: `docs(spec-x-fix-archive-test-expectation): ship walkthrough and pr description`
 - [ ] **Push**: `git push -u origin spec-x-fix-archive-test-expectation`
 - [ ] **PR 생성**: `/hk-pr-gh` 또는 `gh pr create` (auto-ship, 추가 확인 없이)
