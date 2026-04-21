@@ -37,11 +37,11 @@
 ## Task 3: P2 — 활성 .md ID placeholder 소문자 통일
 
 ### 3-1. align.md × 2 + hk-plan-accept.md × 2 수정
-- [ ] `.harness-kit/agent/align.md` Line 43-44 소문자화.
-- [ ] `sources/governance/align.md` Line 43-44 소문자화.
-- [ ] `.claude/commands/hk-plan-accept.md` Line 36 소문자화 + placeholder `{NN}` → `{seq}`.
-- [ ] `sources/commands/hk-plan-accept.md` Line 36 동일 수정.
-- [ ] Commit: `docs(spec-x-fix-archive-test-expectation): align active md placeholders with constitution §6.2 lowercase format`
+- [x] `.harness-kit/agent/align.md` Line 43-44 소문자화.
+- [x] `sources/governance/align.md` Line 43-44 소문자화.
+- [x] `.claude/commands/hk-plan-accept.md` Line 36 소문자화 + placeholder `{NN}` → `{seq}`.
+- [x] `sources/commands/hk-plan-accept.md` Line 36 동일 수정.
+- [x] Commit: `docs(spec-x-fix-archive-test-expectation): align active md placeholders with constitution §6.2 lowercase format`
 
 ---
 

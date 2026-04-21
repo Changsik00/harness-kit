@@ -40,8 +40,8 @@
 
 ```
 📊 현재 상태
-- Active Phase: PHASE-{N}-{slug} (또는 없음)
-- Active Spec: SPEC-{N}-{seq}-{slug} (또는 없음)
+- Active Phase: phase-{N} (또는 없음)
+- Active Spec: spec-{phaseN}-{seq}-{slug} (또는 없음)
 - Branch: <current branch>
 - Plan Accepted: yes / no
 - Last Test: <timestamp> (PASS / FAIL / 없음)
