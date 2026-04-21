@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # tests/test-sdd-dir-archive.sh
 # sdd archive 디렉토리 아카이브 명령 단위 테스트
-# 검증: --dry-run, 완료 phase 이동, active phase 보존, spec-x 아카이브, --keep=N, status 제안
+# 검증: --dry-run, 완료 phase 이동, active phase 보존, spec-x 보존, --keep=N, status 제안
 
 set -uo pipefail
 
@@ -223,7 +223,7 @@ fi
 # Check 4: spec-x 디렉토리는 이동되지 않음
 # ─────────────────────────────────────────────────────────
 echo ""
-echo "Check 4: spec-x 디렉토리도 아카이브 대상에 포함"
+echo "Check 4: spec-x 디렉토리는 이동되지 않음"
 
 F4="$(make_fixture)"
 trap "rm -rf '$F1' '$F2' '$F4'" EXIT
@@ -242,10 +242,10 @@ git -C "$F4" commit -m "setup" -q
 
 (cd "$F4" && bash .harness-kit/bin/sdd archive 2>&1) || true
 
-if [ ! -d "$F4/specs/spec-x-fix-typo" ] && [ -d "$F4/archive/specs/spec-x-fix-typo" ]; then
-  ok "specs/spec-x-fix-typo/ 이동됨 (spec-x 아카이브)"
+if [ -d "$F4/specs/spec-x-fix-typo" ]; then
+  ok "specs/spec-x-fix-typo/ 유지 (spec-x 보존)"
 else
-  fail "specs/spec-x-fix-typo/ 아카이브 안 됨"
+  fail "specs/spec-x-fix-typo/ 사라짐 (spec-x 가 이동됨)"
 fi
 
 # ─────────────────────────────────────────────────────────

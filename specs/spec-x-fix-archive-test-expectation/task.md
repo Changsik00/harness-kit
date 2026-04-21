@@ -17,20 +17,20 @@
 ## Task 1: 브랜치 분리 및 main 정상화
 
 ### 1-1. 브랜치 생성 (현재 HEAD 그대로) + main 리셋
-- [ ] `git switch -c spec-x-fix-archive-test-expectation` — 현재 main HEAD (`f601417`) 그대로 브랜치 생성. 두 원 커밋 (`120d0f2`, `f601417`) 은 브랜치에 보존됨.
-- [ ] `git branch -f main origin/main` — 로컬 main 포인터를 origin/main 으로 리셋 (destructive, Plan Accept 시 승인됨).
-- [ ] 검증: `git log origin/main..HEAD --oneline` → 2 commits.
-- [ ] 검증: `git log main..origin/main --oneline` → 출력 없음.
-- [ ] Commit: 없음 (레퍼런스 조작만)
+- [x] `git switch -c spec-x-fix-archive-test-expectation` — 현재 main HEAD (`f601417`) 그대로 브랜치 생성. 두 원 커밋 (`120d0f2`, `f601417`) 은 브랜치에 보존됨.
+- [x] `git branch -f main origin/main` — 로컬 main 포인터를 origin/main 으로 리셋 (destructive, Plan Accept 시 승인됨).
+- [x] 검증: `git log origin/main..HEAD --oneline` → 2 commits.
+- [x] 검증: `git log main..origin/main --oneline` → 출력 없음.
+- [x] Commit: 없음 (레퍼런스 조작만). 별도 scaffold 커밋 `8702523` 으로 pre-flight 산출물 기록.
 
 ---
 
 ## Task 2: P1 — Check 4 기대값 복원
 
 ### 2-1. 테스트 수정
-- [ ] `tests/test-sdd-dir-archive.sh` Check 4 블록의 기대값을 "spec-x 디렉토리는 아카이브되지 않음" 으로 되돌림.
-- [ ] `bash tests/test-sdd-dir-archive.sh` → 10/10 PASS 확인.
-- [ ] Commit: `fix(spec-x-fix-archive-test-expectation): restore check 4 expectation to match pr #65 design`
+- [x] `tests/test-sdd-dir-archive.sh` Check 4 블록의 기대값을 "spec-x 디렉토리는 아카이브되지 않음" 으로 되돌림.
+- [x] `bash tests/test-sdd-dir-archive.sh` → 10/10 PASS 확인.
+- [x] Commit: `fix(spec-x-fix-archive-test-expectation): restore check 4 expectation to match pr #65 design`
 
 ---
 
