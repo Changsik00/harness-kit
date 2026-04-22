@@ -7,7 +7,7 @@
 ## 📦 진행 중 Phase
 
 <!-- sdd:active:start -->
-- **phase-13** — 개발자 경험(DX) 향상 — 자동화 & 온보딩 — 5 spec — 다음: spec-13-05-spec-dependency
+- **phase-13** — 개발자 경험(DX) 향상 — 자동화 & 온보딩 — 6 spec — 다음: spec-13-06-update-registry
 <!-- sdd:active:end -->
 
 ## 📥 spec-x 대기
