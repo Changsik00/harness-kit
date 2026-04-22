@@ -62,7 +62,7 @@ phase-12까지 harness-kit의 핵심 설치/거버넌스/훅/식별자 체계가
 | `spec-13-02` | pr-merge-detect | P? | Merged | `specs/spec-13-02-pr-merge-detect/` |
 | `spec-13-03` | test-auto-record | P? | Merged | `specs/spec-13-03-test-auto-record/` |
 | `spec-13-04` | context-refresh | P? | Skipped | `specs/spec-13-04-context-refresh/` |
-| `spec-13-05` | spec-dependency | P3 | Backlog | `specs/spec-13-05-spec-dependency/` |
+| `spec-13-05` | spec-dependency | P? | Active | `specs/spec-13-05-spec-dependency/` |
 | `spec-13-06` | update-registry | P3 | Backlog | `specs/spec-13-06-update-registry/` |
 | `spec-13-07` | version-bump | P1 | Backlog | `specs/spec-13-07-version-bump/` |
 <!-- sdd:specs:end -->
