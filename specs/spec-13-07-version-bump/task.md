@@ -22,13 +22,13 @@
 
 ## Task 2: 테스트 작성 (TDD Red)
 
-- [ ] `tests/test-version-bump.sh` 작성 — 4가지 시나리오:
+- [x] `tests/test-version-bump.sh` 작성 — 4가지 시나리오:
   - `VERSION` 파일에 `0.6.0` 포함 확인
   - `sdd version` → `0.6.0` 출력 확인
   - `CHANGELOG.md` 존재 + `0.6.0` 포함 확인
   - 전체 테스트 스위트 FAIL=0 확인
-- [ ] 테스트 실행 → FAIL 확인
-- [ ] Commit: `test(spec-13-07): add failing tests for version 0.6.0`
+- [x] 테스트 실행 → FAIL 확인
+- [x] Commit: `test(spec-13-07): add failing tests for version 0.6.0`
 
 ---
 
