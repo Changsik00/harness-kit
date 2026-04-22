@@ -59,8 +59,8 @@ phase-12까지 harness-kit의 핵심 설치/거버넌스/훅/식별자 체계가
 | ID | 슬러그 | 우선순위 | 상태 | 디렉토리 |
 |---|---|:---:|---|---|
 | `spec-13-01` | onboarding-doctor | P? | Merged | `specs/spec-13-01-onboarding-doctor/` |
-| `spec-13-02` | pr-merge-detect | P1 | Backlog | `specs/spec-13-02-pr-merge-detect/` |
-| `spec-13-03` | test-auto-record | P2 | Backlog | `specs/spec-13-03-test-auto-record/` |
+| `spec-13-02` | pr-merge-detect | P? | Merged | `specs/spec-13-02-pr-merge-detect/` |
+| `spec-13-03` | test-auto-record | P? | Active | `specs/spec-13-03-test-auto-record/` |
 | `spec-13-04` | context-refresh | P2 | Backlog | `specs/spec-13-04-context-refresh/` |
 | `spec-13-05` | spec-dependency | P3 | Backlog | `specs/spec-13-05-spec-dependency/` |
 | `spec-13-06` | update-registry | P3 | Backlog | `specs/spec-13-06-update-registry/` |
