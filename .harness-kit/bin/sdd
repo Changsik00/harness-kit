@@ -59,6 +59,7 @@ sdd — harness-kit 메타 명령
   hooks block|warn|off <name>  특정 hook 모드 전환 안내
 
   doctor                        환경 진단 — 필수 도구/설치 파일/훅 권한 체크리스트 출력
+  pr-watch <pr-number>          PR merge 감지 — merge 확인 시 post-merge 안내 자동 출력
 
   help                          이 도움말
   version                       키트 버전
@@ -1452,6 +1453,70 @@ cmd_doctor() {
   fi
 }
 
+cmd_pr_watch() {
+  local pr_num="${1:-}"
+
+  if [ -z "$pr_num" ]; then
+    printf "사용법: sdd pr-watch <pr-number>\n"
+    printf "\n  PR merge 를 30초 간격으로 폴링합니다.\n"
+    printf "  merge 감지 시 post-merge 안내를 출력합니다.\n"
+    printf "\n예시: sdd pr-watch 42\n"
+    exit 0
+  fi
+
+  if ! command -v gh >/dev/null 2>&1; then
+    printf "⚠️  gh CLI 가 설치되어 있지 않습니다.\n"
+    printf "   gh install: brew install gh\n"
+    printf "   PR merge 감지 기능은 gh CLI 가 필요합니다.\n"
+    exit 0
+  fi
+
+  local interval=30
+  local timeout_min=60
+  local max_iterations=$(( timeout_min * 60 / interval ))
+  local iter=0
+
+  _pr_watch_interrupted() {
+    printf "\n⏹  pr-watch 중단됨 (PR #%s)\n" "$pr_num"
+    exit 0
+  }
+  trap '_pr_watch_interrupted' INT TERM
+
+  printf "👀 PR #%s merge 대기 중 (폴링 간격: %ds / 최대 %d분)\n" "$pr_num" "$interval" "$timeout_min"
+  printf "   Ctrl+C 로 중단할 수 있습니다.\n\n"
+
+  while [ "$iter" -lt "$max_iterations" ]; do
+    local pr_json
+    pr_json=$(gh pr view "$pr_num" --json state,mergedAt,title 2>/dev/null || true)
+
+    if [ -n "$pr_json" ]; then
+      local state title
+      state=$(printf '%s' "$pr_json" | grep -o '"state":"[^"]*"' | cut -d'"' -f4)
+      title=$(printf '%s' "$pr_json" | grep -o '"title":"[^"]*"' | cut -d'"' -f4)
+
+      if [ "$state" = "MERGED" ]; then
+        printf "✅ Merged: #%s — %s\n" "$pr_num" "$title"
+        printf "\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+        printf "🎉 PR merge 완료! post-merge 절차를 진행하세요.\n"
+        printf "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n"
+        bash "$0" status --brief 2>/dev/null || true
+        printf "\n다음 명령:\n"
+        printf "  sdd spec new <next-slug>   — 다음 spec 시작\n"
+        printf "  /hk-phase-ship             — phase 완료 시\n"
+        exit 0
+      fi
+    fi
+
+    iter=$(( iter + 1 ))
+    printf "  [%d/%d] 대기 중... (PR #%s)\r" "$iter" "$max_iterations" "$pr_num"
+    sleep "$interval"
+  done
+
+  printf "\n⏰ 타임아웃: %d분 초과 (PR #%s)\n" "$timeout_min" "$pr_num"
+  printf "   merge 여부는 직접 확인: gh pr view %s\n" "$pr_num"
+  exit 0
+}
+
 # ============================================================
 main() {
   local cmd="${1:-help}"; shift || true
@@ -1469,8 +1534,9 @@ main() {
     queue)   cmd_queue "$@" ;;
     hooks)   cmd_hooks "$@" ;;
     specx)   cmd_specx "$@" ;;
-    doctor)  cmd_doctor "$@" ;;
-    *)       err "알 수 없는 명령: $cmd"; cmd_help; exit 1 ;;
+    doctor)   cmd_doctor "$@" ;;
+    pr-watch) cmd_pr_watch "$@" ;;
+    *)        err "알 수 없는 명령: $cmd"; cmd_help; exit 1 ;;
   esac
 }
 

@@ -34,11 +34,11 @@
 
 ## Task 3: sdd pr-watch 구현
 
-- [ ] `cmd_pr_watch()` 함수 추가 — gh 체크, 폴링 루프, SIGINT trap, merge 감지 출력
-- [ ] `case` 분기 + `cmd_help()` 항목 추가
-- [ ] `.harness-kit/bin/sdd` 동기화
-- [ ] 테스트 전체 PASS 확인
-- [ ] Commit: `feat(spec-13-02): add sdd pr-watch subcommand`
+- [x] `cmd_pr_watch()` 함수 추가 — gh 체크, 폴링 루프, SIGINT trap, merge 감지 출력
+- [x] `case` 분기 + `cmd_help()` 항목 추가
+- [x] `.harness-kit/bin/sdd` 동기화
+- [x] 테스트 전체 PASS 확인
+- [x] Commit: `feat(spec-13-02): add sdd pr-watch subcommand`
 
 ---
 
