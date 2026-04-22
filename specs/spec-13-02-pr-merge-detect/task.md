@@ -22,13 +22,13 @@
 
 ## Task 2: 테스트 작성 (TDD Red)
 
-- [ ] `tests/test-pr-merge-detect.sh` 작성 — 4가지 시나리오:
+- [x] `tests/test-pr-merge-detect.sh` 작성 — 4가지 시나리오:
   - 인자 없이 실행 시 사용법 안내 출력 확인
   - `sdd help`에 `pr-watch` 항목 포함 확인
   - gh 미설치 시 graceful 안내 + exit 0 확인
   - `sources/bin/sdd` ↔ `.harness-kit/bin/sdd` 동기화 확인
-- [ ] 테스트 실행 → FAIL 확인
-- [ ] Commit: `test(spec-13-02): add failing tests for sdd pr-watch command`
+- [x] 테스트 실행 → FAIL 확인
+- [x] Commit: `test(spec-13-02): add failing tests for sdd pr-watch command`
 
 ---
 
