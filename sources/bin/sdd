@@ -58,6 +58,10 @@ sdd — harness-kit 메타 명령
   hooks [status]                hook 모드 현황 출력
   hooks block|warn|off <name>  특정 hook 모드 전환 안내
 
+  doctor                        환경 진단 — 필수 도구/설치 파일/훅 권한 체크리스트 출력
+  pr-watch <pr-number>          PR merge 감지 — merge 확인 시 post-merge 안내 자동 출력
+  run-test <cmd...>             테스트 실행 + 통과 시 자동으로 sdd test passed 기록
+
   help                          이 도움말
   version                       키트 버전
 
@@ -1358,6 +1362,183 @@ cmd_archive() {
   ok "아카이브 완료: spec ${spec_count}개 + backlog ${backlog_count}개 → archive/"
 }
 
+cmd_doctor() {
+  local fail=0 warn=0
+
+  _doc_pass() { printf "  ✅ %s\n" "$1"; }
+  _doc_warn() { printf "  ⚠️  %s\n" "$1"; warn=$((warn + 1)); }
+  _doc_fail() { printf "  ❌ %s\n" "$1"; printf "     → %s\n" "$2"; fail=$((fail + 1)); }
+
+  _check_tool() {
+    local name="$1" min_ver="$2" required="$3" hint="$4"
+    if ! command -v "$name" >/dev/null 2>&1; then
+      if [ "$required" = "required" ]; then
+        _doc_fail "$name 미설치" "$hint"
+      else
+        _doc_warn "$name 미설치 (선택 도구 — 일부 기능 비활성)"
+      fi
+      return
+    fi
+    if [ -n "$min_ver" ]; then
+      local ver
+      ver=$("$name" --version 2>/dev/null | grep -oE '[0-9]+\.[0-9]+' | head -1)
+      local major="${ver%%.*}"
+      local required_major="${min_ver%%.*}"
+      if [ -n "$major" ] && [ "$major" -lt "$required_major" ] 2>/dev/null; then
+        _doc_fail "$name ${ver} (>= ${min_ver} 필요)" "$hint"
+        return
+      fi
+    fi
+    local ver_str
+    ver_str=$("$name" --version 2>/dev/null | head -1 | grep -oE '[0-9]+\.[0-9]+\.[0-9]+|[0-9]+\.[0-9]+' | head -1)
+    _doc_pass "$name ${ver_str:-(설치됨)}"
+  }
+
+  _check_file() {
+    local path="$1" label="$2" hint="$3"
+    if [ -f "$SDD_ROOT/$path" ]; then
+      _doc_pass "$label"
+    else
+      _doc_fail "$label 없음: $path" "$hint"
+    fi
+  }
+
+  _check_hooks() {
+    local hooks_dir="$SDD_ROOT/scripts/harness/hooks"
+    if [ ! -d "$hooks_dir" ]; then
+      _doc_warn "hooks 디렉토리 없음 (install.sh 미실행 또는 경로 상이)"
+      return
+    fi
+    local bad=0
+    for f in "$hooks_dir"/*.sh; do
+      [ -f "$f" ] || continue
+      if [ ! -x "$f" ]; then
+        _doc_fail "훅 실행 권한 없음: $(basename "$f")" "chmod +x $f"
+        bad=$((bad + 1))
+      fi
+    done
+    [ "$bad" -eq 0 ] && _doc_pass "훅 파일 실행 권한 OK"
+  }
+
+  printf "\n🩺 harness-kit doctor\n"
+  printf "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+
+  printf "\n필수 도구\n"
+  _check_tool "bash" "4.0" "required" "brew install bash (macOS) 또는 apt-get install bash"
+  _check_tool "jq"   ""    "required" "brew install jq 또는 apt-get install jq"
+  _check_tool "git"  ""    "required" "brew install git 또는 apt-get install git"
+
+  printf "\n선택 도구\n"
+  _check_tool "gh"   ""    "optional" "brew install gh — PR 감지 기능에 필요"
+
+  printf "\n설치 파일\n"
+  _check_file ".harness-kit/installed.json"        "installed.json"    "install.sh 를 먼저 실행하세요"
+  _check_file ".harness-kit/agent/constitution.md" "constitution.md"   "install.sh 재실행 또는 파일 복원"
+  _check_file ".harness-kit/agent/agent.md"        "agent.md"          "install.sh 재실행 또는 파일 복원"
+
+  printf "\nClaude Code 설정\n"
+  _check_file ".claude/settings.json" ".claude/settings.json" "install.sh 재실행 또는 수동 생성"
+
+  printf "\n훅 파일\n"
+  _check_hooks
+
+  printf "\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+  if [ "$fail" -eq 0 ] && [ "$warn" -eq 0 ]; then
+    printf "결과: ✅ ALL PASS\n\n"
+  elif [ "$fail" -eq 0 ]; then
+    printf "결과: ⚠️  WARN %d건 (기능 일부 제한)\n\n" "$warn"
+  else
+    printf "결과: ❌ FAIL %d건" "$fail"
+    [ "$warn" -gt 0 ] && printf " / WARN %d건" "$warn"
+    printf "\n\n"
+  fi
+}
+
+cmd_pr_watch() {
+  local pr_num="${1:-}"
+
+  if [ -z "$pr_num" ]; then
+    printf "사용법: sdd pr-watch <pr-number>\n"
+    printf "\n  PR merge 를 30초 간격으로 폴링합니다.\n"
+    printf "  merge 감지 시 post-merge 안내를 출력합니다.\n"
+    printf "\n예시: sdd pr-watch 42\n"
+    exit 0
+  fi
+
+  if ! command -v gh >/dev/null 2>&1; then
+    printf "⚠️  gh CLI 가 설치되어 있지 않습니다.\n"
+    printf "   gh install: brew install gh\n"
+    printf "   PR merge 감지 기능은 gh CLI 가 필요합니다.\n"
+    exit 0
+  fi
+
+  local interval=30
+  local timeout_min=60
+  local max_iterations=$(( timeout_min * 60 / interval ))
+  local iter=0
+
+  _pr_watch_interrupted() {
+    printf "\n⏹  pr-watch 중단됨 (PR #%s)\n" "$pr_num"
+    exit 0
+  }
+  trap '_pr_watch_interrupted' INT TERM
+
+  printf "👀 PR #%s merge 대기 중 (폴링 간격: %ds / 최대 %d분)\n" "$pr_num" "$interval" "$timeout_min"
+  printf "   Ctrl+C 로 중단할 수 있습니다.\n\n"
+
+  while [ "$iter" -lt "$max_iterations" ]; do
+    local pr_json
+    pr_json=$(gh pr view "$pr_num" --json state,mergedAt,title 2>/dev/null || true)
+
+    if [ -n "$pr_json" ]; then
+      local state title
+      state=$(printf '%s' "$pr_json" | grep -o '"state":"[^"]*"' | cut -d'"' -f4)
+      title=$(printf '%s' "$pr_json" | grep -o '"title":"[^"]*"' | cut -d'"' -f4)
+
+      if [ "$state" = "MERGED" ]; then
+        printf "✅ Merged: #%s — %s\n" "$pr_num" "$title"
+        printf "\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+        printf "🎉 PR merge 완료! post-merge 절차를 진행하세요.\n"
+        printf "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n"
+        bash "$0" status --brief 2>/dev/null || true
+        printf "\n다음 명령:\n"
+        printf "  sdd spec new <next-slug>   — 다음 spec 시작\n"
+        printf "  /hk-phase-ship             — phase 완료 시\n"
+        exit 0
+      fi
+    fi
+
+    iter=$(( iter + 1 ))
+    printf "  [%d/%d] 대기 중... (PR #%s)\r" "$iter" "$max_iterations" "$pr_num"
+    sleep "$interval"
+  done
+
+  printf "\n⏰ 타임아웃: %d분 초과 (PR #%s)\n" "$timeout_min" "$pr_num"
+  printf "   merge 여부는 직접 확인: gh pr view %s\n" "$pr_num"
+  exit 0
+}
+
+cmd_run_test() {
+  if [ $# -eq 0 ]; then
+    printf "사용법: sdd run-test <cmd...>\n"
+    printf "\n  테스트 명령을 실행하고 통과 시 자동으로 sdd test passed 를 기록합니다.\n"
+    printf "\n예시: sdd run-test bash tests/test-hk-doctor.sh\n"
+    exit 0
+  fi
+
+  set +e
+  "$@"
+  local code=$?
+  set -e
+
+  if [ "$code" -eq 0 ]; then
+    test_passed
+    printf "✅ 테스트 통과 기록됨\n"
+  fi
+
+  return "$code"
+}
+
 # ============================================================
 main() {
   local cmd="${1:-help}"; shift || true
@@ -1375,7 +1556,10 @@ main() {
     queue)   cmd_queue "$@" ;;
     hooks)   cmd_hooks "$@" ;;
     specx)   cmd_specx "$@" ;;
-    *)       err "알 수 없는 명령: $cmd"; cmd_help; exit 1 ;;
+    doctor)   cmd_doctor "$@" ;;
+    pr-watch)  cmd_pr_watch "$@" ;;
+    run-test)  cmd_run_test "$@" ;;
+    *)         err "알 수 없는 명령: $cmd"; cmd_help; exit 1 ;;
   esac
 }
 

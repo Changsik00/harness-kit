@@ -5,6 +5,16 @@ harness-kit의 주요 변경 사항을 버전별로 정리합니다.
 
 ---
 
+## [0.6.0] — 2026-04-23
+
+### Added
+- **`sdd doctor`** — 설치 환경 진단 체크리스트 (bash 4.0+, jq, git, gh 설치 여부 / `.harness-kit/installed.json` / `constitution.md` 접근 / hook 실행 권한). 종합 PASS/FAIL 판정 출력 (→ phase-13, spec-13-01)
+- **`sdd pr-watch <pr-number>`** — PR merge 자동 감지 (30초 폴링, 60분 타임아웃). merge 감지 시 post-merge 절차 자동 출력. gh CLI 미설치 환경에서는 graceful skip (→ phase-13, spec-13-02)
+- **`sdd run-test <cmd...>`** — 테스트 결과 자동 기록 wrapper. exit 0 시 `sdd test passed` 자동 호출로 수동 기록 불필요 (→ phase-13, spec-13-03)
+- **`/hk-doctor` 슬래시 커맨드** — 설치 환경 점검을 Claude Code 안에서 한 단어로 실행
+
+---
+
 ## [0.5.0] — 2026-04-16
 
 ### Changed

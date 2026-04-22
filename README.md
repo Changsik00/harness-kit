@@ -3,7 +3,7 @@
 > Claude Code를 위한 SDD(Spec-Driven Development) 거버넌스 부트스트랩 툴킷
 > 한 번 만들어두고, 다음 프로젝트에서는 한 줄로 같은 하네스를 깐다.
 
-[![version](https://img.shields.io/badge/version-0.5.0-blue)](./VERSION)
+[![version](https://img.shields.io/badge/version-0.6.0-blue)](./VERSION)
 [![target](https://img.shields.io/badge/target-macOS%20%2B%20Claude%20Code-green)](#대상-환경)
 [![status](https://img.shields.io/badge/status-alpha-orange)](#)
 
@@ -317,6 +317,7 @@ sdd archive --keep=2
 | 커맨드 | 설명 |
 |---|---|
 | `/hk-align` | 세션 부트스트랩 — 거버넌스 로드 + `sdd status`로 현재 상태 확인 |
+| `/hk-doctor` | 설치 환경 점검 — 필수 도구, 파일 구조, hook 상태 PASS/FAIL 출력 |
 | `/hk-plan-accept` | plan.md 승인 → Strict Loop 시작 |
 | `/hk-ship` | Spec 완료 — walkthrough/pr_description 검증 후 ship + push + PR 생성 |
 | `/hk-phase-ship` | Phase 완료 — 성공 기준 검증 + 통합 테스트 + go/no-go + main PR |
@@ -335,6 +336,7 @@ sdd archive --keep=2
 | 명령 | 설명 |
 |---|---|
 | `sdd status [--brief\|--verbose\|--json]` | 현재 상태 출력 |
+| `sdd doctor` | 설치 환경 진단 — 필수 도구, 파일 구조, hook 실행 권한 PASS/FAIL 출력 |
 | `sdd queue` | `backlog/queue.md` 대시보드 출력 |
 | `sdd phase new <slug> [--base]` | 새 Phase 생성 |
 | `sdd phase list` | 모든 Phase와 Spec 카운트 |
@@ -348,6 +350,8 @@ sdd archive --keep=2
 | `sdd test passed` | 테스트 통과 시각 기록 (`lastTestPass` 갱신) |
 | `sdd ship [--check]` | walkthrough/pr_description 검증 후 ship 커밋 생성 |
 | `sdd archive [--keep=N] [--dry-run]` | 완료 Phase의 파일을 `archive/`로 이동 |
+| `sdd pr-watch <pr-number>` | PR merge 자동 감지 (30초 폴링, 60분 타임아웃) — merge 시 post-merge 절차 출력 |
+| `sdd run-test <cmd...>` | 테스트 결과 자동 기록 wrapper — exit 0 시 `sdd test passed` 자동 호출 |
 | `sdd specx done <slug>` | spec-x 작업을 queue.md done으로 이동 |
 | `sdd hooks [status]` | hook 모드 현황 출력 |
 | `sdd hooks block\|warn\|off <name>` | 특정 hook 모드 전환 안내 |
