@@ -36,7 +36,7 @@ sdd — harness-kit 메타 명령
   spec new <slug>               active phase 안에 새 spec-{phaseN}-{seq}-{slug} 생성
                                 phase-{N}.md 의 spec 표 자동 append + queue 갱신
   spec list [--phase=N]         spec 목록
-  spec show [spec-N-NN-slug]   spec 상세 (생략 시 active)
+  spec show [spec-NN-NN-slug]  spec 상세 (생략 시 active)
 
   plan accept                   현재 spec 의 plan 을 승인 (planAccepted=true)
 
@@ -46,7 +46,7 @@ sdd — harness-kit 메타 명령
                                 (테스트 직후 호출 — hook 가 검사함)
 
   ship [--check]                walkthrough/pr_description 작성 검증 (--check 시 변경 없음)
-                                통과 시 docs(spec-N-NN): ship ... commit 생성
+                                통과 시 docs(spec-NN-NN): ship ... commit 생성
 
   archive [--keep=N] [--dry-run]  완료된 phase 의 spec/backlog 를 archive/ 로 이동
                                   --keep=N: 최근 N 개 완료 phase 유지 (기본: 0)
@@ -1189,6 +1189,9 @@ specx_new() {
 specx_done() {
   local slug="${1:-}"
   [ -z "$slug" ] && die "사용법: sdd specx done <slug>"
+  # 사용자가 'spec-x-' prefix 포함해 넘긴 경우 제거 (이중 prefix 방지)
+  slug="${slug#spec-x-}"
+  local id="spec-x-${slug}"
   local q
   q="$(state_queue_file)"
   [ -f "$q" ] || die "queue.md 없음"
@@ -1204,8 +1207,19 @@ specx_done() {
   ' "$q" > "$tmp" && mv "$tmp" "$q"
 
   # done 섹션에 추가
-  sdd_marker_append "$q" "done" "- [x] spec-x-${slug} (완료)"
-  ok "spec-x-${slug} → queue.md done 섹션으로 이동"
+  sdd_marker_append "$q" "done" "- [x] ${id} (완료)"
+
+  # active spec 이 방금 완료한 spec-x 면 state 리셋
+  if [ -f "$SDD_STATE" ]; then
+    local active_spec
+    active_spec="$(state_get spec)"
+    if [ "$active_spec" = "$id" ]; then
+      state_set spec "null"
+      state_set planAccepted "false"
+    fi
+  fi
+
+  ok "${id} → queue.md done 섹션으로 이동"
 }
 
 # ============================================================

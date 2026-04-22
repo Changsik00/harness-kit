@@ -342,7 +342,7 @@ sdd archive --keep=2
 | `sdd phase done [phase-N]` | Phase를 완료 처리 |
 | `sdd spec new <slug>` | active Phase 안에 새 Spec 생성 |
 | `sdd spec list [--phase=N]` | Spec 목록 |
-| `sdd spec show [spec-N-NNN-slug]` | Spec 상세 (생략 시 active) |
+| `sdd spec show [spec-NN-NN-slug]` | Spec 상세 (생략 시 active) |
 | `sdd plan accept` | 현재 Spec의 plan을 승인 |
 | `sdd task done <num>` | task.md의 N번 항목을 완료 마킹 |
 | `sdd test passed` | 테스트 통과 시각 기록 (`lastTestPass` 갱신) |

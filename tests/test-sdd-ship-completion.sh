@@ -304,6 +304,90 @@ else
   fail "specx=$has_in_specx done=$has_in_done (expected: specx=0 done>0)"
 fi
 
+# ─────────────────────────────────────────────────────────
+# Check 6b: sdd specx done <spec-x-slug> — prefix 포함 호출 시 이중 prefix 방지
+# ─────────────────────────────────────────────────────────
+echo ""
+echo "Check 6b: sdd specx done spec-x-<slug> — prefix 포함 호출 정규화"
+
+F6b="$(make_fixture)"
+trap "rm -rf '$F1' '$F2' '$F4' '$F5' '$F6' '$F6b'" EXIT
+
+cat > "$F6b/backlog/queue.md" <<'EOF'
+## 📥 spec-x 대기
+<!-- sdd:specx:start -->
+- [ ] spec-x-fix-typo — 오탈자 수정
+<!-- sdd:specx:end -->
+## ✅ 완료
+<!-- sdd:done:start -->
+없음
+<!-- sdd:done:end -->
+EOF
+
+git -C "$F6b" add -A
+git -C "$F6b" commit -m "setup" -q
+
+# slug 에 'spec-x-' prefix 를 포함해 호출
+(cd "$F6b" && bash .harness-kit/bin/sdd specx done spec-x-fix-typo >/dev/null 2>&1)
+
+done_section_6b=$(sed -n '/sdd:done:start/,/sdd:done:end/p' "$F6b/backlog/queue.md")
+
+# done 섹션에 'spec-x-fix-typo' 가 있어야 하고 'spec-x-spec-x-' 이중 prefix 는 없어야 함
+if echo "$done_section_6b" | grep -q "spec-x-fix-typo"; then
+  if echo "$done_section_6b" | grep -q "spec-x-spec-x-"; then
+    fail "prefix 포함 호출 → 'spec-x-spec-x-' 이중 prefix 감지됨"
+  else
+    ok "prefix 포함 호출 → id='spec-x-fix-typo' 단일 prefix 로 정규화"
+  fi
+else
+  fail "prefix 포함 호출 → done 섹션에 spec-x-fix-typo 없음"
+fi
+
+# ─────────────────────────────────────────────────────────
+# Check 6c: sdd specx done — active spec 일치 시 state.json 리셋
+# ─────────────────────────────────────────────────────────
+echo ""
+echo "Check 6c: active spec 일치 시 state.json(spec, planAccepted) 리셋"
+
+F6c="$(make_fixture)"
+trap "rm -rf '$F1' '$F2' '$F4' '$F5' '$F6' '$F6b' '$F6c'" EXIT
+
+cat > "$F6c/.claude/state/current.json" <<'EOF'
+{
+  "kitVersion": "0.3.0",
+  "stack": "generic",
+  "phase": null,
+  "spec": "spec-x-fix-typo",
+  "planAccepted": true,
+  "lastTestPass": null
+}
+EOF
+
+cat > "$F6c/backlog/queue.md" <<'EOF'
+## 📥 spec-x 대기
+<!-- sdd:specx:start -->
+- [ ] spec-x-fix-typo — 오탈자 수정
+<!-- sdd:specx:end -->
+## ✅ 완료
+<!-- sdd:done:start -->
+없음
+<!-- sdd:done:end -->
+EOF
+
+git -C "$F6c" add -A
+git -C "$F6c" commit -m "setup" -q
+
+(cd "$F6c" && bash .harness-kit/bin/sdd specx done fix-typo >/dev/null 2>&1)
+
+spec_after=$(jq -r '.spec' "$F6c/.claude/state/current.json")
+plan_after=$(jq -r '.planAccepted' "$F6c/.claude/state/current.json")
+
+if [ "$spec_after" = "null" ] && [ "$plan_after" = "false" ]; then
+  ok "active spec 일치 → spec=null, planAccepted=false 로 리셋"
+else
+  fail "state 리셋 실패 — spec=$spec_after planAccepted=$plan_after (expected: null, false)"
+fi
+
 # (Check 7 제거됨 — sdd archive 는 spec-11-003 에서 디렉토리 아카이브로 교체.
 #  deprecated 경로 테스트는 test-sdd-dir-archive.sh 로 이관.)
 

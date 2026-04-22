@@ -33,7 +33,7 @@ description: 현재 SPEC 의 plan.md 를 명시적으로 승인 — Strict Loop 
 ## 3. 사용자에게 보고
 
 ```
-✅ Plan Accepted: SPEC-{N}-{NN}-{slug}
+✅ Plan Accepted: spec-{phaseN}-{seq}-{slug}
 
 이제 Strict Loop 모드로 진입합니다 (→ agent.md §6.1).
 ```

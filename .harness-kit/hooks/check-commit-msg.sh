@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # PreToolUse hook (matcher: Bash)
-# 목적: 커밋 메시지가 <type>(spec-N-NNN): ... 형식인지 검증 (constitution §9.2)
+# 목적: 커밋 메시지가 <type>(spec-NN-NN): ... 형식인지 검증 (constitution §9.2)
 #
 # 허용 type: feat, fix, refactor, test, docs, chore, style, perf, build, ci
 # docs(...), chore(...) 등 모두 형식은 지켜야 함
@@ -27,7 +27,7 @@ fi
 
 # 허용 패턴: <type>(<scope>): <description>
 # type: feat|fix|refactor|test|docs|chore|style|perf|build|ci
-# scope: 자유 (보통 spec-N-NNN)
+# scope: 자유 (보통 spec-NN-NN)
 if echo "$msg" | grep -qE '^(feat|fix|refactor|test|docs|chore|style|perf|build|ci)\(.*\):[[:space:]].+'; then
   exit 0
 fi
@@ -42,4 +42,4 @@ hook_violation \
   "메시지: $msg" \
   "형식:   <type>(scope): <description>" \
   "type:   feat|fix|refactor|test|docs|chore|style|perf|build|ci" \
-  "예시:   feat(spec-1-001): add webhook lock retry"
+  "예시:   feat(spec-01-01): add webhook lock retry"
