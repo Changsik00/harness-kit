@@ -7,7 +7,7 @@
 ## 📦 진행 중 Phase
 
 <!-- sdd:active:start -->
-- **phase-13** — 개발자 경험(DX) 향상 — 자동화 & 온보딩 — 3 spec — 다음: spec-13-03-test-auto-record
+- **phase-13** — 개발자 경험(DX) 향상 — 자동화 & 온보딩 — 7 spec — 다음: spec-13-07-version-bump
 <!-- sdd:active:end -->
 
 ## 📥 spec-x 대기
