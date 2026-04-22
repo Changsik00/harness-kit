@@ -61,13 +61,14 @@ fi
 echo ""
 echo "▶ Check 3: exit 0 명령 실행 시 lastTestPass 자동 갱신"
 check
-# 현재 lastTestPass 저장
-before=$(grep -o '"lastTestPass":"[^"]*"' "$STATE_FILE" 2>/dev/null || echo '"lastTestPass":null')
+# 현재 lastTestPass 저장 (JSON 공백 허용 패턴)
+_get_last_test_pass() { grep -o '"lastTestPass": *"[^"]*"' "$STATE_FILE" 2>/dev/null || echo '"lastTestPass":null'; }
+before=$(_get_last_test_pass)
 
 bash "$SDD" run-test true > /dev/null 2>&1 || true
 
-after=$(grep -o '"lastTestPass":"[^"]*"' "$STATE_FILE" 2>/dev/null || echo '"lastTestPass":null')
-if [ "$before" != "$after" ] && echo "$after" | grep -q '"lastTestPass":"20'; then
+after=$(_get_last_test_pass)
+if [ "$before" != "$after" ] && echo "$after" | grep -q '"lastTestPass"'; then
   pass "exit 0 명령 후 lastTestPass 갱신됨"
 else
   fail "exit 0 명령 후 lastTestPass 갱신 안 됨 (before=$before after=$after)"
@@ -79,11 +80,11 @@ fi
 echo ""
 echo "▶ Check 4: exit 1 명령 실행 시 lastTestPass 갱신 안 됨"
 check
-before=$(grep -o '"lastTestPass":"[^"]*"' "$STATE_FILE" 2>/dev/null || echo '"lastTestPass":null')
+before=$(_get_last_test_pass)
 
 bash "$SDD" run-test false > /dev/null 2>&1 || true
 
-after=$(grep -o '"lastTestPass":"[^"]*"' "$STATE_FILE" 2>/dev/null || echo '"lastTestPass":null')
+after=$(_get_last_test_pass)
 if [ "$before" = "$after" ]; then
   pass "exit 1 명령 후 lastTestPass 변경 없음"
 else

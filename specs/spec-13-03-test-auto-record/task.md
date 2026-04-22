@@ -35,11 +35,11 @@
 
 ## Task 3: sdd run-test 구현
 
-- [ ] `cmd_run_test()` 함수 추가 — passthrough 실행, exit code 감지, 자동 기록
-- [ ] `case` 분기 + `cmd_help()` 항목 추가
-- [ ] `.harness-kit/bin/sdd` 동기화
-- [ ] 테스트 전체 PASS 확인
-- [ ] Commit: `feat(spec-13-03): add sdd run-test subcommand`
+- [x] `cmd_run_test()` 함수 추가 — passthrough 실행, exit code 감지, 자동 기록
+- [x] `case` 분기 + `cmd_help()` 항목 추가
+- [x] `.harness-kit/bin/sdd` 동기화
+- [x] 테스트 전체 PASS 확인
+- [x] Commit: `feat(spec-13-03): add sdd run-test subcommand`
 
 ---
 

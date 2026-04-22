@@ -60,6 +60,7 @@ sdd — harness-kit 메타 명령
 
   doctor                        환경 진단 — 필수 도구/설치 파일/훅 권한 체크리스트 출력
   pr-watch <pr-number>          PR merge 감지 — merge 확인 시 post-merge 안내 자동 출력
+  run-test <cmd...>             테스트 실행 + 통과 시 자동으로 sdd test passed 기록
 
   help                          이 도움말
   version                       키트 버전
@@ -1517,6 +1518,27 @@ cmd_pr_watch() {
   exit 0
 }
 
+cmd_run_test() {
+  if [ $# -eq 0 ]; then
+    printf "사용법: sdd run-test <cmd...>\n"
+    printf "\n  테스트 명령을 실행하고 통과 시 자동으로 sdd test passed 를 기록합니다.\n"
+    printf "\n예시: sdd run-test bash tests/test-hk-doctor.sh\n"
+    exit 0
+  fi
+
+  set +e
+  "$@"
+  local code=$?
+  set -e
+
+  if [ "$code" -eq 0 ]; then
+    test_passed
+    printf "✅ 테스트 통과 기록됨\n"
+  fi
+
+  return "$code"
+}
+
 # ============================================================
 main() {
   local cmd="${1:-help}"; shift || true
@@ -1535,8 +1557,9 @@ main() {
     hooks)   cmd_hooks "$@" ;;
     specx)   cmd_specx "$@" ;;
     doctor)   cmd_doctor "$@" ;;
-    pr-watch) cmd_pr_watch "$@" ;;
-    *)        err "알 수 없는 명령: $cmd"; cmd_help; exit 1 ;;
+    pr-watch)  cmd_pr_watch "$@" ;;
+    run-test)  cmd_run_test "$@" ;;
+    *)         err "알 수 없는 명령: $cmd"; cmd_help; exit 1 ;;
   esac
 }
 
