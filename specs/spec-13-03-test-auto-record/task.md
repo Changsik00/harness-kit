@@ -22,14 +22,14 @@
 
 ## Task 2: 테스트 작성 (TDD Red)
 
-- [ ] `tests/test-test-auto-record.sh` 작성 — 5가지 시나리오:
+- [x] `tests/test-test-auto-record.sh` 작성 — 5가지 시나리오:
   - 인자 없이 실행 시 사용법 안내 출력 확인
   - `sdd help`에 `run-test` 항목 포함 확인
   - exit 0 명령 실행 시 `lastTestPass` 갱신 확인
   - exit 1 명령 실행 시 `lastTestPass` 갱신 안 됨 확인
   - `sources/bin/sdd` ↔ `.harness-kit/bin/sdd` 동기화 확인
-- [ ] 테스트 실행 → FAIL 확인
-- [ ] Commit: `test(spec-13-03): add failing tests for sdd run-test command`
+- [x] 테스트 실행 → FAIL 확인
+- [x] Commit: `test(spec-13-03): add failing tests for sdd run-test command`
 
 ---
 
