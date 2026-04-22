@@ -10,36 +10,36 @@
 - [x] plan.md 작성
 - [x] task.md 작성 (이 파일)
 - [x] 백로그 업데이트 (phase-13.md SPEC 표 갱신)
-- [ ] 사용자 Plan Accept
+- [x] 사용자 Plan Accept
 
 ---
 
 ## Task 1: 브랜치 생성
 
-- [ ] `git checkout -b spec-13-03-test-auto-record` (base: phase-13-dx-enhancements)
+- [x] `git checkout -b spec-13-03-test-auto-record` (base: phase-13-dx-enhancements)
 
 ---
 
 ## Task 2: 테스트 작성 (TDD Red)
 
-- [ ] `tests/test-test-auto-record.sh` 작성 — 5가지 시나리오:
+- [x] `tests/test-test-auto-record.sh` 작성 — 5가지 시나리오:
   - 인자 없이 실행 시 사용법 안내 출력 확인
   - `sdd help`에 `run-test` 항목 포함 확인
   - exit 0 명령 실행 시 `lastTestPass` 갱신 확인
   - exit 1 명령 실행 시 `lastTestPass` 갱신 안 됨 확인
   - `sources/bin/sdd` ↔ `.harness-kit/bin/sdd` 동기화 확인
-- [ ] 테스트 실행 → FAIL 확인
-- [ ] Commit: `test(spec-13-03): add failing tests for sdd run-test command`
+- [x] 테스트 실행 → FAIL 확인
+- [x] Commit: `test(spec-13-03): add failing tests for sdd run-test command`
 
 ---
 
 ## Task 3: sdd run-test 구현
 
-- [ ] `cmd_run_test()` 함수 추가 — passthrough 실행, exit code 감지, 자동 기록
-- [ ] `case` 분기 + `cmd_help()` 항목 추가
-- [ ] `.harness-kit/bin/sdd` 동기화
-- [ ] 테스트 전체 PASS 확인
-- [ ] Commit: `feat(spec-13-03): add sdd run-test subcommand`
+- [x] `cmd_run_test()` 함수 추가 — passthrough 실행, exit code 감지, 자동 기록
+- [x] `case` 분기 + `cmd_help()` 항목 추가
+- [x] `.harness-kit/bin/sdd` 동기화
+- [x] 테스트 전체 PASS 확인
+- [x] Commit: `feat(spec-13-03): add sdd run-test subcommand`
 
 ---
 
