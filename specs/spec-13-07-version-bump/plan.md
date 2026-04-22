@@ -37,6 +37,11 @@
 - sdd run-test: 테스트 결과 자동 기록 wrapper
 ```
 
+#### [MODIFY] `README.md`
+- 버전 배지 `0.5.0` → `0.6.0`
+- sdd 서브커맨드 표에 `doctor`, `pr-watch`, `run-test` 추가
+- 슬래시 커맨드 표에 `/hk-doctor` 추가
+
 ### [테스트]
 
 #### [NEW] `tests/test-version-bump.sh`

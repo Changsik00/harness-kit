@@ -37,6 +37,7 @@
 - [ ] `VERSION` → `0.6.0`
 - [ ] `.harness-kit/installed.json` kitVersion → `0.6.0`
 - [ ] `CHANGELOG.md` 작성
+- [ ] `README.md` 최신화 (버전 배지, sdd 서브커맨드 표, 슬래시 커맨드 표)
 - [ ] 테스트 전체 PASS 확인
 - [ ] Commit: `chore(spec-13-07): bump version 0.5.0 → 0.6.0`
 
