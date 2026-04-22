@@ -10,13 +10,13 @@
 - [x] plan.md 작성
 - [x] task.md 작성 (이 파일)
 - [x] 백로그 업데이트 (phase-13.md SPEC 표 갱신)
-- [ ] 사용자 Plan Accept
+- [x] 사용자 Plan Accept
 
 ---
 
 ## Task 1: 브랜치 생성
 
-- [ ] `git checkout -b spec-13-07-version-bump` (base: phase-13-dx-enhancements)
+- [x] `git checkout -b spec-13-07-version-bump` (base: phase-13-dx-enhancements)
 
 ---
 
