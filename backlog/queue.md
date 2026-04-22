@@ -7,7 +7,7 @@
 ## 📦 진행 중 Phase
 
 <!-- sdd:active:start -->
-- **phase-12** — 프로젝트 확장성 강화 — 1 spec — 다음: spec-12-01-staged-lint
+- **phase-13** — 개발자 경험(DX) 향상 — 자동화 & 온보딩 — 1 spec — 다음: (spec 없음)
 <!-- sdd:active:end -->
 
 ## 📥 spec-x 대기
@@ -48,6 +48,7 @@
 - **phase-10** — sdd 상태 진단 신뢰성 강화 — completed 2026-04-16
 - **phase-11** — 식별자 체계 개선 및 디렉토리 아카이브 — completed 2026-04-17
 - [x] spec-x-sdd-ux-fixes (완료)
+- **phase-12** — 프로젝트 확장성 강화 — completed 2026-04-22
 <!-- sdd:done:end -->
 
 ---
