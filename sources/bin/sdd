@@ -1424,7 +1424,7 @@ cmd_doctor() {
   printf "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
 
   printf "\n필수 도구\n"
-  _check_tool "bash" "4.0" "required" "brew install bash (macOS) 또는 apt-get install bash"
+  _check_tool "bash" "3.2" "required" "macOS 기본 bash 로도 동작 — 4+ 권장 (일부 환경 일관성)"
   _check_tool "jq"   ""    "required" "brew install jq 또는 apt-get install jq"
   _check_tool "git"  ""    "required" "brew install git 또는 apt-get install git"
 
