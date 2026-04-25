@@ -53,7 +53,8 @@ phase-13 (DX 향상) 도그푸딩 과정에서 다음 세 종류의 정합성/�
 |---|---|:---:|---|---|
 | spec-14-01 | sdd-queued-marker | P1 | Merged | `specs/spec-14-01-sdd-queued-marker/` |
 | spec-14-02 | doctor-bash-version | P1 | Merged | `specs/spec-14-02-doctor-bash-version/` |
-| spec-14-03 | gitignore-idempotent | P1 | In Progress | `specs/spec-14-03-gitignore-idempotent/` |
+| spec-14-03 | gitignore-idempotent | P1 | Merged | `specs/spec-14-03-gitignore-idempotent/` |
+| spec-14-04 | marker-append-guard | P1 | In Progress | `specs/spec-14-04-marker-append-guard/` |
 <!-- sdd:specs:end -->
 
 > 상태 허용값: `Backlog` / `In Progress` / `Merged`
