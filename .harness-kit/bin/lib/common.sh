@@ -76,14 +76,22 @@ sdd_slug_ok() {
 # 마커 형식: <!-- sdd:<name>:start --> ... <!-- sdd:<name>:end -->
 # ─────────────────────────────────────────────────────────
 
-# 마커 사이에 한 줄 append (end 마커 직전)
+# 마커 사이에 한 줄 append (end 마커 직전).
+# 동일 라인이 마커 영역 내부에 이미 있으면 append 생략 (멱등).
 sdd_marker_append() {
   local file="$1" name="$2" line="$3"
   [ -f "$file" ] || die "파일 없음: $file"
   local start="<!-- sdd:${name}:start -->"
   local end="<!-- sdd:${name}:end -->"
   awk -v s="$start" -v e="$end" -v ln="$line" '
-    $0 == e { print ln; print; next }
+    BEGIN { in_section = 0; found = 0 }
+    $0 == s { in_section = 1; print; next }
+    $0 == e {
+      in_section = 0
+      if (!found) print ln
+      print; next
+    }
+    in_section && $0 == ln { found = 1 }
     { print }
   ' "$file" > "$file.tmp" && mv "$file.tmp" "$file"
 }
@@ -116,4 +124,19 @@ sdd_marker_update_row() {
     in_section && index($0, needle) > 0 { print newline; next }
     { print }
   ' "$file" > "$file.tmp" && mv "$file.tmp" "$file"
+}
+
+# 마커 영역 내부에서 needle 검색 — exit 0 (찾음) / 1 (못찾음)
+sdd_marker_grep() {
+  local file="$1" name="$2" needle="$3"
+  [ -f "$file" ] || return 1
+  local start="<!-- sdd:${name}:start -->"
+  local end="<!-- sdd:${name}:end -->"
+  awk -v s="$start" -v e="$end" -v n="$needle" '
+    BEGIN { in_section = 0; found = 0 }
+    $0 == s { in_section = 1; next }
+    $0 == e { in_section = 0; next }
+    in_section && index($0, n) > 0 { found = 1 }
+    END { exit (found ? 0 : 1) }
+  ' "$file"
 }
