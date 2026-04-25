@@ -397,50 +397,43 @@ else
 fi
 
 # ============================================================
-# 16. .gitignore 업데이트
+# 16. .gitignore 업데이트 (라인별 멱등)
 # ============================================================
 log ".gitignore 갱신"
 GI="$TARGET/.gitignore"
 if [ $DRY_RUN -eq 1 ]; then
-  echo "${C_DIM}[dry-run]${C_RST} .gitignore 에 harness-kit 항목 추가"
+  echo "${C_DIM}[dry-run]${C_RST} .gitignore 에 harness-kit 항목 추가 (라인별 멱등)"
 else
   touch "$GI"
-  # harness-kit 섹션이 없으면 추가
-  if ! grep -q '# harness-kit' "$GI"; then
-    if [ $HK_GITIGNORE -eq 1 ]; then
-      _hk_line=".harness-kit/"
-    else
-      _hk_line="!.harness-kit/"
+
+  # 헬퍼: 정확 매치 grep 후 부재 시에만 append
+  _gi_ensure() {
+    local pattern="$1" line="$2"
+    if ! grep -qE "$pattern" "$GI" 2>/dev/null; then
+      echo "$line" >> "$GI"
     fi
-    {
-      echo ""
-      echo "# harness-kit"
-      echo "$_hk_line"
-      echo ".harness-backup-*/"
-      echo ".claude/state/"
-    } >> "$GI"
+  }
+
+  # gitignore 옵션 토글 — .harness-kit/ ↔ !.harness-kit/
+  if [ $HK_GITIGNORE -eq 1 ]; then
+    sed -i.tmp 's|^!\.harness-kit/$|.harness-kit/|' "$GI" && rm -f "${GI}.tmp"
+    _hk_pat='^\.harness-kit/$';   _hk_line='.harness-kit/'
   else
-    # 섹션이 이미 있는 경우: .harness-kit/ 관련 라인 멱등 처리
-    if [ $HK_GITIGNORE -eq 1 ]; then
-      # .harness-kit/ 이 없으면 추가, !.harness-kit/ 이 있으면 제거
-      if ! grep -q '^\.harness-kit/$' "$GI"; then
-        sed -i.tmp 's|^!\.harness-kit/$|.harness-kit/|' "$GI"
-        if ! grep -q '^\.harness-kit/$' "$GI"; then
-          echo ".harness-kit/" >> "$GI"
-        fi
-        rm -f "${GI}.tmp"
-      fi
-    else
-      # !.harness-kit/ 이 없으면 추가, .harness-kit/ 이 있으면 제거
-      if ! grep -q '^!\.harness-kit/$' "$GI"; then
-        sed -i.tmp 's|^\.harness-kit/$|!.harness-kit/|' "$GI"
-        if ! grep -q '^!\.harness-kit/$' "$GI"; then
-          echo "!.harness-kit/" >> "$GI"
-        fi
-        rm -f "${GI}.tmp"
-      fi
-    fi
+    sed -i.tmp 's|^\.harness-kit/$|!.harness-kit/|' "$GI" && rm -f "${GI}.tmp"
+    _hk_pat='^!\.harness-kit/$';  _hk_line='!.harness-kit/'
   fi
+
+  # 헤더 — 부재 시 빈 줄 + 헤더
+  if ! grep -qE '^# harness-kit$' "$GI" 2>/dev/null; then
+    [ -s "$GI" ] && echo "" >> "$GI"
+    echo "# harness-kit" >> "$GI"
+  fi
+
+  # 4 라인 각각 라인별 ensure
+  _gi_ensure "$_hk_pat"                "$_hk_line"
+  _gi_ensure '^\.harness-backup-\*/$'  '.harness-backup-*/'
+  _gi_ensure '^\.claude/state/$'       '.claude/state/'
+
   ok ".gitignore 갱신"
 fi
 
