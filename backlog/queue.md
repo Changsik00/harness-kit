@@ -8,7 +8,7 @@
 ## 📦 진행 중 Phase
 
 <!-- sdd:active:start -->
-- **phase-14** — 정합성 / 멱등성 버그 일괄 수정 — 2 spec — 다음: spec-14-02-doctor-bash-version
+- **phase-14** — 정합성 / 멱등성 버그 일괄 수정 — 3 spec — 다음: spec-14-03-gitignore-idempotent
 <!-- sdd:active:end -->
 
 ## 📥 spec-x 대기
