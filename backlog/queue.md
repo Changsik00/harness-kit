@@ -8,7 +8,7 @@
 ## 📦 진행 중 Phase
 
 <!-- sdd:active:start -->
-- **phase-14** — 정합성 / 멱등성 버그 일괄 수정 — 4 spec — 다음: spec-14-04-marker-append-guard
+- **phase-14** — 정합성 / 멱등성 버그 일괄 수정 — 5 spec — 다음: spec-14-05-phase-review-followup
 <!-- sdd:active:end -->
 
 ## 📥 spec-x 대기
