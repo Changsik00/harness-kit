@@ -8,7 +8,7 @@
 ## 📦 진행 중 Phase
 
 <!-- sdd:active:start -->
-- **phase-14** — 정합성 / 멱등성 버그 일괄 수정 — 5 spec — 다음: spec-14-05-phase-review-followup
+(active phase 없음. `bin/sdd phase new <slug>` 로 시작)
 <!-- sdd:active:end -->
 
 ## 📥 spec-x 대기
@@ -16,6 +16,7 @@
 <!-- sdd:specx:start -->
 없음
 - [ ] spec-x-fix-archive-test-expectation — fix-archive-test-expectation
+- [ ] spec-x-phase-14-finalize — phase-14-finalize
 <!-- sdd:specx:end -->
 
 ## 🧊 Icebox
@@ -51,6 +52,7 @@
 - [x] spec-x-sdd-ux-fixes (완료)
 - **phase-12** — 프로젝트 확장성 강화 — completed 2026-04-22
 - **phase-13** — 개발자 경험(DX) 향상 — 자동화 & 온보딩 — completed 2026-04-25
+- **phase-14** — 정합성 / 멱등성 버그 일괄 수정 — completed 2026-04-25
 <!-- sdd:done:end -->
 
 ---
