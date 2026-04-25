@@ -8,7 +8,7 @@
 ## 📦 진행 중 Phase
 
 <!-- sdd:active:start -->
-- **phase-14** — 정합성 / 멱등성 버그 일괄 수정 — 3 spec — 다음: spec-14-03-gitignore-idempotent
+- **phase-14** — 정합성 / 멱등성 버그 일괄 수정 — 4 spec — 다음: spec-14-04-marker-append-guard
 <!-- sdd:active:end -->
 
 ## 📥 spec-x 대기
