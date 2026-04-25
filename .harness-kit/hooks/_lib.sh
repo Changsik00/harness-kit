@@ -16,7 +16,7 @@
 
 set -uo pipefail
 
-# 현재 스크립트의 디렉토리를 반환 (bash 4.0+)
+# 현재 스크립트의 디렉토리를 반환 (bash 3.2+)
 _script_dir() {
   cd "$(dirname "${BASH_SOURCE[0]}")" && pwd
 }

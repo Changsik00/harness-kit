@@ -21,7 +21,7 @@
 #   ./install.sh --export-format=copilot  # .github/copilot-instructions.md 생성
 #
 # 필수 의존성 (macOS 기준 — brew install ...):
-#   bash 4.0+, jq, git
+#   bash 3.2+, jq, git
 
 set -euo pipefail
 

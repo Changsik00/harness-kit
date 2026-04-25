@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # bin/sdd 공통 라이브러리
-# bash 4.0+ (macOS 1차 타깃)
+# bash 3.2+ 호환 (macOS 1차 타깃 — 4+ 전용 기능 미사용)
 
 # 색상
 if [ -t 1 ]; then
