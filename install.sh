@@ -21,7 +21,7 @@
 #   ./install.sh --export-format=copilot  # .github/copilot-instructions.md 생성
 #
 # 필수 의존성 (macOS 기준 — brew install ...):
-#   bash 4.0+, jq, git
+#   bash 3.2+, jq, git
 
 set -euo pipefail
 
@@ -415,11 +415,15 @@ else
   }
 
   # gitignore 옵션 토글 — .harness-kit/ ↔ !.harness-kit/
+  # NOTE: 'sed && rm' 형태는 bash compound command 라 sed 실패 시 set -e 비트리거.
+  # 명시적 || die 로 sed 실패를 즉시 표면화.
   if [ $HK_GITIGNORE -eq 1 ]; then
-    sed -i.tmp 's|^!\.harness-kit/$|.harness-kit/|' "$GI" && rm -f "${GI}.tmp"
+    sed -i.tmp 's|^!\.harness-kit/$|.harness-kit/|' "$GI" || die "sed 실패: $GI"
+    rm -f "${GI}.tmp"
     _hk_pat='^\.harness-kit/$';   _hk_line='.harness-kit/'
   else
-    sed -i.tmp 's|^\.harness-kit/$|!.harness-kit/|' "$GI" && rm -f "${GI}.tmp"
+    sed -i.tmp 's|^\.harness-kit/$|!.harness-kit/|' "$GI" || die "sed 실패: $GI"
+    rm -f "${GI}.tmp"
     _hk_pat='^!\.harness-kit/$';  _hk_line='!.harness-kit/'
   fi
 

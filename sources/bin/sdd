@@ -2,7 +2,7 @@
 # sdd — harness-kit 메타 명령
 # Spec-Driven Development 작업을 사람과 AI 가 같은 인터페이스로 진행하기 위한 진입점.
 #
-# 환경: macOS + bash 4.0+ + jq 필요
+# 환경: macOS + bash 3.2+ + jq 필요 (bash 4+ 전용 기능 미사용)
 
 set -uo pipefail
 
@@ -742,9 +742,11 @@ spec_new() {
   # phase-{N}.md 의 spec 표에 행 추가 또는 갱신
   # 기존 Backlog 행이 있으면 Active 로 업데이트, 없으면 새 행 append
   local row="| \`${short_id}\` | ${slug} | P? | Active | \`specs/${id}/\` |"
-  if sdd_marker_grep "$phase_file" "specs" "${short_id}"; then
+  # 정확 토큰 매칭: 마커 row 의 ID 필드는 항상 백틱 포함이므로 \`ID\` 로 검색하여
+  # phase 본문 텍스트의 비백틱 ID 매치 또는 더 긴 ID (spec-N-NN1) 의 부분 일치 회피
+  if sdd_marker_grep "$phase_file" "specs" "\`${short_id}\`"; then
     local updated_row="| \`${short_id}\` | ${slug} | P? | Active | \`specs/${id}/\` |"
-    sdd_marker_update_row "$phase_file" "specs" "${short_id}" "$updated_row"
+    sdd_marker_update_row "$phase_file" "specs" "\`${short_id}\`" "$updated_row"
   else
     sdd_marker_append "$phase_file" "specs" "$row"
   fi

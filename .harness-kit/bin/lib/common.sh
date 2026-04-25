@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # bin/sdd 공통 라이브러리
-# bash 4.0+ (macOS 1차 타깃)
+# bash 3.2+ 호환 (macOS 1차 타깃 — 4+ 전용 기능 미사용)
 
 # 색상
 if [ -t 1 ]; then
@@ -77,18 +77,28 @@ sdd_slug_ok() {
 # ─────────────────────────────────────────────────────────
 
 # 마커 사이에 한 줄 append (end 마커 직전).
-# 동일 라인이 마커 영역 내부에 이미 있으면 append 생략 (멱등).
+# - 동일 라인이 영역 내부에 이미 있으면 영역 단위로 append 생략 (멱등).
+# - 같은 이름의 마커 쌍이 여러 개 있어도 각 영역마다 독립적으로 멱등 보장.
+# - 마커가 부재한 파일에서는 stderr warn + rc=1 (silent no-op 회피).
 sdd_marker_append() {
   local file="$1" name="$2" line="$3"
   [ -f "$file" ] || die "파일 없음: $file"
   local start="<!-- sdd:${name}:start -->"
   local end="<!-- sdd:${name}:end -->"
+
+  # 마커 부재 사전 체크 — silent no-op 회피
+  if ! grep -qF "$start" "$file" 2>/dev/null || ! grep -qF "$end" "$file" 2>/dev/null; then
+    echo "warn: 마커 영역 부재 (sdd:${name}) — append 생략: $file" >&2
+    return 1
+  fi
+
   awk -v s="$start" -v e="$end" -v ln="$line" '
     BEGIN { in_section = 0; found = 0 }
-    $0 == s { in_section = 1; print; next }
-    $0 == e {
-      in_section = 0
+    $0 == s && !in_section { in_section = 1; found = 0; print; next }
+    $0 == e && in_section {
       if (!found) print ln
+      in_section = 0
+      found = 0
       print; next
     }
     in_section && $0 == ln { found = 1 }
