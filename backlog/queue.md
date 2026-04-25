@@ -1,13 +1,14 @@
 # Backlog Queue
 
 > 본 문서는 *대시보드* 입니다. "지금 무엇을 하고 있고, 다음에 무엇을 해야 하는가"를 한눈에 보기 위함.
-> sdd 가 마커 사이를 자동 갱신하므로 마커 (`<!-- sdd:... -->`) 는 그대로 두세요.
-> 🧊 Icebox 섹션만 사람이 직접 편집합니다.
+>
+> **자동 갱신 마커**: `active`, `specx`, `done` — 마커 (`<!-- sdd:... -->`) 사이는 sdd 가 관리하므로 그대로 두세요.
+> **사람 편집 섹션**: `🧊 Icebox`, `📋 대기 Phase` — 자유 메모.
 
 ## 📦 진행 중 Phase
 
 <!-- sdd:active:start -->
-- **phase-13** — 개발자 경험(DX) 향상 — 자동화 & 온보딩 — 7 spec — 다음: spec-13-07-version-bump
+- **phase-14** — 정합성 / 멱등성 버그 일괄 수정 — 1 spec — 다음: spec-14-01-sdd-queued-marker
 <!-- sdd:active:end -->
 
 ## 📥 spec-x 대기
@@ -26,10 +27,10 @@
 
 ## 📋 대기 Phase
 
-<!-- sdd:queued:start -->
-| Phase | 제목 | 상태 | SPECs |
-|-------|------|------|-------|
-<!-- sdd:queued:end -->
+> 다음에 진행할 phase 를 자유롭게 메모합니다 (사람이 직접 편집).
+> 자동 갱신되지 않습니다 — Icebox 와 동일한 정책.
+
+없음
 
 ## ✅ 완료
 
@@ -49,6 +50,7 @@
 - **phase-11** — 식별자 체계 개선 및 디렉토리 아카이브 — completed 2026-04-17
 - [x] spec-x-sdd-ux-fixes (완료)
 - **phase-12** — 프로젝트 확장성 강화 — completed 2026-04-22
+- **phase-13** — 개발자 경험(DX) 향상 — 자동화 & 온보딩 — completed 2026-04-25
 <!-- sdd:done:end -->
 
 ---
