@@ -415,11 +415,15 @@ else
   }
 
   # gitignore 옵션 토글 — .harness-kit/ ↔ !.harness-kit/
+  # NOTE: 'sed && rm' 형태는 bash compound command 라 sed 실패 시 set -e 비트리거.
+  # 명시적 || die 로 sed 실패를 즉시 표면화.
   if [ $HK_GITIGNORE -eq 1 ]; then
-    sed -i.tmp 's|^!\.harness-kit/$|.harness-kit/|' "$GI" && rm -f "${GI}.tmp"
+    sed -i.tmp 's|^!\.harness-kit/$|.harness-kit/|' "$GI" || die "sed 실패: $GI"
+    rm -f "${GI}.tmp"
     _hk_pat='^\.harness-kit/$';   _hk_line='.harness-kit/'
   else
-    sed -i.tmp 's|^\.harness-kit/$|!.harness-kit/|' "$GI" && rm -f "${GI}.tmp"
+    sed -i.tmp 's|^\.harness-kit/$|!.harness-kit/|' "$GI" || die "sed 실패: $GI"
+    rm -f "${GI}.tmp"
     _hk_pat='^!\.harness-kit/$';  _hk_line='!.harness-kit/'
   fi
 
