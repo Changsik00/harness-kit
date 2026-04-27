@@ -111,13 +111,14 @@ log "기존 설치 제거 중..."
 "$KIT_DIR/uninstall.sh" --yes --keep-state "$TARGET"
 
 # ── 2. state 임시 저장 (install.sh 가 덮어쓰므로) ────────────
+# 보존 키 화이트리스트: 새 필드를 추가하려면 여기 6개 자리에 함께 추가하면 된다.
+#   phase, spec, branch, baseBranch, planAccepted, lastTestPass
 _STATE="$TARGET/.claude/state/current.json"
-_SAVED_PHASE="null"; _SAVED_SPEC="null"; _SAVED_PLAN="false"; _SAVED_TEST="null"
+_SAVED_JSON='{}'
 if command -v jq >/dev/null 2>&1 && [ -f "$_STATE" ]; then
-  _SAVED_PHASE=$(jq '.phase // null'        "$_STATE")
-  _SAVED_SPEC=$(jq  '.spec  // null'        "$_STATE")
-  _SAVED_PLAN=$(jq  '.planAccepted // false' "$_STATE")
-  _SAVED_TEST=$(jq  '.lastTestPass // null'  "$_STATE")
+  _SAVED_JSON=$(jq -c \
+    '{phase, spec, branch, baseBranch, planAccepted, lastTestPass}' \
+    "$_STATE" 2>/dev/null || echo '{}')
 fi
 
 # ── 3. install ───────────────────────────────────────────────
@@ -127,16 +128,12 @@ PREFIX_ARG=""
 # shellcheck disable=SC2086
 "$KIT_DIR/install.sh" --yes $PREFIX_ARG $HK_GITIGNORE_ARG "$TARGET"
 
-# ── 4. state 복원 ────────────────────────────────────────────
-if command -v jq >/dev/null 2>&1 && [ -f "$_STATE" ]; then
+# ── 4. state 복원 (jq * merge 로 백업 객체를 새 state 위에 덮어씀) ─
+# 백업에 없는 키 (kitVersion, installedAt) 는 install 이 쓴 새 값을 유지.
+if command -v jq >/dev/null 2>&1 && [ -f "$_STATE" ] && [ "$_SAVED_JSON" != '{}' ]; then
   _tmp="$(mktemp)"
-  if jq \
-    --argjson phase        "$_SAVED_PHASE" \
-    --argjson spec         "$_SAVED_SPEC"  \
-    --argjson planAccepted "$_SAVED_PLAN"  \
-    --argjson lastTestPass "$_SAVED_TEST"  \
-    '.phase=$phase | .spec=$spec | .planAccepted=$planAccepted | .lastTestPass=$lastTestPass' \
-    "$_STATE" > "$_tmp" 2>/dev/null; then
+  if jq --argjson saved "$_SAVED_JSON" '. * $saved' \
+       "$_STATE" > "$_tmp" 2>/dev/null; then
     mv "$_tmp" "$_STATE"
     ok "state 복원 완료"
   else
