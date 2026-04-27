@@ -32,15 +32,22 @@ echo ""
 # 픽스처 준비: 일반 설치 (state 포함)
 # ──────────────────────────────────────────────
 FIXTURE="$(mktemp -d)"
-trap 'rm -rf "$FIXTURE" "$FIXTURE_B"' EXIT
+FIXTURE_B=""
+FIXTURE_C=""
+trap 'rm -rf "$FIXTURE" "$FIXTURE_B" "$FIXTURE_C"' EXIT
 git -C "$FIXTURE" init -q
 git -C "$FIXTURE" checkout -b main 2>/dev/null || true
 git -C "$FIXTURE" config user.email "test@local" && git -C "$FIXTURE" config user.name "test"
 
 bash "$INSTALL" --yes "$FIXTURE" > /dev/null 2>&1
 
-# state에 phase/spec 값 주입
-jq '.phase = "phase-9" | .spec = "spec-9-005-update-rewrite"' \
+# state에 6개 보존 필드 모두 값 주입 (보존 검증을 위해)
+jq '.phase = "phase-9"
+   | .spec = "spec-9-005-update-rewrite"
+   | .branch = "spec-9-005-update-rewrite"
+   | .baseBranch = "phase-9-rewrite"
+   | .planAccepted = true
+   | .lastTestPass = "2026-04-27T00:00:00Z"' \
   "$FIXTURE/.claude/state/current.json" > /tmp/state_test.json
 mv /tmp/state_test.json "$FIXTURE/.claude/state/current.json"
 
@@ -72,6 +79,52 @@ if command -v jq >/dev/null 2>&1 && [ -f "$FIXTURE/.claude/state/current.json" ]
   fi
 else
   pass "(jq 없음 — state 검증 스킵)"
+fi
+
+# 신규: branch / baseBranch 보존 검증 (spec-x-update-preserve-state)
+check
+if command -v jq >/dev/null 2>&1 && [ -f "$FIXTURE/.claude/state/current.json" ]; then
+  branch=$(jq -r '.branch // empty' "$FIXTURE/.claude/state/current.json")
+  base_branch=$(jq -r '.baseBranch // empty' "$FIXTURE/.claude/state/current.json")
+  if [ "$branch" = "spec-9-005-update-rewrite" ] && [ "$base_branch" = "phase-9-rewrite" ]; then
+    pass "branch/baseBranch 보존: branch=$branch baseBranch=$base_branch"
+  else
+    fail "branch/baseBranch 손실: branch=$branch baseBranch=$base_branch"
+  fi
+else
+  pass "(jq 없음 — branch 검증 스킵)"
+fi
+
+# 신규: planAccepted / lastTestPass 보존 검증
+check
+if command -v jq >/dev/null 2>&1 && [ -f "$FIXTURE/.claude/state/current.json" ]; then
+  pa=$(jq -r '.planAccepted' "$FIXTURE/.claude/state/current.json")
+  lt=$(jq -r '.lastTestPass // empty' "$FIXTURE/.claude/state/current.json")
+  if [ "$pa" = "true" ] && [ "$lt" = "2026-04-27T00:00:00Z" ]; then
+    pass "planAccepted/lastTestPass 보존: pa=$pa lt=$lt"
+  else
+    fail "planAccepted/lastTestPass 손실: pa=$pa lt=$lt"
+  fi
+else
+  pass "(jq 없음 — pa/lt 검증 스킵)"
+fi
+
+# 신규: kitVersion 동기화 검증 (state.json == installed.json == VERSION)
+check
+if command -v jq >/dev/null 2>&1 \
+   && [ -f "$FIXTURE/.claude/state/current.json" ] \
+   && [ -f "$FIXTURE/.harness-kit/installed.json" ] \
+   && [ -f "$ROOT/VERSION" ]; then
+  state_ver=$(jq -r '.kitVersion // empty' "$FIXTURE/.claude/state/current.json")
+  inst_ver=$(jq -r '.kitVersion // empty' "$FIXTURE/.harness-kit/installed.json")
+  file_ver=$(cat "$ROOT/VERSION" | tr -d '[:space:]')
+  if [ -n "$state_ver" ] && [ "$state_ver" = "$inst_ver" ] && [ "$state_ver" = "$file_ver" ]; then
+    pass "kitVersion 동기화: state=$state_ver installed=$inst_ver VERSION=$file_ver"
+  else
+    fail "kitVersion 불일치: state=$state_ver installed=$inst_ver VERSION=$file_ver"
+  fi
+else
+  pass "(파일 누락 — kitVersion 검증 스킵)"
 fi
 
 check
@@ -122,6 +175,32 @@ if command -v jq >/dev/null 2>&1 && [ -f "$FIXTURE_B/.harness-kit/harness.config
   fi
 else
   pass "(jq 없음 — config 검증 스킵)"
+fi
+
+# ──────────────────────────────────────────────
+# 시나리오 C: 신규 설치 직후 state.json 에 baseBranch 필드 존재
+# (spec-x-update-preserve-state)
+# ──────────────────────────────────────────────
+echo ""
+echo "▶ 시나리오 C: install.sh 가 baseBranch 필드 포함 state.json 작성"
+
+FIXTURE_C="$(mktemp -d)"
+git -C "$FIXTURE_C" init -q
+git -C "$FIXTURE_C" checkout -b main 2>/dev/null || true
+git -C "$FIXTURE_C" config user.email "test@local" && git -C "$FIXTURE_C" config user.name "test"
+
+bash "$INSTALL" --yes "$FIXTURE_C" > /dev/null 2>&1
+
+check
+if command -v jq >/dev/null 2>&1 && [ -f "$FIXTURE_C/.claude/state/current.json" ]; then
+  has_bb=$(jq 'has("baseBranch")' "$FIXTURE_C/.claude/state/current.json")
+  if [ "$has_bb" = "true" ]; then
+    pass "신규 install state.json 에 baseBranch 필드 존재"
+  else
+    fail "신규 install state.json 에 baseBranch 필드 누락"
+  fi
+else
+  pass "(jq 없음 — baseBranch 필드 검증 스킵)"
 fi
 
 # ──────────────────────────────────────────────

@@ -16,7 +16,7 @@
 <!-- sdd:specx:start -->
 없음
 - [ ] spec-x-fix-archive-test-expectation — fix-archive-test-expectation
-- [ ] spec-x-phase-14-finalize — phase-14-finalize
+- [ ] spec-x-update-preserve-state — update-preserve-state
 <!-- sdd:specx:end -->
 
 ## 🧊 Icebox
@@ -53,6 +53,7 @@
 - **phase-12** — 프로젝트 확장성 강화 — completed 2026-04-22
 - **phase-13** — 개발자 경험(DX) 향상 — 자동화 & 온보딩 — completed 2026-04-25
 - **phase-14** — 정합성 / 멱등성 버그 일괄 수정 — completed 2026-04-25
+- [x] spec-x-phase-14-finalize (완료)
 <!-- sdd:done:end -->
 
 ---
