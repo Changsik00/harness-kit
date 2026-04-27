@@ -16,6 +16,7 @@
 <!-- sdd:specx:start -->
 없음
 - [ ] spec-x-fix-archive-test-expectation — fix-archive-test-expectation
+- [ ] spec-x-sdd-phase-activate — sdd-phase-activate
 <!-- sdd:specx:end -->
 
 ## 🧊 Icebox

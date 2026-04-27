@@ -10,8 +10,8 @@ fail() { printf "  ❌ FAIL: %s\n" "$1"; FAIL=$(( FAIL + 1 )); }
 
 printf "=== test-version-bump ===\n"
 
-# Check 1: VERSION 파일에 0.6.1 포함
-TARGET="0.6.1"
+# Check 1: VERSION 파일에 0.6.2 포함
+TARGET="0.6.2"
 version_file="$REPO_ROOT/VERSION"
 if grep -qF "$TARGET" "$version_file" 2>/dev/null; then
   ok "VERSION 파일에 $TARGET 포함"
