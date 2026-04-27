@@ -16,7 +16,6 @@
 <!-- sdd:specx:start -->
 없음
 - [ ] spec-x-fix-archive-test-expectation — fix-archive-test-expectation
-- [ ] spec-x-install-phase-ship-template — install-phase-ship-template
 <!-- sdd:specx:end -->
 
 ## 🧊 Icebox
@@ -58,6 +57,7 @@
 - **phase-14** — 정합성 / 멱등성 버그 일괄 수정 — completed 2026-04-25
 - [x] spec-x-phase-14-finalize (완료)
 - [x] spec-x-update-preserve-state (완료)
+- [x] spec-x-install-phase-ship-template (완료)
 <!-- sdd:done:end -->
 
 ---
