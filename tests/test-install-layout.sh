@@ -117,6 +117,19 @@ else
   fail ".gitignore 에 .harness-kit/ 없음"
 fi
 
+# --- Check 8: 8개 템플릿 모두 복사됨 (spec-x-install-phase-ship-template) ---
+# sources/templates/ 의 모든 .md 파일이 install 후 .harness-kit/agent/templates/ 에
+# 존재해야 한다. 누락 시 /hk-phase-ship 등 mandatory 절차가 동작 불가.
+echo "▶ Check 8: 8개 템플릿 모두 복사됨"
+for f in queue.md phase.md phase-ship.md spec.md plan.md task.md walkthrough.md pr_description.md; do
+  check
+  if [ -f "$FIXTURE_DIR/.harness-kit/agent/templates/$f" ]; then
+    pass "templates/$f 존재"
+  else
+    fail "templates/$f 없음"
+  fi
+done
+
 # --- 결과 ---
 echo ""
 echo "═══════════════════════════════════════════"

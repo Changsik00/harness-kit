@@ -259,7 +259,7 @@ for f in constitution.md agent.md align.md; do
 done
 
 log "템플릿 복사"
-for f in queue.md phase.md spec.md plan.md task.md walkthrough.md pr_description.md; do
+for f in queue.md phase.md phase-ship.md spec.md plan.md task.md walkthrough.md pr_description.md; do
   do_cp "$KIT_DIR/sources/templates/$f" "$TARGET/.harness-kit/agent/templates/$f"
 done
 
