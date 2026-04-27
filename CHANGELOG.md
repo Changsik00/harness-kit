@@ -5,6 +5,19 @@ harness-kit의 주요 변경 사항을 버전별로 정리합니다.
 
 ---
 
+## [0.6.2] — 2026-04-28
+
+### Added
+- **`sdd phase activate <phase-NN> [--base]`** — 사용자가 `backlog/`에 미리 작성해둔 phase 파일을 활성화하는 명령. 본문은 일체 변경하지 않고 state.json + queue.md 의 active 마커만 갱신. `--base` 옵션은 phase.md 메타 표의 `Base Branch` 필드(`phase-NN-<slug>` 형식)를 읽어 baseBranch 로 설정 — 채워져 있지 않으면 die. 사전 정의 phase 가 여럿이거나 active phase 가 다른 ID 인 경우 거부 (→ spec-x-sdd-phase-activate)
+
+### Fixed
+- **`sdd phase new` 사일런트 잘못된 생성** — 사용자가 `backlog/phase-03.md ~ phase-07.md` 처럼 phase 를 미리 정의해 둔 상태에서 `sdd phase new <slug>` 실행 시, sdd가 사전 정의 파일을 인지하지 못하고 max+1 번호로 새 phase 를 만들어 버리던 문제. 이제 done 도 active 도 아닌 phase 파일이 존재하면 die + `sdd phase activate <id>` 안내. `--force` 플래그로 우회 가능
+
+### Tests
+- `tests/test-sdd-phase-activate.sh` — phase activate 정상/실패 시나리오 + phase new 가드 + `--force` 우회 + 회귀 (총 13 checks)
+
+---
+
 ## [0.6.1] — 2026-04-27
 
 ### Fixed
