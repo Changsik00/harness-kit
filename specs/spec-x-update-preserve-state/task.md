@@ -25,51 +25,52 @@
 ## Task 2: 테스트 확장 (TDD Red)
 
 ### 2-1. tests/test-update.sh 에 보존 검증 케이스 추가
-- [ ] 시나리오 A 에 `branch`, `baseBranch`, `kitVersion 동기화` 검증 추가
-- [ ] 신규 시나리오 C 추가: 6개 필드 모두 값 주입 → update → 모두 보존
-- [ ] `bash tests/test-update.sh` 실행 → 신규 케이스 FAIL 확인 (Red)
-- [ ] Commit: `test(spec-x-update-preserve-state): add state preservation regression tests`
+- [x] 시나리오 A 에 `branch`, `baseBranch`, `kitVersion 동기화` 검증 추가
+- [x] 신규 시나리오 C 추가: install.sh 가 baseBranch 필드 포함 state.json 작성
+- [x] `bash tests/test-update.sh` 실행 → 신규 케이스 FAIL 확인 (Red, 2/11 fail)
+- [x] Commit: `test(spec-x-update-preserve-state): add state preservation regression tests`
 
 ---
 
 ## Task 3: install.sh 의 state 템플릿에 baseBranch 추가 (TDD Green 1/2)
 
 ### 3-1. install.sh 수정
-- [ ] `install.sh` lines 481-491 의 state.json 템플릿에 `"baseBranch": null,` 추가
-- [ ] 직접 검증: `bash install.sh --yes <tmpdir>` 후 `jq '.baseBranch' .claude/state/current.json` → `null` 출력
-- [ ] Commit: `fix(spec-x-update-preserve-state): add baseBranch field to install state template`
+- [x] `install.sh` 의 state.json 템플릿에 `"baseBranch": null,` 추가
+- [x] 검증: `tests/test-update.sh` 시나리오 C PASS
+- [x] Commit: `fix(spec-x-update-preserve-state): add baseBranch field to install state template`
 
 ---
 
 ## Task 4: update.sh 의 state 보존 로직 확장 (TDD Green 2/2)
 
 ### 4-1. update.sh 수정
-- [ ] lines 113-145 를 plan.md 의 jq 객체 머지 패턴으로 교체
-- [ ] 보존 키: `phase`, `spec`, `branch`, `baseBranch`, `planAccepted`, `lastTestPass`
-- [ ] `bash tests/test-update.sh` 실행 → 모두 PASS 확인 (Green)
-- [ ] Commit: `fix(spec-x-update-preserve-state): preserve all state fields across update`
+- [x] state 보존 로직을 jq 객체 머지 패턴으로 교체
+- [x] 보존 키: `phase`, `spec`, `branch`, `baseBranch`, `planAccepted`, `lastTestPass`
+- [x] `bash tests/test-update.sh` 실행 → 모두 PASS 확인 (Green, 11/11)
+- [x] Commit: `fix(spec-x-update-preserve-state): preserve all state fields across update`
 
 ---
 
 ## Task 5: 버전 bump
 
-### 5-1. VERSION + CHANGELOG.md
-- [ ] `VERSION` 0.6.0 → 0.6.1
-- [ ] `CHANGELOG.md` 상단에 `[0.6.1] — 2026-04-27` 항목 추가 (Fixed 섹션)
-- [ ] `bash tests/test-version-bump.sh` 실행 → PASS
-- [ ] Commit: `chore(spec-x-update-preserve-state): bump version to 0.6.1`
+### 5-1. VERSION + CHANGELOG.md + README + test-version-bump
+- [x] `VERSION` 0.6.0 → 0.6.1
+- [x] `CHANGELOG.md` 상단에 `[0.6.1] — 2026-04-27` 항목 추가
+- [x] `README.md` 버전 배지 0.6.1
+- [x] `tests/test-version-bump.sh` TARGET 0.6.1 (버전 앵커 sweep)
+- [-] `tests/test-version-bump.sh` PASS — Pass: sdd version / installed.json 잔재는 Task 6 도그푸딩 후 해결
+- [x] Commit: `chore(spec-x-update-preserve-state): bump version to 0.6.1`
 
 ---
 
 ## Task 6: 본 프로젝트 도그푸딩
 
 ### 6-1. update.sh 를 자기 자신에 적용
-- [ ] `bash update.sh --yes .` 실행 (현재 작업 디렉토리)
-- [ ] `cat .claude/state/current.json` → `kitVersion=0.6.1`, `baseBranch` 필드 존재 확인
-- [ ] `bash .harness-kit/bin/sdd status` → 헤더가 `harness-kit 0.6.1` 출력 확인
-- [ ] (예상) 자기 자신의 `.harness-kit/` 디렉토리가 갱신됨 — git status 에 변경사항이 있다면 커밋
-- [ ] Commit: `chore(spec-x-update-preserve-state): dogfood update on self`
-  - 단, .harness-kit/ 변경이 없으면 commit 생략 가능 (이 경우 task 는 `[-]` Pass 로 마킹)
+- [x] `bash update.sh --yes .` 실행 → `0.6.0 → 0.6.1`, doctor PASS=40 WARN=1 FAIL=0
+- [x] `state.json` 검증: `kitVersion=0.6.1`, `baseBranch` 필드 존재, `spec/planAccepted/lastTestPass` 보존 ✓
+- [x] `sdd status` 헤더가 `harness-kit 0.6.1` ✓
+- [x] 도그푸딩으로 발견된 부수 이슈 3건 Icebox 에 기록 (gitignore self-host 충돌 / phase-ship.md 템플릿 누락 / settings.json ask 자동 추가)
+- [x] Commit: `chore(spec-x-update-preserve-state): dogfood update on self`
 
 ---
 
@@ -77,9 +78,9 @@
 
 > 모든 작업 task 완료 후 `/hk-ship` 절차를 따릅니다.
 
-- [ ] 전체 테스트 sweep: `for t in tests/test-*.sh; do bash "$t" || echo "FAIL: $t"; done` → 모두 PASS
-- [ ] **walkthrough.md 작성** (증거 로그) — 빈 파일이 이미 존재하므로 내용만 채움
-- [ ] **pr_description.md 작성** (템플릿 준수, 한국어)
+- [x] 전체 테스트 sweep: Total fails = 0
+- [x] **walkthrough.md 작성** (결정/협의/검증/발견 항목 포함)
+- [x] **pr_description.md 작성** (템플릿 준수, 한국어)
 - [ ] **Ship Commit**: `docs(spec-x-update-preserve-state): ship walkthrough and pr description`
 - [ ] **Push**: `git push -u origin spec-x-update-preserve-state`
 - [ ] **PR 생성**: `gh pr create` (`/hk-pr-gh` 또는 직접). PR base = main
