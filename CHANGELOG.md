@@ -5,6 +5,17 @@ harness-kit의 주요 변경 사항을 버전별로 정리합니다.
 
 ---
 
+## [0.6.1] — 2026-04-27
+
+### Fixed
+- **`update.sh` 의 state 손실 버그** — 기존엔 4개 필드(`phase`, `spec`, `planAccepted`, `lastTestPass`)만 백업/복원하여 `branch`, `baseBranch` 가 update 후 영구 소실되던 문제. 이제 6개 필드를 `jq * merge` 로 일괄 보존 (→ spec-x-update-preserve-state)
+- **`install.sh` 의 state 템플릿** — 신규 설치 시 `baseBranch: null` 필드 명시 추가. `sdd phase new --base` 모드 사용 시 update 후에도 일관된 스키마 유지
+
+### Tests
+- `tests/test-update.sh` — `branch`/`baseBranch` 보존, `planAccepted`/`lastTestPass` 보존, `kitVersion` 동기화(state.json == installed.json == VERSION), 신규 install 직후 `baseBranch` 필드 존재 검증 추가 (총 11 checks)
+
+---
+
 ## [0.6.0] — 2026-04-23
 
 ### Added

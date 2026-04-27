@@ -16,7 +16,7 @@
 <!-- sdd:specx:start -->
 없음
 - [ ] spec-x-fix-archive-test-expectation — fix-archive-test-expectation
-- [ ] spec-x-phase-14-finalize — phase-14-finalize
+- [ ] spec-x-update-preserve-state — update-preserve-state
 <!-- sdd:specx:end -->
 
 ## 🧊 Icebox
@@ -25,6 +25,9 @@
 
 - [ ] 크로스 에이전트 호환 (AGENTS.md) — Cursor/Copilot/Codex 등에서 프로젝트 컨텍스트를 인식할 수 있도록 install.sh에서 AGENTS.md 자동 생성. 현재 Claude Code 전용으로 충분하나, 멀티 에이전트 환경이 보편화되면 재검토. (보류 2026-04-11)
 - [ ] 크로스 플랫폼 지원 — 현재 macOS + bash 4.0+ 전용. Linux CI 환경(GitHub Actions 등)은 bash 호환이라 즉시 가능하나, Windows는 WSL2 필수. 검토 사항: (1) GitHub Actions CI에서 테스트 자동화 (2) Linux 공식 지원 선언 (3) WSL2 설치 가이드 추가. macOS 외 실사용자가 나타나면 승격.
+- [ ] **install.sh 의 self-host gitignore 충돌** — install.sh 가 항상 `.harness-kit/` 를 .gitignore 에 추가하지만, 본 프로젝트(harness-kit 자체)는 도그푸딩 결과물 `.harness-kit/` 를 git 추적함. 결과: 도그푸딩 시 .gitignore 에 중복 라인이 매번 추가됨. self-host 감지 로직 또는 `install.sh --no-gitignore-harness-kit` 옵션 검토. (관찰 2026-04-27, spec-x-update-preserve-state 도그푸딩 중)
+- [ ] **install.sh 가 phase-ship.md 템플릿을 복사하지 않음** — `sources/templates/phase-ship.md` 는 존재하지만 install.sh 의 템플릿 복사 루프 (install.sh:262) 에 누락. `/hk-phase-ship` 슬래시 커맨드가 이 템플릿을 참조한다면 신규 설치 환경에서 동작하지 않을 가능성. 영향 범위 조사 후 fix. (관찰 2026-04-27, spec-x-update-preserve-state 도그푸딩 중)
+- [ ] **install.sh 가 settings.json 의 ask 리스트에 git push 자동 추가** — 도그푸딩 시 settings.json 에 `Bash(git push)` / `Bash(git push:*)` 가 ask 섹션에 추가됨. allow 에 이미 있어도 ask 가 우선이라면 매번 권한 프롬프트가 뜨는 경험 영향. 의도적 동작인지 확인 필요. (관찰 2026-04-27, spec-x-update-preserve-state 도그푸딩 중)
 
 ## 📋 대기 Phase
 
@@ -53,6 +56,7 @@
 - **phase-12** — 프로젝트 확장성 강화 — completed 2026-04-22
 - **phase-13** — 개발자 경험(DX) 향상 — 자동화 & 온보딩 — completed 2026-04-25
 - **phase-14** — 정합성 / 멱등성 버그 일괄 수정 — completed 2026-04-25
+- [x] spec-x-phase-14-finalize (완료)
 <!-- sdd:done:end -->
 
 ---
