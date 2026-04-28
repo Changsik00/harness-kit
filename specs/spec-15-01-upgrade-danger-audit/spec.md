@@ -235,19 +235,180 @@ KIT_COMMANDS="align spec-new plan-accept spec-status handoff phase-new phase-sta
 | `install.sh:461-474` harness.config.json OVERWRITE | **P2** | 사용자 수정분 손실. 키트 영역이라 영향 적음 |
 | `update.sh` uninstall+install 모델 자체 | **P2** | OVERWRITE-then-restore 패턴이 모든 보존 로직의 부담 원천. 별도 phase 후보 (in-place upgrade 리팩토링) |
 
-## §6. Stateful Fixture 설계 옵션 비교 (실행 시 채움)
+## §6. Stateful Fixture 설계 옵션 비교
 
-### 옵션 A: 함수 합성
+### §6.1 옵션 A — 함수 합성 (Function Composition)
 
-<!-- 실행 시 채움 -->
+기존 `make_fixture()` 를 base 로 두고, "사용자 환경의 변형" 을 mixin 함수로 적층.
 
-### 옵션 B: Declarative manifest
+```bash
+# tests/lib/fixture.sh (신규 헬퍼 라이브러리)
 
-<!-- 실행 시 채움 -->
+# Base — 깨끗한 install + git init
+make_fixture() {
+  local dir; dir=$(mktemp -d)
+  bash "$ROOT/install.sh" --yes "$dir" >/dev/null
+  git -C "$dir" init -q
+  git -C "$dir" config user.email t@l && git -C "$dir" config user.name t
+  echo "$dir"
+}
 
-### 권고
+# Mixin — in-flight phase/spec 가 진행 중인 사용자
+with_in_flight_phase() {
+  local dir="$1" phase="${2:-phase-08}" spec="${3:-spec-08-03-something}"
+  jq --arg p "$phase" --arg s "$spec" \
+     '.phase=$p | .spec=$s | .branch=$s | .baseBranch=null
+      | .planAccepted=true | .lastTestPass="2026-04-01T00:00:00Z"' \
+     "$dir/.claude/state/current.json" > /tmp/_st && mv /tmp/_st "$dir/.claude/state/current.json"
+  cat > "$dir/backlog/${phase}.md" <<EOF
+# ${phase}: in-flight phase
+<!-- sdd:specs:start -->
+| ID | 슬러그 | ... |
+<!-- sdd:specs:end -->
+EOF
+  mkdir -p "$dir/specs/${spec}"
+  cat > "$dir/specs/${spec}/spec.md" <<<"# ${spec}: in flight"
+}
 
-<!-- 실행 시 채움 -->
+# Mixin — 사용자가 미리 작성한 phase 들
+with_pre_defined_phases() {
+  local dir="$1"; shift
+  for p in "$@"; do
+    cat > "$dir/backlog/${p}.md" <<EOF
+# ${p}: 사전 정의 (사용자 작성)
+임의의 본문 — update 후 보존되어야 함.
+EOF
+  done
+}
+
+# Mixin — 사용자가 커스터마이즈한 CLAUDE.fragment
+with_customized_fragment() {
+  local dir="$1"
+  printf '\n## 사용자 추가 메모\n임의 텍스트\n' \
+    >> "$dir/.harness-kit/CLAUDE.fragment.md"
+}
+
+# Mixin — queue.md Icebox 에 사용자 메모
+with_dirty_queue_icebox() {
+  local dir="$1"
+  sed -i.bak 's|^## 🧊 Icebox|## 🧊 Icebox\n- 사용자 메모: 보존되어야 함|' "$dir/backlog/queue.md"
+  rm -f "$dir/backlog/queue.md.bak"
+}
+
+# Mixin — settings.json 에 사용자 추가 hook (Pattern B 검증용)
+with_user_hook() {
+  local dir="$1"
+  jq '.hooks.UserAddedHook = [{"matcher":"*", "hooks":[{"type":"command", "command":"echo user"}]}]' \
+     "$dir/.claude/settings.json" > /tmp/_s && mv /tmp/_s "$dir/.claude/settings.json"
+}
+```
+
+**시나리오 1 사용 예** (in-flight phase 사용자가 update 실행):
+
+```bash
+F=$(make_fixture)
+with_in_flight_phase "$F" "phase-08" "spec-08-03-stock-lock"
+before=$(jq -c . "$F/.claude/state/current.json")
+bash "$ROOT/update.sh" --yes "$F" >/dev/null
+after=$(jq -c '{phase, spec, branch, baseBranch, planAccepted, lastTestPass}' \
+        "$F/.claude/state/current.json")
+[ "$(echo "$before" | jq -c '{phase,spec,branch,baseBranch,planAccepted,lastTestPass}')" = "$after" ] \
+  && ok "in-flight 6 fields 보존" || fail "..."
+```
+
+### §6.2 옵션 B — Declarative Manifest
+
+각 시나리오를 JSON/YAML 로 명세하고 파서/실행기가 fixture 생성.
+
+```json
+// tests/scenarios/in-flight-phase.json
+{
+  "name": "in-flight phase update",
+  "given": {
+    "state": {
+      "phase": "phase-08",
+      "spec": "spec-08-03-stock-lock",
+      "branch": "spec-08-03-stock-lock",
+      "baseBranch": null,
+      "planAccepted": true
+    },
+    "files": {
+      "backlog/phase-08.md": "# phase-08: in-flight\n",
+      "specs/spec-08-03-stock-lock/spec.md": "# spec-08-03\n"
+    }
+  },
+  "when": "update.sh --yes",
+  "then": {
+    "state_preserves": ["phase", "spec", "branch", "baseBranch", "planAccepted", "lastTestPass"],
+    "files_preserved": ["backlog/phase-08.md", "specs/spec-08-03-stock-lock/spec.md"]
+  }
+}
+```
+
+```bash
+# tests/run-scenario.sh (파서)
+SCENARIO="$1"
+DIR=$(mktemp -d)
+bash install.sh --yes "$DIR" >/dev/null
+
+# given.state 적용
+jq -r '.given.state | to_entries[] | "\(.key)=\(.value | @sh)"' "$SCENARIO" \
+  | while read kv; do
+      key="${kv%%=*}"; val="${kv#*=}"
+      jq --arg k "$key" --argjson v "$val" '.[$k]=$v' \
+        "$DIR/.claude/state/current.json" > /tmp/_s && mv /tmp/_s "$DIR/.claude/state/current.json"
+    done
+
+# given.files 적용
+jq -r '.given.files | to_entries[] | "\(.key)\t\(.value)"' "$SCENARIO" \
+  | while IFS=$'\t' read -r path content; do
+      mkdir -p "$DIR/$(dirname "$path")"
+      printf '%s' "$content" > "$DIR/$path"
+    done
+
+# when 실행
+eval "bash $ROOT/$(jq -r .when "$SCENARIO") $DIR" >/dev/null
+
+# then 검증
+jq -r '.then.state_preserves[]' "$SCENARIO" | while read -r field; do
+  # before/after 비교 ...
+done
+```
+
+### §6.3 옵션 C — Scenario-per-file
+
+각 시나리오를 별도 `.sh` 파일로. 함수 헬퍼 없음. 보일러플레이트 복붙.
+
+(코드 생략 — 기존 `tests/test-update.sh` 패턴이 이쪽에 가까움)
+
+### §6.4 Trade-off 비교
+
+| 기준 | A (함수 합성) | B (declarative) | C (file-per-scenario) |
+|---|:---:|:---:|:---:|
+| 구현 복잡도 | 중 | **상** (파서 구현) | 하 |
+| 가독성 (테스트 작성자) | 상 | **상** (선언적) | 중 (반복 보일러) |
+| 시나리오 추가 비용 | 함수 호출 1~3 줄 | JSON 파일 1개 | sh 파일 1개 (보일러 포함) |
+| 시나리오 변형 (1 mixin 변경) | **변형 함수 1개 만들면 끝** | JSON 분기 추가 | 파일 복사 + 수정 |
+| bash 3.2 호환 | ✅ | ✅ (단 jq 의존도 ↑) | ✅ |
+| 기존 `make_fixture` 와 통합 | **자연스러움** | 별도 파서 레이어 | 통합 의미 없음 |
+| 디버깅 용이성 (실패 추적) | 함수 호출 스택 → 직관 | 파서 → 추가 추상화 한 단 | 직관 |
+| 메타-검증 (스키마) | 없음 | **JSON Schema 가능** | 없음 |
+| 5개 시나리오 규모 | **적합** | over-engineering | 적합 |
+| 50개 시나리오 규모 | OK | **이상적** | 나쁨 (중복 폭발) |
+
+### §6.5 권고: **옵션 A — 함수 합성 (1차) + 시나리오를 함수로 묶기**
+
+**이유**:
+1. **현재 규모 (5~10 시나리오)** 에 옵션 B 의 파서 구현 비용은 정당화 안 됨. YAGNI.
+2. 본 프로젝트의 기존 fixture 패턴 (`tests/test-sdd-base-branch.sh:20`) 과 자연스럽게 통합. 일관성 ↑.
+3. bash 3.2 호환 부담 최소.
+4. 디버깅 시 호출 스택이 함수명으로 표현되어 추적 쉬움.
+5. 시나리오 50개 이상으로 확장 필요 시점에 옵션 B 로 마이그레이션해도 늦지 않음 (mixin 함수가 그대로 파서의 building block 됨).
+
+**단계적 적용**:
+- spec-15-02 에서 `tests/lib/fixture.sh` 생성 + 5개 mixin 구현
+- spec-15-03 에서 5개 시나리오를 mixin 조합으로 회귀 테스트 작성
+- 시나리오 카운트가 임계점 (>20) 을 넘으면 옵션 B 로 리팩토링 spec 신설 검토
 
 ## §7. 후속 Spec 명세 (실행 시 채움)
 

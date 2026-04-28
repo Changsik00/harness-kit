@@ -76,9 +76,10 @@
 - [ ] 동일 시나리오 옵션 B 로 시연
 
 ### 4-3. Trade-off 비교 + 권고
-- [ ] §6 의 비교 표 작성 (구현 복잡도 / 가독성 / 시나리오 추가 비용 / bash 3.2 호환 / 통합 / 디버깅)
-- [ ] 권고 결정 (A / B / 하이브리드)
-- [ ] Commit: `docs(spec-15-01): compare fixture options and recommend`
+- [x] §6.4 비교 표 (10 기준 × 3 옵션)
+- [x] §6.5 권고: 옵션 A (함수 합성) — 단계적 적용 + B 마이그레이션 임계점 명시
+- [x] §6.1~§6.3 의사코드 시연 (5개 mixin 함수 + 시나리오 1 사용 예)
+- [ ] Commit: `docs(spec-15-01): compare fixture options and recommend function composition`
 
 ---
 
