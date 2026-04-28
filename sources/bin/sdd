@@ -825,10 +825,10 @@ spec_new() {
 
   mkdir -p "$SDD_SPECS"
 
-  # 다음 spec 번호 (specs/spec-{N}-{NN}-* 패턴 스캔)
+  # 다음 spec 번호 (specs/ + archive/specs/ 모두 스캔 — phase_new 와 동일 패턴)
   local next=1
   local last
-  last=$(find "$SDD_SPECS" -maxdepth 1 -type d -name "spec-${phase_n}-*" 2>/dev/null \
+  last=$(find "$SDD_SPECS" "$SDD_ROOT/archive/specs" -maxdepth 1 -type d -name "spec-${phase_n}-*" 2>/dev/null \
          | sed "s|.*/spec-${phase_n}-||;s|-.*||" | sort -n | tail -1)
   if [ -n "$last" ]; then
     next=$((10#$last + 1))
