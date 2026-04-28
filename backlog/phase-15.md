@@ -56,6 +56,7 @@
 |---|---|:---:|---|---|
 | `spec-15-01` | upgrade-danger-audit | P? | Merged | `specs/spec-15-01-upgrade-danger-audit/` |
 | `spec-15-02` | stateful-fixture-system | P? | Merged | `specs/spec-15-02-stateful-fixture-system/` |
+| `spec-15-03` | uninstall-cmd-list-stale | P? | Active | `specs/spec-15-03-uninstall-cmd-list-stale/` |
 <!-- sdd:specs:end -->
 
 > 상태 허용값: `Backlog` / `In Progress` / `Merged`
@@ -76,18 +77,18 @@
 - **참조**: spec-15-01 의 fixture 설계안
 - **연관 모듈**: `tests/`
 
-### spec-15-03 — historical-regression-tests (Tests)
-
-- **요점**: 과거 4개 버그를 stateful 회귀 테스트로 잠금. 향후 동일 패턴 회귀 즉시 감지.
-- **방향성**: spec-15-02 의 헬퍼를 사용. 각 버그마다 "버그가 발생하던 환경 복원 → update 실행 → 사후 상태 검증" 플로우.
-- **연관 모듈**: `tests/test-update-stateful.sh` (신규 또는 분할)
-
-### spec-15-04 — uninstall-cmd-list-stale (P0, audit 발견)
+### spec-15-03 — uninstall-cmd-list-stale (P0, audit 발견)
 
 - **요점**: `uninstall.sh:92` 의 KIT_COMMANDS 가 구 슬래시 커맨드 명단 (`align`, `spec-new` 등) — 현재 `hk-*` prefix 와 불일치. 슬래시 커맨드 이름 변경/제거 시 사용자 환경에 stale 잔재.
 - **방향성**: `installed.json` 에 install 시점의 `hk-*` 명단 기록 → uninstall 이 그 목록 사용 (대칭화). 또는 `.claude/commands/hk-*.md` 일괄 제거.
 - **참조**: spec-15-01 §5.3.1
 - **연관 모듈**: `uninstall.sh`, `install.sh`
+
+### spec-15-04 — historical-regression-tests (Tests)
+
+- **요점**: 과거 4개 버그를 stateful 회귀 테스트로 잠금. 향후 동일 패턴 회귀 즉시 감지.
+- **방향성**: spec-15-02 의 헬퍼를 사용. 각 버그마다 "버그가 발생하던 환경 복원 → update 실행 → 사후 상태 검증" 플로우.
+- **연관 모듈**: `tests/test-update-stateful.sh` (신규 또는 분할)
 
 ### spec-15-05 — dedupe-hardcoded-lists (P1, audit 발견)
 
@@ -171,7 +172,7 @@ bash tests/test-update-stateful.sh   # spec-15-03 결과
 | Audit 결과 spec 수가 폭증 | phase 가 무한 확장 | spec-15-01 결과 P0(15-04) 1건 / P1(15-05, 15-06) 2건 / P2(15-07+) 분류 완료. 본 phase 는 P0+P1 흡수, P2 는 후속 phase / Icebox |
 | stateful fixture 가 실제 사용자 환경과 어긋남 | 회귀 테스트 통과해도 실환경 버그 | 통합 시나리오 1 (in-flight phase) 에 알려진 사용자 환경 6 필드를 1:1 반영 (`tests/test-update.sh:42-52` 패턴) |
 | 본 phase 작업 중 또 다른 update 버그 발견 | 메타 작업 중 사용자 영향 | 발견 즉시 별도 spec-x 또는 본 phase 의 spec-15-04+ 로 흡수 |
-| **uninstall.sh:92 KIT_COMMANDS stale** (P0, spec-15-01 §5.3.1) | 슬래시 커맨드 이름 변경/제거 시 사용자 환경에 stale 잔재 | spec-15-04 으로 즉시 픽스 — installed.json 에 명단 기록 → uninstall 이 그 목록 사용 |
+| **uninstall.sh:92 KIT_COMMANDS stale** (P0, spec-15-01 §5.3.1) | 슬래시 커맨드 이름 변경/제거 시 사용자 환경에 stale 잔재 | spec-15-03 으로 즉시 픽스 — installed.json 에 명단 기록 → uninstall 이 그 목록 사용 |
 
 ## 🏁 Phase Done 조건
 
