@@ -73,7 +73,35 @@ s1_kit_ver=$(jq -r '.kitVersion' "$F1/.claude/state/current.json")
 # ─────────────────────────────────────────────────────────
 echo ""
 echo "▶ Scenario 2: pre-defined phases preserved + activate (#84)"
-skip "implementation pending — Task 3"
+F2=$(make_fixture); CLEANUP+=("$F2")
+with_pre_defined_phases "$F2" "phase-09" "phase-10" "phase-11"
+
+s2_md5_before_09=$(_md5 "$F2/backlog/phase-09.md")
+s2_md5_before_10=$(_md5 "$F2/backlog/phase-10.md")
+s2_md5_before_11=$(_md5 "$F2/backlog/phase-11.md")
+
+bash "$ROOT/update.sh" --yes "$F2" >/dev/null 2>&1
+
+s2_md5_after_09=$(_md5 "$F2/backlog/phase-09.md")
+s2_md5_after_10=$(_md5 "$F2/backlog/phase-10.md")
+s2_md5_after_11=$(_md5 "$F2/backlog/phase-11.md")
+
+if [ "$s2_md5_before_09" = "$s2_md5_after_09" ] \
+   && [ "$s2_md5_before_10" = "$s2_md5_after_10" ] \
+   && [ "$s2_md5_before_11" = "$s2_md5_after_11" ]; then
+  ok "S2: 3개 phase 본문 모두 미변경 (md5 일치)"
+else
+  fail "S2: phase 본문 변경됨"
+fi
+
+# update 후 sdd phase activate phase-09 정상 동작
+(cd "$F2" && bash .harness-kit/bin/sdd phase activate phase-09 >/dev/null 2>&1)
+s2_state_phase=$(jq -r '.phase' "$F2/.claude/state/current.json")
+if [ "$s2_state_phase" = "phase-09" ]; then
+  ok "S2: update 후 sdd phase activate 정상 (state.phase=phase-09)"
+else
+  fail "S2: activate 실패 — state.phase=$s2_state_phase"
+fi
 
 # ─────────────────────────────────────────────────────────
 # Scenario 3: customized fragment → 보존 또는 명시적 conflict (Pattern B)
