@@ -254,13 +254,17 @@ do_mkdir "$TARGET/$SPECS_DIR"
 # 9. 거버넌스 + 템플릿 복사
 # ============================================================
 log "거버넌스 복사"
-for f in constitution.md agent.md align.md; do
-  do_cp "$KIT_DIR/sources/governance/$f" "$TARGET/.harness-kit/agent/$f"
+# spec-15-05: 디렉토리 glob (commands/hooks 와 동일 패턴) — Schema Drift 방지
+for f in "$KIT_DIR/sources/governance"/*.md; do
+  [ -e "$f" ] || continue
+  do_cp "$f" "$TARGET/.harness-kit/agent/$(basename "$f")"
 done
 
 log "템플릿 복사"
-for f in queue.md phase.md phase-ship.md spec.md plan.md task.md walkthrough.md pr_description.md; do
-  do_cp "$KIT_DIR/sources/templates/$f" "$TARGET/.harness-kit/agent/templates/$f"
+# spec-15-05: 디렉토리 glob — sources/templates/ 에 새 .md 추가 시 자동 install
+for f in "$KIT_DIR/sources/templates"/*.md; do
+  [ -e "$f" ] || continue
+  do_cp "$f" "$TARGET/.harness-kit/agent/templates/$(basename "$f")"
 done
 
 # ============================================================

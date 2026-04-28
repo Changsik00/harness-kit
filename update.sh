@@ -111,13 +111,12 @@ log "기존 설치 제거 중..."
 "$KIT_DIR/uninstall.sh" --yes --keep-state "$TARGET"
 
 # ── 2. state 임시 저장 (install.sh 가 덮어쓰므로) ────────────
-# 보존 키 화이트리스트: 새 필드를 추가하려면 여기 6개 자리에 함께 추가하면 된다.
-#   phase, spec, branch, baseBranch, planAccepted, lastTestPass
+# spec-15-05: exclusion 정책 — install 이 fresh 작성하는 키 (kitVersion, installedAt)
+# 만 제외하고 나머지 모든 키 보존. 새 state 필드 추가 시 update.sh 손대지 않음.
 _STATE="$TARGET/.claude/state/current.json"
 _SAVED_JSON='{}'
 if command -v jq >/dev/null 2>&1 && [ -f "$_STATE" ]; then
-  _SAVED_JSON=$(jq -c \
-    '{phase, spec, branch, baseBranch, planAccepted, lastTestPass}' \
+  _SAVED_JSON=$(jq -c 'del(.kitVersion, .installedAt)' \
     "$_STATE" 2>/dev/null || echo '{}')
 fi
 
