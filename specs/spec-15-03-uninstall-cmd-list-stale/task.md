@@ -28,41 +28,36 @@
 ## Task 2: TDD Red — 단위 테스트 작성
 
 ### 2-1. 테스트 작성
-- [ ] `tests/test-uninstall-cmd-list.sh` 신규 — 4 시나리오:
-  1. F1 — fresh install: installed.json.installedCommands 존재 + ≥ 12 항목
-  2. F2 — install + 사용자 foo.md → uninstall: hk-* 제거 + foo.md 보존
-  3. F3 — legacy installed.json (installedCommands 키 제거) → uninstall fallback 정상
-  4. F5 — update 흐름: 최종 hk-* 정확히 명단대로
+- [x] `tests/test-uninstall-cmd-list.sh` 신규 — 4 시나리오 × 9 checks
 
 ### 2-2. 실행 → Fail 확인
-- [ ] `bash tests/test-uninstall-cmd-list.sh` → 시나리오 1, 3 부분 fail (installedCommands 키 미구현 / fallback 미구현 가능)
-- [ ] Commit: `test(spec-15-03): add failing tests for uninstall command list`
+- [x] `bash tests/test-uninstall-cmd-list.sh` → Red 4 fail (installedCommands 키 부재 / hk-* 잔재 / fallback 미동작)
+- [x] Commit: `test(spec-15-03): add failing tests for uninstall command list`
 
 ---
 
 ## Task 3: TDD Green — install.sh + uninstall.sh
 
 ### 3-1. install.sh — installedCommands 기록
-- [ ] `install.sh:447-459` 부근 `installed.json` 작성 블록 수정 (plan.md §Proposed Changes 참고)
-- [ ] `sources/commands/*.md` 글롭 → basename 배열 → JSON 텍스트 조립
+- [x] `install.sh:447-466` `installed.json` 작성 블록에 `installedCommands` 추가
+- [x] `sources/commands/*.md` 글롭 → basename → JSON 텍스트 조립 (jq 의존 회피)
 
 ### 3-2. uninstall.sh — installedCommands 우선 + fallback
-- [ ] `uninstall.sh:91-97` 의 stale `KIT_COMMANDS=...` 제거
-- [ ] jq + installed.json 우선 / fallback 으로 hk-* glob
+- [x] `uninstall.sh:91-104` 의 stale `KIT_COMMANDS=...` 제거
+- [x] 백업 디렉토리의 `installed.json` 에서 명단 읽음 (.harness-kit/ 는 이미 제거됨)
+- [x] jq 없거나 키 부재 시 `hk-*.md` glob fallback
 
 ### 3-3. 검증
-- [ ] `bash tests/test-uninstall-cmd-list.sh` → 모두 PASS
-- [ ] `bash tests/test-version-bump.sh` → 전체 스위트 FAIL=0
-- [ ] `bash tests/test-update.sh` → update 흐름 회귀 0
-- [ ] `bash tests/test-install-layout.sh` → install 레이아웃 회귀 0
-- [ ] Commit: `fix(spec-15-03): record installedCommands and fix uninstall stale list`
+- [x] `bash tests/test-uninstall-cmd-list.sh` → 9/9 PASS
+- [x] `bash tests/test-version-bump.sh` → 전체 스위트 FAIL=0 (test-update / test-install-layout 포함)
+- [x] Commit: `fix(spec-15-03): record installedCommands and fix uninstall stale list`
 
 ---
 
 ## Task 4: Ship
 
-- [ ] **walkthrough.md 작성**
-- [ ] **pr_description.md 작성**
+- [x] **walkthrough.md 작성**
+- [x] **pr_description.md 작성**
 - [ ] **Ship Commit**: `docs(spec-15-03): ship walkthrough and pr description`
 - [ ] **Push**: `git push -u origin spec-15-03-uninstall-cmd-list-stale`
 - [ ] **PR 생성**: `gh pr create --base phase-15-upgrade-safety`
