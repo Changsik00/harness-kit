@@ -54,7 +54,8 @@
 <!-- sdd:specs:start -->
 | ID | 슬러그 | 우선순위 | 상태 | 디렉토리 |
 |---|---|:---:|---|---|
-| `spec-15-01` | upgrade-danger-audit | P? | Active | `specs/spec-15-01-upgrade-danger-audit/` |
+| `spec-15-01` | upgrade-danger-audit | P? | Merged | `specs/spec-15-01-upgrade-danger-audit/` |
+| `spec-15-02` | stateful-fixture-system | P? | Merged | `specs/spec-15-02-stateful-fixture-system/` |
 <!-- sdd:specs:end -->
 
 > 상태 허용값: `Backlog` / `In Progress` / `Merged`
