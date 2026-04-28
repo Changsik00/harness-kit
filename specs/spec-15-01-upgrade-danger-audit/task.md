@@ -94,9 +94,12 @@
 - [ ] P0 (즉시 픽스) / P1 (본 phase 흡수) / P2 (후속 phase 또는 Icebox) 분류
 
 ### 5-3. Go/No-Go 권고
-- [ ] §7 에 "Go (본 phase 그대로 진행)" 또는 "No-Go (이유)" 명시
-- [ ] phase-15.md 갱신 필요 시 같은 commit 에 포함
-- [ ] Commit: `docs(spec-15-01): draft follow-up spec specs and go/no-go recommendation`
+- [x] §7.1 GO 결정 + 근거
+- [x] §7.2~§7.3 spec-15-02 / 15-03 명세 초안
+- [x] §7.4 spec-15-04 (P0) / 15-05~06 (P1) / 15-07+ (P2) 분류
+- [x] §7.5 권고 액션 (1~6단계)
+- [x] phase-15.md 갱신 — spec 표 / 위험 섹션
+- [ ] Commit: `docs(spec-15-01): go decision + draft 4 follow-up specs and update phase-15`
 
 ---
 

@@ -54,6 +54,7 @@
 <!-- sdd:specs:start -->
 | ID | 슬러그 | 우선순위 | 상태 | 디렉토리 |
 |---|---|:---:|---|---|
+| `spec-15-01` | upgrade-danger-audit | P? | Active | `specs/spec-15-01-upgrade-danger-audit/` |
 <!-- sdd:specs:end -->
 
 > 상태 허용값: `Backlog` / `In Progress` / `Merged`
@@ -80,10 +81,34 @@
 - **방향성**: spec-15-02 의 헬퍼를 사용. 각 버그마다 "버그가 발생하던 환경 복원 → update 실행 → 사후 상태 검증" 플로우.
 - **연관 모듈**: `tests/test-update-stateful.sh` (신규 또는 분할)
 
-### spec-15-04+ — TBD (research 결과로 결정)
+### spec-15-04 — uninstall-cmd-list-stale (P0, audit 발견)
 
-- spec-15-01 audit 에서 새로 발견된 잠재 버그 픽스 / install/update 멱등성 강화 등.
-- 본 phase 또는 후속 phase 로 분배 가능.
+- **요점**: `uninstall.sh:92` 의 KIT_COMMANDS 가 구 슬래시 커맨드 명단 (`align`, `spec-new` 등) — 현재 `hk-*` prefix 와 불일치. 슬래시 커맨드 이름 변경/제거 시 사용자 환경에 stale 잔재.
+- **방향성**: `installed.json` 에 install 시점의 `hk-*` 명단 기록 → uninstall 이 그 목록 사용 (대칭화). 또는 `.claude/commands/hk-*.md` 일괄 제거.
+- **참조**: spec-15-01 §5.3.1
+- **연관 모듈**: `uninstall.sh`, `install.sh`
+
+### spec-15-05 — dedupe-hardcoded-lists (P1, audit 발견)
+
+- **요점**: `install.sh:257-264` (governance 3 + templates 8 하드코딩) + `update.sh:120` (state 6 필드 하드코딩) 을 단일 진실 원천으로 통합.
+- **방향성**: `sources/install.manifest` 또는 헬퍼 함수로 통합 + 회귀 테스트.
+- **참조**: spec-15-01 §5.4 P1 항목
+- **연관 모듈**: `install.sh`, `update.sh`, `sources/`
+
+### spec-15-06 — user-hook-preserve (P1, audit 발견, 우선순위 검토 필요)
+
+- **요점**: `install.sh:347-348` 의 `hooks = kit-overwrite` 정책 → 사용자 추가 hook 영구 손실 (Pattern B).
+- **방향성**: 사용자 hook 영역 분리 또는 marker 기반 머지. UX 영향 확인 후 결정.
+- **참조**: spec-15-01 §5.4
+- **연관 모듈**: `install.sh`, settings.json 머지
+
+### spec-15-07 — harness-config-overwrite (P2, 후속 phase 후보)
+
+- **요점**: `install.sh:461-474` harness.config.json 항상 OVERWRITE.
+- **방향성**: 영향 적음 (키트 영역). 사용자 수정분이 있는 경우 jq merge 검토. **본 phase 또는 Icebox.**
+- **참조**: spec-15-01 §5.4
+
+> P2 추가 후보 (Icebox / 후속 phase): `inplace-upgrade-rewrite` (update.sh 모델 리팩토링), `report-md-spec-md-cleanup` (거버넌스 흠집).
 
 ## 🧪 통합 테스트 시나리오 (간결)
 
@@ -142,9 +167,10 @@ bash tests/test-update-stateful.sh   # spec-15-03 결과
 
 | 위험 | 영향 | 완화책 |
 |---|---|---|
-| Audit 결과 spec 수가 폭증 | phase 가 무한 확장 | spec-15-01 산출물에서 우선순위 P0/P1/P2 분류, P2 는 후속 phase 또는 Icebox |
-| stateful fixture 가 실제 사용자 환경과 어긋남 | 회귀 테스트가 통과해도 실환경에서 버그 | 알려진 4개 사용자 환경(자기 자신 포함) 의 실제 state 형태를 fixture 시나리오 1번에 1:1 반영 |
-| 본 phase 작업 중 또 다른 update 버그가 발견됨 | 메타 작업 중 사용자 영향 발생 | 발견 즉시 별도 spec-x 로 즉시 수정. 본 phase 에 흡수 가능하면 spec-15-04+ 로 흡수 |
+| Audit 결과 spec 수가 폭증 | phase 가 무한 확장 | spec-15-01 결과 P0(15-04) 1건 / P1(15-05, 15-06) 2건 / P2(15-07+) 분류 완료. 본 phase 는 P0+P1 흡수, P2 는 후속 phase / Icebox |
+| stateful fixture 가 실제 사용자 환경과 어긋남 | 회귀 테스트 통과해도 실환경 버그 | 통합 시나리오 1 (in-flight phase) 에 알려진 사용자 환경 6 필드를 1:1 반영 (`tests/test-update.sh:42-52` 패턴) |
+| 본 phase 작업 중 또 다른 update 버그 발견 | 메타 작업 중 사용자 영향 | 발견 즉시 별도 spec-x 또는 본 phase 의 spec-15-04+ 로 흡수 |
+| **uninstall.sh:92 KIT_COMMANDS stale** (P0, spec-15-01 §5.3.1) | 슬래시 커맨드 이름 변경/제거 시 사용자 환경에 stale 잔재 | spec-15-04 으로 즉시 픽스 — installed.json 에 명단 기록 → uninstall 이 그 목록 사용 |
 
 ## 🏁 Phase Done 조건
 

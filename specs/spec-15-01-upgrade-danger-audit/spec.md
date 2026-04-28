@@ -410,23 +410,87 @@ done
 - spec-15-03 에서 5개 시나리오를 mixin 조합으로 회귀 테스트 작성
 - 시나리오 카운트가 임계점 (>20) 을 넘으면 옵션 B 로 리팩토링 spec 신설 검토
 
-## §7. 후속 Spec 명세 (실행 시 채움)
+## §7. 후속 Spec 명세 + Go/No-Go
 
-### Go/No-Go 결정
+### §7.1 Go/No-Go 결정
 
-<!-- 실행 시 채움 -->
+**결정: GO** — phase-15 그대로 진행.
 
-### spec-15-02 명세 초안
+**근거**:
+- 4건 버그가 명확한 3개 패턴 (Schema Drift / User Content Blindness / Insufficient Idempotency) 으로 압축됨 → fixture 시나리오 ↔ 패턴 1:1 매핑 가능 → 회귀 테스트 설계 명료.
+- §5 정책 단면 분석으로 P0 잠재 버그 1건 (uninstall.sh KIT_COMMANDS stale) + P1/P2 다수 식별 → 본 phase 의 spec 분할 정당화됨.
+- §6 fixture 옵션 A 가 기존 패턴과 자연스럽게 결합 → 구현 spec (15-02) 의 위험 낮음.
+- 추가 research 필요 없음 — 본 audit 으로 phase 의 윤곽 + 우선순위 명확.
 
-<!-- 실행 시 채움 -->
+**phase-15.md 갱신 사항** (별 commit):
+- 성공 기준 #4 ("audit 발견 잠재 버그 모두 spec 등록") 의 *발견* 결과를 §7.4 로 구체화.
+- 위험 섹션에 §5.3.1 (uninstall KIT_COMMANDS) P0 명시.
 
-### spec-15-03 명세 초안
+### §7.2 spec-15-02 명세 초안: stateful-fixture-system
 
-<!-- 실행 시 채움 -->
+| 항목 | 값 |
+|---|---|
+| **타입** | Implementation |
+| **DoD** | `tests/lib/fixture.sh` 신규 + 5개 mixin 함수 + 셀프 단위 테스트 |
+| **요점** | §6.1 의 함수 합성 패턴을 실제 코드로 구현 |
 
-### spec-15-04+ (P0/P1/P2 분류)
+**산출물**:
+- `tests/lib/fixture.sh` (신규)
+  - `make_fixture()` (기존 패턴 재사용 + install + git init)
+  - 5개 mixin: `with_in_flight_phase`, `with_pre_defined_phases`, `with_customized_fragment`, `with_dirty_queue_icebox`, `with_user_hook`
+- `tests/test-fixture-lib.sh` (신규) — mixin 자체의 단위 테스트 (state 변형이 의도대로 일어나는지)
 
-<!-- 실행 시 채움 -->
+**검증**: 각 mixin 호출 후 fixture 의 state/파일 상태가 명세대로 변형되었는지 jq + grep + diff 로 확인.
+
+### §7.3 spec-15-03 명세 초안: historical-regression-tests
+
+| 항목 | 값 |
+|---|---|
+| **타입** | Tests |
+| **DoD** | 4건 버그 + 5개 통합 시나리오 회귀 테스트 |
+| **요점** | spec-15-02 의 fixture 위에서 phase-15.md §통합 테스트 시나리오 5개를 회귀 테스트로 |
+
+**산출물**:
+- `tests/test-update-stateful.sh` (신규) — 5개 시나리오 (`fixture.sh` mixin 조합):
+  1. in-flight phase 보유 → 6 필드 보존
+  2. 사전 정의 phase 보유 → 본문 미변경 + activate 정상
+  3. 커스터마이즈된 fragment → 사용자 추가분 보존 또는 명시적 conflict
+  4. dirty queue → Icebox / 대기 Phase 보존
+  5. 신규 산출물 도입 → 누락 없음 + 사용자 수정분 보존
+
+**참고**: 현재 `tests/test-update.sh` 는 시나리오 1 의 부분만 검증. spec-15-03 은 그것을 fixture lib 로 재작성 + 4 시나리오 추가.
+
+### §7.4 spec-15-04+ — Audit 발견 잠재 버그 (P0/P1/P2 분류)
+
+#### P0 — 즉시 픽스 (본 phase 흡수)
+
+| Spec ID 후보 | 이슈 | 위치 | 1줄 fix |
+|---|---|---|---|
+| **spec-15-04** `uninstall-cmd-list-stale` | uninstall.sh:92 KIT_COMMANDS 가 구 슬래시 커맨드 명단 — hk-* 잔재 위험 | `uninstall.sh:92` | `installed.json` 에 install 시점 hk-* 목록 기록 → uninstall 이 그 목록 사용 |
+
+#### P1 — 본 phase 흡수 또는 후속 phase
+
+| Spec ID 후보 | 이슈 | 위치 | 비고 |
+|---|---|---|---|
+| **spec-15-05** `dedupe-hardcoded-lists` | install.sh:257-264 + update.sh:120 의 하드코딩 리스트 3개 (governance / templates / state fields) 를 단일 진실 원천으로 통합 | install.sh, update.sh | manifest 파일 (예: `sources/install.manifest`) 또는 헬퍼 함수로 통합. 회귀 테스트 추가. |
+| **spec-15-06** `user-hook-preserve` | install.sh:347-348 hooks = kit-overwrite 정책 → 사용자 추가 hook 손실 (Pattern B) | install.sh, settings 머지 | 사용자 hook 영역 분리 (예: `userHooks` 키) 또는 명시 marker 기반 머지. UX 영향 확인 후 결정. |
+
+#### P2 — 후속 phase 또는 Icebox
+
+| Spec ID 후보 | 이슈 | 위치 | 비고 |
+|---|---|---|---|
+| **spec-15-07** `harness-config-overwrite` | install.sh:461-474 harness.config.json 항상 OVERWRITE | install.sh | 키트 메타라 영향 적음. 사용자 수정분이 있는 경우 jq merge 로 변경 검토. |
+| **TBD** `inplace-upgrade-rewrite` | update.sh 의 uninstall+install 모델 자체가 OVERWRITE-then-restore 부담의 원천 | update.sh, install.sh | 별도 Phase 후보 (in-place upgrade 리팩토링). 본 audit 의 거대 가설. 확정 전 별 research spec 필요. |
+| **TBD** `report-md-spec-md-cleanup` | constitution §9.2 "report.md replaces spec.md" 가 미운영 규약 (템플릿 부재 + 도구 미지원) | `.harness-kit/agent/constitution.md`, templates | 거버넌스 흠집. spec.md 로 통일 명문화 또는 report.md 템플릿 신설. 본 audit 작성 중 발견. |
+
+### §7.5 권고 액션
+
+1. 본 audit (spec-15-01) 머지.
+2. **즉시 spec-15-02 진입** (fixture 시스템) — phase-15 의 골격.
+3. spec-15-03 (회귀 테스트) — 02 머지 후.
+4. spec-15-04 (P0 — uninstall stale) — 본 phase 안에서. 02/03 와 병렬 가능 (의존성 없음).
+5. spec-15-05 / 15-06 (P1) — 본 phase 안에서 시간 여유 있을 때 / 또는 후속 phase-16 으로 분배.
+6. P2 항목들은 phase-15 Done 시점에 Icebox 또는 phase-16 으로 분류.
 
 ---
 
