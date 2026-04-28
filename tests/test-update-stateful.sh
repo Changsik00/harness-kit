@@ -140,7 +140,48 @@ fi
 # ─────────────────────────────────────────────────────────
 echo ""
 echo "▶ Scenario 5: multi-install idempotent (#78, #83)"
-skip "implementation pending — Task 5"
+F5=$(mktemp -d); CLEANUP+=("$F5")
+# 2 회 install (멱등성 검증) — make_fixture 가 이미 1 회 install 수행
+bash "$ROOT/install.sh" --yes "$F5" >/dev/null 2>&1
+bash "$ROOT/install.sh" --yes "$F5" >/dev/null 2>&1
+
+# F7 검증 (a) — 8 템플릿 모두 존재 (#83)
+s5_templates_ok=1
+s5_missing=""
+for t in queue phase phase-ship spec plan task walkthrough pr_description; do
+  if [ ! -f "$F5/.harness-kit/agent/templates/${t}.md" ]; then
+    s5_templates_ok=0
+    s5_missing="${s5_missing} ${t}"
+  fi
+done
+if [ $s5_templates_ok -eq 1 ]; then
+  ok "S5: 8 템플릿 모두 존재 (#83)"
+else
+  fail "S5: 템플릿 누락 —$s5_missing"
+fi
+
+# F7 검증 (b) — .gitignore 의 hk 관련 라인이 정확히 1 회 (#78)
+s5_gi="$F5/.gitignore"
+s5_header_cnt=$(grep -cE '^# harness-kit$' "$s5_gi" 2>/dev/null || echo 0)
+s5_hk_cnt=$(grep -cE '^\.harness-kit/$' "$s5_gi" 2>/dev/null || echo 0)
+s5_backup_cnt=$(grep -cE '^\.harness-backup-\*/$' "$s5_gi" 2>/dev/null || echo 0)
+s5_state_cnt=$(grep -cE '^\.claude/state/$' "$s5_gi" 2>/dev/null || echo 0)
+
+[ "$s5_header_cnt" -eq 1 ] \
+  && ok "S5: .gitignore '# harness-kit' 정확 1 회" \
+  || fail "S5: '# harness-kit' = $s5_header_cnt"
+
+[ "$s5_hk_cnt" -eq 1 ] \
+  && ok "S5: .gitignore '.harness-kit/' 정확 1 회 (#78)" \
+  || fail "S5: '.harness-kit/' = $s5_hk_cnt"
+
+[ "$s5_backup_cnt" -eq 1 ] \
+  && ok "S5: .gitignore '.harness-backup-*/' 정확 1 회" \
+  || fail "S5: '.harness-backup-*/' = $s5_backup_cnt"
+
+[ "$s5_state_cnt" -eq 1 ] \
+  && ok "S5: .gitignore '.claude/state/' 정확 1 회" \
+  || fail "S5: '.claude/state/' = $s5_state_cnt"
 
 # ─────────────────────────────────────────────────────────
 # 결과
