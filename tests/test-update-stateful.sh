@@ -107,8 +107,19 @@ fi
 # Scenario 3: customized fragment → 보존 또는 명시적 conflict (Pattern B)
 # ─────────────────────────────────────────────────────────
 echo ""
-echo "▶ Scenario 3: customized fragment (Pattern B)"
-skip "정책 결정 후 spec-15-06 (user-hook-preserve) 에서 추가"
+echo "▶ Scenario 3: 사용자 추가 hook event type → update 후 보존 (Pattern B)"
+F3=$(make_fixture); CLEANUP+=("$F3")
+with_user_hook "$F3"
+
+bash "$ROOT/update.sh" --yes "$F3" >/dev/null 2>&1
+
+user_hook=$(jq -r '.hooks.UserAddedHook[0].hooks[0].command // ""' \
+            "$F3/.claude/settings.json" 2>/dev/null)
+if [ "$user_hook" = "echo TEST_USER_HOOK" ]; then
+  ok "S3: 사용자 UserAddedHook 보존됨"
+else
+  fail "S3: UserAddedHook 손실 (값: '$user_hook')"
+fi
 
 # ─────────────────────────────────────────────────────────
 # Scenario 4: dirty queue icebox → 사용자 메모 + sdd 마커 보존 (Pattern B)

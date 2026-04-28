@@ -106,6 +106,16 @@ if [ $ASSUME_YES -eq 0 ]; then
   case "$_ans" in y|Y) ;; *) log "취소됨"; exit 0 ;; esac
 fi
 
+# ── 1a. 사용자 커스텀 hook 저장 (uninstall 이 .hooks 전체 제거하므로) ──
+# spec-15-06: kit 관리 key(PreToolUse, SessionStart) 외 사용자 정의 event type 보존.
+_SETTINGS="$TARGET/.claude/settings.json"
+_SAVED_USER_HOOKS='{}'
+if command -v jq >/dev/null 2>&1 && [ -f "$_SETTINGS" ]; then
+  _SAVED_USER_HOOKS=$(jq -c \
+    '(.hooks // {}) | with_entries(select(.key != "PreToolUse" and .key != "SessionStart"))' \
+    "$_SETTINGS" 2>/dev/null || echo '{}')
+fi
+
 # ── 1. uninstall (state 보존) ────────────────────────────────
 log "기존 설치 제거 중..."
 "$KIT_DIR/uninstall.sh" --yes --keep-state "$TARGET"
@@ -137,6 +147,21 @@ if command -v jq >/dev/null 2>&1 && [ -f "$_STATE" ] && [ "$_SAVED_JSON" != '{}'
     ok "state 복원 완료"
   else
     warn "state 복원 실패 — 기본값으로 초기화"
+    rm -f "$_tmp"
+  fi
+fi
+
+# ── 4b. 사용자 커스텀 hook 복원 ─────────────────────────────
+# install.sh 의 hook 머지가 uninstall 전 settings 를 보지 못하므로 update 가 보완.
+if command -v jq >/dev/null 2>&1 && [ -f "$_SETTINGS" ] \
+   && [ "$_SAVED_USER_HOOKS" != '{}' ] && [ "$_SAVED_USER_HOOKS" != 'null' ]; then
+  _tmp="$(mktemp)"
+  if jq --argjson uh "$_SAVED_USER_HOOKS" '.hooks = (.hooks + $uh)' \
+       "$_SETTINGS" > "$_tmp" 2>/dev/null; then
+    mv "$_tmp" "$_SETTINGS"
+    ok "사용자 hook 복원 완료"
+  else
+    warn "사용자 hook 복원 실패 — kit hook만 존재"
     rm -f "$_tmp"
   fi
 fi
