@@ -105,9 +105,9 @@
 
 ## Task 6: Ship
 
-- [ ] 회귀 검증 — `bash tests/test-version-bump.sh` PASS (전체 스위트 자동 호출)
-- [ ] **walkthrough.md 작성** — 결정 기록, 분석 중 발견 사항, 사용자 협의
-- [ ] **pr_description.md 작성**
+- [x] 회귀 검증 — `bash tests/test-version-bump.sh` PASS (6/6 + 전체 스위트 FAIL=0)
+- [x] **walkthrough.md 작성** — 4개 결정 기록 + 사용자 협의 2건 + 발견 사항 4건 + 이월 3건
+- [x] **pr_description.md 작성**
 - [ ] **Ship Commit**: `docs(spec-15-01): ship walkthrough and pr description`
 - [ ] **Push**: `git push -u origin spec-15-01-upgrade-danger-audit`
 - [ ] **PR 생성**: `gh pr create --base main`
