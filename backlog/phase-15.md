@@ -12,7 +12,7 @@
 | **시작일** | 2026-04-28 |
 | **목표 종료일** | 미정 (research 결과로 확정) |
 | **소유자** | dennis |
-| **Base Branch** | 없음 (각 spec → main) |
+| **Base Branch** | `phase-15-upgrade-safety` (opt-in, 회고/통합 테스트 위해) |
 
 ## 🎯 배경 및 목표
 
@@ -174,10 +174,11 @@ bash tests/test-update-stateful.sh   # spec-15-03 결과
 
 ## 🏁 Phase Done 조건
 
-- [ ] 모든 SPEC 이 merge (각 spec → main)
-- [ ] 5개 통합 테스트 시나리오 PASS
+- [ ] 모든 SPEC 이 `phase-15-upgrade-safety` 로 merge
+- [ ] 5개 통합 테스트 시나리오 PASS (`/hk-phase-ship` 시 실행)
+- [ ] **Phase 회고** (`/hk-phase-review` — 독립 Opus sub-agent 검증)
 - [ ] 성공 기준 4개 정량 측정 결과 본 문서 §검증 결과 에 기록
-- [ ] 사용자 최종 승인
+- [ ] 사용자 최종 승인 (phase PR `phase-15-upgrade-safety` → `main`)
 
 ## 📊 검증 결과 (phase 완료 시 작성)
 

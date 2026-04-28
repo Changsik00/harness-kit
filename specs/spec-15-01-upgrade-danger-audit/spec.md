@@ -425,6 +425,7 @@ done
 **phase-15.md 갱신 사항** (별 commit):
 - 성공 기준 #4 ("audit 발견 잠재 버그 모두 spec 등록") 의 *발견* 결과를 §7.4 로 구체화.
 - 위험 섹션에 §5.3.1 (uninstall KIT_COMMANDS) P0 명시.
+- **Base Branch 모드 전환**: 각 spec → main 직접 머지 정책을 `phase-15-upgrade-safety` base branch 로 변경. 회고(`/hk-phase-review`) + 통합 테스트(`/hk-phase-ship`) 를 phase 단위로 모음.
 
 ### §7.2 spec-15-02 명세 초안: stateful-fixture-system
 
