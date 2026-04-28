@@ -115,7 +115,25 @@ skip "정책 결정 후 spec-15-06 (user-hook-preserve) 에서 추가"
 # ─────────────────────────────────────────────────────────
 echo ""
 echo "▶ Scenario 4: dirty queue icebox preserved (Pattern B)"
-skip "implementation pending — Task 4"
+F4=$(make_fixture); CLEANUP+=("$F4")
+with_dirty_queue_icebox "$F4"
+
+bash "$ROOT/update.sh" --yes "$F4" >/dev/null 2>&1
+
+if grep -q "TEST_USER_ICEBOX_NOTE" "$F4/backlog/queue.md" 2>/dev/null; then
+  ok "S4: 사용자 Icebox 메모 보존"
+else
+  fail "S4: Icebox 메모 손실"
+fi
+
+if grep -q "sdd:active:start" "$F4/backlog/queue.md" 2>/dev/null \
+   && grep -q "sdd:active:end" "$F4/backlog/queue.md" 2>/dev/null \
+   && grep -q "sdd:specx:start" "$F4/backlog/queue.md" 2>/dev/null \
+   && grep -q "sdd:done:start" "$F4/backlog/queue.md" 2>/dev/null; then
+  ok "S4: sdd 마커 4 영역 모두 보존"
+else
+  fail "S4: sdd 마커 손상"
+fi
 
 # ─────────────────────────────────────────────────────────
 # Scenario 5: multi-install → 8 템플릿 + .gitignore 멱등 (#78, #83)
