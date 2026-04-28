@@ -3,7 +3,7 @@
 > Claude Code를 위한 SDD(Spec-Driven Development) 거버넌스 부트스트랩 툴킷
 > 한 번 만들어두고, 다음 프로젝트에서는 한 줄로 같은 하네스를 깐다.
 
-[![version](https://img.shields.io/badge/version-0.6.1-blue)](./VERSION)
+[![version](https://img.shields.io/badge/version-0.6.2-blue)](./VERSION)
 [![target](https://img.shields.io/badge/target-macOS%20%2B%20Claude%20Code-green)](#대상-환경)
 [![status](https://img.shields.io/badge/status-alpha-orange)](#)
 

@@ -28,7 +28,14 @@ sdd — harness-kit 메타 명령
                                 현재 상태 출력 (사람용 / 간단 / 자세히 / JSON)
   queue                         backlog/queue.md 출력 (대시보드)
 
-  phase new <slug>              새 phase-{N}.md 생성 + queue 갱신
+  phase new <slug> [--base] [--force]
+                                새 phase-{N}.md 생성 + queue 갱신.
+                                backlog/ 에 미활성 phase 파일이 있으면 거부 —
+                                기존 파일을 쓰려면 'sdd phase activate <id>',
+                                정말 새로 추가해야 하면 --force.
+  phase activate <phase-NN> [--base]
+                                backlog/ 에 미리 작성한 phase 활성화 (본문 미수정).
+                                --base: phase.md 메타의 'Base Branch' 필드를 사용.
   phase list                    모든 phase 와 spec 카운트
   phase show [phase-N]          phase 상세 (생략 시 active)
   phase done [phase-N]          phase 를 완료 처리 (queue 의 done 으로 이동)
@@ -429,11 +436,12 @@ cmd_status() {
 cmd_phase() {
   local sub="${1:-list}"; shift || true
   case "$sub" in
-    new)  phase_new "$@" ;;
-    list) phase_list ;;
-    show) phase_show "$@" ;;
-    done) phase_done "$@" ;;
-    *)    die "알 수 없는 phase 서브명령: $sub" ;;
+    new)      phase_new "$@" ;;
+    activate) phase_activate "$@" ;;
+    list)     phase_list ;;
+    show)     phase_show "$@" ;;
+    done)     phase_done "$@" ;;
+    *)        die "알 수 없는 phase 서브명령: $sub" ;;
   esac
 }
 
@@ -450,17 +458,51 @@ phase_done() {
 
 phase_new() {
   local slug="${1:-}"
-  [ -z "$slug" ] && die "사용법: sdd phase new <slug>"
+  [ -z "$slug" ] && die "사용법: sdd phase new <slug> [--base] [--force]"
   sdd_slug_ok "$slug" || die "slug 형식 오류: 소문자/숫자/하이픈 (예: payment-stability)"
-  # --base 플래그 파싱 (slug 이후 추가 인수)
+  # 플래그 파싱 (slug 이후 추가 인수)
   local base_mode=0
+  local force_mode=0
   local arg
   for arg in "${@:2}"; do
-    case "$arg" in --base) base_mode=1 ;; esac
+    case "$arg" in
+      --base)  base_mode=1 ;;
+      --force) force_mode=1 ;;
+    esac
   done
   # slug 는 phase 의 제목 표시용. ID 는 phase-{N} (slug 없음).
 
   mkdir -p "$SDD_BACKLOG"
+  ensure_queue_file
+
+  # 사전 정의 phase 가드 (--force 시 우회)
+  # backlog/ 에 done 도 active 도 아닌 phase 파일이 있으면 die.
+  if [ $force_mode -eq 0 ]; then
+    local cur_phase
+    cur_phase="$(state_get phase)"
+    local pending=""
+    local pf pid
+    for pf in "$SDD_BACKLOG"/phase-*.md; do
+      [ -f "$pf" ] || continue
+      pid="$(basename "$pf" .md)"
+      [ "$pid" = "$cur_phase" ] && continue
+      queue_phase_is_done "$pid" && continue
+      pending="${pending}${pid}\n"
+    done
+    if [ -n "$pending" ]; then
+      printf '⚠ 사전 정의된 phase 가 있습니다:\n' >&2
+      printf '%b' "$pending" | while IFS= read -r p; do
+        [ -z "$p" ] && continue
+        printf '  - %s\n' "$p" >&2
+      done
+      local first
+      first="$(printf '%b' "$pending" | head -1)"
+      printf '\n다음 중 선택:\n' >&2
+      printf '  1) sdd phase activate %s        # 기존 phase 활성화\n' "$first" >&2
+      printf '  2) sdd phase new <slug> --force # 새 phase 강제 추가\n' >&2
+      die "phase new 거부 — 사전 정의 phase 우선"
+    fi
+  fi
 
   # 다음 phase 번호 (backlog/ + archive/backlog/ 모두 스캔)
   local next=1
@@ -516,6 +558,73 @@ phase_new() {
   echo "  2. ${C_CYN}sdd spec new <slug>${C_RST} 로 첫 spec 시작"
 }
 
+# 사전 정의된 phase-NN.md 를 활성화 (본문 미수정).
+# 사용자가 backlog/ 에 phase 를 미리 작성해 둔 경우 sdd state/queue 에 등록한다.
+phase_activate() {
+  local id="${1:-}"
+  [ -z "$id" ] && die "사용법: sdd phase activate <phase-NN> [--base]"
+  case "$id" in
+    phase-[0-9]*) : ;;
+    *) die "id 형식 오류: phase-NN (예: phase-03)" ;;
+  esac
+
+  local file="$SDD_BACKLOG/${id}.md"
+  [ -f "$file" ] || die "phase 파일 없음: $file (먼저 backlog/${id}.md 작성)"
+
+  ensure_queue_file
+
+  if queue_phase_is_done "$id"; then
+    die "이미 완료된 phase: $id (queue.md done 섹션)"
+  fi
+
+  local cur_phase
+  cur_phase="$(state_get phase)"
+  if [ "$cur_phase" != "null" ] && [ -n "$cur_phase" ] && [ "$cur_phase" != "$id" ]; then
+    die "다른 active phase 존재: $cur_phase — 'sdd phase done' 후 재시도 또는 명시적 전환"
+  fi
+
+  # --base 플래그
+  local base_mode=0
+  local arg
+  for arg in "${@:2}"; do
+    case "$arg" in --base) base_mode=1 ;; esac
+  done
+
+  # phase.md 첫 줄 제목에서 슬러그(표시용) 추출
+  local slug
+  slug="$(head -1 "$file" | sed -n "s|^# *${id}: *\(.*\)$|\1|p")"
+  [ -z "$slug" ] && slug="$id"
+
+  state_set phase "$id"
+  state_set spec "null"
+  state_set planAccepted "false"
+
+  if [ $base_mode -eq 1 ]; then
+    # phase.md 메타 표 'Base Branch' 행에서 phase-NN-... 형식 추출
+    local meta_base
+    meta_base="$(grep -E '^\| \*\*Base Branch\*\*' "$file" \
+                 | head -1 \
+                 | sed 's/.*| *\*\*Base Branch\*\* *|//; s/`//g; s/^ *//; s/ *|.*$//')"
+    local base_branch=""
+    case "$meta_base" in
+      phase-[0-9]*-*) base_branch="$meta_base" ;;
+    esac
+    if [ -z "$base_branch" ]; then
+      die "phase.md 메타의 'Base Branch' 필드를 phase-NN-<slug> 형식으로 먼저 채워주세요 (예: phase-03-stt-v2)"
+    fi
+    state_set baseBranch "$base_branch"
+    ok "base branch: $base_branch"
+  fi
+
+  queue_set_active "$id" "$slug"
+
+  ok "active phase 설정: $id ($slug)"
+  echo ""
+  echo "다음 단계:"
+  echo "  1. ${C_CYN}$file${C_RST} 본문 확인"
+  echo "  2. ${C_CYN}sdd spec new <slug>${C_RST} 로 첫 spec 시작"
+}
+
 # ─────────────────────────────────────────────────────────
 # queue.md 헬퍼
 # ─────────────────────────────────────────────────────────
@@ -565,6 +674,13 @@ queue_set_active_progress() {
 
   local content="- **${phase_id}** — ${title:-?} — ${total} spec — 다음: ${active_spec:-(spec 없음)}"
   sdd_marker_replace "$q" "active" "$content"
+}
+
+queue_phase_is_done() {
+  local phase_id="$1"
+  local q="$(state_queue_file)"
+  [ -f "$q" ] || return 1
+  sdd_marker_grep "$q" "done" "**${phase_id}**"
 }
 
 queue_mark_done() {
