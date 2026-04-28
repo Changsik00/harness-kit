@@ -57,6 +57,7 @@
 | `spec-15-01` | upgrade-danger-audit | P? | Merged | `specs/spec-15-01-upgrade-danger-audit/` |
 | `spec-15-02` | stateful-fixture-system | P? | Merged | `specs/spec-15-02-stateful-fixture-system/` |
 | `spec-15-03` | uninstall-cmd-list-stale | P? | Merged | `specs/spec-15-03-uninstall-cmd-list-stale/` |
+| `spec-15-04` | historical-regression-tests | P? | Merged | `specs/spec-15-04-historical-regression-tests/` |
 <!-- sdd:specs:end -->
 
 > 상태 허용값: `Backlog` / `In Progress` / `Merged`
