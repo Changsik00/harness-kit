@@ -1,0 +1,80 @@
+#!/usr/bin/env bash
+# tests/test-update-stateful.sh
+# spec-15-04: phase-15.md §통합 테스트 시나리오 5개를 stateful 회귀 테스트로 잠금.
+#             tests/lib/fixture.sh 의 mixin 조합으로 "사용 중인 사용자" 환경 합성 후
+#             update.sh 실행 → 사후 상태 검증.
+
+set -uo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+
+# shellcheck source=lib/fixture.sh
+source "$SCRIPT_DIR/lib/fixture.sh"
+
+PASS=0; FAIL=0
+ok()   { echo "  ✅ PASS: $*"; PASS=$(( PASS + 1 )); }
+fail() { echo "  ❌ FAIL: $*"; FAIL=$(( FAIL + 1 )); }
+skip() { echo "  ⏭  SKIP: $*"; }
+
+CLEANUP=()
+trap 'for d in "${CLEANUP[@]:-}"; do [ -n "$d" ] && [ -d "$d" ] && rm -rf "$d"; done' EXIT
+
+# md5 (macOS / Linux 자동 분기)
+_md5() {
+  if command -v md5 >/dev/null 2>&1; then
+    md5 -q "$1"
+  elif command -v md5sum >/dev/null 2>&1; then
+    md5sum "$1" | awk '{print $1}'
+  else
+    echo "no-md5-available"
+  fi
+}
+
+echo "═══════════════════════════════════════════════════════"
+echo " test-update-stateful (spec-15-04) — 5 scenarios"
+echo "═══════════════════════════════════════════════════════"
+
+# ─────────────────────────────────────────────────────────
+# Scenario 1: in-flight phase 사용자 → state 6 필드 보존 (#82)
+# ─────────────────────────────────────────────────────────
+echo ""
+echo "▶ Scenario 1: in-flight phase preserves 6 state fields (#82)"
+skip "implementation pending — Task 2"
+
+# ─────────────────────────────────────────────────────────
+# Scenario 2: 사전 정의 phase → 본문 미변경 + activate 정상 (#84)
+# ─────────────────────────────────────────────────────────
+echo ""
+echo "▶ Scenario 2: pre-defined phases preserved + activate (#84)"
+skip "implementation pending — Task 3"
+
+# ─────────────────────────────────────────────────────────
+# Scenario 3: customized fragment → 보존 또는 명시적 conflict (Pattern B)
+# ─────────────────────────────────────────────────────────
+echo ""
+echo "▶ Scenario 3: customized fragment (Pattern B)"
+skip "정책 결정 후 spec-15-06 (user-hook-preserve) 에서 추가"
+
+# ─────────────────────────────────────────────────────────
+# Scenario 4: dirty queue icebox → 사용자 메모 + sdd 마커 보존 (Pattern B)
+# ─────────────────────────────────────────────────────────
+echo ""
+echo "▶ Scenario 4: dirty queue icebox preserved (Pattern B)"
+skip "implementation pending — Task 4"
+
+# ─────────────────────────────────────────────────────────
+# Scenario 5: multi-install → 8 템플릿 + .gitignore 멱등 (#78, #83)
+# ─────────────────────────────────────────────────────────
+echo ""
+echo "▶ Scenario 5: multi-install idempotent (#78, #83)"
+skip "implementation pending — Task 5"
+
+# ─────────────────────────────────────────────────────────
+# 결과
+# ─────────────────────────────────────────────────────────
+echo ""
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "  결과: PASS=$PASS  FAIL=$FAIL"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+[ "$FAIL" -eq 0 ]
