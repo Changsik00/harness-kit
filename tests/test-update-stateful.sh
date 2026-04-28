@@ -184,6 +184,36 @@ s5_state_cnt=$(grep -cE '^\.claude/state/$' "$s5_gi" 2>/dev/null || echo 0)
   || fail "S5: '.claude/state/' = $s5_state_cnt"
 
 # ─────────────────────────────────────────────────────────
+# Scenario 6: state exclusion — 임의 신규 필드 보존 (spec-15-05)
+# ─────────────────────────────────────────────────────────
+echo ""
+echo "▶ Scenario 6: state exclusion — 신규 필드 자동 보존 (Schema Drift 방지)"
+F6=$(make_fixture); CLEANUP+=("$F6")
+# 임의 신규 필드 추가 — install template 에 없는 키
+_tmp6=$(mktemp)
+jq '. + {"_testCustomField": "preserved", "_testNumber": 42}' \
+   "$F6/.claude/state/current.json" > "$_tmp6"
+mv "$_tmp6" "$F6/.claude/state/current.json"
+
+bash "$ROOT/update.sh" --yes "$F6" >/dev/null 2>&1
+
+s6_custom=$(jq -r '._testCustomField // empty' "$F6/.claude/state/current.json")
+s6_num=$(jq -r '._testNumber // empty' "$F6/.claude/state/current.json")
+s6_kit_ver=$(jq -r '.kitVersion' "$F6/.claude/state/current.json")
+
+[ "$s6_custom" = "preserved" ] \
+  && ok "S6: 임의 신규 필드 _testCustomField 보존 (exclusion 동작)" \
+  || fail "S6: _testCustomField 손실 — current update.sh 가 inclusion 일 때 fail 예상"
+
+[ "$s6_num" = "42" ] \
+  && ok "S6: 다른 신규 필드 _testNumber 보존" \
+  || fail "S6: _testNumber 손실"
+
+[ "$s6_kit_ver" = "$(cat "$ROOT/VERSION")" ] \
+  && ok "S6: install-managed kitVersion 갱신" \
+  || fail "S6: kitVersion 미갱신"
+
+# ─────────────────────────────────────────────────────────
 # 결과
 # ─────────────────────────────────────────────────────────
 echo ""
