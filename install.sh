@@ -349,7 +349,8 @@ else
                .ask = (((.ask // []) + $kit.permissions.ask) | unique)
              else . end)
         )
-      | .hooks = ($kit.hooks // $user.hooks)
+      | (($kit.hooks // {}) as $kh | ($user.hooks // {}) as $uh
+         | .hooks = ($kh + ($uh | with_entries(select(.key as $k | ($kh | has($k)) | not)))))
     ' "$SETTINGS" "$FRAGMENT" > "$tmp"
     mv "$tmp" "$SETTINGS"
   else
