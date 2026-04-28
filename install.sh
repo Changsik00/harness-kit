@@ -449,10 +449,24 @@ INSTALLED_JSON="$TARGET/.harness-kit/installed.json"
 if [ $DRY_RUN -eq 1 ]; then
   echo "${C_DIM}[dry-run]${C_RST} write $INSTALLED_JSON"
 else
+  # 설치된 슬래시 커맨드 명단 수집 (uninstall 이 정확히 같은 파일을 제거할 수 있도록)
+  _cmd_json="[]"
+  if [ -d "$KIT_DIR/sources/commands" ]; then
+    _cmd_json="["
+    _first=1
+    for f in "$KIT_DIR/sources/commands"/*.md; do
+      [ -e "$f" ] || continue
+      _name=$(basename "$f" .md)
+      [ $_first -eq 1 ] && _first=0 || _cmd_json="${_cmd_json},"
+      _cmd_json="${_cmd_json}\"${_name}\""
+    done
+    _cmd_json="${_cmd_json}]"
+  fi
   cat > "$INSTALLED_JSON" <<EOF
 {
   "kitVersion": "$KIT_VERSION",
-  "installedAt": "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+  "installedAt": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+  "installedCommands": $_cmd_json
 }
 EOF
   ok "installed.json 작성 완료"

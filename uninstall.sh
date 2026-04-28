@@ -88,11 +88,21 @@ if [ -f "$SETTINGS" ] && command -v jq >/dev/null; then
   ok ".claude/settings.json 에서 hooks 제거 (사용자 권한은 보존)"
 fi
 
-# 4. .claude/commands/ — 키트가 깔았을만한 파일 제거
-KIT_COMMANDS="align spec-new plan-accept spec-status handoff phase-new phase-status task-done archive"
-for c in $KIT_COMMANDS; do
-  rm -f "$TARGET/.claude/commands/$c.md" 2>/dev/null || true
-done
+# 4. .claude/commands/ — 키트가 설치한 슬래시 커맨드 제거
+# install.sh 가 installed.json.installedCommands 에 명단을 기록 (spec-15-03).
+# .harness-kit/ 는 이미 제거되었으므로 백업 디렉토리에서 installed.json 을 읽는다.
+_INSTALLED_BACKUP="$BACKUP/.harness-kit/installed.json"
+if command -v jq >/dev/null 2>&1 \
+   && [ -f "$_INSTALLED_BACKUP" ] \
+   && jq -e '.installedCommands' "$_INSTALLED_BACKUP" >/dev/null 2>&1; then
+  # 기록된 명단 사용 (정확)
+  while IFS= read -r c; do
+    [ -n "$c" ] && rm -f "$TARGET/.claude/commands/${c}.md" 2>/dev/null
+  done < <(jq -r '.installedCommands[]' "$_INSTALLED_BACKUP")
+else
+  # legacy fallback (구 install 또는 jq 미설치) — hk-* glob 일괄 제거
+  rm -f "$TARGET/.claude/commands/hk-"*.md 2>/dev/null || true
+fi
 # 비어있으면 디렉토리 제거
 rmdir "$TARGET/.claude/commands" 2>/dev/null || true
 
