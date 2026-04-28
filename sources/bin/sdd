@@ -30,10 +30,12 @@ sdd — harness-kit 메타 명령
 
   phase new <slug> [--base] [--force]
                                 새 phase-{N}.md 생성 + queue 갱신.
-                                --force: 사전 정의 phase 가 있어도 새로 생성.
+                                backlog/ 에 미활성 phase 파일이 있으면 거부 —
+                                기존 파일을 쓰려면 'sdd phase activate <id>',
+                                정말 새로 추가해야 하면 --force.
   phase activate <phase-NN> [--base]
-                                기존 phase 파일 활성화 (사전 정의 phase 진입).
-                                본문 미수정. --base 시 메타의 'Base Branch' 필드 사용.
+                                backlog/ 에 미리 작성한 phase 활성화 (본문 미수정).
+                                --base: phase.md 메타의 'Base Branch' 필드를 사용.
   phase list                    모든 phase 와 spec 카운트
   phase show [phase-N]          phase 상세 (생략 시 active)
   phase done [phase-N]          phase 를 완료 처리 (queue 의 done 으로 이동)
