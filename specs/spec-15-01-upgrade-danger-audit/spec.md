@@ -154,17 +154,86 @@ constitution §9.1 기준:
 | `sdd_marker_append` | 한 줄 단위 멱등 — common.sh 에서 확인되었으나 multi-line block 추가는? |
 | `state.json` 의 신규 필드 추가 흐름 | install.sh 템플릿 갱신 + update.sh 백업 리스트 갱신 + 스키마 검증의 *3중 sync* 필요 — 어디서 끊어질지 |
 
-## §5. install.sh / update.sh 덮어쓰기 정책 단면 (실행 시 채움)
+## §5. install.sh / update.sh / uninstall.sh 덮어쓰기 정책 단면
 
-### 정책 분류표
+### §5.1 정책 분류표
 
-| 경로 패턴 | 정책 | 근거 코드 라인 | 사용자 영역 여부 |
+`install.sh` 의 처리 단위를 4분류 (OVERWRITE / MERGE / SKIP-IF-EXISTS / APPEND-IDEMPOTENT) 로 정리.
+
+| 처리 단위 | 정책 | 근거 라인 | Sync 형태 | 위험 패턴 |
+|---|---|---|---|---|
+| `mkdir -p` 디렉토리 생성 (8개) | IDEMPOTENT | install.sh:243-251 | hardcoded 리스트 | A (낮음 — 대상 디렉토리 추가 시 미생성) |
+| `sources/governance/` → `.harness-kit/agent/` | OVERWRITE | install.sh:257-259 | **hardcoded 리스트** (3 파일) | **A (높음)** |
+| `sources/templates/` → `.harness-kit/agent/templates/` | OVERWRITE | install.sh:262-264 | **hardcoded 리스트** (8 파일) | **A (높음 — 이미 1회 발현)** |
+| `sources/commands/` → `.claude/commands/` | OVERWRITE | install.sh:269-280 | **directory glob** (`*.md`) | A (없음 — 자동 동기화) |
+| `sources/hooks/` → `.harness-kit/hooks/` | OVERWRITE + chmod +x | install.sh:285-298 | directory glob (`*.sh`) | A (없음) |
+| `sources/bin/` → `.harness-kit/bin/` | OVERWRITE (재귀) | install.sh:303-313 | `cp -rf` 디렉토리 | A (없음) |
+| `.claude/settings.json` | MERGE (jq) | install.sh:318-355 | permissions = union, hooks = kit-overwrite | **B (중간 — 사용자 hook 손실)** |
+| `CLAUDE.md` HARNESS-KIT 블록 | APPEND-IDEMPOTENT (블록 마커) | install.sh:360-397 | awk 블록 교체 | A/C (낮음 — 블록 단위) |
+| `.harness-kit/CLAUDE.fragment.md` | OVERWRITE | install.sh:372 | 단일 파일 cp | (키트 영역, 정상) |
+| `.gitignore` | APPEND-IDEMPOTENT (라인) | install.sh:402-442 | 라인별 ensure 헬퍼 | C (없음 — spec-14-03 이후) |
+| `.harness-kit/installed.json` | OVERWRITE | install.sh:447-459 | `cat > <<EOF` | (키트 메타, 정상) |
+| `.harness-kit/harness.config.json` | OVERWRITE | install.sh:461-474 | `cat > <<EOF` | B (낮음 — 사용자 수정분 손실) |
+| `.claude/state/current.json` | **OVERWRITE** | install.sh:476-493 | `cat > <<EOF` (8 필드 템플릿) | **A/C (가장 위험 — 1회 발현)** |
+
+### §5.2 update.sh 의 보존 메커니즘
+
+install.sh 가 모든 것을 OVERWRITE 하므로 update.sh 는 **before/after 스냅샷-복원** 패턴으로 사용자 자산을 보호.
+
+| 보존 대상 | 메커니즘 | 근거 라인 | 위험 |
 |---|---|---|---|
-<!-- 실행 시 채움 -->
+| `installed.json.kitVersion` (PREV_VER) | 변수에 jq 로 추출 | update.sh:51 | 정상 |
+| `harness.config.json.backlogDir` → prefix | 변수 + 인자 재조립 | update.sh:55-62 | 정상 |
+| `harness.config.json.gitignore` 옵션 | 변수 + 인자 재조립 | update.sh:64-69 | 정상 |
+| `state.json` 의 6개 필드 | jq 객체 백업 + `* merge` 복원 | update.sh:113-143 | **A (화이트리스트 — 새 필드 추가 시 누락)** |
+| `.claude/state/` 디렉토리 자체 | uninstall.sh `--keep-state` | update.sh:111, uninstall.sh:99-103 | 정상 |
+| 기타 `.harness-kit/`, `.claude/commands/`, `CLAUDE.md` 블록, `.gitignore` 등 | install.sh 가 멱등/머지로 처리 | (각 install.sh 라인) | install.sh 정책 그대로 |
 
-### 정책 미명시 항목
+### §5.3 uninstall.sh 의 청소 정책
 
-<!-- 실행 시 채움 -->
+update.sh 가 호출하는 `uninstall.sh --keep-state` 는 키트 영역만 제거하고 사용자 영역은 보존해야 한다. 그러나:
+
+| 청소 대상 | 정책 | 근거 라인 | 위험 |
+|---|---|---|---|
+| `.harness-kit/` 디렉토리 전체 | DELETE | uninstall.sh:68 | 정상 |
+| `agent/`, `scripts/harness/` (구 레이아웃) | DELETE | uninstall.sh:75, 79 | 정상 |
+| `settings.json` 의 `hooks` 키 | jq `del(.hooks)` | uninstall.sh:87 | 정상 (사용자 추가 hook 도 같이 사라짐 — Pattern B) |
+| `.claude/commands/` 의 키트 명령 | **hardcoded 명단으로 rm** | **uninstall.sh:92-95** | **🚨 Pattern A — Critical** |
+| `.claude/state/` | DELETE (`--keep-state` 시 skip) | uninstall.sh:99-103 | 정상 |
+| `CLAUDE.md` HARNESS-KIT 블록 | awk 로 블록 제거 | uninstall.sh:106-116 | 정상 |
+| `.gitignore` HARNESS-KIT 라인 | sed/awk | uninstall.sh:118+ | 정상 |
+
+#### 🚨 §5.3.1 Critical: uninstall.sh 의 KIT_COMMANDS 명단이 stale
+
+**uninstall.sh:92**:
+```bash
+KIT_COMMANDS="align spec-new plan-accept spec-status handoff phase-new phase-status task-done archive"
+```
+
+이 명단은 **구 슬래시 커맨드 이름** 들이다. 현재 `sources/commands/` 에 있는 12개 슬래시 커맨드는 모두 **`hk-` prefix** 를 사용한다 (`hk-align`, `hk-plan-accept`, `hk-archive`, `hk-ship` 등).
+
+**영향**:
+- `update.sh` 실행 시 uninstall 단계에서 *어떤 슬래시 커맨드도 제거되지 않음*. 이후 install 단계가 동일 이름의 hk-* 를 다시 복사 → 우연히 정상 동작 (덮어쓰기).
+- 그러나 **새 버전에서 슬래시 커맨드를 *이름 변경* 또는 *제거* 하면, 구 커맨드가 사용자 환경에 영구 잔재**. (예: `hk-archive.md` 가 다음 버전에 `hk-cleanup.md` 로 이름 바뀌면 둘 다 존재 → 사용자 혼란 + AI 가 stale 커맨드 사용 가능)
+- 또 uninstall 단독으로 사용자가 키트를 완전히 지우려 할 때 **hk-* 슬래시 커맨드들이 모두 잔재**. 이는 사용자 경험 + 거버넌스 신뢰성 모두 손상.
+
+**근본 원인**: install.sh:269-280 은 디렉토리 glob (자동 동기화 ✅) 인데 uninstall.sh:92-95 는 hardcoded 명단. 양방향이 **비대칭**.
+
+**제안 fix**: `.harness-kit/installed.json` 에 install 시점의 슬래시 커맨드 목록을 기록 → uninstall 이 그 목록을 읽어 정확히 그 파일들만 제거. 또는 `.claude/commands/` 의 모든 `hk-*.md` 일괄 제거 (단, 사용자가 본인의 hk- 접두사를 안 쓴다는 가정).
+
+### §5.4 정책 미명시 / 위험 항목 종합
+
+§5.1~§5.3 의 종합 위험 등급:
+
+| 항목 | 위험 등급 | 근거 |
+|---|:---:|---|
+| `uninstall.sh:92` KIT_COMMANDS stale 명단 | **P0** | 슬래시 커맨드 이름 변경/제거 시 영구 잔재 |
+| `install.sh:257-259` governance 하드코딩 (3 파일) | **P1** | 새 governance 파일 추가 시 install 누락 (Pattern A) |
+| `install.sh:262-264` templates 하드코딩 (8 파일) | **P1** | 이미 1회 발현 (#83). 추가 시 재발 가능 |
+| `update.sh:120` state 백업 화이트리스트 (6 필드) | **P1** | 이미 1회 발현 (#82). 새 state 필드 추가 시 재발 |
+| `install.sh:347-348` hooks = kit-overwrite (사용자 hook 손실) | **P2** | 명시된 정책이지만 사용자 영역 보존 누락 (Pattern B) |
+| `install.sh:461-474` harness.config.json OVERWRITE | **P2** | 사용자 수정분 손실. 키트 영역이라 영향 적음 |
+| `update.sh` uninstall+install 모델 자체 | **P2** | OVERWRITE-then-restore 패턴이 모든 보존 로직의 부담 원천. 별도 phase 후보 (in-place upgrade 리팩토링) |
 
 ## §6. Stateful Fixture 설계 옵션 비교 (실행 시 채움)
 

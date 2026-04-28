@@ -55,9 +55,11 @@
 - [ ] claude-fragments 머지 정책 분석
 
 ### 3-3. spec.md §5 작성
-- [ ] §5.1 정책 분류표 (경로 패턴 / 정책 / 코드 라인 / 사용자 영역)
-- [ ] §5.2 정책 미명시 항목 (위험)
-- [ ] Commit: `docs(spec-15-01): document install/update overwrite policy surface`
+- [x] §5.1 install.sh 정책 분류표 (12개 처리 단위)
+- [x] §5.2 update.sh 보존 메커니즘
+- [x] §5.3 uninstall.sh 청소 정책 + 🚨 KIT_COMMANDS stale Critical 발견
+- [x] §5.4 P0/P1/P2 위험 등급 종합
+- [ ] Commit: `docs(spec-15-01): map install/update/uninstall policy surface and find P0 latent bug`
 
 ---
 
