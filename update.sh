@@ -106,18 +106,27 @@ if [ $ASSUME_YES -eq 0 ]; then
   case "$_ans" in y|Y) ;; *) log "취소됨"; exit 0 ;; esac
 fi
 
+# ── 1a. 사용자 커스텀 hook 저장 (uninstall 이 .hooks 전체 제거하므로) ──
+# spec-15-06: kit 관리 key(PreToolUse, SessionStart) 외 사용자 정의 event type 보존.
+_SETTINGS="$TARGET/.claude/settings.json"
+_SAVED_USER_HOOKS='{}'
+if command -v jq >/dev/null 2>&1 && [ -f "$_SETTINGS" ]; then
+  _SAVED_USER_HOOKS=$(jq -c \
+    '(.hooks // {}) | with_entries(select(.key != "PreToolUse" and .key != "SessionStart"))' \
+    "$_SETTINGS" 2>/dev/null || echo '{}')
+fi
+
 # ── 1. uninstall (state 보존) ────────────────────────────────
 log "기존 설치 제거 중..."
 "$KIT_DIR/uninstall.sh" --yes --keep-state "$TARGET"
 
 # ── 2. state 임시 저장 (install.sh 가 덮어쓰므로) ────────────
-# 보존 키 화이트리스트: 새 필드를 추가하려면 여기 6개 자리에 함께 추가하면 된다.
-#   phase, spec, branch, baseBranch, planAccepted, lastTestPass
+# spec-15-05: exclusion 정책 — install 이 fresh 작성하는 키 (kitVersion, installedAt)
+# 만 제외하고 나머지 모든 키 보존. 새 state 필드 추가 시 update.sh 손대지 않음.
 _STATE="$TARGET/.claude/state/current.json"
 _SAVED_JSON='{}'
 if command -v jq >/dev/null 2>&1 && [ -f "$_STATE" ]; then
-  _SAVED_JSON=$(jq -c \
-    '{phase, spec, branch, baseBranch, planAccepted, lastTestPass}' \
+  _SAVED_JSON=$(jq -c 'del(.kitVersion, .installedAt)' \
     "$_STATE" 2>/dev/null || echo '{}')
 fi
 
@@ -138,6 +147,21 @@ if command -v jq >/dev/null 2>&1 && [ -f "$_STATE" ] && [ "$_SAVED_JSON" != '{}'
     ok "state 복원 완료"
   else
     warn "state 복원 실패 — 기본값으로 초기화"
+    rm -f "$_tmp"
+  fi
+fi
+
+# ── 4b. 사용자 커스텀 hook 복원 ─────────────────────────────
+# install.sh 의 hook 머지가 uninstall 전 settings 를 보지 못하므로 update 가 보완.
+if command -v jq >/dev/null 2>&1 && [ -f "$_SETTINGS" ] \
+   && [ "$_SAVED_USER_HOOKS" != '{}' ] && [ "$_SAVED_USER_HOOKS" != 'null' ]; then
+  _tmp="$(mktemp)"
+  if jq --argjson uh "$_SAVED_USER_HOOKS" '.hooks = (.hooks + $uh)' \
+       "$_SETTINGS" > "$_tmp" 2>/dev/null; then
+    mv "$_tmp" "$_SETTINGS"
+    ok "사용자 hook 복원 완료"
+  else
+    warn "사용자 hook 복원 실패 — kit hook만 존재"
     rm -f "$_tmp"
   fi
 fi

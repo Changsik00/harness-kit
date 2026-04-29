@@ -8,7 +8,7 @@
 ## 📦 진행 중 Phase
 
 <!-- sdd:active:start -->
-- **phase-15** — upgrade-safety — 0/0 spec — (다음: 첫 spec 생성 대기)
+- **phase-15** — upgrade-safety — 기존 사용자 update 경로 안전성 — 4 spec — 다음: (spec 없음)
 <!-- sdd:active:end -->
 
 ## 📥 spec-x 대기

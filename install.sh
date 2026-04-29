@@ -254,13 +254,17 @@ do_mkdir "$TARGET/$SPECS_DIR"
 # 9. 거버넌스 + 템플릿 복사
 # ============================================================
 log "거버넌스 복사"
-for f in constitution.md agent.md align.md; do
-  do_cp "$KIT_DIR/sources/governance/$f" "$TARGET/.harness-kit/agent/$f"
+# spec-15-05: 디렉토리 glob (commands/hooks 와 동일 패턴) — Schema Drift 방지
+for f in "$KIT_DIR/sources/governance"/*.md; do
+  [ -e "$f" ] || continue
+  do_cp "$f" "$TARGET/.harness-kit/agent/$(basename "$f")"
 done
 
 log "템플릿 복사"
-for f in queue.md phase.md phase-ship.md spec.md plan.md task.md walkthrough.md pr_description.md; do
-  do_cp "$KIT_DIR/sources/templates/$f" "$TARGET/.harness-kit/agent/templates/$f"
+# spec-15-05: 디렉토리 glob — sources/templates/ 에 새 .md 추가 시 자동 install
+for f in "$KIT_DIR/sources/templates"/*.md; do
+  [ -e "$f" ] || continue
+  do_cp "$f" "$TARGET/.harness-kit/agent/templates/$(basename "$f")"
 done
 
 # ============================================================
@@ -345,7 +349,8 @@ else
                .ask = (((.ask // []) + $kit.permissions.ask) | unique)
              else . end)
         )
-      | .hooks = ($kit.hooks // $user.hooks)
+      | (($kit.hooks // {}) as $kh | ($user.hooks // {}) as $uh
+         | .hooks = ($kh + ($uh | with_entries(select(.key as $k | ($kh | has($k)) | not)))))
     ' "$SETTINGS" "$FRAGMENT" > "$tmp"
     mv "$tmp" "$SETTINGS"
   else
@@ -449,10 +454,24 @@ INSTALLED_JSON="$TARGET/.harness-kit/installed.json"
 if [ $DRY_RUN -eq 1 ]; then
   echo "${C_DIM}[dry-run]${C_RST} write $INSTALLED_JSON"
 else
+  # 설치된 슬래시 커맨드 명단 수집 (uninstall 이 정확히 같은 파일을 제거할 수 있도록)
+  _cmd_json="[]"
+  if [ -d "$KIT_DIR/sources/commands" ]; then
+    _cmd_json="["
+    _first=1
+    for f in "$KIT_DIR/sources/commands"/*.md; do
+      [ -e "$f" ] || continue
+      _name=$(basename "$f" .md)
+      [ $_first -eq 1 ] && _first=0 || _cmd_json="${_cmd_json},"
+      _cmd_json="${_cmd_json}\"${_name}\""
+    done
+    _cmd_json="${_cmd_json}]"
+  fi
   cat > "$INSTALLED_JSON" <<EOF
 {
   "kitVersion": "$KIT_VERSION",
-  "installedAt": "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+  "installedAt": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+  "installedCommands": $_cmd_json
 }
 EOF
   ok "installed.json 작성 완료"
