@@ -8,7 +8,7 @@
 ## 📦 진행 중 Phase
 
 <!-- sdd:active:start -->
-- **phase-15** — upgrade-safety — 기존 사용자 update 경로 안전성 — 4 spec — 다음: (spec 없음)
+(active phase 없음. `bin/sdd phase new <slug>` 로 시작)
 <!-- sdd:active:end -->
 
 ## 📥 spec-x 대기
@@ -16,6 +16,7 @@
 <!-- sdd:specx:start -->
 없음
 - [ ] spec-x-fix-archive-test-expectation — fix-archive-test-expectation
+- [ ] spec-x-phase-15-finalize — phase-15-finalize
 <!-- sdd:specx:end -->
 
 ## 🧊 Icebox
@@ -59,6 +60,7 @@
 - [x] spec-x-update-preserve-state (완료)
 - [x] spec-x-install-phase-ship-template (완료)
 - [x] spec-x-sdd-phase-activate (완료)
+- **phase-15** — upgrade-safety — 기존 사용자 update 경로 안전성 — completed 2026-04-30
 <!-- sdd:done:end -->
 
 ---
