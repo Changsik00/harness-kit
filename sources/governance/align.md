@@ -10,7 +10,8 @@
 
 ## 2. 컨텍스트 점검 (Context Check)
 - `bash .harness-kit/bin/sdd status` 단일 명령을 실행한다.
-- `sdd status`는 state 파일이 없어도 자체 폴백으로 git log, backlog/, specs/ 정보를 출력한다.
+- `sdd status` 는 state 파일이 없어도 자체 폴백으로 git log, backlog/, specs/ 정보를 출력한다.
+- 출력에는 **🔄 동기화 상태 (drift) 섹션** 이 자동 포함되어 multi-device 환경의 sync 어긋남을 감지한다 (원격 behind/ahead, 워킹트리 잔재, 정합성, install 부산물). 오프라인 / CI 환경에서는 `--no-drift` 또는 `HARNESS_DRIFT_FETCH=0` 으로 끌 수 있다.
 - **별도 폴백 명령을 체이닝하지 않는다** (단일 명령 원칙 — agent.md §6.4).
 
 ## 3. 행동 모드 잠금 (Behavior Lock)
@@ -47,11 +48,19 @@
 - Last Test: <timestamp> (PASS / FAIL / 없음)
 - Pending Tasks: <count>
 
+🔄 동기화 상태  (drift 가 있을 때만 상세; 없으면 "깔끔")
+- 원격: behind N / ahead M
+- 워킹트리: K 변경 (X spec / Y install / Z 일반)
+- 정합성: phase-N 모든 spec Merged 인데 active — sdd phase done 미실행 의심
+- install 부산물: K (sources 동일 X / 정체불명 Y)
+
 📝 최근 활동 (git log -3)
 - ...
 - ...
 - ...
 ```
+
+drift 가 있으면 사용자에게 정리 옵션 (예: `git pull --ff-only`, `sdd phase done <N>`, untracked 검증) 을 제안한다. **자동 정리는 금지** — 사용자 명시 결정 후에만 실행.
 
 ## 6. 단 하나의 질문 (One Question)
 
