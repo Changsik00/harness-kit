@@ -61,6 +61,7 @@
 - [x] spec-x-sdd-phase-activate (완료)
 - **phase-15** — upgrade-safety — 기존 사용자 update 경로 안전성 — completed 2026-04-30
 - [x] spec-x-phase-15-finalize (완료)
+- [x] spec-x-hk-align-drift-detect (완료)
 <!-- sdd:done:end -->
 
 ---
