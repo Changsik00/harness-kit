@@ -24,8 +24,9 @@ sdd — harness-kit 메타 명령
   sdd <명령> [옵션]
 
 명령:
-  status [--brief] [--verbose] [--json]
+  status [--brief] [--verbose] [--json] [--no-drift]
                                 현재 상태 출력 (사람용 / 간단 / 자세히 / JSON)
+                                --no-drift: 🔄 동기화 상태 섹션 생략 (오프라인/CI)
   queue                         backlog/queue.md 출력 (대시보드)
 
   phase new <slug> [--base] [--force]
@@ -76,6 +77,7 @@ sdd — harness-kit 메타 명령
   HARNESS_HOOK_MODE               글로벌 모드: warn (기본) / block / off
   HARNESS_HOOK_MODE_{NAME}        per-hook 모드 (BRANCH, PLAN_ACCEPT, TEST_PASSED)
   HARNESS_TEST_WINDOW_MIN         기본 30 (test passed 만료 분)
+  HARNESS_DRIFT_FETCH             drift 검사 시 git fetch 여부 (1=on, 0=off; 기본 1)
 
 문서:
   .harness-kit/agent/constitution.md   거버넌스 규약
@@ -113,6 +115,175 @@ _infer_work_mode() {
       echo ""
       ;;
   esac
+}
+
+# ─────────────────────────────────────────────────────────
+# Drift detection — multi-device 환경에서 발생하는 sync 어긋남 감지
+# 4 카테고리: 원격 / 워킹트리 / 정합성 / install
+# 각 _drift_* 함수는 drift 발견 시 메시지 출력 + return 0, 없으면 return 1.
+# ─────────────────────────────────────────────────────────
+
+# 원격 동기 상태: behind/ahead 카운트
+# HARNESS_DRIFT_FETCH=0 시 fetch 생략 (오프라인/CI 환경 고려).
+_drift_remote() {
+  # upstream 미설정 시 skip
+  local upstream
+  upstream=$(git -C "$SDD_ROOT" rev-parse --abbrev-ref '@{u}' 2>/dev/null || echo "")
+  if [ -z "$upstream" ]; then
+    return 1
+  fi
+
+  # fetch (best-effort, 실패 silent)
+  if [ "${HARNESS_DRIFT_FETCH:-1}" != "0" ]; then
+    git -C "$SDD_ROOT" fetch --quiet 2>/dev/null || true
+  fi
+
+  # behind ahead 카운트
+  local counts behind ahead
+  counts=$(git -C "$SDD_ROOT" rev-list --left-right --count "HEAD...$upstream" 2>/dev/null || echo "")
+  if [ -z "$counts" ]; then
+    return 1
+  fi
+  ahead=$(echo "$counts" | awk '{print $1}')
+  behind=$(echo "$counts" | awk '{print $2}')
+  if [ "${ahead:-0}" -eq 0 ] && [ "${behind:-0}" -eq 0 ]; then
+    return 1
+  fi
+
+  printf "  ${C_YLW}원격: behind %s / ahead %s  (%s)${C_RST}\n" "$behind" "$ahead" "$upstream"
+  return 0
+}
+
+# 워킹트리 drift: spec 디렉토리 / install 영역 / 일반 미커밋 분류
+_drift_worktree() {
+  local porcelain
+  porcelain=$(git -C "$SDD_ROOT" status --porcelain 2>/dev/null || echo "")
+  [ -z "$porcelain" ] && return 1
+
+  local spec_cnt=0 install_cnt=0 other_cnt=0
+  local line path
+  while IFS= read -r line; do
+    [ -z "$line" ] && continue
+    # porcelain 형식: "XY <path>" — 앞 3 글자 (XY + 공백) 제거
+    path=$(echo "$line" | sed 's/^...//; s/ -> .*//')
+    case "$path" in
+      specs/*)               spec_cnt=$((spec_cnt + 1)) ;;
+      .harness-kit/*|.claude/*) install_cnt=$((install_cnt + 1)) ;;
+      *)                     other_cnt=$((other_cnt + 1)) ;;
+    esac
+  done <<EOF
+$porcelain
+EOF
+
+  local total=$((spec_cnt + install_cnt + other_cnt))
+  [ "$total" -eq 0 ] && return 1
+
+  printf "  ${C_YLW}워킹트리: %d 변경 (%d spec drift / %d install drift / %d 일반)${C_RST}\n" \
+    "$total" "$spec_cnt" "$install_cnt" "$other_cnt"
+  return 0
+}
+
+# 정합성: queue.md 의 active phase 가 phase-N.md 에서 모든 spec Merged 면 phase done 미실행 의심
+_drift_consistency() {
+  local queue="$SDD_BACKLOG/queue.md"
+  [ -f "$queue" ] || return 1
+
+  # active 섹션에서 phase ID 추출 (첫 번째)
+  local active_phase
+  active_phase=$(awk '
+    /<!-- sdd:active:start -->/ { in_a=1; next }
+    /<!-- sdd:active:end -->/ { in_a=0; exit }
+    in_a {
+      if (match($0, /phase-[0-9]+/)) {
+        print substr($0, RSTART, RLENGTH)
+        exit
+      }
+    }
+  ' "$queue")
+  [ -z "$active_phase" ] && return 1
+
+  local phase_file="$SDD_BACKLOG/${active_phase}.md"
+  [ -f "$phase_file" ] || return 1
+
+  # spec 표 — 총 row 수, non-Merged row 수 카운트
+  local counts total non_merged
+  counts=$(awk -F'|' '
+    /<!-- sdd:specs:start -->/ { in_t=1; next }
+    /<!-- sdd:specs:end -->/ { in_t=0; next }
+    in_t {
+      id = $2; gsub(/[[:space:]]/, "", id); gsub(/`/, "", id)
+      st = $5; gsub(/[[:space:]]/, "", st)
+      if (id != "" && id !~ /^-+$/ && id !~ /^ID$/ && st != "") {
+        total++
+        if (st != "Merged") non_merged++
+      }
+    }
+    END { printf "%d %d", total+0, non_merged+0 }
+  ' "$phase_file")
+  total=$(echo "$counts" | awk '{print $1}')
+  non_merged=$(echo "$counts" | awk '{print $2}')
+
+  if [ "$total" -gt 0 ] && [ "$non_merged" -eq 0 ]; then
+    printf "  ${C_YLW}정합성: %s 의 모든 spec Merged 인데 active — sdd phase done 미실행 의심${C_RST}\n" "$active_phase"
+    return 0
+  fi
+  return 1
+}
+
+# install 부산물: .harness-kit/agent/templates, .harness-kit/hooks, .claude/commands 안 untracked 가
+# sources/ 의 대응본과 동일하면 "keep 안전", 다르면 "정체불명".
+_drift_install() {
+  local untracked
+  untracked=$(git -C "$SDD_ROOT" ls-files --others --exclude-standard 2>/dev/null \
+    | grep -E '^(\.harness-kit/agent/templates/|\.harness-kit/hooks/|\.claude/commands/)' \
+    || true)
+  [ -z "$untracked" ] && return 1
+
+  local safe_cnt=0 unknown_cnt=0
+  local f sources_path
+  while IFS= read -r f; do
+    [ -z "$f" ] && continue
+    # .harness-kit/agent/templates/X.md → sources/templates/X.md
+    # .harness-kit/hooks/X.sh         → sources/hooks/X.sh
+    # .claude/commands/X.md           → sources/commands/X.md
+    case "$f" in
+      .harness-kit/agent/templates/*) sources_path="sources/templates/${f#.harness-kit/agent/templates/}" ;;
+      .harness-kit/hooks/*)           sources_path="sources/hooks/${f#.harness-kit/hooks/}" ;;
+      .claude/commands/*)             sources_path="sources/commands/${f#.claude/commands/}" ;;
+      *)                              sources_path="" ;;
+    esac
+    if [ -n "$sources_path" ] && [ -f "$SDD_ROOT/$sources_path" ] \
+       && diff -q "$SDD_ROOT/$f" "$SDD_ROOT/$sources_path" >/dev/null 2>&1; then
+      safe_cnt=$((safe_cnt + 1))
+    else
+      unknown_cnt=$((unknown_cnt + 1))
+    fi
+  done <<EOF
+$untracked
+EOF
+
+  local total=$((safe_cnt + unknown_cnt))
+  [ "$total" -eq 0 ] && return 1
+
+  printf "  ${C_DIM}install 부산물: %d (sources 동일 %d / 정체불명 %d)${C_RST}\n" \
+    "$total" "$safe_cnt" "$unknown_cnt"
+  return 0
+}
+
+# drift 섹션 통합 출력
+_status_drift() {
+  echo ""
+  echo "🔄 동기화 상태"
+
+  local has_drift=0
+  _drift_remote      && has_drift=1
+  _drift_worktree    && has_drift=1
+  _drift_consistency && has_drift=1
+  _drift_install     && has_drift=1
+
+  if [ "$has_drift" -eq 0 ]; then
+    echo "  ${C_DIM}깔끔${C_RST}"
+  fi
 }
 
 # status 자기 진단: phase.md ↔ git 교차 검증 + state.json 정합성
@@ -267,12 +438,13 @@ compute_next_spec() {
 }
 
 cmd_status() {
-  local brief=0 verbose=0 json=0
+  local brief=0 verbose=0 json=0 no_drift=0
   for a in "$@"; do
     case "$a" in
-      --brief)   brief=1 ;;
-      --verbose) verbose=1 ;;
-      --json)    json=1 ;;
+      --brief)    brief=1; no_drift=1 ;;
+      --verbose)  verbose=1 ;;
+      --json)     json=1; no_drift=1 ;;
+      --no-drift) no_drift=1 ;;
     esac
   done
 
@@ -422,6 +594,11 @@ cmd_status() {
         echo "  ${C_DIM}변경 없음${C_RST}"
       fi
     fi
+  fi
+
+  # 동기화 상태 (drift) — --no-drift 또는 --brief / --json 에서는 생략
+  if [ $no_drift -eq 0 ]; then
+    _status_drift
   fi
 
   # 자기 진단 (brief/json 에서는 생략)
