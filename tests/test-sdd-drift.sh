@@ -52,11 +52,15 @@ run_sdd_status() {
 
 # ─────────────────────────────────────────────────────────
 # T1: 깨끗한 fixture → drift 섹션 "깔끔"
+# (make_fixture 는 install 후 git add 안 한 상태라 install 잔재 다수.
+#  T1 만 add + commit 으로 정리하여 진짜 깔끔 상태 시뮬레이션.)
 # ─────────────────────────────────────────────────────────
 echo ""
 echo "T1: 깨끗한 상태 → drift 섹션 깔끔"
 F1=$(make_fixture)
 FIXTURES_TO_CLEAN+=("$F1")
+git -C "$F1" add -A >/dev/null 2>&1
+git -C "$F1" commit -q -m "snapshot install state" >/dev/null 2>&1
 
 OUT1=$(run_sdd_status "$F1")
 if echo "$OUT1" | grep -q "🔄 동기화 상태"; then
