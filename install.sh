@@ -438,8 +438,16 @@ else
     echo "# harness-kit" >> "$GI"
   fi
 
+  # self-host guard: .harness-kit/ 하위에 git-tracked 파일이 있으면 ignore 라인 추가 건너뜀
+  # (harness-kit 자기 자신에 install 할 때 .harness-kit/ 가 git 추적 대상인 경우)
+  _hk_self_host=0
+  if [ "$HK_GITIGNORE" -eq 1 ] && git -C "$TARGET" ls-files ".harness-kit/" 2>/dev/null | grep -q .; then
+    warn ".harness-kit/ 가 git 추적 중 (self-host 모드) — .gitignore 에 .harness-kit/ 추가 건너뜀"
+    _hk_self_host=1
+  fi
+
   # 4 라인 각각 라인별 ensure
-  _gi_ensure "$_hk_pat"                "$_hk_line"
+  [ "$_hk_self_host" -eq 0 ] && _gi_ensure "$_hk_pat" "$_hk_line"
   _gi_ensure '^\.harness-backup-\*/$'  '.harness-backup-*/'
   _gi_ensure '^\.claude/state/$'       '.claude/state/'
 
