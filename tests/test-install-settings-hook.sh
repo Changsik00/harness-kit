@@ -104,6 +104,21 @@ else
 fi
 
 # ─────────────────────────────────────────────────────────
+# Test 5: 설치 후 ask 섹션에 git push 계열 항목 없음
+# ─────────────────────────────────────────────────────────
+echo ""
+echo "▶ Test 5: 설치 후 permissions.ask 에 git push 없음"
+F5=$(mktemp -d); CLEANUP+=("$F5")
+bash "$ROOT/install.sh" --yes "$F5" >/dev/null 2>&1
+
+ask_push=$(jq '[.permissions.ask[]? | select(test("git push"))] | length' "$F5/.claude/settings.json" 2>/dev/null || echo "0")
+if [ "$ask_push" -eq 0 ]; then
+  ok "Test 5: ask 에 git push 계열 없음"
+else
+  fail "Test 5: ask 에 git push 계열 ${ask_push}개 존재"
+fi
+
+# ─────────────────────────────────────────────────────────
 # 결과
 # ─────────────────────────────────────────────────────────
 echo ""
