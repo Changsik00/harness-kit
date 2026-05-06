@@ -180,6 +180,31 @@ fi
 echo ""
 
 # ──────────────────────────────────────────────
+# Scenario H: self-host guard — .harness-kit/ 가 git-tracked 이면 .gitignore 에 추가 안 함
+# ──────────────────────────────────────────────
+echo "▶ Scenario H: self-host guard (git-tracked .harness-kit/ 존재 시 .gitignore 추가 안 함)"
+FIX_H="$(make_fixture)"
+trap 'rm -rf "$FIX_A" "$FIX_B" "$FIX_C" "$FIX_H"' EXIT
+
+# .harness-kit/ 하위에 파일을 직접 만들고 git-track 해서 self-host 상태 시뮬레이션
+mkdir -p "$FIX_H/.harness-kit"
+echo "tracked" > "$FIX_H/.harness-kit/installed.json"
+git -C "$FIX_H" add ".harness-kit/installed.json"
+git -C "$FIX_H" commit -q -m "chore: track .harness-kit"
+
+# --yes (기본 gitignore=true) 로 install — self-host guard 가 동작해야 함
+bash "$INSTALL" --yes "$FIX_H" > /dev/null 2>&1
+
+check
+if ! grep -q '^\.harness-kit/$' "$FIX_H/.gitignore" 2>/dev/null; then
+  pass "H-1: self-host 감지 → .gitignore 에 '.harness-kit/' 추가 안 함"
+else
+  fail "H-1: self-host 감지 실패 → .gitignore 에 '.harness-kit/' 추가됨"
+fi
+
+echo ""
+
+# ──────────────────────────────────────────────
 # 결과
 # ──────────────────────────────────────────────
 echo "═══════════════════════════════════════════"
