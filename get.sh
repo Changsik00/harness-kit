@@ -8,11 +8,13 @@ set -euo pipefail
 #   bash <(curl -fsSL ...) /path/to/project
 #   bash <(curl -fsSL ...) --version 0.6.3 [/path/to/project]
 #   bash <(curl -fsSL ...) --update [/path/to/project]
+#   bash <(curl -fsSL ...) --uninstall [/path/to/project]
 #   bash <(curl -fsSL ...) --yes
 
 REPO="Changsik00/harness-kit"
 VERSION=""
 UPDATE=0
+UNINSTALL=0
 YES_FLAG=""
 TARGET_DIR="$(pwd)"
 
@@ -24,6 +26,7 @@ Usage:
 Options:
   --version <ver>   특정 버전 설치 (git tag 기준, 예: 0.6.3)
   --update          기존 설치 업데이트
+  --uninstall       제거 (backlog/, specs/, archive/ 산출물은 보존)
   --yes             모든 프롬프트 자동 수락
   --help            이 도움말 출력
 
@@ -39,18 +42,22 @@ Examples:
 
   # 업데이트
   bash <(curl -fsSL ...) --update ~/my-project
+
+  # 제거
+  bash <(curl -fsSL ...) --uninstall ~/my-project
 EOF
 }
 
 # 인자 파싱
 while [ $# -gt 0 ]; do
   case "$1" in
-    --help)    usage; exit 0 ;;
-    --version) VERSION="$2"; shift 2 ;;
-    --update)  UPDATE=1; shift ;;
-    --yes)     YES_FLAG="--yes"; shift ;;
-    -*)        printf "알 수 없는 옵션: %s\n" "$1" >&2; usage >&2; exit 1 ;;
-    *)         TARGET_DIR="$1"; shift ;;
+    --help)      usage; exit 0 ;;
+    --version)   VERSION="$2"; shift 2 ;;
+    --update)    UPDATE=1; shift ;;
+    --uninstall) UNINSTALL=1; shift ;;
+    --yes)       YES_FLAG="--yes"; shift ;;
+    -*)          printf "알 수 없는 옵션: %s\n" "$1" >&2; usage >&2; exit 1 ;;
+    *)           TARGET_DIR="$1"; shift ;;
   esac
 done
 
@@ -81,8 +88,11 @@ if [ -z "$KIT_DIR" ]; then
   exit 1
 fi
 
-# install 또는 update 실행
-if [ "$UPDATE" -eq 1 ]; then
+# install / update / uninstall 실행
+if [ "$UNINSTALL" -eq 1 ]; then
+  printf "[get] 제거 실행: %s\n" "$TARGET_DIR"
+  bash "$KIT_DIR/uninstall.sh" "$TARGET_DIR" $YES_FLAG
+elif [ "$UPDATE" -eq 1 ]; then
   printf "[get] 업데이트 실행: %s\n" "$TARGET_DIR"
   bash "$KIT_DIR/update.sh" "$TARGET_DIR" $YES_FLAG
 else

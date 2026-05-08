@@ -92,11 +92,13 @@ bash <(curl -fsSL https://raw.githubusercontent.com/Changsik00/harness-kit/main/
 bash <(curl -fsSL https://raw.githubusercontent.com/Changsik00/harness-kit/main/get.sh) --update ~/Project/my-app
 
 # 제거 — backlog/, specs/, archive/ 산출물은 보존
-bash ~/Project/my-app/.harness-kit/bin/uninstall.sh ~/Project/my-app
+bash <(curl -fsSL https://raw.githubusercontent.com/Changsik00/harness-kit/main/get.sh) --uninstall ~/Project/my-app
+
+# 모든 프롬프트 자동 수락 (CI / 자동화 환경)
+bash <(curl -fsSL https://raw.githubusercontent.com/Changsik00/harness-kit/main/get.sh) --yes ~/Project/my-app
 ```
 
-<details>
-<summary>개발자용 — 로컬 clone으로 설치</summary>
+### 개발자용 — 로컬 clone으로 설치
 
 ```bash
 git clone https://github.com/Changsik00/harness-kit.git
@@ -114,8 +116,6 @@ bash install.sh --export-format=copilot ~/Project/my-app
 # 미리 보기 (변경 없음)
 bash install.sh --dry-run ~/Project/my-app
 ```
-
-</details>
 
 ---
 
