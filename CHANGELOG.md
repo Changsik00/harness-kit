@@ -5,6 +5,18 @@ harness-kit의 주요 변경 사항을 버전별로 정리합니다.
 
 ---
 
+## [0.6.3] — 2026-05-09
+
+### Fixed
+- **`install.sh` self-host gitignore 중복 추가** — `.harness-kit/`이 git 추적 중(self-host 모드)일 때 `.gitignore`에 `.harness-kit/` 항목을 추가하지 않도록 가드 추가 (→ spec-x-install-fragment-fixes)
+- **`settings.json.fragment` permissions ask 목록에 `git push` 잔존** — 불필요한 `git push` 권한 요청 제거 (→ spec-x-install-fragment-fixes)
+
+### Tests
+- `tests/test-gitignore-config.sh` — self-host 모드 gitignore 가드 시나리오
+- `tests/test-install-settings-hook.sh` — settings.json ask 목록 검증
+
+---
+
 ## [0.6.2] — 2026-04-28
 
 ### Added
