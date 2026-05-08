@@ -79,27 +79,43 @@ brew install bash jq git    # macOS 기본 bash는 3.2 — 4.0+ 필요
 ## 📦 설치
 
 ```bash
-# 설치
-~/path/to/harness-kit/install.sh ~/Project/my-app
+# 현재 디렉토리에 설치 (git clone 불필요)
+bash <(curl -fsSL https://raw.githubusercontent.com/Changsik00/harness-kit/main/get.sh)
 
-# Cursor IDE용 .cursorrules 함께 생성
-~/path/to/harness-kit/install.sh --export-format=cursor ~/Project/my-app
+# 특정 디렉토리에 설치
+bash <(curl -fsSL https://raw.githubusercontent.com/Changsik00/harness-kit/main/get.sh) ~/Project/my-app
 
-# GitHub Copilot용 .github/copilot-instructions.md 함께 생성
-~/path/to/harness-kit/install.sh --export-format=copilot ~/Project/my-app
+# 특정 버전 설치
+bash <(curl -fsSL https://raw.githubusercontent.com/Changsik00/harness-kit/main/get.sh) --version 0.6.3 ~/Project/my-app
 
-# 미리 보기 (변경 없음)
-~/path/to/harness-kit/install.sh --dry-run ~/Project/my-app
-
-# 점검 — 의존성, 구조, 권한, hook, state 한 번에 확인
-~/path/to/harness-kit/doctor.sh ~/Project/my-app
-
-# 갱신 — state + 사용자 설정 보존
-~/path/to/harness-kit/update.sh ~/Project/my-app
+# 갱신
+bash <(curl -fsSL https://raw.githubusercontent.com/Changsik00/harness-kit/main/get.sh) --update ~/Project/my-app
 
 # 제거 — backlog/, specs/, archive/ 산출물은 보존
-~/path/to/harness-kit/uninstall.sh ~/Project/my-app
+bash ~/Project/my-app/.harness-kit/bin/uninstall.sh ~/Project/my-app
 ```
+
+<details>
+<summary>개발자용 — 로컬 clone으로 설치</summary>
+
+```bash
+git clone https://github.com/Changsik00/harness-kit.git
+cd harness-kit
+
+# 설치
+bash install.sh ~/Project/my-app
+
+# Cursor IDE용 .cursorrules 함께 생성
+bash install.sh --export-format=cursor ~/Project/my-app
+
+# GitHub Copilot용 .github/copilot-instructions.md 함께 생성
+bash install.sh --export-format=copilot ~/Project/my-app
+
+# 미리 보기 (변경 없음)
+bash install.sh --dry-run ~/Project/my-app
+```
+
+</details>
 
 ---
 
