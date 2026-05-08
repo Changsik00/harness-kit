@@ -75,11 +75,11 @@ else
   fail "--yes 플래그 전달 없음"
 fi
 
-# Check 10: GitHub URL 패턴 포함
-if grep -q "github.com/Changsik00/harness-kit" "$GET_SH"; then
-  ok "GitHub URL 패턴 존재"
+# Check 10: GitHub repo 참조 포함
+if grep -q "Changsik00/harness-kit" "$GET_SH"; then
+  ok "GitHub repo 참조 존재"
 else
-  fail "GitHub URL 패턴 없음"
+  fail "GitHub repo 참조 없음"
 fi
 
 printf "\n=== 결과: PASS=%d FAIL=%d ===\n" "$PASS" "$FAIL"
