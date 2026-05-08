@@ -79,23 +79,14 @@ brew install bash jq git    # macOS 기본 bash는 3.2 — 4.0+ 필요
 ## 📦 설치
 
 ```bash
-# 현재 디렉토리에 설치 (git clone 불필요)
-bash <(curl -fsSL https://raw.githubusercontent.com/Changsik00/harness-kit/main/get.sh)
+HK="https://raw.githubusercontent.com/Changsik00/harness-kit/main/get.sh"
 
-# 특정 디렉토리에 설치
-bash <(curl -fsSL https://raw.githubusercontent.com/Changsik00/harness-kit/main/get.sh) ~/Project/my-app
-
-# 특정 버전 설치
-bash <(curl -fsSL https://raw.githubusercontent.com/Changsik00/harness-kit/main/get.sh) --version 0.6.3 ~/Project/my-app
-
-# 갱신
-bash <(curl -fsSL https://raw.githubusercontent.com/Changsik00/harness-kit/main/get.sh) --update ~/Project/my-app
-
-# 제거 — backlog/, specs/, archive/ 산출물은 보존
-bash <(curl -fsSL https://raw.githubusercontent.com/Changsik00/harness-kit/main/get.sh) --uninstall ~/Project/my-app
-
-# 모든 프롬프트 자동 수락 (CI / 자동화 환경)
-bash <(curl -fsSL https://raw.githubusercontent.com/Changsik00/harness-kit/main/get.sh) --yes ~/Project/my-app
+bash <(curl -fsSL $HK)                           # 현재 디렉토리 설치
+bash <(curl -fsSL $HK) ~/Project/my-app          # 지정 디렉토리 설치
+bash <(curl -fsSL $HK) --version 0.6.3 ~/my-app  # 특정 버전 설치
+bash <(curl -fsSL $HK) --update ~/my-app          # 갱신
+bash <(curl -fsSL $HK) --uninstall ~/my-app       # 제거 (산출물 보존)
+bash <(curl -fsSL $HK) --yes ~/my-app             # 자동 수락 (CI 환경)
 ```
 
 ### 개발자용 — 로컬 clone으로 설치
