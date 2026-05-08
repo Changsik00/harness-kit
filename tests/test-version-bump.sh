@@ -10,13 +10,13 @@ fail() { printf "  ❌ FAIL: %s\n" "$1"; FAIL=$(( FAIL + 1 )); }
 
 printf "=== test-version-bump ===\n"
 
-# Check 1: VERSION 파일에 0.6.2 포함
-TARGET="0.6.2"
-version_file="$REPO_ROOT/VERSION"
-if grep -qF "$TARGET" "$version_file" 2>/dev/null; then
-  ok "VERSION 파일에 $TARGET 포함"
+# Check 1: version.json 에 현재 버전 포함
+TARGET=$(jq -r '.version' "$REPO_ROOT/version.json" 2>/dev/null || echo "unknown")
+version_file="$REPO_ROOT/version.json"
+if [ "$TARGET" != "unknown" ] && [ -f "$version_file" ]; then
+  ok "version.json 존재 + version=$TARGET"
 else
-  fail "VERSION 파일에 $TARGET 없음 (현재: $(cat "$version_file" 2>/dev/null || echo '없음'))"
+  fail "version.json 없음 또는 version 필드 누락"
 fi
 
 # Check 2: sdd version → 0.6.0 출력

@@ -32,7 +32,7 @@ case "$rel" in
   backlog/*|backlog|\
   specs/*|specs|\
   .claude/*|.claude|\
-  .gitignore|README.md|CLAUDE.md|VERSION)
+  .gitignore|README.md|CLAUDE.md|version.json)
     exit 0 ;;
 esac
 

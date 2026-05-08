@@ -109,19 +109,19 @@ else
   pass "(jq 없음 — pa/lt 검증 스킵)"
 fi
 
-# 신규: kitVersion 동기화 검증 (state.json == installed.json == VERSION)
+# 신규: kitVersion 동기화 검증 (state.json == installed.json == version.json)
 check
 if command -v jq >/dev/null 2>&1 \
    && [ -f "$FIXTURE/.claude/state/current.json" ] \
    && [ -f "$FIXTURE/.harness-kit/installed.json" ] \
-   && [ -f "$ROOT/VERSION" ]; then
+   && [ -f "$ROOT/version.json" ]; then
   state_ver=$(jq -r '.kitVersion // empty' "$FIXTURE/.claude/state/current.json")
   inst_ver=$(jq -r '.kitVersion // empty' "$FIXTURE/.harness-kit/installed.json")
-  file_ver=$(cat "$ROOT/VERSION" | tr -d '[:space:]')
+  file_ver=$(jq -r '.version' "$ROOT/version.json")
   if [ -n "$state_ver" ] && [ "$state_ver" = "$inst_ver" ] && [ "$state_ver" = "$file_ver" ]; then
-    pass "kitVersion 동기화: state=$state_ver installed=$inst_ver VERSION=$file_ver"
+    pass "kitVersion 동기화: state=$state_ver installed=$inst_ver version.json=$file_ver"
   else
-    fail "kitVersion 불일치: state=$state_ver installed=$inst_ver VERSION=$file_ver"
+    fail "kitVersion 불일치: state=$state_ver installed=$inst_ver version.json=$file_ver"
   fi
 else
   pass "(파일 누락 — kitVersion 검증 스킵)"

@@ -49,7 +49,7 @@ INSTALLED_JSON="$TARGET/.harness-kit/installed.json"
 
 # ── 버전 / prefix 읽기 (uninstall 전에) ──────────────────────
 PREV_VER=$(jq -r '.kitVersion // "unknown"' "$INSTALLED_JSON")
-NEW_VER=$(cat "$KIT_DIR/VERSION")
+NEW_VER=$(jq -r '.version' "$KIT_DIR/version.json")
 
 HK_PREFIX=""
 HK_GITIGNORE_ARG=""

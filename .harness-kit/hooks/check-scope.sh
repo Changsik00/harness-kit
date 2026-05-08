@@ -22,7 +22,7 @@ esac
 # 안전 경로는 항상 허용 (거버넌스, 산출물, 설정 등)
 case "$rel" in
   .harness-kit/*|docs/*|backlog/*|specs/*|.claude/*|\
-  .gitignore|README.md|CLAUDE.md|VERSION|\
+  .gitignore|README.md|CLAUDE.md|version.json|\
   *.md)
     exit 0 ;;
 esac

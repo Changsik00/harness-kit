@@ -56,7 +56,7 @@ s1_after=$(jq -c '{phase, spec, branch, baseBranch, planAccepted, lastTestPass}'
   || fail "S1: 필드 손상 — before=$s1_before after=$s1_after"
 
 s1_kit_ver=$(jq -r '.kitVersion' "$F1/.claude/state/current.json")
-[ "$s1_kit_ver" = "$(cat "$ROOT/VERSION")" ] \
+[ "$s1_kit_ver" = "$(jq -r '.version' "$ROOT/version.json")" ] \
   && ok "S1: kitVersion 갱신 ($s1_kit_ver)" \
   || fail "S1: kitVersion=$s1_kit_ver"
 
@@ -220,7 +220,7 @@ s6_kit_ver=$(jq -r '.kitVersion' "$F6/.claude/state/current.json")
   && ok "S6: 다른 신규 필드 _testNumber 보존" \
   || fail "S6: _testNumber 손실"
 
-[ "$s6_kit_ver" = "$(cat "$ROOT/VERSION")" ] \
+[ "$s6_kit_ver" = "$(jq -r '.version' "$ROOT/version.json")" ] \
   && ok "S6: install-managed kitVersion 갱신" \
   || fail "S6: kitVersion 미갱신"
 
