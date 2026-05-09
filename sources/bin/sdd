@@ -1757,8 +1757,7 @@ cmd_archive() {
     git -C "$SDD_ROOT" mv "$f" "$SDD_ROOT/archive/backlog/"
   done
 
-  # Commit
-  git -C "$SDD_ROOT" add -A
+  # Commit (git mv 가 이미 rename 을 stage 했음 — 추가 add 없이 commit)
   local commit_msg="chore: archive ${spec_count} spec dirs + ${backlog_count} backlog files"
   if [ "$specx_count" -gt 0 ]; then
     commit_msg="${commit_msg} + ${specx_count} spec-x dirs"
