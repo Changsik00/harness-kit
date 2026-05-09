@@ -149,29 +149,42 @@ echo ""
 
 # ========== 6. Hook 권한 ==========
 echo "[6/7] Hook 권한"
+printf "  %-38s  %s\n" "항목" "상태"
+printf "  %-38s  %s\n" "──────────────────────────────────────" "──────"
+
 if [ -d "$TARGET/.harness-kit/hooks" ]; then
   hook_count=$(find "$TARGET/.harness-kit/hooks" -maxdepth 1 -name '*.sh' 2>/dev/null | wc -l | tr -d ' ')
   if [ "$hook_count" -eq 0 ]; then
-    check_warn "hook 스크립트 없음 (--no-hooks 설치 또는 hooks 미완성)"
+    printf "  %-38s  " ".harness-kit/hooks/*.sh"
+    printf "%s\n" "${C_YLW}⚠ 없음 (--no-hooks 설치)${C_RST}"
+    WARN=$((WARN+1))
   else
     for f in "$TARGET/.harness-kit/hooks"/*.sh; do
+      name="$(basename "$f")"
+      printf "  %-38s  " "$name"
       if [ -x "$f" ]; then
-        check_pass "$(basename "$f") (executable)"
+        printf "%s\n" "${C_GRN}✓${C_RST}"
+        PASS=$((PASS+1))
       else
-        check_fail "$(basename "$f") 실행 권한 없음 (chmod +x 필요)"
+        printf "%s\n" "${C_RED}✗ 실행권한 없음 (chmod +x 필요)${C_RST}"
+        FAIL=$((FAIL+1))
       fi
     done
   fi
 else
-  check_warn ".harness-kit/hooks/ 없음"
+  printf "  %-38s  " ".harness-kit/hooks/"
+  printf "%s\n" "${C_YLW}⚠ 없음${C_RST}"
+  WARN=$((WARN+1))
 fi
 
-# git pre-commit hook 설치 여부
 if [ -d "$TARGET/.git" ]; then
+  printf "  %-38s  " ".git/hooks/pre-commit"
   if [ -f "$TARGET/.git/hooks/pre-commit" ] && grep -q "harness-kit:start" "$TARGET/.git/hooks/pre-commit" 2>/dev/null; then
-    check_pass ".git/hooks/pre-commit 설치됨 (harness 블록 확인)"
+    printf "%s\n" "${C_GRN}✓ 설치됨${C_RST}"
+    PASS=$((PASS+1))
   else
-    check_warn ".git/hooks/pre-commit 미설치 — Bash 우회 안전망 없음 (재설치: bash install.sh .)"
+    printf "%s\n" "${C_YLW}⚠ 미설치 (재설치: bash install.sh .)${C_RST}"
+    WARN=$((WARN+1))
   fi
 fi
 echo ""
