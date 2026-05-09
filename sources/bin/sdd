@@ -727,11 +727,11 @@ phase_new() {
     state_set baseBranch "null"
   fi
 
-  ok "생성 완료: $file"
+  ok "생성 완료: ${file#$SDD_ROOT/}"
   ok "active phase 설정: $id"
   echo ""
   echo "다음 단계:"
-  echo "  1. ${C_CYN}$file${C_RST} 의 SPEC 표 + 시나리오 채우기"
+  echo "  1. ${C_CYN}${file#$SDD_ROOT/}${C_RST} 의 SPEC 표 + 시나리오 채우기"
   echo "  2. ${C_CYN}sdd spec new <slug>${C_RST} 로 첫 spec 시작"
 }
 
@@ -927,7 +927,7 @@ phase_show() {
   local lines
   lines=$(wc -l < "$file" | tr -d ' ')
   echo "${C_BLD}$id${C_RST}  ($lines lines)"
-  echo "  경로: $file"
+  echo "  경로: ${file#$SDD_ROOT/}"
   [ $archived -eq 1 ] && echo "  ${C_YLW}⚠ archived${C_RST}"
   echo "  Specs (실제 디렉토리):"
   local s
@@ -1048,14 +1048,14 @@ spec_new() {
   state_set planAccepted "false"
   queue_set_active_progress
 
-  ok "생성 완료: $dir"
+  ok "생성 완료: ${dir#$SDD_ROOT/}"
   ok "active spec 설정: $id"
-  ok "phase 파일 spec 표 자동 갱신: $phase_file"
+  ok "phase 파일 spec 표 자동 갱신: ${phase_file#$SDD_ROOT/}"
   echo ""
   echo "다음 단계:"
-  echo "  1. ${C_CYN}$dir/spec.md${C_RST} — phase-${phase_n}.md 의 ${short_id} 항목을 구체화"
-  echo "  2. ${C_CYN}$dir/plan.md${C_RST} 작성"
-  echo "  3. ${C_CYN}$dir/task.md${C_RST} 작성"
+  echo "  1. ${C_CYN}${dir#$SDD_ROOT/}/spec.md${C_RST} — phase-${phase_n}.md 의 ${short_id} 항목을 구체화"
+  echo "  2. ${C_CYN}${dir#$SDD_ROOT/}/plan.md${C_RST} 작성"
+  echo "  3. ${C_CYN}${dir#$SDD_ROOT/}/task.md${C_RST} 작성"
   echo "  4. 사용자 검토 후 ${C_CYN}sdd plan accept${C_RST}"
   echo "  5. 첫 task: ${C_CYN}git checkout -b $id${C_RST}"
 }
@@ -1120,7 +1120,7 @@ spec_show() {
   fi
   echo "${C_BLD}$id${C_RST}"
   [ $archived -eq 1 ] && echo "  ${C_YLW}⚠ archived${C_RST}"
-  echo "  경로: $dir"
+  echo "  경로: ${dir#$SDD_ROOT/}"
   echo "  파일:"
   for f in spec plan task walkthrough pr_description; do
     if [ -f "$dir/$f.md" ]; then
@@ -1475,12 +1475,12 @@ specx_new() {
     sdd_marker_append "$q" "specx" "- [ ] ${id} — ${slug}"
   fi
 
-  ok "생성 완료: $dir"
+  ok "생성 완료: ${dir#$SDD_ROOT/}"
   echo ""
   echo "다음 단계:"
-  echo "  1. $dir/spec.md — 요구사항 작성"
-  echo "  2. $dir/plan.md — 실행 계획 작성"
-  echo "  3. $dir/task.md — 태스크 작성"
+  echo "  1. ${dir#$SDD_ROOT/}/spec.md — 요구사항 작성"
+  echo "  2. ${dir#$SDD_ROOT/}/plan.md — 실행 계획 작성"
+  echo "  3. ${dir#$SDD_ROOT/}/task.md — 태스크 작성"
   echo "  4. sdd plan accept"
   echo "  5. git checkout -b $id"
 }
