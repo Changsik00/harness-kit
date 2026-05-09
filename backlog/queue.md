@@ -67,6 +67,7 @@
 - [x] spec-x-doctor-hooks-path-fix (완료)
 - [x] spec-x-archive-include-specx (완료)
 - [x] spec-x-archive-clean-commit (완료)
+- [x] spec-x-hook-allow-ff-when-no-spec (완료)
 <!-- sdd:done:end -->
 
 ---
