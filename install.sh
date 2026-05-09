@@ -323,6 +323,7 @@ ${MARKER_END}"
         printf '\n%s\n' "$BLOCK" >> "$GIT_HOOK"
         ok ".git/hooks/pre-commit 에 harness 블록 추가"
       fi
+      chmod +x "$GIT_HOOK"
     else
       printf '#!/usr/bin/env bash\n%s\n' "$BLOCK" > "$GIT_HOOK"
       chmod +x "$GIT_HOOK"
