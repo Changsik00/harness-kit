@@ -5,6 +5,28 @@ harness-kit의 주요 변경 사항을 버전별로 정리합니다.
 
 ---
 
+## [0.7.0] — 2026-05-09
+
+### Added
+- `sdd status` drift 섹션 kit 버전 자동 감지 — `curl` 로 GitHub `version.json` 조회, 새 버전 있으면 알림 표시 (#100)
+- 24시간 캐시 — `installed.json` 에 `lastVersionCheck` + `latestKnownVersion` 기록 (#100)
+- `installed.json` 에 `kitOrigin` 필드 추가 (install 시 kit 저장소 URL 기록) (#100)
+- `/hk-update` 슬래시 커맨드 — 버전 확인 후 `update.sh` 실행 안내 (#100)
+- git pre-commit hook Plan Accept 안전망 — `planAccepted=false` 상태에서 커밋 차단 (#96)
+- `get.sh` curl 한 줄 원격 인스톨러 + `--uninstall` 플래그 (#95)
+- `sdd status` drift 감지 섹션 — 원격 behind/ahead, 워킹트리, 정합성, install 부산물 (#93)
+
+### Fixed
+- pre-commit hook 재설치 시 `chmod +x` 누락 버그 — 기존 hook 파일 경로에서도 실행 권한 항상 적용 (#99)
+- push/PR 확인 UX 단일화 — `constitution §5.7` 신설, push 자동화·PR `[Y/n]` 형식 고정 (#98)
+
+### Changed
+- `sdd` / `doctor.sh` 경로 출력 상대 경로화 — Warp 터미널 클릭 가능 링크 (#97)
+- `doctor.sh` hook 권한 섹션 표 포맷 개선 (#97)
+- `agent.md §8` 출력 형식 규칙 추가 — 경로·이모지·표 형식 정의 (#97)
+
+---
+
 ## [0.6.3] — 2026-05-09
 
 ### Fixed
