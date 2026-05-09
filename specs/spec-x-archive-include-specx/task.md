@@ -66,18 +66,13 @@
 
 ## Task 5: Ship (필수)
 
-> 모든 작업 task 완료 후 `/hk-ship` 절차.
-
-- [ ] 코드 품질 점검 — bash 스크립트이므로 별도 lint 없음. `bash -n sources/bin/sdd` 로 syntax 확인
-- [ ] 전체 테스트 실행 — 본 spec 영향 범위:
-  - `bash tests/test-sdd-dir-archive.sh`
-  - `bash tests/test-sdd-archive-search.sh`
-  - `bash tests/test-sdd-status-cross-check.sh`
-- [ ] **walkthrough.md 작성** (증거 로그 — 메모리 feedback_walkthrough_content 준수: 발견·결정·이슈만, 구현 나열 금지)
-- [ ] **pr_description.md 작성** (템플릿 준수, Claude Code 배지 금지)
+- [x] 코드 품질 점검 — `bash -n sources/bin/sdd` syntax OK
+- [x] 전체 테스트 실행 — 32/32 PASS (dir-archive 14, archive-search 11, status-cross-check 7)
+- [x] **walkthrough.md 작성**
+- [x] **pr_description.md 작성**
 - [ ] **Ship Commit**: `docs(spec-x-archive-include-specx): ship walkthrough and pr description`
 - [ ] **Push**: `git push -u origin spec-x-archive-include-specx`
-- [ ] **PR 생성**: `gh pr create` (메모리 feedback_auto_ship_no_ask — Plan Accept 후 push/PR 자동)
+- [ ] **PR 생성**: `gh pr create`
 - [ ] **사용자 알림**: 푸시 완료 + PR URL 보고
 
 ---
