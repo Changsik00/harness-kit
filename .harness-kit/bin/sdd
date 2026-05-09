@@ -270,12 +270,73 @@ EOF
   return 0
 }
 
+# kit 버전 감지: kitOrigin 에서 raw version.json 을 curl 로 조회 (다운로드 없음)
+# 24시간 캐시: lastVersionCheck + latestKnownVersion 을 installed.json 에 저장
+_drift_kit_version() {
+  local installed_json="$SDD_ROOT/.harness-kit/installed.json"
+  [ -f "$installed_json" ] || return 1
+  [ "${HARNESS_DRIFT_FETCH:-1}" = "0" ] && return 1
+  command -v curl >/dev/null 2>&1 || return 1
+
+  local origin installed_ver
+  origin=$(jq -r '.kitOrigin // empty' "$installed_json" 2>/dev/null || echo "")
+  installed_ver=$(jq -r '.kitVersion // empty' "$installed_json" 2>/dev/null || echo "")
+  [ -z "$origin" ] || [ -z "$installed_ver" ] && return 1
+
+  # github.com 이 아니면 skip
+  echo "$origin" | grep -q "github.com" || return 1
+
+  # SSH/HTTPS → owner/repo 추출
+  local slug
+  slug=$(echo "$origin" | sed 's|git@github.com:||; s|https://github.com/||; s|\.git$||')
+  [ -z "$slug" ] && return 1
+
+  local last_check latest_known cache_valid=0
+  last_check=$(jq -r '.lastVersionCheck // empty' "$installed_json" 2>/dev/null || echo "")
+  latest_known=$(jq -r '.latestKnownVersion // empty' "$installed_json" 2>/dev/null || echo "")
+
+  if [ -n "$last_check" ]; then
+    local now_epoch cache_epoch
+    now_epoch=$(date -u +%s 2>/dev/null || echo "0")
+    cache_epoch=$(date -j -f "%Y-%m-%dT%H:%M:%SZ" "$last_check" +%s 2>/dev/null \
+      || date -d "$last_check" +%s 2>/dev/null || echo "0")
+    [ $((now_epoch - cache_epoch)) -lt 86400 ] && cache_valid=1
+  fi
+
+  local latest
+  if [ "$cache_valid" -eq 1 ] && [ -n "$latest_known" ]; then
+    latest="$latest_known"
+  else
+    local raw_url="https://raw.githubusercontent.com/${slug}/main/version.json"
+    latest=$(curl -sf --max-time 3 "$raw_url" 2>/dev/null \
+      | jq -r '.version // empty' 2>/dev/null || echo "")
+    [ -z "$latest" ] && return 1
+    local now_iso
+    now_iso=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+    local tmp
+    tmp=$(jq --arg ts "$now_iso" --arg v "$latest" \
+      '.lastVersionCheck=$ts | .latestKnownVersion=$v' "$installed_json" 2>/dev/null || echo "")
+    [ -n "$tmp" ] && echo "$tmp" > "$installed_json"
+  fi
+
+  # latest > installed_ver 일 때만 알림 (다운그레이드/개발 브랜치 무시)
+  [ "$latest" = "$installed_ver" ] && return 1
+  local newer
+  newer=$(printf '%s\n%s\n' "$installed_ver" "$latest" | sort -t. -k1,1n -k2,2n -k3,3n | tail -1)
+  [ "$newer" != "$latest" ] && return 1
+
+  printf "  ${C_YLW}kit: %s 사용 가능 (현재 %s) — /hk-update 또는 update.sh${C_RST}\n" \
+    "$latest" "$installed_ver"
+  return 0
+}
+
 # drift 섹션 통합 출력
 _status_drift() {
   echo ""
   echo "🔄 동기화 상태"
 
   local has_drift=0
+  _drift_kit_version && has_drift=1
   _drift_remote      && has_drift=1
   _drift_worktree    && has_drift=1
   _drift_consistency && has_drift=1
