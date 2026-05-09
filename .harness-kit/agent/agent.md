@@ -268,6 +268,37 @@ The Agent MUST immediately **STOP** execution and request re-alignment if:
 - Explicitly state when you are waiting for User input.
 - All chat-facing communication is in Korean.
 
+### 8.1 File Path Format
+
+All file and directory paths in Agent output MUST use paths relative to `$HARNESS_ROOT`.
+
+- Correct: `specs/spec-x-foo/spec.md`, `backlog/phase-01.md`
+- Wrong: `/Users/alice/projects/myapp/specs/spec-x-foo/spec.md`
+
+This applies to: spec/plan/task references, `sdd` command output, `doctor.sh` output, and any inline path mentions in chat.
+
+### 8.2 Emoji Usage
+
+Use the following emoji conventions in `sdd` and `doctor.sh` CLI output:
+
+| Situation | Emoji |
+|---|---|
+| Success / pass | `✓` |
+| Warning (non-blocking) | `⚠` |
+| Failure / error | `✗` |
+| In progress / syncing | `🔄` |
+| Next step / action | `→` |
+| Ship / push | `🚀` |
+| Review / inspect | `🔍` |
+
+Avoid decorative emoji in plain text prose. Emoji in bash output MUST be consistent with the table above.
+
+### 8.3 Table vs List
+
+- Use a markdown **table** when presenting 3 or more items of the same type (hook statuses, file lists, comparison options).
+- Use a **list** (`-` or `1.`) for 2 or fewer items, or when order or hierarchy matters.
+- In bash output, use `printf "  %-38s  %s\n"` column layout for aligned key-value pairs.
+
 ## 9. Research Spec Protocol
 
 ### 9.1 Definition of Done for Research
