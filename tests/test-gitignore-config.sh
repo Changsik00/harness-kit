@@ -202,6 +202,14 @@ else
   fail "H-1: self-host 감지 실패 → .gitignore 에 '.harness-kit/' 추가됨"
 fi
 
+# H-2: self-host 시 '# harness-kit' 헤더도 추가하지 않음 (header alone is cosmetic noise)
+check
+if ! grep -qE '^# harness-kit$' "$FIX_H/.gitignore" 2>/dev/null; then
+  pass "H-2: self-host 감지 → '# harness-kit' 헤더 추가 안 함"
+else
+  fail "H-2: self-host 인데 '# harness-kit' 헤더가 추가됨"
+fi
+
 echo ""
 
 # ──────────────────────────────────────────────

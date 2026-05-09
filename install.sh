@@ -463,18 +463,18 @@ else
     _hk_pat='^!\.harness-kit/$';  _hk_line='!.harness-kit/'
   fi
 
-  # 헤더 — 부재 시 빈 줄 + 헤더
-  if ! grep -qE '^# harness-kit$' "$GI" 2>/dev/null; then
-    [ -s "$GI" ] && echo "" >> "$GI"
-    echo "# harness-kit" >> "$GI"
-  fi
-
   # self-host guard: .harness-kit/ 하위에 git-tracked 파일이 있으면 ignore 라인 추가 건너뜀
   # (harness-kit 자기 자신에 install 할 때 .harness-kit/ 가 git 추적 대상인 경우)
   _hk_self_host=0
   if [ "$HK_GITIGNORE" -eq 1 ] && git -C "$TARGET" ls-files ".harness-kit/" 2>/dev/null | grep -q .; then
     warn ".harness-kit/ 가 git 추적 중 (self-host 모드) — .gitignore 에 .harness-kit/ 추가 건너뜀"
     _hk_self_host=1
+  fi
+
+  # 헤더 — 부재 시 빈 줄 + 헤더 (단, self-host 면 헤더만 추가되는 cosmetic 잡음 방지를 위해 건너뜀)
+  if [ "$_hk_self_host" -eq 0 ] && ! grep -qE '^# harness-kit$' "$GI" 2>/dev/null; then
+    [ -s "$GI" ] && echo "" >> "$GI"
+    echo "# harness-kit" >> "$GI"
   fi
 
   # 4 라인 각각 라인별 ensure
