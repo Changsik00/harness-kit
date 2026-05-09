@@ -1,6 +1,9 @@
 {
   "permissions": {
     "allow": [
+      "Bash(.harness-kit/bin/bb-pr:*)",
+      "Bash(.harness-kit/bin/sdd:*)",
+      "Bash(.harness-kit/hooks/*)",
       "Bash(awk:*)",
       "Bash(bash:*)",
       "Bash(bun:*)",
@@ -14,6 +17,7 @@
       "Bash(date)",
       "Bash(date:*)",
       "Bash(diff:*)",
+      "Bash(doctor.sh:*)",
       "Bash(echo:*)",
       "Bash(env)",
       "Bash(env:*)",
@@ -22,8 +26,8 @@
       "Bash(file:*)",
       "Bash(find:*)",
       "Bash(gh:*)",
-      "Bash(git:*)",
       "Bash(git push:*)",
+      "Bash(git:*)",
       "Bash(grep:*)",
       "Bash(head:*)",
       "Bash(jq:*)",
@@ -40,10 +44,6 @@
       "Bash(pwd)",
       "Bash(rg:*)",
       "Bash(rm:*)",
-      "Bash(.harness-kit/bin/bb-pr:*)",
-      "Bash(.harness-kit/bin/sdd:*)",
-      "Bash(doctor.sh:*)",
-      "Bash(.harness-kit/hooks/*)",
       "Bash(sed:*)",
       "Bash(sh:*)",
       "Bash(sort:*)",
@@ -73,7 +73,9 @@
       "Bash(gh pr merge)",
       "Bash(gh pr merge:*)",
       "Bash(git merge)",
-      "Bash(git merge:*)"
+      "Bash(git merge:*)",
+      "Bash(git push)",
+      "Bash(git push:*)"
     ],
     "deny": [
       "Bash(curl * | bash:*)",
@@ -111,7 +113,6 @@
       "Edit(/tmp/**)",
       "Edit(/usr/**)",
       "Edit(/var/**)",
-      "Edit(~/**)",
       "Write(**/*.key)",
       "Write(**/*.pem)",
       "Write(**/.env)",
@@ -125,8 +126,7 @@
       "Write(/etc/**)",
       "Write(/tmp/**)",
       "Write(/usr/**)",
-      "Write(/var/**)",
-      "Write(~/**)"
+      "Write(/var/**)"
     ]
   },
   "hooks": {
