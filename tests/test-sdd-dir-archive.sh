@@ -220,16 +220,17 @@ else
 fi
 
 # ─────────────────────────────────────────────────────────
-# Check 4: spec-x 디렉토리는 이동되지 않음
+# Check 4: done 섹션 미등록 spec-x 디렉토리는 보존됨
 # ─────────────────────────────────────────────────────────
+# (queue.md done 섹션에 spec-x 항목이 없으면 archive 대상에서 제외 — 안전망)
 echo ""
-echo "Check 4: spec-x 디렉토리는 이동되지 않음"
+echo "Check 4: done 섹션 미등록 spec-x 디렉토리는 보존됨"
 
 F4="$(make_fixture)"
 trap "rm -rf '$F1' '$F2' '$F4'" EXIT
 
 make_queue "$F4" "phase-01" ""
-# phase-01 done, no active phase
+# phase-01 done, no active phase, no spec-x in done section
 
 cat > "$F4/backlog/phase-01.md" <<'EOF'
 # phase-01: test
@@ -243,9 +244,9 @@ git -C "$F4" commit -m "setup" -q
 (cd "$F4" && bash .harness-kit/bin/sdd archive 2>&1) || true
 
 if [ -d "$F4/specs/spec-x-fix-typo" ]; then
-  ok "specs/spec-x-fix-typo/ 유지 (spec-x 보존)"
+  ok "specs/spec-x-fix-typo/ 유지 (done 미등록 spec-x 보존)"
 else
-  fail "specs/spec-x-fix-typo/ 사라짐 (spec-x 가 이동됨)"
+  fail "specs/spec-x-fix-typo/ 사라짐 (done 미등록인데 이동됨)"
 fi
 
 # ─────────────────────────────────────────────────────────
@@ -316,6 +317,81 @@ if echo "$status_out6" | grep -q "sdd archive"; then
   ok "sdd status: 25개 디렉토리 → 'sdd archive' 제안 포함"
 else
   fail "sdd status: 'sdd archive' 제안 없음 — 출력: $status_out6"
+fi
+
+# ─────────────────────────────────────────────────────────
+# Check 7: done 섹션 등록 spec-x 는 archive 됨
+# ─────────────────────────────────────────────────────────
+echo ""
+echo "Check 7: done 섹션 등록 spec-x 는 archive 됨"
+
+F7="$(make_fixture)"
+trap "rm -rf '$F1' '$F2' '$F4' '$F5' '$F6' '$F7'" EXIT
+
+# queue.md 직접 작성 — done 섹션에 spec-x 추가
+cat > "$F7/backlog/queue.md" <<'EOF'
+## ✅ 완료
+<!-- sdd:done:start -->
+| Phase | 제목 | SPECs |
+|-------|------|-------|
+- [x] spec-x-test-slug (완료)
+<!-- sdd:done:end -->
+EOF
+
+make_spec_dir "$F7" "spec-x-test-slug"
+
+git -C "$F7" add -A
+git -C "$F7" commit -m "setup" -q
+
+(cd "$F7" && bash .harness-kit/bin/sdd archive 2>&1) || true
+
+if [ -d "$F7/archive/specs/spec-x-test-slug" ]; then
+  ok "archive/specs/spec-x-test-slug/ 존재 (done 등록 spec-x 이동됨)"
+else
+  fail "archive/specs/spec-x-test-slug/ 없음 (done 등록 spec-x 가 이동되어야 함)"
+fi
+
+if [ ! -d "$F7/specs/spec-x-test-slug" ]; then
+  ok "specs/spec-x-test-slug/ 이동됨 (원본 없음)"
+else
+  fail "specs/spec-x-test-slug/ 아직 존재 (이동되어야 함)"
+fi
+
+# ─────────────────────────────────────────────────────────
+# Check 8: done 섹션 등록 + --dry-run 시 이동 안 됨
+# ─────────────────────────────────────────────────────────
+echo ""
+echo "Check 8: done 섹션 등록 + --dry-run 시 이동 안 됨"
+
+F8="$(make_fixture)"
+trap "rm -rf '$F1' '$F2' '$F4' '$F5' '$F6' '$F7' '$F8'" EXIT
+
+cat > "$F8/backlog/queue.md" <<'EOF'
+## ✅ 완료
+<!-- sdd:done:start -->
+| Phase | 제목 | SPECs |
+|-------|------|-------|
+- [x] spec-x-dryrun-slug (완료)
+<!-- sdd:done:end -->
+EOF
+
+make_spec_dir "$F8" "spec-x-dryrun-slug"
+
+git -C "$F8" add -A
+git -C "$F8" commit -m "setup" -q
+
+dry_out8=$(cd "$F8" && bash .harness-kit/bin/sdd archive --dry-run 2>&1)
+
+if [ -d "$F8/specs/spec-x-dryrun-slug" ]; then
+  ok "--dry-run: spec-x-dryrun-slug 이동되지 않음"
+else
+  fail "--dry-run: spec-x-dryrun-slug 사라짐 (dry-run 인데 이동됨)"
+fi
+
+if echo "$dry_out8" | grep -q "spec-x-dryrun-slug"; then
+  ok "--dry-run 출력: spec-x-dryrun-slug 이동 대상으로 표시됨"
+else
+  fail "--dry-run 출력: spec-x-dryrun-slug 누락 — 출력: $dry_out8"
 fi
 
 # ─────────────────────────────────────────────────────────
