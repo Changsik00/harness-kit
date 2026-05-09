@@ -178,10 +178,10 @@ bash "$ROOT/install.sh" --yes "$REPO10" >/dev/null 2>&1
 rm -f "$REPO10/.git/hooks/pre-commit"
 
 doctor_out=$(bash "$ROOT/doctor.sh" "$REPO10" 2>&1)
-if echo "$doctor_out" | grep -qi "pre-commit"; then
-  ok "Test 10: doctor가 pre-commit 관련 경고 출력"
+if echo "$doctor_out" | grep -qi "pre-commit.*미설치\|미설치.*pre-commit\|git.*hook.*없\|pre-commit.*없"; then
+  ok "Test 10: doctor가 .git/hooks/pre-commit 미설치 경고 출력"
 else
-  fail "Test 10: doctor가 pre-commit 미설치 감지 못함"
+  fail "Test 10: doctor가 .git/hooks/pre-commit 미설치 감지 못함"
 fi
 
 # ─────────────────────────────────────────────────────────
