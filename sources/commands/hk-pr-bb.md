@@ -52,8 +52,8 @@ git push -u origin <current-branch>
 생성할까요? [Y/n]
 ```
 
-긍정/거부 규칙 → constitution §5.2 참조
-- **`--no-confirm`**: 확인 블록 생략 (`bb-pr -y` 플래그와 동일 효과)
+긍정/거부 규칙 → constitution §5.7 참조
+- **`--no-confirm`**: 확인 블록 생략 (`bb-pr -y` 플래그와 동일 효과, hk-ship 경유 시 자동 적용)
 
 ### 4. PR 생성
 

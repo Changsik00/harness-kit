@@ -60,8 +60,8 @@ BODY="$(awk 'BEGIN{found=0} found{print;next} NF{found=1;next}' "$PR_FILE")"
 생성할까요? [Y/n]
 ```
 
-긍정/거부 규칙 → constitution §5.2 참조
-- **`--no-confirm`**: 확인 블록 생략하고 바로 PR 생성
+긍정/거부 규칙 → constitution §5.7 참조
+- **`--no-confirm`**: 확인 블록 생략하고 바로 PR 생성 (hk-ship 경유 시 자동 적용)
 
 ### 5. PR 생성
 

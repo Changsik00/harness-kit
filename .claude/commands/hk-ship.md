@@ -87,7 +87,8 @@ push 실패 시 멈추고 사용자에게 보고.
 
 (사전: `gh auth status` 로 인증 확인. 미인증이면 사용자에게 `gh auth login` 안내 후 멈춤)
 
-`/hk-pr-gh` 슬래시 커맨드의 절차를 따릅니다.
+`/hk-pr-gh --no-confirm` 슬래시 커맨드의 절차를 따릅니다.
+hk-ship 은 Plan Accept 이후 흐름이므로 PR 생성 확인을 생략합니다 (→ constitution §5.7).
 
 > **Phase base branch 모드**: `PR_BASE` 가 `main` 이 아닌 경우 `gh pr create --base $PR_BASE` 를 사용합니다.
 
