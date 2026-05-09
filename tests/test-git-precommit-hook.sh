@@ -185,6 +185,25 @@ else
 fi
 
 # ─────────────────────────────────────────────────────────
+# Test 11: 재설치 후 실행 권한 복구
+# 시나리오: install → chmod 제거(버그 재현) → 재설치 → 권한 복구 확인
+# ─────────────────────────────────────────────────────────
+echo ""
+echo "▶ Test 11: 재설치 후 .git/hooks/pre-commit 실행 권한 복구"
+REPO11="$(_make_repo)"
+bash "$ROOT/install.sh" --yes "$REPO11" >/dev/null 2>&1
+# 버그 재현: 실행 권한 제거
+chmod 600 "$REPO11/.git/hooks/pre-commit"
+# 재설치 (마커 이미 존재 → append 스킵 경로)
+bash "$ROOT/install.sh" --yes "$REPO11" >/dev/null 2>&1
+
+if [ -x "$REPO11/.git/hooks/pre-commit" ]; then
+  ok "Test 11: 재설치 후 실행 권한 복구됨"
+else
+  fail "Test 11: 재설치 후에도 실행 권한 없음 (chmod +x 누락 버그)"
+fi
+
+# ─────────────────────────────────────────────────────────
 # 결과
 # ─────────────────────────────────────────────────────────
 echo ""
