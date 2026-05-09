@@ -88,6 +88,20 @@ if [ -f "$SETTINGS" ] && command -v jq >/dev/null; then
   ok ".claude/settings.json 에서 hooks 제거 (사용자 권한은 보존)"
 fi
 
+# 3b. .git/hooks/pre-commit 에서 harness 블록 제거
+GIT_HOOK="$TARGET/.git/hooks/pre-commit"
+if [ -f "$GIT_HOOK" ] && grep -q "# harness-kit:start" "$GIT_HOOK" 2>/dev/null; then
+  tmp="$(mktemp)"
+  awk '/# harness-kit:start/{skip=1} skip{if(/# harness-kit:end/){skip=0; next} next} {print}' \
+    "$GIT_HOOK" > "$tmp"
+  if [ -s "$tmp" ]; then
+    mv "$tmp" "$GIT_HOOK"
+  else
+    rm -f "$GIT_HOOK" "$tmp"
+  fi
+  ok ".git/hooks/pre-commit 에서 harness 블록 제거"
+fi
+
 # 4. .claude/commands/ — 키트가 설치한 슬래시 커맨드 제거
 # install.sh 가 installed.json.installedCommands 에 명단을 기록 (spec-15-03).
 # .harness-kit/ 는 이미 제거되었으므로 백업 디렉토리에서 installed.json 을 읽는다.
