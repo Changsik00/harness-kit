@@ -1,68 +1,50 @@
 # Walkthrough: spec-x-archive-clean-commit
 
-> 본 문서는 *작업 기록* 입니다. 결정 과정, 사용자 협의, 검증 결과를 미래의 자신과 리뷰어에게 남깁니다.
-> 작업을 진행하는 동안 *지속적으로* 갱신하세요. 마지막에 한 번에 작성하지 마세요.
-
 ## 📌 결정 기록
-
-> 작업 중 이슈가 발생했을 때, 어떤 선택지가 있었고 왜 이 방향을 결정했는지 기록합니다.
 
 | 이슈 | 선택지 | 결정 | 이유 |
 |---|---|---|---|
-| <이슈 1> | A 또는 B | A | <이유> |
+| 수정 방식 | (A) `git add -A` 라인 삭제 / (B) 명시적 path 지정으로 변경 | (A) 삭제 | `git mv` 가 이미 rename 을 stage 하므로 추가 add 가 redundant. 명시적 path 도 가능하나 코드 간결성·유지보수성 면에서 삭제가 우월 |
+| 무관 변경의 정의 | untracked 만 / modified 만 / 둘 다 | 둘 다 | 실제 사고 (`c0010e0`) 가 modified `.claude/settings.json` 을 흡수했으며, 이론적으로 untracked 도 위험 → 둘 다 회귀 케이스로 보호 |
+| README.md 사용 | dummy 파일 vs 기존 README.md | 기존 README.md | 실제 프로젝트엔 항상 tracked 파일이 있으므로 더 현실적 |
 
 ## 💬 사용자 협의
 
-> 사용자와 논의한 내용과 합의 사항을 기록합니다.
-
-- **주제**: <논의 주제>
-  - **사용자 의견**: <사용자가 제시한 방향>
-  - **합의**: <최종 합의 내용>
+- **주제**: 직전 archive 커밋 (`c0010e0`) 이 워킹트리 install drift 흡수한 사고 보고
+  - **사용자 의견**: "1번 진행하자" — fix 우선순위로 수용
+  - **합의**: SDD-x 모드, 슬러그 `archive-clean-commit` 으로 진행
 
 ## 🧪 검증 결과
 
-### 1. 자동화 테스트
+### 단위 테스트
+- **명령**: `bash tests/test-sdd-dir-archive.sh`
+- **결과**: ✅ PASS=18 / FAIL=0 (Check 9 신규 4 assertion 포함)
 
-#### 단위 테스트
-- **명령**: `<프로젝트의 단위 테스트 명령>`
-- **결과**: ✅ Passed (X tests in Y.Y s) / ❌ Failed (자세한 내용 아래)
-- **로그 요약**:
-```text
-(핵심 로그 붙여넣기)
-```
+### 회귀
+- `bash tests/test-sdd-archive-search.sh` → ✅ 11/11 PASS
+- `bash tests/test-sdd-status-cross-check.sh` → ✅ 7/7 PASS
 
-#### 통합 테스트 (Integration Test Required = yes 인 경우)
-- **명령**: `<프로젝트의 통합 테스트 명령>`
-- **결과**: ✅ Passed / ❌ Failed
-- **로그 요약**:
-```text
-(핵심 로그 붙여넣기)
-```
-
-### 2. 수동 검증
-
-> 에이전트가 실행한 단계와 결과를 시간순으로 기록.
-
-1. **Action**: `<실행한 명령 또는 행동>`
-   - **Result**: <관찰된 결과>
+### 수동 검증
+1. **Action**: TDD Red — Check 9 추가 후 테스트 실행
+   - **Result**: PASS=14 / FAIL=4 — `archive_files` 출력에 `unrelated.md`, `README.md` 가 함께 들어가 버그 재현 확인
+2. **Action**: `sources/bin/sdd` 의 `git add -A` 라인 삭제
+   - **Result**: PASS=18 / FAIL=0
+3. **Action**: 도그푸딩 sync (`cp sources/bin/sdd .harness-kit/bin/sdd`)
+   - **Result**: 차이 없음 확인
 
 ## 🔍 발견 사항
 
-<!-- 작업 중 발견한 흥미로운 점, 사이드 이슈, 다음 SPEC 후보 -->
+- **`git mv` 의 자동 staging 특성을 활용하면 추가 `git add` 가 불필요**: 본 사고는 "정리 차원에서 일단 add -A 해두자" 식의 방어적 코드가 오히려 의도치 않은 부작용을 만든 사례. 다른 sdd 명령 (`ship`, `phase done`, `specx done` 등) 도 유사 패턴이 있는지 점검 가치.
+- **회귀 테스트가 archive commit 의 `--name-only` 출력을 직접 검증**: 단순히 워킹트리 상태만 보는 게 아니라 commit 자체의 내용을 검증해야 본 사고를 완전히 잡아낼 수 있음. 향후 git 관련 테스트의 모범 패턴.
 
-- <발견 1>
-- <발견 2>
+## 🚧 이월 항목
 
-## 🚧 이월 항목 (Optional)
-
-> 본 SPEC 범위를 벗어나 다음 작업으로 미룬 항목.
-
-- <항목 1> → `backlog/queue.md` 에 추가됨
+- 다른 sdd 명령의 `git add` 패턴 점검 (`grep -n "git.*add" sources/bin/sdd`) — 별개 spec-x 후보.
 
 ## 📅 메타
 
 | 항목 | 값 |
 |---|---|
-| **작성자** | Agent + <user> |
-| **작성 기간** | YYYY-MM-DD ~ YYYY-MM-DD |
-| **최종 commit** | `<short hash>` |
+| **작성자** | Agent + dennis |
+| **작성 기간** | 2026-05-09 |
+| **최종 commit** | (Ship 후 갱신) |
