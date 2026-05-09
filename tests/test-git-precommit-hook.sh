@@ -21,10 +21,19 @@ echo " test-git-precommit-hook (spec-x-hook-bypass-fix)"
 echo "═══════════════════════════════════════════════════════"
 
 # ── 헬퍼: harness 상태 파일 주입 ─────────────────────────
+# 사용법: _inject_state <repo> <plan_accepted> [spec]
+#   plan_accepted: "true" | "false"
+#   spec: 활성 spec 이름 (생략 시 누락 — legacy 시뮬레이션)
 _inject_state() {
-  local repo="$1" plan_accepted="$2"
+  local repo="$1" plan_accepted="$2" spec="${3:-__OMIT__}"
   mkdir -p "$repo/.claude/state" "$repo/.harness-kit/hooks"
-  printf '{"planAccepted":%s}' "$plan_accepted" > "$repo/.claude/state/current.json"
+  if [ "$spec" = "__OMIT__" ]; then
+    printf '{"planAccepted":%s}' "$plan_accepted" > "$repo/.claude/state/current.json"
+  elif [ "$spec" = "null" ]; then
+    printf '{"planAccepted":%s,"spec":null}' "$plan_accepted" > "$repo/.claude/state/current.json"
+  else
+    printf '{"planAccepted":%s,"spec":"%s"}' "$plan_accepted" "$spec" > "$repo/.claude/state/current.json"
+  fi
   cp "$ROOT/sources/hooks/_lib.sh"          "$repo/.harness-kit/hooks/"
   cp "$ROOT/sources/hooks/check-staged-lint.sh" "$repo/.harness-kit/hooks/"
   cp "$HOOK"                                "$repo/.harness-kit/hooks/pre-commit.sh"
@@ -55,9 +64,9 @@ fi
 # Test 2: planAccepted=false + production 파일 staged → exit 1 (차단)
 # ─────────────────────────────────────────────────────────
 echo ""
-echo "▶ Test 2: planAccepted=false + production 파일 staged → 차단"
+echo "▶ Test 2: planAccepted=false + production 파일 staged → 차단 (활성 spec 가정)"
 REPO2="$(_make_repo)"
-_inject_state "$REPO2" "false"
+_inject_state "$REPO2" "false" "spec-x-active"
 
 echo "echo hello" > "$REPO2/src.sh"
 git -C "$REPO2" add src.sh
@@ -201,6 +210,40 @@ if [ -x "$REPO11/.git/hooks/pre-commit" ]; then
   ok "Test 11: 재설치 후 실행 권한 복구됨"
 else
   fail "Test 11: 재설치 후에도 실행 권한 없음 (chmod +x 누락 버그)"
+fi
+
+# ─────────────────────────────────────────────────────────
+# Test 12: spec=null + planAccepted=false + production → 통과 (FF / 유지보수)
+# ─────────────────────────────────────────────────────────
+echo ""
+echo "▶ Test 12: spec=null + planAccepted=false + production 파일 staged → 통과"
+REPO12="$(_make_repo)"
+_inject_state "$REPO12" "false" "null"
+
+echo "echo idle" > "$REPO12/maint.sh"
+git -C "$REPO12" add maint.sh
+
+if HARNESS_ROOT="$REPO12" bash "$REPO12/.harness-kit/hooks/pre-commit.sh" 2>/dev/null; then
+  ok "Test 12: spec=null → 통과 (FF/유지보수 commit 허용)"
+else
+  fail "Test 12: spec=null인데 차단됨 (FF 가 막힘)"
+fi
+
+# ─────────────────────────────────────────────────────────
+# Test 13: spec 필드 누락 (legacy state) + planAccepted=false + production → 통과
+# ─────────────────────────────────────────────────────────
+echo ""
+echo "▶ Test 13: spec 필드 누락 + planAccepted=false + production 파일 staged → 통과"
+REPO13="$(_make_repo)"
+_inject_state "$REPO13" "false"   # 3번째 인자 생략 → spec 필드 누락
+
+echo "echo legacy" > "$REPO13/legacy.sh"
+git -C "$REPO13" add legacy.sh
+
+if HARNESS_ROOT="$REPO13" bash "$REPO13/.harness-kit/hooks/pre-commit.sh" 2>/dev/null; then
+  ok "Test 13: spec 필드 누락 → 통과 (legacy state 호환)"
+else
+  fail "Test 13: spec 필드 누락인데 차단됨"
 fi
 
 # ─────────────────────────────────────────────────────────

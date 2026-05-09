@@ -25,6 +25,12 @@ STATE_FILE="$HARNESS_ROOT/.claude/state/current.json"
 plan_accepted="$(jq -r '.planAccepted // false' "$STATE_FILE" 2>/dev/null || echo "false")"
 [ "$plan_accepted" = "true" ] && exit 0
 
+# 활성 SPEC 없음 (FF / 유지보수 / 휴지) → 통과
+# spec 필드가 null 또는 누락이면 활성 SPEC 없는 상태로 간주
+active_spec="$(jq -r '.spec // empty' "$STATE_FILE" 2>/dev/null || echo "")"
+[ "$active_spec" = "null" ] && active_spec=""
+[ -z "$active_spec" ] && exit 0
+
 # Plan Accept 전 — staged 파일 중 whitelist 외 파일 있으면 차단
 blocked=0
 while IFS= read -r f; do
