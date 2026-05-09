@@ -165,6 +165,15 @@ if [ -d "$TARGET/.harness-kit/hooks" ]; then
 else
   check_warn ".harness-kit/hooks/ 없음"
 fi
+
+# git pre-commit hook 설치 여부
+if [ -d "$TARGET/.git" ]; then
+  if [ -f "$TARGET/.git/hooks/pre-commit" ] && grep -q "harness-kit:start" "$TARGET/.git/hooks/pre-commit" 2>/dev/null; then
+    check_pass ".git/hooks/pre-commit 설치됨 (harness 블록 확인)"
+  else
+    check_warn ".git/hooks/pre-commit 미설치 — Bash 우회 안전망 없음 (재설치: bash install.sh .)"
+  fi
+fi
 echo ""
 
 # ========== 7. 프로젝트 품질 도구 ==========

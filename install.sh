@@ -302,6 +302,36 @@ if [ $NO_HOOKS -eq 0 ] && [ -d "$KIT_DIR/sources/hooks" ]; then
 fi
 
 # ============================================================
+# 11b. git pre-commit hook 설치
+# ============================================================
+if [ $NO_HOOKS -eq 0 ] && [ -d "$TARGET/.git" ] && [ -f "$TARGET/.harness-kit/hooks/pre-commit.sh" ]; then
+  log "git pre-commit hook 설치"
+  GIT_HOOK="$TARGET/.git/hooks/pre-commit"
+  MARKER_START="# harness-kit:start"
+  MARKER_END="# harness-kit:end"
+  BLOCK="${MARKER_START}
+bash \"\$(git rev-parse --show-toplevel)/.harness-kit/hooks/pre-commit.sh\"
+${MARKER_END}"
+
+  if [ $DRY_RUN -eq 1 ]; then
+    echo "${C_DIM}[dry-run]${C_RST} .git/hooks/pre-commit 에 harness 블록 설치"
+  else
+    if [ -f "$GIT_HOOK" ]; then
+      if grep -q "$MARKER_START" "$GIT_HOOK" 2>/dev/null; then
+        ok ".git/hooks/pre-commit harness 블록 이미 존재 (건너뜀)"
+      else
+        printf '\n%s\n' "$BLOCK" >> "$GIT_HOOK"
+        ok ".git/hooks/pre-commit 에 harness 블록 추가"
+      fi
+    else
+      printf '#!/usr/bin/env bash\n%s\n' "$BLOCK" > "$GIT_HOOK"
+      chmod +x "$GIT_HOOK"
+      ok ".git/hooks/pre-commit 생성"
+    fi
+  fi
+fi
+
+# ============================================================
 # 12. bin 복사
 # ============================================================
 if [ -d "$KIT_DIR/sources/bin" ]; then

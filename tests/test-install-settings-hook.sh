@@ -119,6 +119,31 @@ else
 fi
 
 # ─────────────────────────────────────────────────────────
+# Test 6: deny 규칙 — Write/Edit(~/**) 없고 구체적 경로 존재
+# spec-x-hook-bypass-fix: Write(~/**)가 홈 디렉토리 전체를 차단하는 문제 수정
+# ─────────────────────────────────────────────────────────
+echo ""
+echo "▶ Test 6: deny 에 Write/Edit(~/**) 없고 구체적 경로(~/.ssh/**) 존재"
+F6=$(mktemp -d); CLEANUP+=("$F6")
+bash "$ROOT/install.sh" --yes "$F6" >/dev/null 2>&1
+
+broad_write=$(jq '[.permissions.deny[]? | select(. == "Write(~/**)")] | length' "$F6/.claude/settings.json" 2>/dev/null || echo "0")
+broad_edit=$(jq '[.permissions.deny[]? | select(. == "Edit(~/**)")] | length' "$F6/.claude/settings.json" 2>/dev/null || echo "0")
+specific_write=$(jq '[.permissions.deny[]? | select(startswith("Write(~/.ssh"))] | length' "$F6/.claude/settings.json" 2>/dev/null || echo "0")
+
+if [ "$broad_write" -eq 0 ] && [ "$broad_edit" -eq 0 ]; then
+  ok "Test 6a: Write(~/**) 및 Edit(~/**) deny 없음"
+else
+  fail "Test 6a: 과도한 deny 규칙 존재 (Write(~/**)=$broad_write, Edit(~/**)=$broad_edit)"
+fi
+
+if [ "$specific_write" -gt 0 ]; then
+  ok "Test 6b: 구체적 경로 Write(~/.ssh/**) deny 존재"
+else
+  fail "Test 6b: 구체적 경로 Write(~/.ssh/**) deny 없음"
+fi
+
+# ─────────────────────────────────────────────────────────
 # 결과
 # ─────────────────────────────────────────────────────────
 echo ""
