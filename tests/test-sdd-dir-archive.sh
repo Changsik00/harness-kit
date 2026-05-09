@@ -395,6 +395,72 @@ else
 fi
 
 # ─────────────────────────────────────────────────────────
+# Check 9: archive commit 은 무관한 워킹트리 변경을 흡수하지 않음
+# ─────────────────────────────────────────────────────────
+echo ""
+echo "Check 9: archive commit 은 무관한 워킹트리 변경을 흡수하지 않음"
+
+F9="$(make_fixture)"
+trap "rm -rf '$F1' '$F2' '$F4' '$F5' '$F6' '$F7' '$F8' '$F9'" EXIT
+
+make_queue "$F9" "phase-01" ""
+
+cat > "$F9/backlog/phase-01.md" <<'EOF'
+# phase-01: test
+EOF
+make_spec_dir "$F9" "spec-01-001-test"
+
+# 초기 README 추가하여 setup commit 에 포함
+cat > "$F9/README.md" <<'EOF'
+initial readme
+EOF
+
+git -C "$F9" add -A
+git -C "$F9" commit -m "setup" -q
+
+# 무관한 워킹트리 변경 2종 추가 (commit 안 함)
+cat > "$F9/unrelated.md" <<'EOF'
+unrelated untracked file
+EOF
+cat > "$F9/README.md" <<'EOF'
+modified readme content
+EOF
+
+# archive 실행
+(cd "$F9" && bash .harness-kit/bin/sdd archive 2>&1) >/dev/null || true
+
+# archive commit 의 변경 파일 목록
+archive_files=$(git -C "$F9" show --name-only --pretty="format:" HEAD | grep -v '^$')
+
+# 검증 1: archive commit 에 unrelated.md 가 포함되지 않음
+if echo "$archive_files" | grep -q "^unrelated.md$"; then
+  fail "archive commit 이 unrelated.md (untracked) 를 흡수함 — 변경 파일: $archive_files"
+else
+  ok "archive commit 에 unrelated.md 미포함"
+fi
+
+# 검증 2: archive commit 에 README.md 변경이 포함되지 않음
+if echo "$archive_files" | grep -q "^README.md$"; then
+  fail "archive commit 이 README.md (modified) 를 흡수함 — 변경 파일: $archive_files"
+else
+  ok "archive commit 에 README.md 변경 미포함"
+fi
+
+# 검증 3: 워킹트리에 unrelated.md 가 untracked 로 남아있음
+if [ -f "$F9/unrelated.md" ] && git -C "$F9" status --porcelain unrelated.md | grep -q "^??"; then
+  ok "unrelated.md 가 워킹트리에 untracked 로 보존됨"
+else
+  fail "unrelated.md 가 보존되지 않음 — status: $(git -C "$F9" status --porcelain unrelated.md)"
+fi
+
+# 검증 4: 워킹트리에 README.md modification 이 unstaged 로 남아있음
+if git -C "$F9" status --porcelain README.md | grep -q "^.M"; then
+  ok "README.md modification 이 워킹트리에 unstaged 로 보존됨"
+else
+  fail "README.md modification 이 보존되지 않음 — status: $(git -C "$F9" status --porcelain README.md)"
+fi
+
+# ─────────────────────────────────────────────────────────
 # 결과 요약
 # ─────────────────────────────────────────────────────────
 echo ""
