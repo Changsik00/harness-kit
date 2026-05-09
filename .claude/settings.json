@@ -113,6 +113,10 @@
       "Edit(/tmp/**)",
       "Edit(/usr/**)",
       "Edit(/var/**)",
+      "Edit(~/.aws/**)",
+      "Edit(~/.config/gcloud/**)",
+      "Edit(~/.gnupg/**)",
+      "Edit(~/.ssh/**)",
       "Write(**/*.key)",
       "Write(**/*.pem)",
       "Write(**/.env)",
@@ -126,7 +130,11 @@
       "Write(/etc/**)",
       "Write(/tmp/**)",
       "Write(/usr/**)",
-      "Write(/var/**)"
+      "Write(/var/**)",
+      "Write(~/.aws/**)",
+      "Write(~/.config/gcloud/**)",
+      "Write(~/.gnupg/**)",
+      "Write(~/.ssh/**)"
     ]
   },
   "hooks": {
