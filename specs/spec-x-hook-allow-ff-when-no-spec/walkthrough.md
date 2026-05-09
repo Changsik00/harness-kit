@@ -1,68 +1,51 @@
 # Walkthrough: spec-x-hook-allow-ff-when-no-spec
 
-> 본 문서는 *작업 기록* 입니다. 결정 과정, 사용자 협의, 검증 결과를 미래의 자신과 리뷰어에게 남깁니다.
-> 작업을 진행하는 동안 *지속적으로* 갱신하세요. 마지막에 한 번에 작성하지 마세요.
-
 ## 📌 결정 기록
-
-> 작업 중 이슈가 발생했을 때, 어떤 선택지가 있었고 왜 이 방향을 결정했는지 기록합니다.
 
 | 이슈 | 선택지 | 결정 | 이유 |
 |---|---|---|---|
-| <이슈 1> | A 또는 B | A | <이유> |
+| FF 마커 도입 vs state.spec 활용 | 별도 마커 / state.spec 활용 | state.spec | constitution §2.3 의 FF 정의 ("state 변경 안 함") 와 일치. 추가 도입 없이 기존 state 의미로 해결 |
+| spec 필드 누락 (legacy state) 처리 | 차단 / 통과 | 통과 | 새 state 스키마 미보유 환경 호환. 누락 = 활성 SPEC 없음 으로 해석이 자연스러움 |
+| pre-commit + check-plan-accept 동시 수정 | 하나만 / 둘 다 | 둘 다 | 두 hook 정책이 동일 (whitelist + planAccepted) → 일관되게 둘 다 spec 검사 추가 |
 
 ## 💬 사용자 협의
 
-> 사용자와 논의한 내용과 합의 사항을 기록합니다.
-
-- **주제**: <논의 주제>
-  - **사용자 의견**: <사용자가 제시한 방향>
-  - **합의**: <최종 합의 내용>
+- **주제**: 이전 PR (install.sh self-host header fix) commit 시 hook 차단 발견
+  - **사용자 의견**: "FF 는 바로 커밋 할 정도인데.. plan-accept 이 ff 에도 영향을 주고 받나?"
+  - **합의**: hook 의 진짜 의도는 활성 SPEC 작업 중 무계획 commit 차단 → spec=null 시 통과 로직 추가
+- **주제**: 슬러그 결정
+  - **합의**: `hook-allow-ff-when-no-spec`
 
 ## 🧪 검증 결과
 
-### 1. 자동화 테스트
+### 단위 테스트
+- `bash tests/test-git-precommit-hook.sh` → ✅ 13/13 PASS (Test 12, 13 신규)
+- `bash tests/test-hook-modes.sh` → ✅ 12/12 PASS (sync check 포함)
+- `bash tests/test-staged-lint.sh` → ✅ 6/6 PASS
 
-#### 단위 테스트
-- **명령**: `<프로젝트의 단위 테스트 명령>`
-- **결과**: ✅ Passed (X tests in Y.Y s) / ❌ Failed (자세한 내용 아래)
-- **로그 요약**:
-```text
-(핵심 로그 붙여넣기)
-```
-
-#### 통합 테스트 (Integration Test Required = yes 인 경우)
-- **명령**: `<프로젝트의 통합 테스트 명령>`
-- **결과**: ✅ Passed / ❌ Failed
-- **로그 요약**:
-```text
-(핵심 로그 붙여넣기)
-```
-
-### 2. 수동 검증
-
-> 에이전트가 실행한 단계와 결과를 시간순으로 기록.
-
-1. **Action**: `<실행한 명령 또는 행동>`
-   - **Result**: <관찰된 결과>
+### 수동 검증
+1. **Action**: TDD Red — Test 12, 13 추가
+   - **Result**: 11 PASS / 2 FAIL — 예상대로 spec=null 및 spec 누락에서 차단
+2. **Action**: pre-commit.sh + check-plan-accept.sh 에 spec 검사 추가
+   - **Result**: 13/13 PASS
+3. **Action**: 도그푸딩 sync (`cp sources/hooks/* .harness-kit/hooks/`)
+   - **Result**: hook-modes Check 5 (sync 일관성) PASS
 
 ## 🔍 발견 사항
 
-<!-- 작업 중 발견한 흥미로운 점, 사이드 이슈, 다음 SPEC 후보 -->
+- **Test fixture 의 spec 필드 부재**: 기존 `_inject_state` 헬퍼는 `{"planAccepted":...}` 만 주입. spec 필드 부재 시 본 fix 로 통과되어 Test 2 의도 ("planAccepted=false 면 차단") 가 깨질 위험. 헬퍼 시그니처를 `(repo, plan, spec?)` 로 확장하고 Test 2 에 `"spec-x-active"` 명시 → 회귀 안전망 유지.
+- **두 hook 의 정책 중복**: pre-commit.sh (git side) 와 check-plan-accept.sh (Claude PreToolUse side) 가 동일 정책을 별도 구현. 향후 정책 변경 시 양쪽 같이 갱신 필요. 통합 라이브러리 (예: `_lib.sh` 의 `hook_check_plan_gate`) 후보.
+- **"# harness-kit" 헤더 잡음 fix (commit 85d2462) 가 본 PR 의 동기**: 직전 FF 시도 시 hook 차단으로 `--no-verify` 사용 → constitution 와 모순 노출.
 
-- <발견 1>
-- <발견 2>
+## 🚧 이월 항목
 
-## 🚧 이월 항목 (Optional)
-
-> 본 SPEC 범위를 벗어나 다음 작업으로 미룬 항목.
-
-- <항목 1> → `backlog/queue.md` 에 추가됨
+- pre-commit.sh ↔ check-plan-accept.sh 정책 로직 통합 (DRY) → 별개 spec-x 후보.
+- `sdd archive` 의 git add 패턴 점검 (PR #103 walkthrough 이월) → 별개.
 
 ## 📅 메타
 
 | 항목 | 값 |
 |---|---|
-| **작성자** | Agent + <user> |
-| **작성 기간** | YYYY-MM-DD ~ YYYY-MM-DD |
-| **최종 commit** | `<short hash>` |
+| **작성자** | Agent + dennis |
+| **작성 기간** | 2026-05-09 |
+| **최종 commit** | (Ship 후 갱신) |
