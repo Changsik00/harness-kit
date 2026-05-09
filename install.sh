@@ -506,10 +506,14 @@ else
     done
     _cmd_json="${_cmd_json}]"
   fi
+  _kit_origin=$(git -C "$KIT_DIR" remote get-url origin 2>/dev/null || echo "")
   cat > "$INSTALLED_JSON" <<EOF
 {
   "kitVersion": "$KIT_VERSION",
+  "kitOrigin": "$_kit_origin",
   "installedAt": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+  "lastVersionCheck": "",
+  "latestKnownVersion": "",
   "installedCommands": $_cmd_json
 }
 EOF
