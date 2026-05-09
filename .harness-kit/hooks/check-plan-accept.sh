@@ -47,6 +47,12 @@ if [ "$plan_accepted" = "true" ]; then
   exit 0
 fi
 
+# 활성 SPEC 없음 (FF / 유지보수) → 통과
+# spec 필드가 null 또는 누락이면 활성 SPEC 없는 상태로 간주
+active_spec="$(hook_state spec)"
+[ "$active_spec" = "null" ] && active_spec=""
+[ -z "$active_spec" ] && exit 0
+
 hook_violation \
   "Plan Accept 전 production 코드 편집 금지 (constitution §4.3)" \
   "대상 파일: $rel" \
