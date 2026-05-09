@@ -66,6 +66,7 @@
 - [x] spec-x-kit-update-check (완료)
 - [x] spec-x-doctor-hooks-path-fix (완료)
 - [x] spec-x-archive-include-specx (완료)
+- [x] spec-x-archive-clean-commit (완료)
 <!-- sdd:done:end -->
 
 ---
