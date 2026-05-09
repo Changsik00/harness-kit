@@ -100,6 +100,23 @@ else
 fi
 
 # ──────────────────────────────────────────────
+# Check 6: doctor 가 install 된 환경에서 hooks WARN/FAIL 없이 통과
+# _check_hooks 가 .harness-kit/hooks 를 참조하는지 회귀 검증
+# ──────────────────────────────────────────────
+echo ""
+echo "▶ Check 6: install 환경에서 hooks 항목 WARN/FAIL 없음"
+check
+TMPDIR_DOCTOR=$(mktemp -d)
+bash "$ROOT/install.sh" --yes "$TMPDIR_DOCTOR" >/dev/null 2>&1
+doctor_out=$(SDD_ROOT="$TMPDIR_DOCTOR" bash "$SDD" doctor 2>&1 || true)
+if echo "$doctor_out" | grep -q "hooks 디렉토리 없음"; then
+  fail "install 후에도 hooks 디렉토리 없음 WARN 발생 (경로 버그)"
+else
+  pass "hooks 항목 WARN 없음 (경로 올바름)"
+fi
+rm -rf "$TMPDIR_DOCTOR"
+
+# ──────────────────────────────────────────────
 # 결과
 # ──────────────────────────────────────────────
 echo ""

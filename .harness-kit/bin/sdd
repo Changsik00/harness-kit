@@ -1760,7 +1760,7 @@ cmd_doctor() {
   }
 
   _check_hooks() {
-    local hooks_dir="$SDD_ROOT/scripts/harness/hooks"
+    local hooks_dir="$SDD_ROOT/.harness-kit/hooks"
     if [ ! -d "$hooks_dir" ]; then
       _doc_warn "hooks 디렉토리 없음 (install.sh 미실행 또는 경로 상이)"
       return
