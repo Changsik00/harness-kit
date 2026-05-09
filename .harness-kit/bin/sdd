@@ -1621,7 +1621,19 @@ cmd_archive() {
     }
   ' "$queue_file" | sort -t- -k2 -n)
 
-  if [ -z "$done_phases" ]; then
+  # Extract spec-x slugs from done section (Pattern: spec-x-{slug})
+  local done_specx
+  done_specx=$(awk '
+    /<!-- sdd:done:start -->/ { in_d=1; next }
+    /<!-- sdd:done:end -->/ { in_d=0; next }
+    in_d {
+      if (match($0, /spec-x-[a-z0-9][a-z0-9-]*/)) {
+        print substr($0, RSTART, RLENGTH)
+      }
+    }
+  ' "$queue_file" | sort -u)
+
+  if [ -z "$done_phases" ] && [ -z "$done_specx" ]; then
     log "완료된 phase 가 없습니다."
     return 0
   fi
@@ -1633,58 +1645,86 @@ cmd_archive() {
     [ "$active_phase" = "null" ] && active_phase=""
   fi
 
-  # Apply --keep=N: remove the last N done phases from the list
-  local total
-  total=$(echo "$done_phases" | wc -l | tr -d ' ')
-  local to_archive=$((total - keep))
-  [ "$to_archive" -le 0 ] && { log "keep=$keep 로 모든 완료 phase 가 유지됩니다."; return 0; }
-
-  local target_phases
-  target_phases=$(echo "$done_phases" | head -n "$to_archive")
+  # Apply --keep=N to phases only (spec-x are not phase-ordered)
+  local target_phases=""
+  local phases_kept_by_flag=0
+  if [ -n "$done_phases" ]; then
+    local total
+    total=$(echo "$done_phases" | wc -l | tr -d ' ')
+    local to_archive=$((total - keep))
+    if [ "$to_archive" -gt 0 ]; then
+      target_phases=$(echo "$done_phases" | head -n "$to_archive")
+    else
+      phases_kept_by_flag=1
+    fi
+  fi
 
   # Build lists of files/dirs to move
-  local specs_to_move="" backlog_to_move=""
-  local spec_count=0 backlog_count=0
+  local specs_to_move="" backlog_to_move="" specx_to_move=""
+  local spec_count=0 backlog_count=0 specx_count=0
 
-  while IFS= read -r pid; do
-    [ -z "$pid" ] && continue
-    # Skip active phase
-    [ "$pid" = "$active_phase" ] && continue
+  # Phase-bound spec collection
+  if [ -n "$target_phases" ]; then
+    while IFS= read -r pid; do
+      [ -z "$pid" ] && continue
+      # Skip active phase
+      [ "$pid" = "$active_phase" ] && continue
 
-    local pn="${pid#phase-}"
-    # Find spec dirs for this phase
-    for d in "$SDD_SPECS"/spec-${pn}-*; do
-      [ -d "$d" ] || continue
-      # Skip spec-x dirs
-      local base
-      base="$(basename "$d")"
-      case "$base" in spec-x-*) continue ;; esac
-      specs_to_move="${specs_to_move}${d}\n"
-      spec_count=$((spec_count + 1))
-    done
+      local pn="${pid#phase-}"
+      # Find spec dirs for this phase
+      for d in "$SDD_SPECS"/spec-${pn}-*; do
+        [ -d "$d" ] || continue
+        # Skip spec-x dirs (they are handled below via done_specx)
+        local base
+        base="$(basename "$d")"
+        case "$base" in spec-x-*) continue ;; esac
+        specs_to_move="${specs_to_move}${d}\n"
+        spec_count=$((spec_count + 1))
+      done
 
-    # Find backlog file
-    local bf="$SDD_BACKLOG/${pid}.md"
-    if [ -f "$bf" ]; then
-      backlog_to_move="${backlog_to_move}${bf}\n"
-      backlog_count=$((backlog_count + 1))
+      # Find backlog file
+      local bf="$SDD_BACKLOG/${pid}.md"
+      if [ -f "$bf" ]; then
+        backlog_to_move="${backlog_to_move}${bf}\n"
+        backlog_count=$((backlog_count + 1))
+      fi
+    done <<< "$target_phases"
+  fi
+
+  # spec-x collection — all done specx with existing dirs (independent of --keep)
+  if [ -n "$done_specx" ]; then
+    while IFS= read -r sid; do
+      [ -z "$sid" ] && continue
+      local sd="$SDD_SPECS/$sid"
+      if [ -d "$sd" ]; then
+        specx_to_move="${specx_to_move}${sd}\n"
+        specx_count=$((specx_count + 1))
+      fi
+    done <<< "$done_specx"
+  fi
+
+  if [ "$spec_count" -eq 0 ] && [ "$backlog_count" -eq 0 ] && [ "$specx_count" -eq 0 ]; then
+    if [ "$phases_kept_by_flag" -eq 1 ] && [ -z "$done_specx" ]; then
+      log "keep=$keep 로 모든 완료 phase 가 유지됩니다."
+    else
+      log "이동할 항목이 없습니다."
     fi
-  done <<< "$target_phases"
-
-  if [ "$spec_count" -eq 0 ] && [ "$backlog_count" -eq 0 ]; then
-    log "이동할 항목이 없습니다."
     return 0
   fi
 
   # Summary
   echo ""
   echo "📦 아카이브 대상"
-  echo "  spec 디렉토리: ${spec_count}개"
-  echo "  backlog 파일:  ${backlog_count}개"
+  echo "  spec 디렉토리:    ${spec_count}개"
+  echo "  backlog 파일:     ${backlog_count}개"
+  echo "  spec-x 디렉토리:  ${specx_count}개"
   echo ""
   if [ "$dry_run" -eq 1 ]; then
     echo "📂 이동 대상 (--dry-run):"
     printf "%b" "$specs_to_move" | while IFS= read -r f; do
+      [ -n "$f" ] && echo "  $(basename "$f") → archive/specs/"
+    done
+    printf "%b" "$specx_to_move" | while IFS= read -r f; do
       [ -n "$f" ] && echo "  $(basename "$f") → archive/specs/"
     done
     printf "%b" "$backlog_to_move" | while IFS= read -r f; do
@@ -1699,8 +1739,14 @@ cmd_archive() {
   mkdir -p "$SDD_ROOT/archive/specs"
   mkdir -p "$SDD_ROOT/archive/backlog"
 
-  # Move spec directories
+  # Move phase-bound spec directories
   printf "%b" "$specs_to_move" | while IFS= read -r f; do
+    [ -n "$f" ] || continue
+    git -C "$SDD_ROOT" mv "$f" "$SDD_ROOT/archive/specs/"
+  done
+
+  # Move spec-x directories
+  printf "%b" "$specx_to_move" | while IFS= read -r f; do
     [ -n "$f" ] || continue
     git -C "$SDD_ROOT" mv "$f" "$SDD_ROOT/archive/specs/"
   done
@@ -1713,9 +1759,17 @@ cmd_archive() {
 
   # Commit
   git -C "$SDD_ROOT" add -A
-  git -C "$SDD_ROOT" commit -m "chore: archive ${spec_count} spec dirs + ${backlog_count} backlog files"
+  local commit_msg="chore: archive ${spec_count} spec dirs + ${backlog_count} backlog files"
+  if [ "$specx_count" -gt 0 ]; then
+    commit_msg="${commit_msg} + ${specx_count} spec-x dirs"
+  fi
+  git -C "$SDD_ROOT" commit -m "$commit_msg"
 
-  ok "아카이브 완료: spec ${spec_count}개 + backlog ${backlog_count}개 → archive/"
+  local ok_msg="아카이브 완료: spec ${spec_count}개 + backlog ${backlog_count}개"
+  if [ "$specx_count" -gt 0 ]; then
+    ok_msg="${ok_msg} + spec-x ${specx_count}개"
+  fi
+  ok "${ok_msg} → archive/"
 }
 
 cmd_doctor() {

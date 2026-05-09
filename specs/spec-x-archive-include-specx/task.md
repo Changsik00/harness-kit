@@ -49,9 +49,18 @@
 ## Task 4: installed 파일 동기화
 
 ### 4-1. .harness-kit/bin/sdd 동기화
-- [ ] `cp sources/bin/sdd .harness-kit/bin/sdd`
-- [ ] `diff sources/bin/sdd .harness-kit/bin/sdd` → 차이 없음 확인
-- [ ] Commit: `chore(spec-x-archive-include-specx): sync installed sdd binary`
+- [x] `cp sources/bin/sdd .harness-kit/bin/sdd`
+- [x] `diff sources/bin/sdd .harness-kit/bin/sdd` → 차이 없음 확인
+
+### 4-2. .gitignore install drift revert (Plan 외 발견 → 사용자 승인 후 범위 확장)
+- [x] `.gitignore` 의 `.harness-kit/` 무시 라인 + 빈줄/주석 잡음 revert (HEAD 상태로 복원)
+- [x] 발견: 위 라인이 `.harness-kit/hooks/pre-commit.sh` (PR #96 산출물) 의 dogfood sync 를 조용히 막고 있었음
+
+### 4-3. .harness-kit/hooks/pre-commit.sh tracking 추가
+- [x] gitignore revert 후 untracked 로 노출됨 → 동일 commit 에 포함
+- [x] `diff -r sources/hooks/ .harness-kit/hooks/` → 차이 없음 확인
+
+- [ ] Commit: `chore(spec-x-archive-include-specx): sync installed sdd binary and pre-commit hook`
 
 ---
 
