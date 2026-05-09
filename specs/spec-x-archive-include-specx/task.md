@@ -35,12 +35,13 @@
 ## Task 3: cmd_archive 수정 (TDD Green)
 
 ### 3-1. sources/bin/sdd cmd_archive 확장
-- [ ] `done` 섹션 awk 파싱에 spec-x 슬러그 추출 추가 (`done_specx` 변수)
-- [ ] spec-x 디렉토리 수집 루프 추가 (디렉토리 존재 시에만)
-- [ ] 빈 검사 / 요약 출력 / dry-run / 실제 이동 / 커밋 메시지에 spec-x 통합
-- [ ] 기존 phase 루프 내 spec-x 스킵 로직은 유지 (안전망)
-- [ ] `bash tests/test-sdd-dir-archive.sh` → 모든 Check (1~8) PASS 확인
-- [ ] `bash tests/test-sdd-archive-search.sh` → PASS 확인 (회귀 검증)
+- [x] `done` 섹션 awk 파싱에 spec-x 슬러그 추출 추가 (`done_specx` 변수)
+- [x] spec-x 디렉토리 수집 루프 추가 (디렉토리 존재 시에만)
+- [x] 빈 검사 / 요약 출력 / dry-run / 실제 이동 / 커밋 메시지에 spec-x 통합
+- [x] 기존 phase 루프 내 spec-x 스킵 로직은 유지 (안전망)
+- [x] `bash tests/test-sdd-dir-archive.sh` → 14/14 PASS
+- [x] `bash tests/test-sdd-archive-search.sh` → 11/11 PASS
+- [x] `bash tests/test-sdd-status-cross-check.sh` → 7/7 PASS
 - [ ] Commit: `fix(spec-x-archive-include-specx): include done spec-x dirs in sdd archive`
 
 ---
