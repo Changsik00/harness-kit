@@ -160,6 +160,32 @@ Before any Spec, Plan, or execution:
   4. **Record the decision**: Update the relevant artifact (`plan.md`, `backlog/queue.md`, or `phase.md`) to reflect the agreed direction.
 - The Agent MUST NOT silently follow a divergent opinion without surfacing the conflict first.
 
+### 5.7 Action Confirmation Rules
+
+Governs how the Agent confirms irreversible external actions (push, PR creation).
+
+**Push (`git push`)**
+- After Plan Accept, push is **fully automatic** — display the info block below, then push immediately with **NO user response required**.
+- Info block format (display only, no prompt):
+  ```
+  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  🚀 Push
+  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    브랜치    <head>  ▶  🎯 <base>
+    제목      <pr_description.md 첫 줄>
+    커밋 수   <N>개
+    변경 파일 <M>개
+  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  ```
+
+**PR Creation**
+- Display the info block, then ask exactly one question: `생성할까요? [Y/n]`
+- Do NOT use numbered lists (e.g., `1) 생성 / 2) 취소`). The only valid format is `[Y/n]`.
+- **Recognized YES** (case-insensitive, proceed): `Y`, `y`, `yes`, `1`, `ok`, `네`, `ㅛ`
+- **Recognized NO** (abort and report): `N`, `n`, `no`, `아니`
+- **Unrecognized**: Re-display `생성할까요? [Y/n]` once. If still unrecognized, abort and report.
+- When called from `hk-ship` (post-Plan-Accept flow): **skip confirmation entirely** (`--no-confirm` mode).
+
 ## 6. Identifier System (lowercase, hyphen-separated)
 
 ### 6.1 Phase Identifier
