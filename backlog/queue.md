@@ -15,7 +15,6 @@
 
 <!-- sdd:specx:start -->
 없음
-- [ ] spec-x-governance-distribute-workflow-patterns — governance-distribute-workflow-patterns
 <!-- sdd:specx:end -->
 
 ## 🧊 Icebox
@@ -70,6 +69,7 @@
 - [x] spec-x-archive-clean-commit (완료)
 - [x] spec-x-hook-allow-ff-when-no-spec (완료)
 - [x] spec-x-phase-lifecycle-coherence (완료)
+- [x] spec-x-governance-distribute-workflow-patterns (완료)
 <!-- sdd:done:end -->
 
 ---
