@@ -61,6 +61,16 @@
 
 <!-- 추가 SPEC 들... -->
 
+## 📌 결정 기록 (Review)
+
+> Phase PR review 중 발생한 결정·합의·발견을 누적합니다. Spec walkthrough 의 결정 기록과 동일 패턴이며 Phase 레벨 living decision log 역할 (→ agent.md §6.3.2).
+> review 핑퐁으로 success criterion / 통합 테스트 시나리오 / spec 구성이 바뀌면 본 문서 해당 섹션을 직접 갱신하고, *왜* 그렇게 결정했는지의 이유를 본 표에 추가로 남깁니다.
+> PR body 동기화가 필요하면 `gh pr edit --body-file` 사용.
+
+| 이슈 | 선택지 | 결정 | 이유 |
+|---|---|---|---|
+| <이슈 1> | A 또는 B | A | <이유> |
+
 ## 🧪 통합 테스트 시나리오 (간결)
 
 > 본 phase 의 Done 조건 중 하나. 자세한 구현은 `test/e2e/phase-{N}/` (또는 stack 별 통합 테스트 위치).
