@@ -15,7 +15,6 @@
 
 <!-- sdd:specx:start -->
 없음
-- [ ] spec-x-phase-lifecycle-coherence — phase-lifecycle-coherence
 <!-- sdd:specx:end -->
 
 ## 🧊 Icebox
@@ -69,6 +68,7 @@
 - [x] spec-x-archive-include-specx (완료)
 - [x] spec-x-archive-clean-commit (완료)
 - [x] spec-x-hook-allow-ff-when-no-spec (완료)
+- [x] spec-x-phase-lifecycle-coherence (완료)
 <!-- sdd:done:end -->
 
 ---
