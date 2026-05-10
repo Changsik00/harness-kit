@@ -214,7 +214,7 @@ When passing a task with `[-]`, the Agent MUST:
     4. **Verify task.md**: Ensure zero `[ ]` checkboxes remain.
     5. **Push**: `git push -u origin spec-{phaseN}-{seq}-{slug}`.
     6. **Ship**: Push and create PR automatically. Report the PR URL to the User and wait for merge.
-    7. **Living document during review**: After Ship, `walkthrough.md` remains the *living decision log* — not frozen. If PR review feedback changes scope, surfaces new constraints, or pivots the approach, the Agent MUST update `walkthrough.md` (decision rows / 사용자 협의 / 발견 사항) and push the update before merge. This preserves the *why* of post-Ship changes and is the canonical target per constitution §5.6 for review-time opinion divergence.
+    7. **Review pivots by scope**: `walkthrough.md` (default), `plan.md` (substantial change), ADR (architectural). Push before merge (→ §5.6, §6.3).
 
 ### 6.3.1 Post-Merge Protocol
 
@@ -226,7 +226,9 @@ When the User signals that a PR has been merged (e.g., "머지 했어", "병합 
    If no NEXT (all specs done), suggest phase completion: `/hk-phase-ship`.
 4. **Wait for User approval** before proceeding.
 
-This protocol ensures context continuity across PR boundaries — the Agent always knows "what's next" without the User having to manually look up phase.md.
+### 6.3.2 Post-Merge Protocol for Phase
+
+Base mode: `/hk-phase-ship` creates PR; `sdd phase done` deferred until user merge signal ("phase merged", "phase 머지") → `sdd phase done` → `sdd status` → next phase / idle / `/hk-phase-review`. Non-base: `sdd phase done` at go/no-go. `phase.md` `📌 결정 기록 (Review)` accumulates Phase living decision log; sync PR body via `gh pr edit`.
 
 ### 6.4 Bash Single-Command Principle
 

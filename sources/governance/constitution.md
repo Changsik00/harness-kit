@@ -63,7 +63,7 @@ This section defines the roles and boundaries of work types used in harness-kit.
 
 - **Role**: A grouping of related Specs. Can serve as an independent integration test and release unit.
 - **Entry Condition**: 3+ Specs, or inter-Spec dependencies exist, or integration testing is required.
-- **Exit Condition**: All Specs merged, phase-level integration tests PASS, User final approval via `/hk-phase-ship`, and (when phase base branch mode) the Phase PR merged into main. State reset (`sdd phase done`) happens at the final step of this lifecycle — not at PR creation (→ agent.md §6.3.2).
+- **Exit Condition**: All Specs merged, integration tests PASS, User go/no-go via `/hk-phase-ship`, and (base mode) Phase PR merge (→ agent.md §6.3.2).
 - **Phase Ship Rule**: The Agent MUST NOT create a Phase PR (phase branch → main) without explicit User go/no-go approval. The `/hk-phase-ship` procedure — including success criteria verification, integration test execution, and go/no-go report — MUST be completed before PR creation. The Phase PR body MUST follow the `phase-ship.md` template.
 - **Base Branch (opt-in)**: A Phase MAY optionally have a `phase-N-{slug}` base branch. In this case, Spec PRs target the phase branch instead of main, and the phase branch merges to main after all Specs are complete. The base branch is created just-in-time at the first Spec's hk-ship.
 - **Identifier**: `phase-{N}` (→ §6.1)
@@ -207,7 +207,7 @@ Governs how the Agent confirms irreversible external actions (push, PR creation)
 - Queue dashboard: `backlog/queue.md` (sdd-managed)
 - Phase definition: `backlog/phase-{N}.md` (single file per phase, contains spec table + integration tests + ADR refs)
 - Spec work: `specs/spec-{phaseN}-{seq}-{slug}/` (actual artifacts)
-- ADR: `docs/decisions/ADR-{NNN}-{slug}.md` — created when a decision affects architecture, crosses Spec/Phase boundaries, or has rationale that must outlive the current Phase. Routine decisions stay in `walkthrough.md` / `plan.md` / `phase.md`.
+- ADR: `docs/decisions/ADR-{NNN}-{slug}.md` — for architectural / cross-Spec / long-lived decisions. Routine decisions stay in `walkthrough.md` / `plan.md` / `phase.md`.
 - Note: `backlog/` and `specs/` are sibling directories — `backlog/` is the *plan*, `specs/` is the *progress log*. Phase definition lives as a *single flat file* in `backlog/`, not a subdirectory.
 
 ### 6.4 Branch Naming
