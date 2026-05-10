@@ -10,7 +10,7 @@ harness-kit의 주요 변경 사항을 버전별로 정리합니다.
 ### Added
 - `sdd archive` 가 완료된 spec-x 디렉토리도 정리 — `queue.md` done 섹션 등록 기준 (#102)
 - `agent.md §6.3.2` Post-Merge Protocol for Phase 신설 — base/non-base mode 분기 + Phase living decision log (#105)
-- `agent.md §6.7` Workflow Patterns 신설 — model transparency, parallel-by-default, background, sub-agent dispatch threshold, archive timing, version+CHANGELOG paired update (THIS)
+- `agent.md §6.7` Workflow Patterns 신설 — model transparency, parallel-by-default, background (visibility 룰 포함: 침묵 금지, Monitor/peek 으로 진척 노출), sub-agent dispatch threshold, archive timing, version+CHANGELOG paired update (THIS)
 - `phase.md` 템플릿 `📌 결정 기록 (Review)` 섹션 — Phase 레벨 living decision log (#105)
 - `tests/test-sdd-dir-archive.sh` Check 7~9 — spec-x archive / dry-run / drift 보호 (#102, #103)
 - `tests/test-git-precommit-hook.sh` Test 12~13 — no-active-spec bypass / legacy state 호환 (#104)

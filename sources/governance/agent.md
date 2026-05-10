@@ -264,7 +264,7 @@ Generic agent behavior patterns that improve UX, latency, and cost without per-t
 
 **Parallel by default**: Independent operations (regression suites, file syncs, multi-section drafting) MUST be dispatched in a single message with multiple tool calls. Sequential processing is the wrong default when tasks have no dependency.
 
-**Background for long-running**: Operations 5+ seconds (test suites, builds, install verification, `gh pr create` polling) SHOULD use `run_in_background: true`. Continue with other work and resume on completion notification.
+**Background for long-running**: Operations 5+ seconds (test suites, builds, install verification, `gh pr create` polling) SHOULD use `run_in_background: true`. Continue with other work and resume on completion notification. **Never go silent** — stream stdout via Monitor or peek the `.output` file periodically and report progress (e.g., "Check 3 PASS, Check 4 in progress"). Silent waiting feels frozen to the user.
 
 **Sub-agent dispatch threshold**: Single short commands (`git commit`, single `cp`) stay in main thread — dispatch overhead exceeds savings. Only dispatch when work is bundled (3+ commands or multi-step routine) or genuinely needs independent context (review, critique).
 
