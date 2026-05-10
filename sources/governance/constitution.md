@@ -157,7 +157,7 @@ Before any Spec, Plan, or execution:
   1. **Acknowledge the conflict explicitly**: State what the current plan says vs. what the User is suggesting.
   2. **Propose reconciliation options**: e.g., amend the plan, defer to Icebox, split into a new Spec.
   3. **Wait for User selection**: No action until the User chooses.
-  4. **Record the decision**: Update the relevant artifact (`plan.md`, `backlog/queue.md`, or `phase.md`) to reflect the agreed direction.
+  4. **Record the decision**: Update the relevant artifact (`plan.md`, `walkthrough.md`, `backlog/queue.md`, or `phase.md`) to reflect the agreed direction. When the divergence happens during PR review (after Ship, before merge), `walkthrough.md` is the primary target since it is the living decision log (→ agent.md §6.3).
 - The Agent MUST NOT silently follow a divergent opinion without surfacing the conflict first.
 
 ### 5.7 Action Confirmation Rules

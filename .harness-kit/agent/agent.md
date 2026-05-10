@@ -214,6 +214,7 @@ When passing a task with `[-]`, the Agent MUST:
     4. **Verify task.md**: Ensure zero `[ ]` checkboxes remain.
     5. **Push**: `git push -u origin spec-{phaseN}-{seq}-{slug}`.
     6. **Ship**: Push and create PR automatically. Report the PR URL to the User and wait for merge.
+    7. **Living document during review**: After Ship, `walkthrough.md` remains the *living decision log* — not frozen. If PR review feedback changes scope, surfaces new constraints, or pivots the approach, the Agent MUST update `walkthrough.md` (decision rows / 사용자 협의 / 발견 사항) and push the update before merge. This preserves the *why* of post-Ship changes and is the canonical target per constitution §5.6 for review-time opinion divergence.
 
 ### 6.3.1 Post-Merge Protocol
 
