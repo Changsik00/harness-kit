@@ -15,6 +15,7 @@
 
 <!-- sdd:specx:start -->
 없음
+- [ ] spec-x-governance-distribute-workflow-patterns — governance-distribute-workflow-patterns
 <!-- sdd:specx:end -->
 
 ## 🧊 Icebox
