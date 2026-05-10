@@ -85,7 +85,7 @@ bash <(curl -fsSL https://raw.githubusercontent.com/Changsik00/harness-kit/main/
 | 옵션 | 설명 |
 |---|---|
 | `--yes` | 모든 프롬프트 자동 수락 |
-| `--version 0.6.3` | 특정 버전 설치 (git tag 기준) |
+| `--version 0.8.0` | 특정 버전 설치 (git tag 기준) |
 | `--update` | 기존 설치 갱신 |
 | `--uninstall` | 제거 (backlog/, specs/, archive/ 산출물 보존) |
 | _(대상 생략)_ | 현재 디렉토리에 설치 |

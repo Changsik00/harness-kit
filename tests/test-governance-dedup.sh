@@ -83,8 +83,11 @@ echo "  constitution.md: ${CONST_WORDS} words"
 echo "  agent.md:        ${AGENT_WORDS} words"
 echo "  합계:            ${TOTAL} words"
 
-# 합계 5000w 이하 유지 (비대화 방지 상한선)
-LIMIT=5000
+# 합계 6000w 이하 유지 (비대화 방지 상한선)
+# 2026-05-10: 5000 → 6000. agent.md §6.7 Workflow Patterns 신설로 5000 정확히 차서
+# generic-useful 패턴 거버넌스화가 막힘 → 한도가 본질 (가이드 배포) 을 막지 않도록 헤드룸 확보.
+# 무절제 상향 금지 — 6500+ 은 별도 정당화 필요.
+LIMIT=6000
 if [ "$TOTAL" -le "$LIMIT" ]; then
   pass "합계 ${TOTAL}w — 상한(${LIMIT}w) 이하"
 else
