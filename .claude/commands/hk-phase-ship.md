@@ -85,24 +85,36 @@ main 으로 merge 해도 될까요? [Y/n]
 
 **에이전트는 반드시 사용자의 명시적 승인을 대기합니다.** 자동 진행 금지.
 
-## 5. Phase PR Creation (승인 후)
+## 5. Phase 마무리 (승인 후) — mode 분기
 
-사용자 승인을 받은 후:
+`state.json` 의 `baseBranch` 필드로 mode 를 판별합니다.
+
+```bash
+./.harness-kit/bin/sdd status --json | jq -r '.baseBranch // "null"'
+```
+
+### 5a. Phase base branch 모드 (`baseBranch != null`)
+
+Phase PR (phase-N-{slug} → main) 을 생성하고 **state 는 활성 상태로 유지**합니다. PR 머지 후 사용자 신호 시 `agent.md §6.3.2` 의 Post-Merge Protocol 에서 `sdd phase done` 이 실행됩니다.
 
 1. **PR 본문 작성**: `.harness-kit/agent/templates/phase-ship.md` 템플릿을 읽고 Phase PR 본문을 작성합니다.
 
 2. **PR 생성**:
 ```bash
-# phase base branch 모드
 gh pr create --base main --head {phase-branch} --title "{title}" --body "{body}"
-
-# 일반 모드 (base branch 없는 경우)
-# 이미 main에 직접 merge되는 구조이므로 별도 PR 불필요할 수 있음 — 사용자에게 확인
 ```
 
-3. **State 업데이트**:
+3. **PR URL 보고** + 사용자에게 머지 후 알려달라 안내 ("phase 머지 했어" 등).
+
+4. **`sdd phase done` 호출하지 않음**. state 가 review 기간 동안 살아있어야 컨텍스트 손실 없이 review 핑퐁 / 다중 디바이스 / 세션 재진입에 대응 가능 (→ constitution §3.1, agent.md §6.3.2).
+
+### 5b. 일반 모드 (`baseBranch == null` 또는 미정)
+
+Spec PR 들이 이미 main 에 직접 머지되어 phase 가 사실상 완성된 상태. 별도 Phase PR 불필요.
+
+1. **`sdd phase done` 즉시 실행** — bookkeeping 만 수행:
 ```bash
 ./.harness-kit/bin/sdd phase done
 ```
 
-4. **사용자 알림**: PR URL 보고 + phase 완료 축하 메시지
+2. **완료 알림** + 다음 phase 후보 또는 idle 안내. 회고 원하면 `/hk-phase-review` 제안.

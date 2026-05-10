@@ -15,6 +15,7 @@
 
 <!-- sdd:specx:start -->
 없음
+- [ ] spec-x-phase-lifecycle-coherence — phase-lifecycle-coherence
 <!-- sdd:specx:end -->
 
 ## 🧊 Icebox
