@@ -214,7 +214,11 @@ When passing a task with `[-]`, the Agent MUST:
     4. **Verify task.md**: Ensure zero `[ ]` checkboxes remain.
     5. **Push**: `git push -u origin spec-{phaseN}-{seq}-{slug}`.
     6. **Ship**: Push and create PR automatically. Report the PR URL to the User and wait for merge.
-    7. **Living document during review**: After Ship, `walkthrough.md` remains the *living decision log* — not frozen. If PR review feedback changes scope, surfaces new constraints, or pivots the approach, the Agent MUST update `walkthrough.md` (decision rows / 사용자 협의 / 발견 사항) and push the update before merge. This preserves the *why* of post-Ship changes and is the canonical target per constitution §5.6 for review-time opinion divergence.
+    7. **Living document during review**: After Ship, the SPEC artifacts remain living. PR review pivots are recorded based on *scope of change*:
+        - Decisions / discoveries / agreed direction → `walkthrough.md` (primary, default)
+        - Approach or design substantially changes (rewriting half of `plan.md`) → also update `plan.md`
+        - Architectural / cross-cutting / long-lived rationale → add a new ADR under `docs/decisions/` and reference it from `spec.md` / `phase.md`
+        Push updates before merge. Frozen-at-Ship artifacts lose the *why* of subsequent changes (→ constitution §5.6, §6.3 ADR trigger).
 
 ### 6.3.1 Post-Merge Protocol
 
@@ -227,6 +231,23 @@ When the User signals that a PR has been merged (e.g., "머지 했어", "병합 
 4. **Wait for User approval** before proceeding.
 
 This protocol ensures context continuity across PR boundaries — the Agent always knows "what's next" without the User having to manually look up phase.md.
+
+### 6.3.2 Post-Merge Protocol for Phase
+
+Phase lifecycle differs from Spec by one extra boundary — the Phase PR (in base branch mode). State must remain active across that boundary so the Agent can resume context after review pivots, multi-device handoff, or session compaction.
+
+**Mode A — Phase base branch mode (`state.baseBranch != null`)**:
+- `/hk-phase-ship` creates the Phase PR but does **NOT** call `sdd phase done`. State stays active (`phase=X`, `spec=null`) during review.
+- When the User signals that the Phase PR has been merged (e.g., "phase merged", "phase 머지 했어", "phase 병합 완료"), the Agent MUST:
+    1. Run `bash .harness-kit/bin/sdd phase done` — resets state and moves the phase to the done section in `queue.md`.
+    2. Run `bash .harness-kit/bin/sdd status` to confirm idle.
+    3. Suggest next step: another phase candidate from `backlog/queue.md` 대기 Phase, idle, or `/hk-phase-review` for retrospective on the just-merged phase branch.
+    4. Wait for User decision.
+
+**Mode B — Non-base mode (`state.baseBranch == null`)**:
+- No Phase PR exists; spec PRs already merged into main directly. `/hk-phase-ship` invokes `sdd phase done` immediately at go/no-go time as bookkeeping. This Post-Merge Protocol does not apply.
+
+**Phase PR review — living decision log**: `phase.md` carries a `📌 결정 기록 (Review)` section that serves as the Phase-level living decision log (mirrors Spec `walkthrough.md`). Pivots, constraints, and agreements during Phase PR review accumulate there. Sync the PR body via `gh pr edit --body-file` if needed.
 
 ### 6.4 Bash Single-Command Principle
 
