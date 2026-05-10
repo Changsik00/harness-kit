@@ -5,6 +5,31 @@ harness-kit의 주요 변경 사항을 버전별로 정리합니다.
 
 ---
 
+## [0.8.0] — 2026-05-10
+
+### Added
+- `sdd archive` 가 완료된 spec-x 디렉토리도 정리 — `queue.md` done 섹션 등록 기준 (#102)
+- `agent.md §6.3.2` Post-Merge Protocol for Phase 신설 — base/non-base mode 분기 + Phase living decision log (#105)
+- `agent.md §6.7` Workflow Patterns 신설 — model transparency, parallel-by-default, background (visibility 룰 포함: 침묵 금지, Monitor/peek 으로 진척 노출), sub-agent dispatch threshold, archive timing, version+CHANGELOG paired update (THIS)
+- `phase.md` 템플릿 `📌 결정 기록 (Review)` 섹션 — Phase 레벨 living decision log (#105)
+- `tests/test-sdd-dir-archive.sh` Check 7~9 — spec-x archive / dry-run / drift 보호 (#102, #103)
+- `tests/test-git-precommit-hook.sh` Test 12~13 — no-active-spec bypass / legacy state 호환 (#104)
+
+### Fixed
+- `sdd archive` 의 `git add -A` 가 무관한 워킹트리 변경을 흡수 — `git mv` 가 이미 stage 했으므로 add 라인 제거 (#103)
+- pre-commit / check-plan-accept hook 이 활성 SPEC 없을 때도 production commit 차단 — `state.spec == null` 시 통과 추가, FF 모드 정상화 (#104)
+- `install.sh` self-host 모드에서 `# harness-kit` 헤더 잡음 추가 — self-host guard 뒤로 이동 + 한도 헤더 skip (FF 85d2462)
+- `/hk-phase-ship` 의 `sdd phase done` 호출 시점 — PR 생성 → 사용자 phase 머지 신호 후로 이동 (base mode), Phase PR review 중 컨텍스트 손실 방지 (#105)
+
+### Changed
+- `constitution §3.1` Phase Exit Condition — `(base mode) Phase PR merge` 추가, state 리셋 boundary 명시 (#105)
+- `constitution §5.6` Opinion Divergence — 결정 기록 대상에 `walkthrough.md` 추가 + PR review 분기 명시 (FF f48cc4c)
+- `constitution §6.3` ADR 위치 — escalation 트리거 한 줄 (architectural / cross-Spec / long-lived) (#105)
+- `agent.md §6.3 bullet 7` Living artifacts during review — scope 별 분기 (walkthrough/plan.md/ADR) (FF f48cc4c, #105)
+- 거버넌스 word 한도 5000 → 6000 — generic-useful workflow 패턴 거버넌스화 헤드룸 확보 (THIS)
+
+---
+
 ## [0.7.0] — 2026-05-09
 
 ### Added

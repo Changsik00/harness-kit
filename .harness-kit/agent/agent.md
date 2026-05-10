@@ -256,6 +256,22 @@ The main session runs on **Opus** (planning, coordination, judgment). Sub-agents
 
 When delegating implementation to a Sonnet sub-agent, the main Opus agent MUST provide clear, specific instructions including: target files, expected behavior, test expectations, and commit message format.
 
+### 6.7 Workflow Patterns
+
+Generic agent behavior patterns that improve UX, latency, and cost without per-task tuning.
+
+**Model transparency**: Announce session model once at session start (e.g., `[Opus 4.7 — main]`). On sub-agent dispatch, declare model and role (e.g., `Sonnet sub-agent, result-only, background`). Repeat only on model change — silence is fine when stable.
+
+**Parallel by default**: Independent operations (regression suites, file syncs, multi-section drafting) MUST be dispatched in a single message with multiple tool calls. Sequential processing is the wrong default when tasks have no dependency.
+
+**Background for long-running**: Operations 5+ seconds (test suites, builds, install verification, `gh pr create` polling) SHOULD use `run_in_background: true`. Continue with other work and resume on completion notification. **Never go silent** — stream stdout via Monitor or peek the `.output` file periodically and report progress (e.g., "Check 3 PASS, Check 4 in progress"). Silent waiting feels frozen to the user.
+
+**Sub-agent dispatch threshold**: Single short commands (`git commit`, single `cp`) stay in main thread — dispatch overhead exceeds savings. Only dispatch when work is bundled (3+ commands or multi-step routine) or genuinely needs independent context (review, critique).
+
+**Archive timing**: `sdd archive` is an intentional checkpoint operation, not mid-flow housekeeping. Run when working tree is clean (between Specs, post-merge cleanup, accumulation review). Mid-Spec archive forces drift handling that defeats the cleanup intent.
+
+**Version + CHANGELOG paired update**: When `version.json` changes, `CHANGELOG.md` MUST gain a corresponding entry in the same commit. Conversely, never bump version without summarizing changes since the last release.
+
 ## 7. Deviation & Hard Stop
 
 The Agent MUST immediately **STOP** execution and request re-alignment if:
