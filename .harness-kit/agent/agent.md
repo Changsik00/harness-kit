@@ -336,6 +336,13 @@ At key decision points requiring user input, the Agent SHOULD use the `AskUserQu
 - A simple yes/no is sufficient
 - The existing text formats (`1)/2)`, `[Y/n]`) from constitution §5.2·§5.7 are still authoritative fallback rules
 
+**`uxMode` config field**: Before using `AskUserQuestion`, check `.harness-kit/installed.json`:
+- `"uxMode": "interactive"` (default) — use `AskUserQuestion` at preferred points above (SHOULD)
+- `"uxMode": "text"` — skip `AskUserQuestion`; fall back to text output for all decision points
+- Field absent — treat as `"interactive"` (backward-compatible default)
+
+To change: `sdd config ux-mode text` or `sdd config ux-mode interactive`
+
 **Usage notes**: `AskUserQuestion` is Claude Code-specific. Keep options to 2–4, use concise labels, and put trade-offs in the description field.
 
 ## 9. Research Spec Protocol
