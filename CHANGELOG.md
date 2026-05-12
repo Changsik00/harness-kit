@@ -5,6 +5,21 @@ harness-kit의 주요 변경 사항을 버전별로 정리합니다.
 
 ---
 
+## [0.9.0] — 2026-05-12
+
+### Added
+- `sdd config ux-mode [interactive|text]` 커맨드 — `installed.json` `uxMode` 필드 조회/변경 (#108)
+- `agent.md §8.4` AskUserQuestion 툴 사용 가이드라인 — 주요 결정 포인트에서 SHOULD, `uxMode` 필드 연동 (#108)
+- `installed.json` 기본값에 `"uxMode": "interactive"` 추가 — install.sh 신규 설치 시 포함 (#108)
+- `agent.md §8.1` 파일 경로 리스팅 규칙 — 전체 상대경로 한 줄 출력, indented 포맷 금지 (#109)
+
+### Fixed
+- `sdd status` / `sdd version` kitVersion SSOT를 `installed.json`으로 수정 — `current.json`(gitignored) 의존 제거 (#107)
+- `sdd spec show` 파일 목록 → 전체 상대경로 출력 — Claude Code에서 클릭-열기 가능 (#109)
+- `hk-ship.md` Push 정보 블록 → Markdown 테이블 — 렌더링 일관성 (#109)
+
+---
+
 ## [0.8.0] — 2026-05-10
 
 ### Added
