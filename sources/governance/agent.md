@@ -318,6 +318,33 @@ Avoid decorative emoji in plain text prose. Emoji in bash output MUST be consist
 - Use a **list** (`-` or `1.`) for 2 or fewer items, or when order or hierarchy matters.
 - In bash output, use `printf "  %-38s  %s\n"` column layout for aligned key-value pairs.
 
+### 8.4 AskUserQuestion Tool Preference
+
+At key decision points requiring user input, the Agent SHOULD use the `AskUserQuestion` tool instead of plain text output.
+
+**Preferred usage points**:
+
+| Decision Point | Context |
+|---|---|
+| **Work Mode selection** | SDD-P / SDD-x / FF (→ §3) |
+| **Plan Accept vs Critique** | Enter execution or run critique first (→ constitution §5.2) |
+| **PR creation confirmation** | When not in `--no-confirm` mode (→ constitution §5.7) |
+| **Idea Capture Gate** | Continue current work or switch to new idea (→ constitution §5.5) |
+
+**Text format remains a valid fallback when**:
+- The environment does not render `AskUserQuestion` (restricted CLI contexts)
+- A simple yes/no is sufficient
+- The existing text formats (`1)/2)`, `[Y/n]`) from constitution §5.2·§5.7 are still authoritative fallback rules
+
+**`uxMode` config field**: Before using `AskUserQuestion`, check `.harness-kit/installed.json`:
+- `"uxMode": "interactive"` (default) — use `AskUserQuestion` at preferred points above (SHOULD)
+- `"uxMode": "text"` — skip `AskUserQuestion`; fall back to text output for all decision points
+- Field absent — treat as `"interactive"` (backward-compatible default)
+
+To change: `sdd config ux-mode text` or `sdd config ux-mode interactive`
+
+**Usage notes**: `AskUserQuestion` is Claude Code-specific. Keep options to 2–4, use concise labels, and put trade-offs in the description field.
+
 ## 9. Research Spec Protocol
 
 ### 9.1 Definition of Done for Research
