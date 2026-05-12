@@ -318,25 +318,25 @@ Avoid decorative emoji in plain text prose. Emoji in bash output MUST be consist
 - Use a **list** (`-` or `1.`) for 2 or fewer items, or when order or hierarchy matters.
 - In bash output, use `printf "  %-38s  %s\n"` column layout for aligned key-value pairs.
 
-### 8.4 AskUserQuestion 툴 사용 권장
+### 8.4 AskUserQuestion Tool Preference
 
-사용자 입력이 필요한 주요 결정 포인트에서 텍스트 출력 대신 `AskUserQuestion` 툴을 **SHOULD** 사용한다.
+At key decision points requiring user input, the Agent SHOULD use the `AskUserQuestion` tool instead of plain text output.
 
-**권장 사용 포인트**:
+**Preferred usage points**:
 
-| 포인트 | 설명 |
+| Decision Point | Context |
 |---|---|
-| **Alignment 모드 선택** | SDD-P / SDD-x / FF 선택 (→ §3) |
-| **Plan Accept vs Critique** | 실행 진입 또는 비판 검토 선택 (→ constitution §5.2) |
-| **PR 생성 확인** | `--no-confirm` 모드가 아닌 경우 (→ constitution §5.7) |
-| **Idea Capture Gate** | 현재 작업 계속 / 신규 아이디어로 전환 선택 (→ constitution §5.5) |
+| **Work Mode selection** | SDD-P / SDD-x / FF (→ §3) |
+| **Plan Accept vs Critique** | Enter execution or run critique first (→ constitution §5.2) |
+| **PR creation confirmation** | When not in `--no-confirm` mode (→ constitution §5.7) |
+| **Idea Capture Gate** | Continue current work or switch to new idea (→ constitution §5.5) |
 
-**텍스트 포맷이 여전히 유효한 경우**:
-- 환경이 `AskUserQuestion` 렌더링을 지원하지 않을 때 (CLI 제한 환경)
-- 단순 yes/no 확인으로 충분한 경우
-- `AskUserQuestion` 대신 텍스트 목록(1/2, `[Y/n]`)을 쓰더라도 constitution §5.2·§5.7 규칙은 여전히 유효한 fallback
+**Text format remains a valid fallback when**:
+- The environment does not render `AskUserQuestion` (restricted CLI contexts)
+- A simple yes/no is sufficient
+- The existing text formats (`1)/2)`, `[Y/n]`) from constitution §5.2·§5.7 are still authoritative fallback rules
 
-**중요**: `AskUserQuestion` 툴은 Claude Code 전용이다. 옵션은 2~4개, 레이블은 간결하게, description에 트레이드오프를 명시한다.
+**Usage notes**: `AskUserQuestion` is Claude Code-specific. Keep options to 2–4, use concise labels, and put trade-offs in the description field.
 
 ## 9. Research Spec Protocol
 
