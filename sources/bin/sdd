@@ -48,6 +48,9 @@ sdd — harness-kit 메타 명령
 
   plan accept                   현재 spec 의 plan 을 승인 (planAccepted=true)
 
+  config ux-mode [interactive|text]
+                                uxMode 설정 조회/변경 (생략 시 현재값 출력)
+
   task done <num>               task.md 의 N 번 항목을 [x] 로 마킹
 
   test passed                   .claude/state/current.json 에 lastTestPass 갱신
@@ -1269,6 +1272,40 @@ task_done() {
 }
 
 # ============================================================
+# config
+# ============================================================
+cmd_config() {
+  local sub="${1:-}"; shift || true
+  case "$sub" in
+    ux-mode) _config_ux_mode "$@" ;;
+    *)       die "사용법: sdd config ux-mode [interactive|text]" ;;
+  esac
+}
+
+_config_ux_mode() {
+  local installed_json="$SDD_ROOT/.harness-kit/installed.json"
+  [ -f "$installed_json" ] || die "installed.json 없음: $installed_json"
+
+  local value="${1:-}"
+  if [ -z "$value" ]; then
+    local current
+    current=$(jq -r '.uxMode // "interactive"' "$installed_json" 2>/dev/null || echo "interactive")
+    echo "uxMode: $current"
+    return 0
+  fi
+
+  case "$value" in
+    interactive|text) ;;
+    *) die "허용된 값: interactive | text (입력: $value)" ;;
+  esac
+
+  local tmp
+  tmp=$(jq --arg v "$value" '.uxMode = $v' "$installed_json" 2>/dev/null) || die "installed.json 갱신 실패"
+  echo "$tmp" > "$installed_json"
+  ok "uxMode = $value"
+}
+
+# ============================================================
 # test passed
 # ============================================================
 cmd_test() {
@@ -1966,6 +2003,7 @@ main() {
     phase)   cmd_phase "$@" ;;
     spec)    cmd_spec "$@" ;;
     plan)    cmd_plan "$@" ;;
+    config)  cmd_config "$@" ;;
     task)    cmd_task "$@" ;;
     test)    cmd_test "$@" ;;
     ship)    cmd_ship "$@" ;;
