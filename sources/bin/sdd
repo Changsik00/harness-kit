@@ -85,8 +85,15 @@ sdd — harness-kit 메타 명령
 EOF
 }
 
+_read_kit_ver() {
+  local v
+  v=$(jq -r '.kitVersion // empty' "$SDD_ROOT/.harness-kit/installed.json" 2>/dev/null || echo "")
+  [ -z "$v" ] && v="?"
+  echo "$v"
+}
+
 cmd_version() {
-  echo "harness-kit $(state_get kitVersion)"
+  echo "harness-kit $(_read_kit_ver)"
 }
 
 # ============================================================
@@ -519,9 +526,10 @@ cmd_status() {
     spec="$(state_get spec)"
     plan_accepted="$(state_get planAccepted)"
     last_test="$(state_get lastTestPass)"
-    kit_ver="$(state_get kitVersion)"
+    kit_ver="$(_read_kit_ver)"
   else
-    phase="" spec="" plan_accepted="false" last_test="" kit_ver="?"
+    phase="" spec="" plan_accepted="false" last_test=""
+    kit_ver="$(_read_kit_ver)"
   fi
   branch="$(git -C "$SDD_ROOT" branch --show-current 2>/dev/null || echo '')"
 
