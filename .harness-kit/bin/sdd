@@ -1192,13 +1192,13 @@ spec_show() {
   fi
   echo "${C_BLD}$id${C_RST}"
   [ $archived -eq 1 ] && echo "  ${C_YLW}⚠ archived${C_RST}"
-  echo "  경로: ${dir#$SDD_ROOT/}"
+  local rel_dir="${dir#$SDD_ROOT/}"
   echo "  파일:"
   for f in spec plan task walkthrough pr_description; do
     if [ -f "$dir/$f.md" ]; then
       local lines
       lines=$(wc -l < "$dir/$f.md" | tr -d ' ')
-      printf "    - %s.md (%s lines)\n" "$f" "$lines"
+      printf "  %s/%s.md (%s lines)\n" "$rel_dir" "$f" "$lines"
     fi
   done
 }

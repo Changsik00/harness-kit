@@ -296,6 +296,21 @@ All file and directory paths in Agent output MUST use paths relative to `$HARNES
 
 This applies to: spec/plan/task references, `sdd` command output, `doctor.sh` output, and any inline path mentions in chat.
 
+When listing multiple spec artifact files, output each file as a standalone full relative path on its own line — never as indented filenames under a directory heading. This makes paths clickable in Claude Code.
+
+- Correct:
+  ```
+  specs/spec-x-foo/spec.md
+  specs/spec-x-foo/plan.md
+  specs/spec-x-foo/task.md
+  ```
+- Wrong:
+  ```
+  specs/spec-x-foo/
+      spec.md   ✓
+      plan.md   ✓
+  ```
+
 ### 8.2 Emoji Usage
 
 Use the following emoji conventions in `sdd` and `doctor.sh` CLI output:
