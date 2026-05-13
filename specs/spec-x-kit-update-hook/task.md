@@ -40,13 +40,13 @@ plan.md B 항목.
 
 > 모든 작업 task 완료 후 `/hk-ship` 절차를 따릅니다.
 
-- [ ] 정적 점검 모두 PASS (plan.md 검증 계획)
-- [ ] **walkthrough.md 작성**
-- [ ] **pr_description.md 작성**
-- [ ] **Ship Commit**: `docs(spec-x-kit-update-hook): ship walkthrough and pr description`
-- [ ] **Push**: `git push -u origin spec-x-kit-update-hook`
-- [ ] **PR 생성**: `gh pr create`
-- [ ] **사용자 알림**: 푸시 + PR URL 보고
+- [x] 정적 점검 모두 PASS (plan.md 검증 계획)
+- [x] **walkthrough.md 작성**
+- [x] **pr_description.md 작성**
+- [x] **Ship Commit**: `docs(spec-x-kit-update-hook): ship walkthrough and pr description`
+- [x] **Push**: `git push -u origin spec-x-kit-update-hook`
+- [x] **PR 생성**: `gh pr create`
+- [x] **사용자 알림**: 푸시 + PR URL 보고
 
 ---
 
@@ -56,5 +56,5 @@ plan.md B 항목.
 |---|---|
 | **총 Task 수** | 3 (작업 2 + Ship 1) |
 | **예상 commit 수** | 3 (+ scaffold 1) |
-| **현재 단계** | Planning |
+| **현재 단계** | Ship |
 | **마지막 업데이트** | 2026-05-13 |
