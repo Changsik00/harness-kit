@@ -15,14 +15,14 @@
 
 <!-- sdd:specx:start -->
 없음
-- [ ] spec-x-hk-update-remote — hk-update-remote
+- [ ] spec-x-kit-update-hook — kit-update-hook
 <!-- sdd:specx:end -->
 
 ## 🧊 Icebox
 
 > 아이디어·보류 항목 보관소. 실행 불가. 관련 항목이 쌓이면 Phase로, 단발이면 spec-x로 승격.
 
-없음
+- kit 새 버전 알림이 `sdd status` drift 섹션 한 줄에 그쳐 사용자 도달이 약함 — SessionStart 시 자동 노출 또는 알림 시각 강화 필요
 
 ## 📋 대기 Phase
 
@@ -71,6 +71,7 @@
 - [x] spec-x-hook-allow-ff-when-no-spec (완료)
 - [x] spec-x-phase-lifecycle-coherence (완료)
 - [x] spec-x-governance-distribute-workflow-patterns (완료)
+- [x] spec-x-hk-update-remote (완료)
 <!-- sdd:done:end -->
 
 ---
