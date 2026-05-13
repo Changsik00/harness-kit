@@ -15,6 +15,7 @@
 
 <!-- sdd:specx:start -->
 없음
+- [ ] spec-x-hk-update-remote — hk-update-remote
 <!-- sdd:specx:end -->
 
 ## 🧊 Icebox

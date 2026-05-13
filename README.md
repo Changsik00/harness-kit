@@ -315,7 +315,8 @@ sdd archive --keep=2
 | 명령 | 설명 |
 |---|---|
 | `install.sh [TARGET]` | 설치 (`--dry-run`, `--force`, `--yes`, `--no-gitignore`, `--export-format=cursor\|copilot`) |
-| `update.sh [TARGET]` | 키트 갱신 (state 보존) |
+| `bash <(curl ... get.sh) --update` | **권장** — 원격에서 직접 갱신 (로컬 clone 불필요) |
+| `update.sh [TARGET]` | 로컬 clone 보유 시 갱신 (state 보존) |
 | `uninstall.sh [TARGET]` | 제거 (작업 산출물 보존) |
 | `doctor.sh [TARGET]` | 점검 (의존성, 구조, 권한, hook, state) |
 | `cleanup.sh [TARGET]` | 버전별 deprecated 파일 정리 |

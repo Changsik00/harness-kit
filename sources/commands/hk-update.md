@@ -72,22 +72,32 @@ latest=$(curl -sf --max-time 5 "$raw_url" | jq -r '.version // empty')
 
 ### 5. 업데이트 실행
 
-승인 시, kit 디렉토리를 찾아 `update.sh` 실행 방법을 안내합니다.
+승인 시, `kitOrigin` 에서 `owner/repo` 를 도출해 다음 안내를 출력합니다.
 
-kit 디렉토리는 `kitOrigin` 으로 식별하거나, 사용자에게 경로를 안내합니다:
+**1차 (권장) — 원격 직접 실행 (로컬 클론 불필요)**:
 
 ```
-업데이트를 시작합니다.
-다음 명령어를 실행하세요:
+업데이트를 시작합니다. 다음 명령어를 실행하세요:
 
+  bash <(curl -fsSL https://raw.githubusercontent.com/<owner>/<repo>/main/get.sh) --update
+
+# 자동 수락:    위 명령 끝에 --yes 추가
+# 특정 버전 핀: --version <ver> 를 --update 앞에 추가
+```
+
+**2차 (Fallback) — 로컬 클론 보유 / 오프라인 환경**:
+
+```
   bash <kit-dir>/update.sh .
 
-<kit-dir> 는 harness-kit 을 클론한 로컬 경로입니다.
-모르는 경우: git clone <kitOrigin> ~/harness-kit && bash ~/harness-kit/update.sh .
+# <kit-dir> 를 모르는 경우:
+#   git clone <kitOrigin> ~/harness-kit && bash ~/harness-kit/update.sh .
 ```
 
-> **에이전트가 직접 `update.sh` 를 실행하지 않습니다** — 사용자가 직접 실행해야 합니다.
-> (update.sh 는 uninstall → install 재실행으로 파일을 교체하는 파괴적 작업)
+**비-GitHub 저장소**: `kitOrigin` 이 github.com 이 아니면 1차 안내를 생략하고 2차만 출력합니다 (`get.sh` 가 GitHub raw URL 을 가정).
+
+> **에이전트가 직접 `update.sh` (또는 원격 변형) 를 실행하지 않습니다** — 사용자가 직접 입력해야 합니다.
+> (update 는 uninstall → install 재실행으로 파일을 교체하는 파괴적 작업)
 
 ### 6. 캐시 업데이트
 
