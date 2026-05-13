@@ -27,9 +27,9 @@
 
 ## Task 2: sdd status 의 kit 업데이트 알림 문구 일관화
 
-- [ ] `sources/bin/sdd` 라인 338 의 알림 문구를 `/hk-update` 하나로 단순화 (plan.md B 항목)
-- [ ] grep 검증: `grep -n '/hk-update' sources/bin/sdd`
-- [ ] Commit: `chore(spec-x-hk-update-remote): sdd status 알림 문구 단순화`
+- [x] `sources/bin/sdd` 라인 338 의 알림 문구를 `/hk-update` 하나로 단순화 (plan.md B 항목)
+- [x] grep 검증: `grep -n '/hk-update' sources/bin/sdd` → PASS
+- [x] Commit: `chore(spec-x-hk-update-remote): sdd status 알림 문구 단순화`
 
 ---
 
