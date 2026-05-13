@@ -30,9 +30,9 @@ plan.md A 항목의 본문을 그대로 작성합니다.
 
 plan.md B 항목.
 
-- [ ] `sources/claude-fragments/settings.json.fragment` 의 SessionStart hooks 배열에 `check-kit-version.sh` entry 삽입
-- [ ] 정적 검증: `jq '.hooks.SessionStart[0].hooks | length' sources/claude-fragments/settings.json.fragment` → `3`
-- [ ] Commit: `feat(spec-x-kit-update-hook): register check-kit-version hook in SessionStart`
+- [x] `sources/claude-fragments/settings.json.fragment` 의 SessionStart hooks 배열에 `check-kit-version.sh` entry 삽입 (2번째 위치)
+- [x] 정적 검증: `jq '.hooks.SessionStart[0].hooks | length' ...fragment` → `3` PASS
+- [x] Commit: `feat(spec-x-kit-update-hook): register check-kit-version hook in SessionStart`
 
 ---
 

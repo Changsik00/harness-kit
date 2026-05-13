@@ -200,6 +200,10 @@
           },
           {
             "type": "command",
+            "command": ".harness-kit/hooks/check-kit-version.sh 2>&1 || true"
+          },
+          {
+            "type": "command",
             "command": "echo 'IMPORTANT: New session started. You MUST proactively recommend the user to run /hk-align before starting any work.' >&2"
           }
         ]
