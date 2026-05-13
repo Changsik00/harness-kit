@@ -35,9 +35,9 @@
 
 ## Task 3: README 키트 진입점 표 보완
 
-- [ ] `README.md` 의 키트 진입점 표에 원격 갱신 명령 행 추가 (plan.md C 항목)
-- [ ] grep 검증: `grep -q 'curl .* get.sh) --update' README.md`
-- [ ] Commit: `docs(spec-x-hk-update-remote): README 키트 진입점 표에 원격 갱신 명령 추가`
+- [x] `README.md` 의 키트 진입점 표에 원격 갱신 명령 행 추가 (plan.md C 항목)
+- [x] grep 검증: `grep -qF 'curl ... get.sh) --update' README.md` → PASS
+- [x] Commit: `docs(spec-x-hk-update-remote): README 키트 진입점 표에 원격 갱신 명령 추가`
 
 ---
 
