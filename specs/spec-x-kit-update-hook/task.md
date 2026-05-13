@@ -17,10 +17,12 @@
 
 plan.md A 항목의 본문을 그대로 작성합니다.
 
-- [ ] `sources/hooks/check-kit-version.sh` 생성 (+x 권한)
-- [ ] 정적 검증: `bash -n sources/hooks/check-kit-version.sh` → no syntax error
-- [ ] 수동 검증 1·2·3 (plan.md 검증 계획) 실행 → 기대대로 동작
-- [ ] Commit: `feat(spec-x-kit-update-hook): add check-kit-version SessionStart hook`
+- [x] `sources/hooks/check-kit-version.sh` 생성 (+x 권한)
+- [x] 정적 검증: `bash -n sources/hooks/check-kit-version.sh` → PASS
+- [x] 수동 검증 1: fake kitVersion=0.0.1 → 알림 출력 (`🆕 harness-kit 0.8.0 사용 가능 (현재 0.0.1)`) PASS
+- [x] 수동 검증 2: HOOK_MODE_KIT_VERSION=off 및 DRIFT_FETCH=0 → silent exit 0 PASS
+- [x] 수동 검증 3: 현재 본 프로젝트(latest==installed) → silent exit 0 PASS
+- [x] Commit: `feat(spec-x-kit-update-hook): add check-kit-version SessionStart hook`
 
 ---
 
