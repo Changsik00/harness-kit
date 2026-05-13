@@ -15,7 +15,6 @@
 
 <!-- sdd:specx:start -->
 없음
-- [ ] spec-x-kit-update-hook — kit-update-hook
 <!-- sdd:specx:end -->
 
 ## 🧊 Icebox
@@ -72,6 +71,7 @@
 - [x] spec-x-phase-lifecycle-coherence (완료)
 - [x] spec-x-governance-distribute-workflow-patterns (완료)
 - [x] spec-x-hk-update-remote (완료)
+- [x] spec-x-kit-update-hook (완료)
 <!-- sdd:done:end -->
 
 ---
