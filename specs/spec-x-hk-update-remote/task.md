@@ -45,13 +45,13 @@
 
 > 모든 작업 task 완료 후 `/hk-ship` 절차를 따릅니다.
 
-- [ ] 정적 점검 grep 4종 모두 PASS (plan.md 검증 계획)
-- [ ] **walkthrough.md 작성** (증거 로그)
-- [ ] **pr_description.md 작성** (템플릿 준수)
-- [ ] **Ship Commit**: `docs(spec-x-hk-update-remote): ship walkthrough and pr description`
-- [ ] **Push**: `git push -u origin spec-x-hk-update-remote`
-- [ ] **PR 생성**: `gh pr create` (또는 `/hk-pr-gh`)
-- [ ] **사용자 알림**: 푸시 + PR URL 보고
+- [x] 정적 점검 grep 4종 모두 PASS (plan.md 검증 계획)
+- [x] **walkthrough.md 작성** (증거 로그)
+- [x] **pr_description.md 작성** (템플릿 준수)
+- [x] **Ship Commit**: `docs(spec-x-hk-update-remote): ship walkthrough and pr description`
+- [x] **Push**: `git push -u origin spec-x-hk-update-remote`
+- [x] **PR 생성**: `gh pr create` (또는 `/hk-pr-gh`)
+- [x] **사용자 알림**: 푸시 + PR URL 보고
 
 ---
 
@@ -61,5 +61,5 @@
 |---|---|
 | **총 Task 수** | 4 (작업 3 + Ship 1) |
 | **예상 commit 수** | 4 |
-| **현재 단계** | Planning |
+| **현재 단계** | Ship |
 | **마지막 업데이트** | 2026-05-13 |
