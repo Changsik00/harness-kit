@@ -15,6 +15,7 @@
 
 <!-- sdd:specx:start -->
 없음
+- [ ] spec-x-readme-refresh — readme-refresh
 <!-- sdd:specx:end -->
 
 ## 🧊 Icebox
