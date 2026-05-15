@@ -335,7 +335,7 @@ _drift_kit_version() {
   newer=$(printf '%s\n%s\n' "$installed_ver" "$latest" | sort -t. -k1,1n -k2,2n -k3,3n | tail -1)
   [ "$newer" != "$latest" ] && return 1
 
-  printf "  ${C_YLW}kit: %s 사용 가능 (현재 %s) — /hk-update 또는 update.sh${C_RST}\n" \
+  printf "  ${C_YLW}kit: %s 사용 가능 (현재 %s) — /hk-update${C_RST}\n" \
     "$latest" "$installed_ver"
   return 0
 }
