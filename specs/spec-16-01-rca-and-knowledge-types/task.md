@@ -33,9 +33,9 @@
 ## Task 3: RCA 템플릿
 
 ### 3-1. sources/templates/rca.md 신규
-- [ ] 5 섹션 (Symptom / Reproduction / Root Cause / Invariant Violated / Prevention) + frontmatter (id / type=failure-pattern / date / severity / status)
-- [ ] 한국어 본문 가이드, 1~3 줄 분량 코멘트
-- [ ] Commit: `feat(spec-16-01): add rca template with 5-section schema`
+- [x] 5 섹션 (Symptom / Reproduction / Root Cause / Invariant Violated / Prevention) + frontmatter (id / type=failure-pattern / date / severity / status)
+- [x] 한국어 본문 가이드, 1~3 줄 분량 코멘트
+- [x] Commit: `feat(spec-16-01): add rca template with 5-section schema`
 
 ---
 
