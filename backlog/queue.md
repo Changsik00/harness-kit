@@ -8,7 +8,7 @@
 ## 📦 진행 중 Phase
 
 <!-- sdd:active:start -->
-- **phase-16** — Reliability Layer 강화 — 0/0 spec — (다음: 첫 spec 생성 대기)
+- **phase-16** — Reliability Layer 강화 — 1 spec — 다음: spec-16-01-rca-and-knowledge-types
 <!-- sdd:active:end -->
 
 ## 📥 spec-x 대기

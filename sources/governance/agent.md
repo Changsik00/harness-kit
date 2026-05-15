@@ -159,7 +159,7 @@ Before Plan Accept, the User MAY invoke `/hk-spec-critique` to get an independen
 ## 5. Plan & Task Strategy
 
 A Plan is a binding execution contract. It MUST follow the `plan.md` template exactly and include:
-- **Branch Strategy**: The first task MUST create a feature branch (→ constitution §6.4 for naming).
+- **Branch Strategy**: The first task MUST create a feature branch (→ constitution §6.5 for naming).
 - **Task Granularity**: Each Task MUST represent one logical unit of work (→ constitution §8).
 - **TDD Integration**: Each task MUST include specific test expectations using the project's stack-appropriate test command.
 

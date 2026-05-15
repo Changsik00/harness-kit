@@ -2,8 +2,8 @@
   "kitVersion": "0.9.0",
   "kitOrigin": "git@github.com:Changsik00/harness-kit.git",
   "installedAt": "2026-05-09T10:20:39Z",
-  "lastVersionCheck": "2026-05-12T13:01:10Z",
-  "latestKnownVersion": "0.8.0",
+  "lastVersionCheck": "2026-05-15T07:37:45Z",
+  "latestKnownVersion": "0.9.0",
   "installedCommands": [
     "hk-align",
     "hk-archive",
