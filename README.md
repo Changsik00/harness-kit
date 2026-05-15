@@ -64,14 +64,14 @@ harness-kit은 그 격차를 메꿉니다. **의도를 문서로 적는 것**에
 
 | 항목 | 지원 | 비고 |
 |---|:---:|---|
-| **macOS** | ✅ 1차 | Sonoma+, Apple Silicon / Intel |
-| **Linux** | △ | bash 4.0+, jq, git이 있으면 동작 가능 (best-effort) |
-| **Windows** | △ 미검증 | Git Bash (bash 4.0+ 포함) + jq 환경에서 동작 가능성 있음. WSL2 권장 |
+| **macOS** | ✅ 1차 | Sonoma+, Apple Silicon / Intel — 기본 bash 3.2 로 동작 |
+| **Linux** | △ | bash 3.2+, jq, git 이 있으면 동작 가능 (best-effort) |
+| **Windows** | △ 미검증 | Git Bash + jq 환경에서 동작 가능성 있음. WSL2 권장 |
 | **AI 호스트** | Claude Code 전용 | `.claude/` 구조 + hooks + settings.json에 의존 |
 
 ```bash
-# 필수 의존성 설치 (macOS)
-brew install bash jq git    # macOS 기본 bash는 3.2 — 4.0+ 필요
+# 필수 의존성 설치 (macOS) — bash 는 기본 3.2 로 충분
+brew install jq git
 ```
 
 ---
