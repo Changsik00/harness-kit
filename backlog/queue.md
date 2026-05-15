@@ -15,7 +15,6 @@
 
 <!-- sdd:specx:start -->
 없음
-- [ ] spec-x-phase-16-define — phase-16-define
 <!-- sdd:specx:end -->
 
 ## 🧊 Icebox
@@ -74,6 +73,7 @@
 - [x] spec-x-hk-update-remote (완료)
 - [x] spec-x-kit-update-hook (완료)
 - [x] spec-x-readme-refresh (완료)
+- [x] spec-x-phase-16-define (완료)
 <!-- sdd:done:end -->
 
 ---
