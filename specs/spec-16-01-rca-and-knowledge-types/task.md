@@ -53,16 +53,17 @@
 ## Task 5: install.sh 매트릭스 확장 + 도그푸딩 mirror
 
 ### 5-1. install.sh 복사 매트릭스 확장
-- [ ] sources/templates/rca.md → .harness-kit/agent/templates/rca.md
-- [ ] sources/commands/hk-rca.md → .claude/commands/hk-rca.md
-- [ ] dry-run 검증: `bash install.sh --dry-run .` → 신규 2 라인 노출
-- [ ] Commit: `feat(spec-16-01): wire rca template and command into install matrix`
+- [-] sources/templates/rca.md → .harness-kit/agent/templates/rca.md _(passed: spec-15-05 디렉토리 glob 으로 자동 확장 — 코드 수정 불필요)_
+- [-] sources/commands/hk-rca.md → .claude/commands/hk-rca.md _(passed: 동상)_
+- [x] dry-run 검증: `bash install.sh --dry-run .` → 신규 2 라인 노출 확인 완료
+- [-] Commit: `feat(spec-16-01): wire rca template and command into install matrix` _(passed: 코드 변경 0 라인이라 commit 생략, 검증 결과는 walkthrough 에 기록)_
 
 ### 5-2. 본 키트 자기 install (도그푸딩 mirror)
-- [ ] `bash install.sh .` 실행
-- [ ] `.harness-kit/agent/templates/rca.md`, `.claude/commands/hk-rca.md`, `.harness-kit/agent/constitution.md` 동기화 확인
-- [ ] `installedCommands` 에 `hk-rca` 포함 확인 (installed.json)
-- [ ] Commit: `chore(spec-16-01): self-install for dogfooding mirror`
+- [x] `bash update.sh --yes` 실행 _(install.sh 는 이미 설치 상태라 update.sh 권장 — 사용자 무프롬프트)_
+- [x] `.harness-kit/agent/templates/rca.md`, `.claude/commands/hk-rca.md`, `.harness-kit/agent/constitution.md` 동기화 확인 (diff 0)
+- [x] `installedCommands` 에 `hk-rca` 포함 확인 (installed.json)
+- [x] Commit: `chore(spec-16-01): self-install for dogfooding mirror`
+- [x] **부수 발견**: 사전 누적 install drift 4 파일 — 사용자 결정으로 별도 `chore(spec-16-01): sync stale install drift` commit 으로 분리
 
 ---
 
