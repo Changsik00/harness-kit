@@ -70,11 +70,11 @@
 ## Task 6: 첫 사용자 RCA-001 작성
 
 ### 6-1. docs/rca/ 디렉토리 + RCA-001
-- [ ] `docs/rca/.gitkeep` 신규
-- [ ] `docs/rca/RCA-001-sdd-ship-spec-add-missing.md` 신규 — frontmatter (id=RCA-001 / type=failure-pattern / severity=medium / status=active) + 5 섹션 모두 한국어로 채움
-- [ ] 수동 점검: `grep -rh "^type:" docs/rca` 결과 = `type: failure-pattern`
-- [ ] 수동 점검: `grep -c "^## " docs/rca/RCA-001-*.md` ≥ 5
-- [ ] Commit: `docs(spec-16-01): write RCA-001 sdd ship spec add missing pattern`
+- [x] `docs/rca/.gitkeep` 신규
+- [x] `docs/rca/RCA-001-sdd-ship-spec-add-missing.md` 신규 — frontmatter (id=RCA-001 / type=failure-pattern / severity=medium / status=active) + 5 섹션 모두 한국어로 채움
+- [x] 수동 점검: `grep -rh "^type:" docs/rca` 결과 = `type: failure-pattern`
+- [x] 수동 점검: `grep -c "^## " docs/rca/RCA-001-*.md` = 6 (Symptom/Reproduction/Root Cause/Invariant/Prevention/Related)
+- [x] Commit: `docs(spec-16-01): write RCA-001 sdd ship spec add missing pattern`
 
 ---
 
