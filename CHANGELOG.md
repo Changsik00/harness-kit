@@ -5,6 +5,19 @@ harness-kit의 주요 변경 사항을 버전별로 정리합니다.
 
 ---
 
+## [0.9.1] — 2026-05-13
+
+### Added
+- `sources/hooks/check-kit-version.sh` — SessionStart hook 에서 새 kit 버전 알림. 24h 캐시 공유, 어떤 실패도 silent skip, `HARNESS_HOOK_MODE_KIT_VERSION=off` 로 비활성 가능 (#112)
+- `sources/claude-fragments/settings.json.fragment` SessionStart 배열에 `check-kit-version` hook entry 등록 (#112)
+
+### Changed
+- `sources/commands/hk-update.md` §5 안내를 **원격 curl 1차 + 로컬 fallback 2차** 형태로 전환 — 로컬 kit clone 없이 `bash <(curl ...) --update` 한 줄로 갱신 가능 (#111)
+- `sources/bin/sdd` 의 kit 새 버전 알림 문구를 `/hk-update` 단일 진입점으로 단순화 (#111)
+- `README.md` 키트 진입점 표에 원격 갱신 명령 행 추가 (#111)
+
+---
+
 ## [0.9.0] — 2026-05-12
 
 ### Added
