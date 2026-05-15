@@ -46,7 +46,16 @@
 - [x] AskUserQuestion 으로 슬러그/severity 입력
 - [x] templates/rca.md 복사 + frontmatter 자동 채움
 - [x] *최근 발견 사항 제안* 단계 — walkthrough 의 발견 사항을 5 섹션 초안으로 제시
-- [x] Commit: `feat(spec-16-01): add /hk-rca slash command`
+- [x] Commit: `feat(spec-16-01): add /hk-rca slash command` (7003a54)
+
+### 4-2. (사후 결정) /hk-rca 슬래시 커맨드 제거 + agent.md §10 RCA Protocol 로 대체
+- [x] PR review 중 사용자 의견: 슬래시 커맨드가 state/거버넌스 강제 없는 *순수 부트스트랩* — 어시스턴트 자연어 처리로 충분
+- [x] `sources/commands/hk-rca.md`, `.claude/commands/hk-rca.md` 삭제
+- [x] `installed.json` 의 `installedCommands` 에서 `hk-rca` 제거
+- [x] `sources/governance/agent.md` §10 RCA Protocol 신설 (6 룰: 트리거 / 위치 / 템플릿 / 어휘 / 작성 흐름 / 자동 진단 금지)
+- [x] mirror sync: `.harness-kit/agent/agent.md`
+- [x] spec.md / walkthrough.md / pr_description.md 사후 갱신
+- [x] Commit: `refactor(spec-16-01): replace /hk-rca slash command with governance rule`
 
 ---
 

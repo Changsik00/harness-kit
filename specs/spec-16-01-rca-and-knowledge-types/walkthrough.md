@@ -12,6 +12,7 @@
 | 사전 누적 install drift 처리 | Task 5-2 흡수 / 별도 commit / 되돌리기 | **별도 chore commit** | 사용자 결정. PR scope 깨끗하게 유지 + history 추적 용이. `chore(spec-16-01): sync stale install drift` 1 commit 으로 분리 |
 | 첫 RCA 주제 | gh CLI 실패 / sdd ship 산출물 누락 / Plan Accept 흐름 | **sdd ship 산출물 누락** | 두 번 연속 (spec-x-readme-refresh, spec-x-phase-16-define) 확인된 실제 운영 이슈. phase 성공 기준 1 (1 회 RCA) 자연 만족 + 두 번째 사용 우려 차단 |
 | RCA-001 의 prevention 범위 | 본 spec 내 fix / 별도 spec 후보 | **별도 spec 후보** | 본 spec 은 *vocabulary + 템플릿 + 첫 사용자*. sdd ship 코드 수정은 별도 작업으로 분리 — scope 폭주 회피 |
+| /hk-rca 슬래시 커맨드의 *실효성* (PR review 중 사용자 제기) | 유지 / 제거 후 governance rule 로 대체 / 후속 spec-x 분리 | **제거 + agent.md §10 RCA Protocol 신설** | 슬래시 커맨드가 state/거버넌스/hook 과 무관한 *순수 부트스트랩* 이고, 에이전트의 자연어 처리로 동일 동작 가능. trigger 역할은 agent.md 의 짧은 규약 섹션으로 충분 — over-engineering 회피. 사용자 명시 선택 |
 
 ## 💬 사용자 협의
 
@@ -19,6 +20,10 @@
   - **상황**: update.sh 실행 시 본 spec 과 무관한 사전 누적 drift 4 파일 (`hk-update.md`, `settings.json`, `bin/sdd`, `check-kit-version.sh`) 이 함께 sync
   - **사용자 의견**: 별도 chore commit 으로 *분리* — PR scope 깨끗하게 유지
   - **합의**: `chore(spec-16-01): sync stale install drift` 별도 commit (0ad73ca). 본 spec PR 에는 포함되지만 history 상 의도 mirror 와 분리 가능
+
+- **주제**: `/hk-rca` 슬래시 커맨드의 *실효성* (Ship 후 PR review 중 제기)
+  - **사용자 의견**: "명령어 만들고 그런건 안해도 되려나? 걍 숨은 어시스트로서 하면 되겠지?" — 슬래시 커맨드가 state 변경 / 거버넌스 강제 없이 *순수 템플릿 부트스트랩* 이라면 over-engineering 측면 있음
+  - **합의**: 슬래시 커맨드 (`sources/commands/hk-rca.md`, `.claude/commands/hk-rca.md`) 제거. 대신 `sources/governance/agent.md` 에 §10 RCA Protocol (6 룰 짧은 섹션) 신설. RCA 부트스트랩은 에이전트가 템플릿 직접 읽고 5 섹션 초안 제안하는 흐름. RCA 템플릿 자체 / constitution §6.4 / RCA-001 은 유지 — *기록 + 어휘 + 첫 사용자* 가치는 분리
 
 ## 🧪 검증 결과
 

@@ -5,5 +5,19 @@
   "lastVersionCheck": "",
   "latestKnownVersion": "",
   "uxMode": "interactive",
-  "installedCommands": ["hk-align","hk-archive","hk-cleanup","hk-code-review","hk-doctor","hk-phase-review","hk-phase-ship","hk-plan-accept","hk-pr-bb","hk-pr-gh","hk-rca","hk-ship","hk-spec-critique","hk-update"]
+  "installedCommands": [
+    "hk-align",
+    "hk-archive",
+    "hk-cleanup",
+    "hk-code-review",
+    "hk-doctor",
+    "hk-phase-review",
+    "hk-phase-ship",
+    "hk-plan-accept",
+    "hk-pr-bb",
+    "hk-pr-gh",
+    "hk-ship",
+    "hk-spec-critique",
+    "hk-update"
+  ]
 }

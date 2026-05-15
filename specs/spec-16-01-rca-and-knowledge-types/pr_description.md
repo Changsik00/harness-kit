@@ -8,18 +8,21 @@ phase-16 (Reliability Layer) 의 첫 도그푸딩. spec-x-readme-refresh / spec-
 
 1. **Knowledge Type 정규 어휘** — frontmatter `type:` 의 5 정규 값 (`decision` / `invariant` / `failure-pattern` / `convention` / `tradeoff`) 을 constitution §6.4 에 박는다. grep 친화적 closure 확보.
 2. **RCA 템플릿** — 5 섹션 (Symptom / Reproduction / Root Cause / Invariant Violated / Prevention) 강제. 외부 진단 #3 / 추가 제안서 §D 표준.
-3. **`/hk-rca` 슬래시 커맨드** — 자동 id 부여 + 사용자 입력 (slug, severity) + frontmatter 자동 채움. 자동 진단은 의도적 out of scope.
+3. **RCA Protocol governance 룰** — agent.md §10 신설. 트리거 / 위치 / 템플릿 / 어휘 / 작성 흐름 명시. **별도 슬래시 커맨드 없이 에이전트의 *숨은 어시스트* 흐름**.
 
 추가로 첫 사용자 `RCA-001-sdd-ship-spec-add-missing.md` 작성으로 phase-16 성공 기준 1 (1 회 RCA) 자연 만족.
+
+> 📝 **PR review 중 변경**: 초기 설계에는 `/hk-rca` 슬래시 커맨드가 포함됐으나, 사용자 의견 ("state 변경 / 거버넌스 강제 없는 순수 부트스트랩이라 어시스턴트 자연어 처리로 충분") 에 따라 7번째 commit (`refactor`) 에서 슬래시 커맨드 제거 + agent.md §10 RCA Protocol 로 대체. history 보존 차원에서 도입/제거 모두 commit 으로 남김.
 
 ### 주요 변경 사항
 
 - [x] `sources/governance/constitution.md` §6.4 신설 (Knowledge Type Vocabulary, 5 type 표 + 3 룰) — 기존 §6.4 Branch Naming 은 §6.5 로 이동
 - [x] `sources/templates/rca.md` 신규 — 5 섹션 + frontmatter (id / type=failure-pattern / date / severity / status)
-- [x] `sources/commands/hk-rca.md` 신규 — 부트스트랩 슬래시 커맨드 가이드
-- [x] 도그푸딩 mirror — `bash update.sh --yes` 로 `.harness-kit/agent/templates/rca.md`, `.claude/commands/hk-rca.md`, `.harness-kit/agent/constitution.md`, `.harness-kit/agent/agent.md` 자동 동기화. `installedCommands` 에 `hk-rca` 등록
+- [x] `sources/governance/agent.md` §10 RCA Protocol 신설 — 트리거 / 위치 / 템플릿 / 어휘 / 작성 흐름 6 룰
+- [x] 도그푸딩 mirror — `bash update.sh --yes` 로 `.harness-kit/agent/templates/rca.md`, `.harness-kit/agent/constitution.md`, `.harness-kit/agent/agent.md` 자동 동기화
 - [x] `docs/rca/.gitkeep` + `docs/rca/RCA-001-sdd-ship-spec-add-missing.md` 신규 — phase-16 첫 사용자 RCA
-- [x] install.sh 코드 변경 0 라인 — spec-15-05 디렉토리 glob 으로 신규 2 파일이 *자동* install 매트릭스 진입 (dry-run 검증 완료)
+- [x] install.sh 코드 변경 0 라인 — spec-15-05 디렉토리 glob 으로 신규 template 이 *자동* install (dry-run 검증 완료)
+- [x] *(7번째 commit, refactor)* `/hk-rca` 슬래시 커맨드 제거 — 사용자 PR review 의견에 따라 agent.md §10 governance 룰로 대체
 
 ### Phase 컨텍스트
 
@@ -28,11 +31,12 @@ phase-16 (Reliability Layer) 의 첫 도그푸딩. spec-x-readme-refresh / spec-
 
 ## 🎯 Key Review Points
 
-1. **§6.4 신설 위치와 §6.5 밀기**: 기존 `§6.4 Branch Naming` 을 `§6.5` 로 옮긴 결정. `agent.md` 의 `constitution §6.4` 참조도 `§6.5` 로 동시 갱신. 다른 곳의 §6.4 참조는 없음을 grep 으로 확인.
+1. **§6.4 신설 위치와 §6.5 밀기**: 기존 `§6.4 Branch Naming` 을 `§6.5` 로 옮긴 결정. `agent.md` 의 `constitution §6.4` 참조도 `§6.5` 로 동시 갱신.
 2. **type 정규 집합 5 개**: runbook 제외 이유 (RCA prevention 이 흡수). 향후 vocabulary 변경은 ADR (`type: decision`) 로 박는다는 룰.
-3. **install.sh 미변경**: spec-15-05 의 디렉토리 glob 으로 sources/templates/*.md, sources/commands/*.md 가 자동 install. dry-run 검증 결과만 walkthrough 에 기록. task.md 5-1 commit 은 `[-]` Passed.
-4. **사전 누적 install drift 별도 분리**: update.sh 가 본 spec 무관 4 파일 (`hk-update.md`, `settings.json`, `bin/sdd`, `check-kit-version.sh`) 도 함께 sync. 사용자 결정으로 `chore(spec-16-01): sync stale install drift` 별도 commit 으로 분리 (0ad73ca).
-5. **RCA-001 의 prevention scope**: 본 RCA 가 식별한 `sdd ship` 매트릭스 확장은 *별도 spec 후보*. 본 PR 은 vocabulary + 템플릿 + 첫 사용자까지만.
+3. **슬래시 커맨드 도입 → 제거 흐름** (7번째 commit `refactor`): 초기 `sources/commands/hk-rca.md` 도입 → PR review 중 사용자 제기 → governance rule (agent.md §10) 로 대체. 도입 commit 과 제거 commit 을 모두 history 에 남겨 *학습 기록* 으로 보존. agent.md §10 의 6 룰이 슬래시 커맨드의 trigger 역할을 충분히 대신.
+4. **install.sh 미변경**: spec-15-05 의 디렉토리 glob 으로 sources/templates/*.md 가 자동 install (dry-run 검증). 슬래시 커맨드 제거 후 install matrix 영향 0.
+5. **사전 누적 install drift 별도 분리**: update.sh 가 본 spec 무관 4 파일 (`hk-update.md`, `settings.json`, `bin/sdd`, `check-kit-version.sh`) 도 함께 sync. 사용자 결정으로 `chore(spec-16-01): sync stale install drift` 별도 commit 으로 분리 (0ad73ca).
+6. **RCA-001 의 prevention scope**: 본 RCA 가 식별한 `sdd ship` 매트릭스 확장은 *별도 spec 후보*. 본 PR 은 vocabulary + 템플릿 + governance rule + 첫 사용자까지만.
 
 ## 🧪 Verification
 
@@ -52,23 +56,25 @@ phase-16 (Reliability Layer) 의 첫 도그푸딩. spec-x-readme-refresh / spec-
 
 ### 🆕 New Files
 - `sources/templates/rca.md`: RCA 템플릿 (5 섹션 + frontmatter)
-- `sources/commands/hk-rca.md`: `/hk-rca` 슬래시 커맨드 가이드
 - `.harness-kit/agent/templates/rca.md`: 위의 도그푸딩 mirror
-- `.claude/commands/hk-rca.md`: 위의 도그푸딩 mirror
 - `docs/rca/.gitkeep`: 디렉토리 컨벤션
 - `docs/rca/RCA-001-sdd-ship-spec-add-missing.md`: 첫 사용자 RCA
 - `specs/spec-16-01-rca-and-knowledge-types/{spec,plan,task,walkthrough,pr_description}.md`: spec 산출물
 - `.harness-kit/hooks/check-kit-version.sh`: 사전 누적 drift (별도 chore commit)
 
 ### 🛠 Modified Files
-- `sources/governance/constitution.md` (+18, -1): §6.4 Knowledge Type Vocabulary 신설, 기존 §6.4 Branch Naming → §6.5
-- `sources/governance/agent.md` (+1, -1): `constitution §6.4` 참조 → `§6.5`
+- `sources/governance/constitution.md`: §6.4 Knowledge Type Vocabulary 신설, 기존 §6.4 Branch Naming → §6.5
+- `sources/governance/agent.md`: §10 RCA Protocol 신설 + `constitution §6.4` 참조 → `§6.5`
 - `.harness-kit/agent/constitution.md`, `.harness-kit/agent/agent.md`: 위의 도그푸딩 mirror
-- `.harness-kit/installed.json` (+1, -0 in installedCommands): `hk-rca` 등록 + planAccepted=true
+- `.harness-kit/installed.json`: planAccepted=true (`hk-rca` 는 도입 후 7번째 commit `refactor` 에서 제거)
 - `backlog/phase-16.md`, `backlog/queue.md`: sdd 자동 갱신
 - `.claude/commands/hk-update.md`, `.claude/settings.json`, `.harness-kit/bin/sdd`: 사전 누적 drift (별도 chore commit)
 
-**Total**: 20 files changed
+### 🗑 Deleted (7번째 commit `refactor` 에서)
+- `sources/commands/hk-rca.md` (도입 commit 7003a54 에서 신규 → refactor 에서 제거)
+- `.claude/commands/hk-rca.md` (mirror 도 동시 제거)
+
+**Total**: 20+ files touched across 7 commits
 
 ## ✅ Definition of Done
 
