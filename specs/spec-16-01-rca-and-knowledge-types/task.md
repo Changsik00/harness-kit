@@ -42,11 +42,11 @@
 ## Task 4: hk-rca 슬래시 커맨드
 
 ### 4-1. sources/commands/hk-rca.md 신규
-- [ ] 자동 id 부여 알고리즘 가이드 (docs/rca/ 스캔 → max+1)
-- [ ] AskUserQuestion 으로 슬러그/severity 입력
-- [ ] templates/rca.md 복사 + frontmatter 자동 채움
-- [ ] *최근 발견 사항 제안* 단계 — walkthrough 의 발견 사항을 5 섹션 초안으로 제시
-- [ ] Commit: `feat(spec-16-01): add /hk-rca slash command`
+- [x] 자동 id 부여 알고리즘 가이드 (docs/rca/ 스캔 → max+1)
+- [x] AskUserQuestion 으로 슬러그/severity 입력
+- [x] templates/rca.md 복사 + frontmatter 자동 채움
+- [x] *최근 발견 사항 제안* 단계 — walkthrough 의 발견 사항을 5 섹션 초안으로 제시
+- [x] Commit: `feat(spec-16-01): add /hk-rca slash command`
 
 ---
 
