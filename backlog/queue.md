@@ -8,7 +8,7 @@
 ## 📦 진행 중 Phase
 
 <!-- sdd:active:start -->
-(active phase 없음. `bin/sdd phase new <slug>` 로 시작)
+- **phase-16** — Reliability Layer 강화 — 0/0 spec — (다음: 첫 spec 생성 대기)
 <!-- sdd:active:end -->
 
 ## 📥 spec-x 대기
@@ -28,7 +28,7 @@
 > 다음에 진행할 phase 를 자유롭게 메모합니다 (사람이 직접 편집).
 > 자동 갱신되지 않습니다 — Icebox 와 동일한 정책.
 
-- **phase-16** — Reliability Layer 강화 (RCA / Knowledge Type / ADR 트리거 / Stale 탐지 / 포지셔닝) — [`backlog/phase-16.md`](phase-16.md)
+없음
 
 ## ✅ 완료
 
