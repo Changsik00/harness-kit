@@ -82,13 +82,13 @@
 
 > 모든 작업 task 완료 후 ship 절차.
 
-- [ ] `git diff main` 범위가 plan 한정인지 확인
-- [ ] **walkthrough.md 작성** (결정 기록 / 사용자 협의 / 발견 사항 위주)
-- [ ] **pr_description.md 작성**
-- [ ] **Ship Commit**: `docs(spec-16-01): ship walkthrough and pr description`
-- [ ] **Push**: `git push -u origin spec-16-01-rca-and-knowledge-types`
-- [ ] **PR 생성**: `gh pr create` (자동 진행)
-- [ ] **사용자 알림**: 푸시 완료 + PR URL 보고
+- [x] `git diff main` 범위가 plan 한정인지 확인 (의도 외 drift 는 사용자 승인된 별도 chore commit)
+- [x] **walkthrough.md 작성** (결정 기록 8 / 사용자 협의 1 / 검증 7 단계 / 발견 사항 3 / 이월 2)
+- [x] **pr_description.md 작성**
+- [x] **Ship Commit**: `docs(spec-16-01): ship walkthrough and pr description`
+- [x] **Push**: `git push -u origin spec-16-01-rca-and-knowledge-types`
+- [x] **PR 생성**: `gh pr create` (자동 진행)
+- [x] **사용자 알림**: 푸시 완료 + PR URL 보고
 
 ---
 
