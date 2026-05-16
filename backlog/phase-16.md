@@ -60,7 +60,7 @@
 | spec-16-02 | adr-activation-trigger | P1 | Backlog | (미생성) |
 | spec-16-03 | stale-decision-detect | P2 | Backlog | (미생성) |
 | spec-16-04 | reliability-positioning | P1 | Backlog | (미생성) |
-| `spec-16-01` | rca-and-knowledge-types | P? | Active | `specs/spec-16-01-rca-and-knowledge-types/` |
+| `spec-16-01` | rca-and-knowledge-types | P? | Merged | `specs/spec-16-01-rca-and-knowledge-types/` |
 <!-- sdd:specs:end -->
 
 > 상태 허용값: `Backlog` / `In Progress` / `Merged`
