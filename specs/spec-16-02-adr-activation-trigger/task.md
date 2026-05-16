@@ -112,10 +112,10 @@
 - [x] Task 7 검증 항목 전수 재확인 (5/5 PASS)
 - [x] **walkthrough.md 작성** — 결정 기록 6 항목 + ADR 승격 체크 + 검증 로그 + 발견 사항
 - [x] **pr_description.md 작성** — 변경 파일 16 + 검증 결과 + Out-of-Scope 명시
-- [ ] **Ship Commit**: `docs(spec-16-02): ship walkthrough and pr description`
-- [ ] **Push**: `git push -u origin spec-16-02-adr-activation-trigger`
-- [ ] **PR 생성**: `gh pr create`
-- [ ] **사용자 알림**: 푸시 완료 + PR URL 보고
+- [x] **Ship Commit**: `docs(spec-16-02): ship walkthrough and pr description` (cec94c4)
+- [x] **Push**: `git push -u origin spec-16-02-adr-activation-trigger`
+- [x] **PR 생성**: `gh pr create` → https://github.com/Changsik00/harness-kit/pull/117
+- [x] **사용자 알림**: 푸시 완료 + PR URL 보고
 
 ---
 
@@ -125,5 +125,5 @@
 |---|---|
 | **총 Task 수** | 8 (Pre-flight 별도) |
 | **예상 commit 수** | 8 (브랜치 생성 0 + 템플릿 동기화 2 + 트리거 3 + critique 1 + 거버넌스 1 + ADR-001 1 + Ship 1 — 총 9 commit 이내) |
-| **현재 단계** | Planning |
+| **현재 단계** | Shipped (PR #117) |
 | **마지막 업데이트** | 2026-05-16 |
