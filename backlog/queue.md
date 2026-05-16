@@ -22,6 +22,7 @@
 > 아이디어·보류 항목 보관소. 실행 불가. 관련 항목이 쌓이면 Phase로, 단발이면 spec-x로 승격.
 
 - kit 새 버전 알림이 `sdd status` drift 섹션 한 줄에 그쳐 사용자 도달이 약함 — SessionStart 시 자동 노출 또는 알림 시각 강화 필요
+- 접근성 개선 Phase 후보 — ① `curl ... | bash` 단일 install (Node 의존성 0), ③ `/hk` 단일 진입점 (state 기반 다음 행동 추천), README 신규 install 경로/진입점 반영. spec-16-01 ship 후 alignment 진입.
 
 ## 📋 대기 Phase
 
