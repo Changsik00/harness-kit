@@ -58,7 +58,7 @@
 |---|---|:---:|---|---|
 | `spec-16-01` | rca-and-knowledge-types | P0 | Merged | `specs/spec-16-01-rca-and-knowledge-types/` |
 | `spec-16-02` | adr-activation-trigger | P1 | Merged | `specs/spec-16-02-adr-activation-trigger/` |
-| `spec-16-03` | stale-decision-detect | P2 | Active | `specs/spec-16-03-stale-decision-detect/` |
+| `spec-16-03` | stale-decision-detect | P2 | Merged | `specs/spec-16-03-stale-decision-detect/` |
 | spec-16-04 | reliability-positioning | P1 | Backlog | (미생성) |
 <!-- sdd:specs:end -->
 

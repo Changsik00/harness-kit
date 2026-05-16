@@ -8,7 +8,7 @@
 ## 📦 진행 중 Phase
 
 <!-- sdd:active:start -->
-- **phase-16** — Reliability Layer 강화 — 3 spec — 다음: spec-16-03-stale-decision-detect
+- **phase-16** — Reliability Layer 강화 — 3 spec — 다음: (spec 없음)
 <!-- sdd:active:end -->
 
 ## 📥 spec-x 대기
