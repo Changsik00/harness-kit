@@ -1,5 +1,7 @@
 # harness-kit
 
+*Not an AI coding framework. A reliability layer for AI-assisted engineering.*
+
 > Claude Code를 위한 SDD(Spec-Driven Development) 거버넌스 부트스트랩 툴킷
 > 한 번 만들어두고, 다음 프로젝트에서는 한 줄로 같은 하네스를 깐다.
 
