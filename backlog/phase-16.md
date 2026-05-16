@@ -14,7 +14,7 @@
 | **시작일** | 미정 |
 | **목표 종료일** | 미정 |
 | **소유자** | dennis |
-| **Base Branch** | 없음 |
+| **Base Branch** | `phase-16-reliability-layer` (2026-05-16 mid-phase 전환 — 결정 기록 표 참조) |
 
 ## 🎯 배경 및 목표
 
@@ -34,7 +34,7 @@
 
 본 phase 가 끝났을 때:
 
-1. RCA 가 *팀 자산* 으로 누적되는 경로가 열려 있다 (`/hk-rca` → `docs/rca/` → grep).
+1. RCA 가 *팀 자산* 으로 누적되는 경로가 열려 있다 (agent.md §10 RCA Protocol → `docs/rca/` → grep). *당초 `/hk-rca` 슬래시 커맨드를 계획했으나 spec-16-01 PR review 중 governance rule (agent.md §10) 로 흡수 — 별도 슬래시 커맨드 없이 에이전트가 템플릿에서 직접 작성하는 방식으로 변경.*
 2. 산출물 type system 이 일관되어 reliability layer 가 *검색 가능한 지식 베이스* 가 된다.
 3. ADR 가 *적극 작성* 되도록 트리거가 박혀 있다.
 4. Stale 결정/ADR 이 `sdd status` 한 줄로 감지된다.
@@ -42,7 +42,7 @@
 
 ### 성공 기준 (Success Criteria) — 정량 우선
 
-1. `.harness-kit/agent/templates/rca.md` 도입 + `/hk-rca` 슬래시 커맨드 동작 — 최소 1 회 RCA 작성으로 검증 (`docs/rca/RCA-001-*.md` 생성).
+1. `.harness-kit/agent/templates/rca.md` 도입 + agent.md §10 RCA Protocol 활성화 + 최소 1 회 RCA 작성으로 검증 (`docs/rca/RCA-001-*.md` 생성). *당초 슬래시 커맨드 `/hk-rca` 를 계획했으나 spec-16-01 refactor (commit 076ebe5) 에서 governance rule (agent.md §10) 로 흡수 — 검증 조건은 RCA-001 작성 사실.*
 2. 산출물 frontmatter 에 `type:` 슬롯 정규화 — `grep -rh "^type:" docs/rca docs/decisions` 결과가 정규 type 집합(decision / invariant / failure-pattern / convention / tradeoff) 중 하나로 닫힘.
 3. `sdd status` drift 섹션에 *stale ADR/결정 탐지* 라인 추가 — fixture(지운 모듈 참조 ADR) 에서 정확히 감지.
 4. README / `version.json` / `.harness-kit/agent/constitution.md` 에 "reliability layer" 키워드 노출 — `grep -l "reliability layer"` 가 3 곳 hit.
@@ -56,22 +56,22 @@
 <!-- sdd:specs:start -->
 | ID | 슬러그 | 우선순위 | 상태 | 디렉토리 |
 |---|---|:---:|---|---|
-| spec-16-01 | rca-and-knowledge-types | P0 | Backlog | (미생성) |
-| spec-16-02 | adr-activation-trigger | P1 | Backlog | (미생성) |
-| spec-16-03 | stale-decision-detect | P2 | Backlog | (미생성) |
-| spec-16-04 | reliability-positioning | P1 | Backlog | (미생성) |
+| `spec-16-01` | rca-and-knowledge-types | P0 | Merged | `specs/spec-16-01-rca-and-knowledge-types/` |
+| `spec-16-02` | adr-activation-trigger | P1 | Merged | `specs/spec-16-02-adr-activation-trigger/` |
+| `spec-16-03` | stale-decision-detect | P2 | Merged | `specs/spec-16-03-stale-decision-detect/` |
+| `spec-16-04` | reliability-positioning | P1 | Merged | `specs/spec-16-04-reliability-positioning/` |
 <!-- sdd:specs:end -->
 
 > 상태 허용값: `Backlog` / `In Progress` / `Merged`
 
 ### spec-16-01 — RCA 시스템 도입 + Knowledge Type 슬롯
 
-- **요점**: `templates/rca.md` + `/hk-rca` 슬래시 커맨드 + 산출물 frontmatter `type:` 슬롯 (decision / invariant / failure-pattern / convention / tradeoff) 정규화.
-- **방향성**: RCA 5 섹션(symptom → reproduction → root cause → invariant → prevention) 형식 강제. type 슬롯은 RCA 가 *첫 사용자* — ADR / walkthrough 결정 표는 점진 적용. `docs/rca/RCA-{NNN}-{slug}.md` 경로.
+- **요점**: `templates/rca.md` + agent.md §10 RCA Protocol (governance rule) + 산출물 frontmatter `type:` 슬롯 (decision / invariant / failure-pattern / convention / tradeoff) 정규화.
+- **방향성**: RCA 5 섹션(symptom → reproduction → root cause → invariant → prevention) 형식 강제. type 슬롯은 RCA 가 *첫 사용자* — ADR / walkthrough 결정 표는 점진 적용. `docs/rca/RCA-{NNN}-{slug}.md` 경로. *PR review 중 결정: 슬래시 커맨드 대신 governance rule 로 흡수 (commit 076ebe5) — 에이전트가 trigger 조건(≥ 2 occurrences) 인지 시 템플릿 직접 사용.*
 - **참조**:
   - 외부 진단 #3 RCA / #2 Decision Ledger: https://velog.io/@typo/80-problem-in-agentic-coding
   - 추가 제안서 §3 Knowledge Type System / §D RCA Pipeline
-- **연관 모듈**: `sources/templates/rca.md` (신규), `sources/commands/hk-rca.md` (신규), `.harness-kit/agent/templates/rca.md`, `.claude/commands/hk-rca.md`
+- **연관 모듈**: `sources/templates/rca.md` (신규), `.harness-kit/agent/templates/rca.md`, `sources/governance/agent.md` §10 (신규 — slash command 대체)
 
 ### spec-16-02 — ADR 활성화 트리거
 
@@ -103,7 +103,8 @@
 | 이슈 | 선택지 | 결정 | 이유 |
 |---|---|---|---|
 | Knowledge Type 슬롯을 별도 spec 으로 둘지 | A. spec-16-01 에 흡수 / B. 별도 spec | **A** | RCA 가 type 슬롯의 *첫 사용자* — 같은 spec 에서 도입해 응집성 확보. 별도 spec 은 *형식만 정의하고 사용자 없음* 상태로 끝날 위험. |
-| Phase base branch 사용 여부 | 사용 / 미사용 | **미사용** | 4 spec, spec 간 의존 약함(03 만 01·02 선행), main 직 PR 로 충분. base branch 오버헤드 > 가치. |
+| Phase base branch 사용 여부 (당초) | 사용 / 미사용 | **미사용** | 4 spec, spec 간 의존 약함(03 만 01·02 선행), main 직 PR 로 충분. base branch 오버헤드 > 가치. |
+| Phase base branch 사용 여부 (재논의 2026-05-16) | 유지 / 도입 | **도입** (`phase-16-reliability-layer`) | 당초 결정의 약점 발견: ① integration test 모일 곳이 main 자체라 회귀 발견 시 오염 / ② spec-16-03 이 16-01·02 둘 다 선행 필요 — 의존이 약하지 않음 / ③ phase review 가 단일 diff 입력을 갖지 못함. PR #116, #117 머지 commit 을 phase branch 로 relocate, main 은 bc8dfab(릴리스 0.9.1) 로 rewind. spec-16-03 / 04 는 phase branch 로 PR. **복구 anchor: tag `pre-phase-16-rebuild-2026-05-16` (= rewind 전 origin/main 56b1830, remote 에 push 됨 — 다른 머신에서 `git fetch --tags` 로 즉시 복구 가능).** |
 | Out of Scope 명시 범위 | 좁게 / 넓게(Workflow engine 함정 항목 모두) | **넓게** | 외부 진단에서 추천했던 Context Kernel / Capability matrix / Cost routing 까지 *의도적으로 거름* — 본 phase 의 핵심은 *얇은 보강*. |
 
 ## 🧪 통합 테스트 시나리오 (간결)

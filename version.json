@@ -1,1 +1,4 @@
-{"version": "0.9.1"}
+{
+  "version": "0.9.1",
+  "description": "Not an AI coding framework. A reliability layer for AI-assisted engineering."
+}

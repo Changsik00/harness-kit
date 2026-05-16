@@ -27,7 +27,7 @@ Agent tool (`subagent_type: general-purpose`, `model: "opus"`)을 사용하여 *
 > - spec 문서: `specs/<spec-dir>/spec.md`를 읽어서 요구사항을 파악하세요.
 > - 필요시 `specs/<spec-dir>/plan.md`도 참조하세요.
 >
-> 다음 3가지 관점에서 검토하세요:
+> 다음 4가지 관점에서 검토하세요:
 >
 > ### 1. 유사 기법 조사
 > 웹 검색으로 이 spec이 해결하려는 문제와 동일/유사한 문제를 해결한:
@@ -50,6 +50,15 @@ Agent tool (`subagent_type: general-purpose`, `model: "opus"`)을 사용하여 *
 > - 단점
 >
 > 마지막에 **권장안**을 명시하세요 (현재 spec 유지 포함 가능).
+>
+> ### 4. ADR 후보 추출
+> 본 spec 의 결정 중 *장기 자산* 으로 박을 가치 있는 것이 있는지 식별하세요 (constitution §6.3, §6.4).
+> *자동 식별 강제 X* — 검토자 판단을 돕는 체크 섹션입니다. 후보가 없으면 "없음" 으로 표기.
+>
+> 판단 기준:
+> - cross-spec / long-lived 인가?
+> - 6 개월 이상 유지될 가능성이 있는가?
+> - frontmatter `type:` 어휘 (`decision` / `invariant` / `convention` / `tradeoff`) 중 하나에 해당하는가?
 >
 > 출력 형식 (한국어):
 > ```
@@ -86,6 +95,10 @@ Agent tool (`subagent_type: general-purpose`, `model: "opus"`)을 사용하여 *
 >
 > ## 권장안
 > <현재 spec 유지 / 대안 A / 대안 B 중 선택 + 이유>
+>
+> ## 4. ADR 후보 추출
+> - [ ] **후보 발견**: `<slug-후보>` — type: <decision / invariant / convention / tradeoff> — 이유: <한 줄>
+> - [ ] **후보 없음**: <이유 한 줄>
 > ```
 >
 > 결과는 반드시 **한국어**로 작성하세요.

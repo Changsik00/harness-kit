@@ -33,6 +33,15 @@
 | **A** | Option X | <이유> |
 | **B** | Option Y | <이유> |
 
+### 📑 ADR 후보
+
+> 위 결정 중 *장기 자산* 으로 박을 가치 있는 것이 있는가? (constitution §6.3)
+> 후보가 있으면 본 spec 머지 시점에 `docs/decisions/ADR-{NNN}-{slug}.md` 로 작성합니다.
+> 비강제 — 미체크여도 plan accept / ship 차단 없음.
+
+- [ ] ADR 가치 있는 결정 있음 → 후보 한 줄 요약: `<slug-후보>` (type: decision / invariant / convention / tradeoff)
+- [ ] 없음
+
 ## 📂 Proposed Changes
 
 ### [컴포넌트명]

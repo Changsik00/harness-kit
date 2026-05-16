@@ -335,8 +335,65 @@ _drift_kit_version() {
   newer=$(printf '%s\n%s\n' "$installed_ver" "$latest" | sort -t. -k1,1n -k2,2n -k3,3n | tail -1)
   [ "$newer" != "$latest" ] && return 1
 
-  printf "  ${C_YLW}kit: %s 사용 가능 (현재 %s) — /hk-update 또는 update.sh${C_RST}\n" \
+  printf "  ${C_YLW}kit: %s 사용 가능 (현재 %s) — /hk-update${C_RST}\n" \
     "$latest" "$installed_ver"
+  return 0
+}
+
+# Stale ADR 탐지: 본문의 backtick-wrapped 경로 중 존재하지 않는 것 검사
+# - 검사 대상: docs/decisions/ADR-*.md (RCA 제외)
+# - 추출 규칙: backtick(`) 안 토큰 중 슬래시 포함 + URL 제외 + 확장자/끝슬래시
+# - 출력: 1 줄 (ADR 별 missing path 1 개 이상이면 stale 카운트 ++)
+_drift_stale_adr() {
+  local adr_dir="$SDD_ROOT/docs/decisions"
+  [ -d "$adr_dir" ] || return 1
+
+  local stale_count=0
+  local stale_list=""
+  local adr token has_missing
+
+  for adr in "$adr_dir"/ADR-*.md; do
+    [ -f "$adr" ] || continue
+
+    has_missing=0
+    # 본문에서 backtick 토큰 추출 → 한 줄씩 필터 → 존재 검사
+    while IFS= read -r token; do
+      [ -z "$token" ] && continue
+      # 1) 슬래시 포함 필수
+      echo "$token" | grep -q '/' || continue
+      # 2) URL/SSH 패턴 제외
+      echo "$token" | grep -qE '^(https?:|git@)' && continue
+      # 3) 확장자 또는 끝 슬래시 보유
+      echo "$token" | grep -qE '\.[a-zA-Z0-9]+$|/$' || continue
+      # 4) 존재하면 skip
+      [ -e "$SDD_ROOT/$token" ] && continue
+      has_missing=1
+      break
+    done < <(grep -oE '`[^`]+`' "$adr" 2>/dev/null | tr -d '`')
+
+    if [ "$has_missing" -eq 1 ]; then
+      stale_count=$((stale_count + 1))
+      local rel
+      rel="${adr#$SDD_ROOT/}"
+      if [ -z "$stale_list" ]; then
+        stale_list="$rel"
+      else
+        stale_list="$stale_list; $rel"
+      fi
+    fi
+  done
+
+  [ "$stale_count" -eq 0 ] && return 1
+
+  # 리스트 최대 3 개 + "…" (초과 시)
+  local display="$stale_list"
+  if [ "$stale_count" -gt 3 ]; then
+    display=$(echo "$stale_list" | cut -d';' -f1-3)
+    display="$display; …"
+  fi
+
+  printf "  ${C_YLW}stale ADR: %d (missing-path) — %s${C_RST}\n" \
+    "$stale_count" "$display"
   return 0
 }
 
@@ -351,6 +408,7 @@ _status_drift() {
   _drift_worktree    && has_drift=1
   _drift_consistency && has_drift=1
   _drift_install     && has_drift=1
+  _drift_stale_adr   && has_drift=1
 
   if [ "$has_drift" -eq 0 ]; then
     echo "  ${C_DIM}깔끔${C_RST}"
