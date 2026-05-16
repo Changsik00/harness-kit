@@ -8,7 +8,7 @@
 ## 📦 진행 중 Phase
 
 <!-- sdd:active:start -->
-- **phase-16** — Reliability Layer 강화 — 2 spec — 다음: spec-16-02-adr-activation-trigger
+- **phase-16** — Reliability Layer 강화 — 2 spec — 다음: (spec 없음)
 <!-- sdd:active:end -->
 
 ## 📥 spec-x 대기
