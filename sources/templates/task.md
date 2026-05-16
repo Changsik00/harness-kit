@@ -51,7 +51,7 @@
 - [ ] **pr_description.md 작성** (템플릿 준수)
 - [ ] **Ship Commit**: `docs(spec-{phaseN}-{seq}): ship walkthrough and pr description`
 - [ ] **Push**: `git push -u origin spec-{phaseN}-{seq}-<slug>`
-- [ ] **PR 생성**: 에��전트가 `gh pr create` 또는 `/hk-pr-gh` 로 생성 (사용자 승인 후)
+- [ ] **PR 생성**: 에이전트가 `gh pr create` 또는 `/hk-pr-gh` 로 생성 (사용자 승인 후)
 - [ ] **사용자 알림**: 푸시 완료 + PR URL 보고
 
 ---
