@@ -210,7 +210,24 @@ Governs how the Agent confirms irreversible external actions (push, PR creation)
 - ADR: `docs/decisions/ADR-{NNN}-{slug}.md` — for architectural / cross-Spec / long-lived decisions. Routine decisions stay in `walkthrough.md` / `plan.md` / `phase.md`.
 - Note: `backlog/` and `specs/` are sibling directories — `backlog/` is the *plan*, `specs/` is the *progress log*. Phase definition lives as a *single flat file* in `backlog/`, not a subdirectory.
 
-### 6.4 Branch Naming
+### 6.4 Knowledge Type Vocabulary
+
+Artifacts whose frontmatter exposes a `type:` field MUST use exactly one of the following values:
+
+| Type | Used in | When to apply |
+|---|---|---|
+| `decision` | ADR | A non-trivial design choice with rationale; long-lived. |
+| `invariant` | ADR / runbook-style notes | A property the system MUST preserve (e.g. domain ≠ infra). |
+| `failure-pattern` | RCA | A recurring failure with reproduction + prevention. |
+| `convention` | ADR / style guide | A naming/structure rule adopted for consistency. |
+| `tradeoff` | ADR | A choice with explicit cost on the rejected side. |
+
+Rules:
+- `type:` MUST be present in any frontmatter that adopts this vocabulary (currently RCA; ADR adoption deferred to spec-16-02).
+- Values outside the set are a violation — grep tools rely on closure.
+- Vocabulary changes (add / rename / remove) are themselves architecture decisions — record as an ADR with `type: decision`.
+
+### 6.5 Branch Naming
 - Spec branch name = spec directory name. **No `feature/` prefix.**
 - Format: `spec-{phaseN}-{seq}-{slug}`
 - Example: `spec-01-01-stock-row-locking`
