@@ -23,6 +23,7 @@
 
 - kit 새 버전 알림이 `sdd status` drift 섹션 한 줄에 그쳐 사용자 도달이 약함 — SessionStart 시 자동 노출 또는 알림 시각 강화 필요
 - 접근성 개선 Phase 후보 — ① `curl ... | bash` 단일 install (Node 의존성 0), ③ `/hk` 단일 진입점 (state 기반 다음 행동 추천), README 신규 install 경로/진입점 반영. spec-16-01 ship 후 alignment 진입.
+- `sdd ship` 의 phase.md marker 갱신 버그 — 기존 Backlog 행을 *업데이트* 하지 않고 Merged 행을 *append* 하여 spec 중복 + NEXT 오인. spec-16-01 ship 시 phase-16.md 수동 보정 필요했음. RCA 후보 (재현 가능, 반복 패턴).
 
 ## 📋 대기 Phase
 
