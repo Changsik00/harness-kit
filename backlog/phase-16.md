@@ -14,7 +14,7 @@
 | **시작일** | 미정 |
 | **목표 종료일** | 미정 |
 | **소유자** | dennis |
-| **Base Branch** | 없음 |
+| **Base Branch** | `phase-16-reliability-layer` (2026-05-16 mid-phase 전환 — 결정 기록 표 참조) |
 
 ## 🎯 배경 및 목표
 
@@ -104,7 +104,8 @@
 | 이슈 | 선택지 | 결정 | 이유 |
 |---|---|---|---|
 | Knowledge Type 슬롯을 별도 spec 으로 둘지 | A. spec-16-01 에 흡수 / B. 별도 spec | **A** | RCA 가 type 슬롯의 *첫 사용자* — 같은 spec 에서 도입해 응집성 확보. 별도 spec 은 *형식만 정의하고 사용자 없음* 상태로 끝날 위험. |
-| Phase base branch 사용 여부 | 사용 / 미사용 | **미사용** | 4 spec, spec 간 의존 약함(03 만 01·02 선행), main 직 PR 로 충분. base branch 오버헤드 > 가치. |
+| Phase base branch 사용 여부 (당초) | 사용 / 미사용 | **미사용** | 4 spec, spec 간 의존 약함(03 만 01·02 선행), main 직 PR 로 충분. base branch 오버헤드 > 가치. |
+| Phase base branch 사용 여부 (재논의 2026-05-16) | 유지 / 도입 | **도입** (`phase-16-reliability-layer`) | 당초 결정의 약점 발견: ① integration test 모일 곳이 main 자체라 회귀 발견 시 오염 / ② spec-16-03 이 16-01·02 둘 다 선행 필요 — 의존이 약하지 않음 / ③ phase review 가 단일 diff 입력을 갖지 못함. PR #116, #117 머지 commit 을 phase branch 로 relocate, main 은 bc8dfab(릴리스 0.9.1) 로 rewind. spec-16-03 / 04 는 phase branch 로 PR. |
 | Out of Scope 명시 범위 | 좁게 / 넓게(Workflow engine 함정 항목 모두) | **넓게** | 외부 진단에서 추천했던 Context Kernel / Capability matrix / Cost routing 까지 *의도적으로 거름* — 본 phase 의 핵심은 *얇은 보강*. |
 
 ## 🧪 통합 테스트 시나리오 (간결)
