@@ -8,7 +8,7 @@
 ## 📦 진행 중 Phase
 
 <!-- sdd:active:start -->
-- **phase-16** — Reliability Layer 강화 — 3 spec — 다음: (spec 없음)
+- **phase-16** — Reliability Layer 강화 — 4 spec — 다음: spec-16-04-reliability-positioning
 <!-- sdd:active:end -->
 
 ## 📥 spec-x 대기

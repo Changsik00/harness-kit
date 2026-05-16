@@ -1,5 +1,7 @@
 # Project Constitution
 
+harness-kit is a reliability layer for AI-assisted engineering. The Constitution below defines the invariant laws that make this layer enforceable.
+
 The Constitution defines the invariant laws of this project. All Agents MUST comply with these rules at all times. This document takes precedence over all other instructions.
 
 ---
