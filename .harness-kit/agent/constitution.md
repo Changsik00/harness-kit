@@ -207,7 +207,7 @@ Governs how the Agent confirms irreversible external actions (push, PR creation)
 - Queue dashboard: `backlog/queue.md` (sdd-managed)
 - Phase definition: `backlog/phase-{N}.md` (single file per phase, contains spec table + integration tests + ADR refs)
 - Spec work: `specs/spec-{phaseN}-{seq}-{slug}/` (actual artifacts)
-- ADR: `docs/decisions/ADR-{NNN}-{slug}.md` — for architectural / cross-Spec / long-lived decisions. Routine decisions stay in `walkthrough.md` / `plan.md` / `phase.md`.
+- ADR: `docs/decisions/ADR-{NNN}-{slug}.md` — for architectural / cross-Spec / long-lived decisions. Routine decisions stay in `walkthrough.md` / `plan.md` / `phase.md`. Template: `.harness-kit/agent/templates/adr.md`. Frontmatter MUST include `type:` from the §6.4 vocabulary (typically `decision`, optionally `invariant` / `convention` / `tradeoff`).
 - Note: `backlog/` and `specs/` are sibling directories — `backlog/` is the *plan*, `specs/` is the *progress log*. Phase definition lives as a *single flat file* in `backlog/`, not a subdirectory.
 
 ### 6.4 Knowledge Type Vocabulary
@@ -223,7 +223,7 @@ Artifacts whose frontmatter exposes a `type:` field MUST use exactly one of the 
 | `tradeoff` | ADR | A choice with explicit cost on the rejected side. |
 
 Rules:
-- `type:` MUST be present in any frontmatter that adopts this vocabulary (currently RCA; ADR adoption deferred to spec-16-02).
+- `type:` MUST be present in any frontmatter that adopts this vocabulary (RCA and ADR; both adopt the closure).
 - Values outside the set are a violation — grep tools rely on closure.
 - Vocabulary changes (add / rename / remove) are themselves architecture decisions — record as an ADR with `type: decision`.
 

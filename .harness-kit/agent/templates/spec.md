@@ -46,6 +46,15 @@
 - <항목 1>
 - <항목 2>
 
+## 📑 ADR 후보 (Architecture Decision Records)
+
+> 본 SPEC 의 결정 중 *장기 자산* 으로 박을 가치 있는 것이 있는가? (constitution §6.3 ADR 정의)
+> 후보가 있으면 본 spec 머지 시점에 `docs/decisions/ADR-{NNN}-{slug}.md` 로 작성합니다.
+> 비강제 — 미체크여도 ship 차단 없음.
+
+- [ ] ADR 가치 있는 결정 있음 → 후보 한 줄 요약: `<slug-후보>` (type: decision / invariant / convention / tradeoff)
+- [ ] 없음
+
 ## 🔍 Critique 결과 (선택)
 
 <!-- /hk-spec-critique 실행 후 핵심 발견사항을 요약합니다. 미실행 시 이 섹션 생략 가능. -->

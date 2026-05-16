@@ -11,6 +11,20 @@
 |---|---|---|---|
 | <이슈 1> | A 또는 B | A | <이유> |
 
+### ADR 승격 가이드
+
+> 위 결정 중 *cross-spec / long-lived* 인 것이 있다면 ADR 로 승격합니다 (constitution §6.3).
+>
+> 승격 기준:
+> - 다른 spec 의 작업이 본 결정에 의존하는가?
+> - 6 개월 이상 유지될 가능성이 높은가?
+> - frontmatter `type:` 어휘 (`decision` / `invariant` / `convention` / `tradeoff`) 중 하나에 해당하는가?
+>
+> 셋 중 둘 이상이면 ADR 후보. 비강제 — 미체크여도 ship 차단 없음.
+
+- [ ] ADR 승격 대상 있음 → 작성됨: `docs/decisions/ADR-<NNN>-<slug>.md`
+- [ ] 없음
+
 ## 💬 사용자 협의
 
 > 사용자와 논의한 내용과 합의 사항을 기록합니다.
