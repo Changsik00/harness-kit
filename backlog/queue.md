@@ -8,7 +8,7 @@
 ## 📦 진행 중 Phase
 
 <!-- sdd:active:start -->
-- **phase-16** — Reliability Layer 강화 — 4 spec — 다음: (spec 없음)
+(active phase 없음. `bin/sdd phase new <slug>` 로 시작)
 <!-- sdd:active:end -->
 
 ## 📥 spec-x 대기
@@ -31,6 +31,7 @@
 - `tests/test-drift-stale-adr.sh` 의 회귀 마커가 ADR-001 본문에 종속 — fragile (phase-16 회고 W3). 별도 fixture (valid path 만 포함 ADR-998) 로 분리해 self-contained 검증 후보.
 - `constitution.md §6.4` 의 "Used in" 열 (RCA 전용 어휘) vs Rules ("ADR adopt closure") 표현 모호 — 인간 작성자 혼선 가능 (phase-16 회고 W1). 표현 명확화 후보.
 - `CHANGELOG.md` phase-16 entry 미반영 (phase-16 회고 W7). version bump 없으므로 형식적으로 OK 하나, 다음 release 시 spec 4 개 catch-up 부담. release 정책에 "phase ship 시 CHANGELOG draft 추가" 룰 검토.
+- `sdd phase done` 이 phase-N.md 제목을 읽지 못하고 완료 항목에 "**N** — ? — completed" 출력 (phase-16 done 시 발견, 수동 보정). 다른 phase 들의 done entry 형식 (`**phase-N** — 제목 — completed YYYY-MM-DD`) 과 불일치. sdd CLI 버그 — phase-N.md 의 H1 (`# phase-N: 제목`) 에서 제목 추출하도록 fix. spec-x 후보.
 
 ## 📋 대기 Phase
 
@@ -83,6 +84,7 @@
 - [x] spec-x-kit-update-hook (완료)
 - [x] spec-x-readme-refresh (완료)
 - [x] spec-x-phase-16-define (완료)
+- **phase-16** — Reliability Layer 강화 — completed 2026-05-16
 <!-- sdd:done:end -->
 
 ---
