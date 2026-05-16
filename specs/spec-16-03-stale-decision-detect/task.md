@@ -87,10 +87,10 @@
 - [x] Task 2~6 검증 항목 전수 재확인
 - [x] **walkthrough.md 작성** — 결정 기록 6 + 검증 로그 + 발견 5
 - [x] **pr_description.md 작성** — 변경 파일 9 + PR target=phase-16-reliability-layer 명시
-- [ ] **Ship Commit**: `docs(spec-16-03): ship walkthrough and pr description`
-- [ ] **Push**: `git push -u origin spec-16-03-stale-decision-detect`
-- [ ] **PR 생성**: `gh pr create --base phase-16-reliability-layer` (★ main 이 아님)
-- [ ] **사용자 알림**: 푸시 완료 + PR URL 보고
+- [x] **Ship Commit**: `docs(spec-16-03): ship walkthrough and pr description` (1a7c47a)
+- [x] **Push**: `git push -u origin spec-16-03-stale-decision-detect`
+- [x] **PR 생성**: `gh pr create --base phase-16-reliability-layer` → https://github.com/Changsik00/harness-kit/pull/118
+- [x] **사용자 알림**: 푸시 완료 + PR URL 보고
 
 ---
 
@@ -100,5 +100,5 @@
 |---|---|
 | **총 Task 수** | 7 (Pre-flight 별도) |
 | **예상 commit 수** | 5 (planning + test + feat + sync + ship) — Task 5/6 은 commit 없음 |
-| **현재 단계** | Shipping |
+| **현재 단계** | Shipped (PR #118) |
 | **마지막 업데이트** | 2026-05-16 |
