@@ -15,7 +15,6 @@
 
 <!-- sdd:specx:start -->
 없음
-- [ ] spec-x-planning-economy — planning-economy
 <!-- sdd:specx:end -->
 
 ## 🧊 Icebox
@@ -86,6 +85,7 @@
 - **phase-16** — Reliability Layer 강화 — completed 2026-05-16
 - [x] spec-x-phase-17-define (완료)
 - **phase-17** — 운영 성숙도 (Operational Maturity) — completed 2026-05-17
+- [x] spec-x-planning-economy (완료)
 <!-- sdd:done:end -->
 
 ---
