@@ -25,9 +25,9 @@
 - (phase-16 W9) ADR 승격 가이드 ROI metric — *측정 누적 (3 개월+) 선행 필요*. phase-17 종료 후 spec 의 ADR 승격 ratio 데이터 보고 결정
 
 **[phase-17 으로 promote 된 항목 — 처리 진행 중]**:
-- ~~접근성 개선~~ → phase-17 **spec-17-03** (accessibility-install-and-entry)
+- ~~접근성 개선~~ → phase-17 **spec-17-02** (accessibility-install-and-entry)
 - ~~sdd marker 버그 (W5/W10)~~ → ✓ **spec-17-01** 머지로 종식 (RCA-001 prevention)
-- ~~installed.json 캐시 (C3)~~ / ~~phase integration test (W2)~~ / ~~doctor 새 경로 (W6)~~ → phase-17 **spec-17-02** (internal-reliability-infra)
+- ~~installed.json 캐시 (C3)~~ / ~~phase integration test (W2)~~ / ~~doctor 새 경로 (W6)~~ → phase-17 **spec-17-03** (internal-reliability-infra)
 - ~~§6.4 표현 (W1)~~ / ~~stale ADR 회귀 마커 (W3)~~ / ~~ADR 가이드 (W4)~~ / ~~CHANGELOG 정책 (W7)~~ → phase-17 **spec-17-04** (governance-test-coherence)
 - ~~sdd phase done title 버그~~ → ✓ **spec-17-01** 머지로 종식 (normalize)
 
