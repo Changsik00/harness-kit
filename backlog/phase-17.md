@@ -71,8 +71,8 @@ phase-16 (Reliability Layer 강화) 완료 후 두 종류의 미해결 부채가
 | ID | 슬러그 | 우선순위 | 상태 | 디렉토리 |
 |---|---|:---:|---|---|
 | `spec-17-01` | sdd-marker-bugs-fix | P0 | Merged | `specs/spec-17-01-sdd-marker-bugs-fix/` |
-| spec-17-02 | internal-reliability-infra | P1 | Backlog | (미생성) |
-| spec-17-03 | accessibility-install-and-entry | P0 | Backlog | (미생성) |
+| `spec-17-02` | accessibility-install-and-entry | P0 | Active | `specs/spec-17-02-accessibility-install-and-entry/` |
+| spec-17-03 | internal-reliability-infra | P1 | Backlog | (미생성) |
 | spec-17-04 | governance-test-coherence | P2 | Backlog | (미생성) |
 <!-- sdd:specs:end -->
 
@@ -84,7 +84,17 @@ phase-16 (Reliability Layer 강화) 완료 후 두 종류의 미해결 부채가
 - **상태**: 머지됨 (commit `5aebd0d`, PR #122). RCA-001 prevention 직접 구현.
 - **연관 모듈**: `sources/bin/sdd`, `tests/test-sdd-marker-idempotent.sh`
 
-### spec-17-02 — Internal reliability infrastructure (📦 묶음)
+### spec-17-02 — Accessibility: install + entry point + onboarding (📦 묶음, P0)
+
+- **요점**: 외부 사용자가 키트에 *낮은 마찰* 로 닿도록 — 단일 명령 install (검증) + 단일 진입점 + README onboarding.
+  - **curl 인스톨러 검증**: `get.sh` 이미 존재 + README 에 명시 — 동작 검증만, 수정 거의 없음 가능성 큼.
+  - **`/hk` 단일 진입점 (메인 작업)**: `.claude/commands/hk.md` 신규. `sdd status --json` 기반으로 *현 상태에 맞는 다음 행동 1 줄* 추천 + 관련 슬래시 커맨드 안내. 슬래시 커맨드 10여개를 외울 필요 ↓.
+  - **README onboarding 갱신**: Step 1 에 `/hk` 도 안내 (`/hk-align` 또는 `/hk`). 기존 한국어 본문 구조 유지, minor 3-5 줄.
+- **방향성**: *외부 사용자 경험* 우선. 사용자가 키트 채택 후 *어떤 슬래시 커맨드를 외워야 하나* 의 부담 ↓. 한 spec 으로 묶어야 onboarding 흐름이 일관됨 — 분리 시 부분만 노출 위험.
+- **참조**: Icebox "접근성 개선 Phase 후보" (phase-16 회고 시점 사용자 의도)
+- **연관 모듈**: `sources/commands/hk.md` (신규), `.claude/commands/hk.md` (신규), `README.md`, `get.sh` (검증만)
+
+### spec-17-03 — Internal reliability infrastructure (📦 묶음)
 
 - **요점**: phase-16 회고에서 식별된 *내부 운영 인프라 부채* 4 건 한 spec 으로 묶음 처리.
   - **C3 cache 분리**: `installed.json` 의 `lastVersionCheck` / `latestKnownVersion` 두 필드를 `.harness-kit/cache.json` 으로 이관 + `.gitignore`. install.sh 마이그레이션 로직.
@@ -94,16 +104,6 @@ phase-16 (Reliability Layer 강화) 완료 후 두 종류의 미해결 부채가
 - **방향성**: 각 fix 가 작아도 *내부 도그푸딩 인프라* 라는 동일 테마. 4-6 commit 예상.
 - **참조**: phase-16 회고 W2/W6/C3, spec-17-01 walkthrough 의 marker helper 일반화 후보
 - **연관 모듈**: `sources/hooks/check-kit-version.sh`, `sources/bin/sdd`, `install.sh`, `.gitignore`, `doctor.sh`, `tests/test-phase16-integration.sh` (신규)
-
-### spec-17-03 — Accessibility: install + entry point + onboarding (📦 묶음, P0)
-
-- **요점**: 외부 사용자가 키트에 *낮은 마찰* 로 닿도록 — 단일 명령 install + 단일 진입점 + README onboarding.
-  - **curl 인스톨러**: `curl -sSL <url> | bash` 한 줄로 install.sh 실행. URL 후보: `https://raw.githubusercontent.com/Changsik00/harness-kit/main/install.sh` (이미 작동 가능, README 명시 + 안전성 검증).
-  - **`/hk` 단일 진입점**: `.claude/commands/hk.md` 신규. `sdd status --json` 기반으로 *현 상태에 맞는 다음 행동 1 줄* 추천 + 관련 슬래시 커맨드 안내. 슬래시 커맨드 10여개를 외울 필요 ↓.
-  - **README install/사용 흐름 갱신**: install 한 줄 + onboarding 첫 단계 (`/hk-align` → `/hk`) 명시. 기존 한국어 본문 구조 유지.
-- **방향성**: *외부 사용자 경험* 우선. install 한 줄 + 진입점 단순화가 채택률 / 평판에 직접. 한 spec 으로 묶어야 onboarding 흐름이 일관됨 — 분리 시 부분만 노출 위험.
-- **참조**: Icebox "접근성 개선 Phase 후보" (phase-16 회고 시점 사용자 의도)
-- **연관 모듈**: `install.sh` (수정 없음, URL 안전성만 검증), `sources/commands/hk.md` (신규), `.claude/commands/hk.md` (신규), `README.md`
 
 ### spec-17-04 — Governance + test coherence (📦 잡탕 cleanup, P2)
 
