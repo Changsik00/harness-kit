@@ -28,6 +28,31 @@ state_set() {
   mv "$tmp" "$SDD_STATE"
 }
 
+# 활성 spec 존재 시 die. --force 처리는 호출자가 사전 수행 (가드 호출 자체를 skip).
+# action: 호출 명령 이름 (예: "phase activate", "phase new", "spec new")
+die_if_active_spec() {
+  local action="$1"
+  local active
+  active="$(state_get spec)"
+  if [ -n "$active" ] && [ "$active" != "null" ]; then
+    err "활성 spec 존재: $active"
+    err ""
+    err "${action} 은 활성 spec 컨텍스트를 silent reset 합니다."
+    err ""
+    err "해결:"
+    case "$active" in
+      spec-x-*)
+        err "  1) spec-x 완료:    sdd specx done ${active#spec-x-}"
+        ;;
+      *)
+        err "  1) SDD-P spec 완료: sdd ship (또는 PR merge 대기)"
+        ;;
+    esac
+    err "  2) 의도적 강제:    --force 플래그 추가"
+    exit 1
+  fi
+}
+
 # 전체 state 출력
 state_dump() {
   if [ -f "$SDD_STATE" ]; then

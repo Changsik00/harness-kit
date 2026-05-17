@@ -15,6 +15,7 @@
 
 <!-- sdd:specx:start -->
 없음
+- [ ] spec-x-sdd-state-guard — sdd-state-guard
 <!-- sdd:specx:end -->
 
 ## 🧊 Icebox
