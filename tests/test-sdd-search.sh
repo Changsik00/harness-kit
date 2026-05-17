@@ -98,6 +98,12 @@ if [ "$RC3" -eq 0 ] && echo "$OUT3" | grep -q "▶ decisions" && ! echo "$OUT3" 
 else
   fail "T3 실패 — rc=$RC3, out=$OUT3"
 fi
+# 매치 라인에 파일 경로 prefix 가 있어야 함 (single-file 디렉토리 회귀 방지)
+if echo "$OUT3" | grep -qE "^docs/decisions/.*\.md:[0-9]+:"; then
+  ok "T3 파일 경로 prefix 포함"
+else
+  fail "T3 파일 경로 누락 — out=$OUT3"
+fi
 
 # ─────────────────────────────────────────────────────────
 # T4: --ignore-case

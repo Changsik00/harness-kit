@@ -2232,10 +2232,10 @@ _search_in() {
   for d in $dirs; do
     [ -d "$SDD_ROOT/$d" ] || continue
     if [ -n "$ic" ]; then
-      out="$out$(find "$SDD_ROOT/$d" -type f -name '*.md' -exec grep -nEi -- "$kw" {} + 2>/dev/null)
+      out="$out$(find "$SDD_ROOT/$d" -type f -name '*.md' -exec grep -HnEi -- "$kw" {} + 2>/dev/null)
 "
     else
-      out="$out$(find "$SDD_ROOT/$d" -type f -name '*.md' -exec grep -nE -- "$kw" {} + 2>/dev/null)
+      out="$out$(find "$SDD_ROOT/$d" -type f -name '*.md' -exec grep -HnE -- "$kw" {} + 2>/dev/null)
 "
     fi
   done
