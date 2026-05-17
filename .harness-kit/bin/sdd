@@ -993,6 +993,11 @@ queue_phase_is_done() {
 queue_mark_done() {
   local phase_id="${1:-$(state_get phase)}"
   [ -z "$phase_id" ] || [ "$phase_id" = "null" ] && return 0
+  # normalize: 사용자가 'phase done 16' 처럼 prefix 없이 호출 시 자동 보정
+  case "$phase_id" in
+    phase-*) ;;
+    *) phase_id="phase-$phase_id" ;;
+  esac
   local q="$(state_queue_file)"
   ensure_queue_file
   local title=""
@@ -1163,13 +1168,14 @@ spec_new() {
   done
 
   # phase-{N}.md 의 spec 표에 행 추가 또는 갱신
-  # 기존 Backlog 행이 있으면 Active 로 업데이트, 없으면 새 행 append
+  # 기존 행 (backtick 형식 또는 plain text Backlog 행) 있으면 in-place update
+  # 없으면 새 행 append
   local row="| \`${short_id}\` | ${slug} | P? | Active | \`specs/${id}/\` |"
-  # 정확 토큰 매칭: 마커 row 의 ID 필드는 항상 백틱 포함이므로 \`ID\` 로 검색하여
-  # phase 본문 텍스트의 비백틱 ID 매치 또는 더 긴 ID (spec-N-NN1) 의 부분 일치 회피
+  # 매칭 패턴: 백틱 형식 (auto-generated) 또는 plain '| spec-N-NN |' (수동 작성 Backlog)
   if sdd_marker_grep "$phase_file" "specs" "\`${short_id}\`"; then
-    local updated_row="| \`${short_id}\` | ${slug} | P? | Active | \`specs/${id}/\` |"
-    sdd_marker_update_row "$phase_file" "specs" "\`${short_id}\`" "$updated_row"
+    sdd_marker_update_row "$phase_file" "specs" "\`${short_id}\`" "$row"
+  elif sdd_marker_grep "$phase_file" "specs" "| ${short_id} |"; then
+    sdd_marker_update_row "$phase_file" "specs" "| ${short_id} |" "$row"
   else
     sdd_marker_append "$phase_file" "specs" "$row"
   fi
@@ -1429,12 +1435,19 @@ cmd_ship() {
       local tmp_pf
       tmp_pf="$(mktemp)"
       # 상태 전이 모델: Backlog → Active → In Progress → Done → Merged
-      # ship은 Active/In Progress/Done 어느 상태에서든 Merged로 전환
-      awk -v sid="$spec_id" '
+      # ship: Active/In Progress/Done → Merged.
+      # 동일 short_id 의 plain text Backlog 행이 잔류하면 제거 (한 spec = 한 행).
+      awk -v sid="$spec_id" -v short_sid="$scope" '
         index($0, sid) && (/\| In Progress \|/ || /\| Active \|/ || /\| Done \|/) {
           sub(/\| In Progress \|/, "| Merged |")
           sub(/\| Active \|/, "| Merged |")
           sub(/\| Done \|/, "| Merged |")
+          print
+          next
+        }
+        # 동일 short_id 의 plain Backlog 행 (수동 작성, sdd spec new 이전) 제거
+        $0 ~ "\\| " short_sid " \\|" && /\| Backlog \|/ {
+          next
         }
         { print }
       ' "$phase_file" > "$tmp_pf" && mv "$tmp_pf" "$phase_file"
