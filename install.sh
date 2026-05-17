@@ -512,8 +512,6 @@ else
   "kitVersion": "$KIT_VERSION",
   "kitOrigin": "$_kit_origin",
   "installedAt": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
-  "lastVersionCheck": "",
-  "latestKnownVersion": "",
   "uxMode": "interactive",
   "installedCommands": $_cmd_json
 }
