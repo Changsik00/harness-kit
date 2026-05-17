@@ -43,8 +43,9 @@ sdd — harness-kit 메타 명령
   phase show [phase-N]          phase 상세 (생략 시 active)
   phase done [phase-N]          phase 를 완료 처리 (queue 의 done 으로 이동)
 
-  spec new <slug>               active phase 안에 새 spec-{phaseN}-{seq}-{slug} 생성
+  spec new <slug> [--force]     active phase 안에 새 spec-{phaseN}-{seq}-{slug} 생성
                                 phase-{N}.md 의 spec 표 자동 append + queue 갱신
+                                --force: 활성 spec 가드 우회 (silent reset).
   spec list [--phase=N]         spec 목록
   spec show [spec-NN-NN-slug]  spec 상세 (생략 시 active)
 
@@ -1201,8 +1202,18 @@ _pre_spec_validation() {
 
 spec_new() {
   local slug="${1:-}"
-  [ -z "$slug" ] && die "사용법: sdd spec new <slug>"
+  [ -z "$slug" ] && die "사용법: sdd spec new <slug> [--force]"
   sdd_slug_ok "$slug" || die "slug 형식 오류: 소문자/숫자/하이픈"
+
+  # --force 사전 파싱
+  local force_mode=0
+  local arg
+  for arg in "${@:2}"; do
+    case "$arg" in --force) force_mode=1 ;; esac
+  done
+
+  # 활성 spec 가드 (--force 로 우회 가능)
+  [ $force_mode -eq 0 ] && die_if_active_spec "spec new"
 
   _pre_spec_validation "$slug"
 
