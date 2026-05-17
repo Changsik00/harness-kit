@@ -73,7 +73,7 @@ phase-16 (Reliability Layer 강화) 완료 후 두 종류의 미해결 부채가
 | `spec-17-01` | sdd-marker-bugs-fix | P0 | Merged | `specs/spec-17-01-sdd-marker-bugs-fix/` |
 | `spec-17-02` | accessibility-install-and-entry | P0 | Merged | `specs/spec-17-02-accessibility-install-and-entry/` |
 | `spec-17-03` | internal-reliability-infra | P? | Merged | `specs/spec-17-03-internal-reliability-infra/` |
-| `spec-17-04` | governance-test-coherence | P2 | Active | `specs/spec-17-04-governance-test-coherence/` |
+| `spec-17-04` | governance-test-coherence | P2 | Merged | `specs/spec-17-04-governance-test-coherence/` |
 <!-- sdd:specs:end -->
 
 > 상태 허용값: `Backlog` / `In Progress` / `Merged`

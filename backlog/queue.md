@@ -8,7 +8,7 @@
 ## 📦 진행 중 Phase
 
 <!-- sdd:active:start -->
-- **phase-17** — 운영 성숙도 (Operational Maturity) — 4 spec — 다음: spec-17-04-governance-test-coherence
+- **phase-17** — 운영 성숙도 (Operational Maturity) — 4 spec — 다음: (spec 없음 — phase-ship 준비 완료)
 <!-- sdd:active:end -->
 
 ## 📥 spec-x 대기
