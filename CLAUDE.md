@@ -63,6 +63,12 @@
 4. PR 생성:
    - 제목: `chore: release X.Y.Z`
    - 본문: `## X.Y.Z Release` + CHANGELOG 의 해당 섹션 내용 그대로
+5. **PR 머지 후 — Post-release Protocol** (사용자가 "머지 했어" 신호 시 즉시 수행):
+   - `git checkout main && git pull --ff-only`
+   - **Annotated git tag**: `git tag -a vX.Y.Z -m "Release X.Y.Z"` — release commit (squash 결과) 의 main SHA 를 가리킴
+   - **Push tag**: `git push origin vX.Y.Z`
+   - **GitHub Release 생성**: `gh release create vX.Y.Z --title "vX.Y.Z" --notes-file <CHANGELOG 의 해당 섹션>` — CHANGELOG 의 `## [X.Y.Z]` 본문을 그대로 notes 로. 사용자에게 GitHub Release URL 보고.
+   - 본 단계 누락 시 `version.json` 만 갱신되고 *tag / GitHub Release 부재* → `--version X.Y.Z` install 옵션 동작 안 함 + `gh release list` 에 미반영. 0.9.1 의 실패 패턴.
 
 ### 룰
 
