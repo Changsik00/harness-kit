@@ -15,7 +15,6 @@
 
 <!-- sdd:specx:start -->
 없음
-- [ ] spec-x-phase-17-define — phase-17-define
 <!-- sdd:specx:end -->
 
 ## 🧊 Icebox
@@ -86,6 +85,7 @@
 - [x] spec-x-readme-refresh (완료)
 - [x] spec-x-phase-16-define (완료)
 - **phase-16** — Reliability Layer 강화 — completed 2026-05-16
+- [x] spec-x-phase-17-define (완료)
 <!-- sdd:done:end -->
 
 ---
