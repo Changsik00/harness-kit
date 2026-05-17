@@ -8,7 +8,7 @@
 ## 📦 진행 중 Phase
 
 <!-- sdd:active:start -->
-- **phase-17** — 정합성 fix (Coherence Fix) — 0/0 spec — (다음: 첫 spec 생성 대기)
+- **phase-17** — 운영 성숙도 (Operational Maturity) — 5 spec — 다음: spec-17-05-pre-ship-fixes
 <!-- sdd:active:end -->
 
 ## 📥 spec-x 대기
@@ -22,16 +22,14 @@
 > 아이디어·보류 항목 보관소. 실행 불가. 관련 항목이 쌓이면 Phase로, 단발이면 spec-x로 승격.
 
 - kit 새 버전 알림이 `sdd status` drift 섹션 한 줄에 그쳐 사용자 도달이 약함 — SessionStart 시 자동 노출 또는 알림 시각 강화 필요
-- 접근성 개선 Phase 후보 — ① `curl ... | bash` 단일 install (Node 의존성 0), ③ `/hk` 단일 진입점 (state 기반 다음 행동 추천), README 신규 install 경로/진입점 반영. spec-16-01 ship 후 alignment 진입.
-- `sdd ship` 의 phase.md marker 갱신 버그 — 기존 Backlog 행을 *업데이트* 하지 않고 Merged 행을 *append* 하여 spec 중복 + NEXT 오인. spec-16-01 ship 시 phase-16.md 수동 보정 필요했음. RCA 후보 (재현 가능, 반복 패턴). **phase-16 phase-ship 회고에서 4 회 재발 확인 (W5, W10) — RCA-001 의 invariant 위반의 직접 반복. 다음 phase-17 의 첫 spec 강제 후보.**
-- `.harness-kit/installed.json` 의 캐시 필드 (`lastVersionCheck`, `latestKnownVersion`) 가 tracked 파일 안에 있어 매 SessionStart 마다 워킹트리 drift 발생. install drift 1 건이 항상 떠 있음 (phase-ship cleanliness 가정 위배 — phase-16 회고 C3). 구조 fix: 캐시 필드를 `.harness-kit/cache.json` 으로 분리 + gitignore. spec-x 후보.
-- phase-level 통합 테스트 스크립트 (`tests/test-phase{N}-integration.sh`) 부재 — 시나리오 1/3 매번 수동 grep (phase-16 회고 W2). phase-ship 시 자동화 입력 누락. 다음 phase 도입 또는 별 spec-x.
-- `doctor.sh` 가 새 산출물 경로 (`docs/rca/`, `docs/decisions/`) + 새 템플릿 (`rca.md`, `adr.md`) 점검 누락 (phase-16 회고 W6). install 미러 무결성 검사 확장 필요. spec-x 후보.
-- `_drift_stale_adr` multiline code fence 안 경로 미검사 — 의도된 한계지만 ADR 작성 가이드 누락 (phase-16 회고 W4). ADR 템플릿 또는 agent.md 에 "stale 검사 대상 경로 형식 = inline backtick + 슬래시 + 확장자" 한 줄 안내 후보.
-- `tests/test-drift-stale-adr.sh` 의 회귀 마커가 ADR-001 본문에 종속 — fragile (phase-16 회고 W3). 별도 fixture (valid path 만 포함 ADR-998) 로 분리해 self-contained 검증 후보.
-- `constitution.md §6.4` 의 "Used in" 열 (RCA 전용 어휘) vs Rules ("ADR adopt closure") 표현 모호 — 인간 작성자 혼선 가능 (phase-16 회고 W1). 표현 명확화 후보.
-- `CHANGELOG.md` phase-16 entry 미반영 (phase-16 회고 W7). version bump 없으므로 형식적으로 OK 하나, 다음 release 시 spec 4 개 catch-up 부담. release 정책에 "phase ship 시 CHANGELOG draft 추가" 룰 검토.
-- `sdd phase done` 이 phase-N.md 제목을 읽지 못하고 완료 항목에 "**N** — ? — completed" 출력 (phase-16 done 시 발견, 수동 보정). 다른 phase 들의 done entry 형식 (`**phase-N** — 제목 — completed YYYY-MM-DD`) 과 불일치. sdd CLI 버그 — phase-N.md 의 H1 (`# phase-N: 제목`) 에서 제목 추출하도록 fix. spec-x 후보.
+- (phase-16 W9) ADR 승격 가이드 ROI metric — *측정 누적 (3 개월+) 선행 필요*. phase-17 종료 후 spec 의 ADR 승격 ratio 데이터 보고 결정
+
+**[phase-17 으로 promote 된 항목 — 처리 진행 중]**:
+- ~~접근성 개선~~ → phase-17 **spec-17-02** (accessibility-install-and-entry)
+- ~~sdd marker 버그 (W5/W10)~~ → ✓ **spec-17-01** 머지로 종식 (RCA-001 prevention)
+- ~~installed.json 캐시 (C3)~~ / ~~phase integration test (W2)~~ / ~~doctor 새 경로 (W6)~~ → phase-17 **spec-17-03** (internal-reliability-infra)
+- ~~§6.4 표현 (W1)~~ / ~~stale ADR 회귀 마커 (W3)~~ / ~~ADR 가이드 (W4)~~ / ~~CHANGELOG 정책 (W7)~~ → phase-17 **spec-17-04** (governance-test-coherence)
+- ~~sdd phase done title 버그~~ → ✓ **spec-17-01** 머지로 종식 (normalize)
 
 ## 📋 대기 Phase
 

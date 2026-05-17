@@ -1,4 +1,4 @@
-# phase-17: 정합성 fix (Coherence Fix)
+# phase-17: 운영 성숙도 (Operational Maturity)
 
 > 본 phase 의 모든 SPEC 을 한 파일에 요점/방향성으로 나열합니다.
 > *구체적* 작업 내용은 `specs/spec-{N}-{seq}-{slug}/spec.md` 에서 다룹니다.
@@ -10,153 +10,180 @@
 | 항목 | 값 |
 |---|---|
 | **Phase ID** | `phase-17` |
-| **상태** | Planning (대기) |
-| **시작일** | 미정 |
+| **상태** | In Progress (1/4 spec Merged) |
+| **시작일** | 2026-05-16 |
 | **목표 종료일** | 미정 |
 | **소유자** | dennis |
-| **Base Branch** | `phase-17-coherence-fix` (처음부터 — phase-16 mid-phase 전환 경험 학습) |
+| **Base Branch** | `phase-17-coherence-fix` |
+| **(이전 제목)** | `정합성 fix (Coherence Fix)` — 2026-05-17 사용자 피드백 으로 확장 재정의 |
 
 ## 🎯 배경 및 목표
 
 ### 현재 상황
 
-phase-16 (Reliability Layer 강화) 직후 *독립 Opus sub-agent 회고* 에서 두 종류의 self-credibility 손상이 식별됨:
+phase-16 (Reliability Layer 강화) 완료 후 두 종류의 미해결 부채가 누적:
 
-- **Invariant 자기 위반**: spec-16-01 에서 작성한 RCA-001 (sdd ship 산출물 누락 패턴) 의 prevention 이 *phase-16 내내 4 회 위반*. `sdd ship`, `sdd spec new`, `sdd phase done` 의 marker 관련 동작이 phase 표 / queue 를 *append* 하거나 *제목 추출 누락* 하여 매번 수동 dedupe / 보정 필요. reliability layer phase 가 자기 RCA invariant 를 지키지 못함.
-- **구조적 drift**: `.harness-kit/installed.json` 의 캐시 필드 (`lastVersionCheck`, `latestKnownVersion`) 가 tracked 파일 안에 있어 `check-kit-version.sh` hook 이 매 SessionStart 마다 워킹트리 dirty 를 만듦. phase-ship 의 *cleanliness 가정* 을 매번 위배.
+**① 내부 신뢰성 (phase-16 회고에서 식별)**
+- RCA-001 invariant 위반 (sdd CLI marker 버그 3 종) — *spec-17-01 에서 해소 ✓*
+- `installed.json` 캐시 필드가 tracked 파일 안에 있어 워킹트리 항상 dirty (C3)
+- Phase-level integration test 자동화 부재 (W2)
+- `doctor.sh` 가 신규 산출물 경로 (rca/decisions) 점검 누락 (W6)
+- §6.4 closure rule 표현 모호 / stale ADR 회귀 마커 fragile / ADR 가이드 누락 (W1/W3/W4)
+- CHANGELOG.md 의 phase 통합 정책 부재 (W7)
 
-또한 phase-16 회고에서 *얇은 보강 후보* 로 식별된 운영 자동화 부재:
+**② 외부 접근성 (Icebox 누적)**
+- 신규 사용자가 키트를 설치하려면 git clone + `install.sh` — *단일 명령* 없음 (curl 한 줄 인스톨러 부재)
+- 키트 사용자가 매번 슬래시 커맨드 10여개를 외워야 함 — *단일 진입점* 부재 (`/hk` 가 state 보고 다음 행동 추천하지 못함)
+- README 가 install / 사용 흐름을 *현 상태 정확히* 반영하지 못함 (slogan 만 phase-16 에서 추가됨)
 
-- **Phase-level integration test 자동화 부재**: phase-16 시나리오 3 개의 PASS 검증을 매번 수동 grep 으로. phase-ship 자동화 진입점이 없음.
-- **`doctor.sh` 의 신규 산출물 점검 누락**: spec-16-01/02 가 도입한 `docs/rca/`, `docs/decisions/`, `templates/rca.md`, `templates/adr.md` 가 doctor checklist 에 미포함 — install 미러 무결성 검사가 신규 자산을 모름.
+### 본 phase 의 정체성
 
-본 phase 는 위 4 가지를 *코드 단 변경* 으로 해소한다. *workflow engine 추가 / 거버넌스 룰 추가* 같은 무거운 항목은 명시적 Out of Scope — *처음부터 얇은 보강* 철학 유지.
+**phase-17 = 운영 성숙도** — 키트가 *외부 사용자에게 잘 닿고* (도달성) + *내부적으로 자기 정합* (신뢰성). 두 면이 *분리된 phase 가 아니라 한 phase 의 두 묶음*. 이유:
+
+1. **두 면이 자기 강화** — 외부 도달성이 좋아도 내부 신뢰성이 부족하면 사용자 이탈. 내부 신뢰성이 완벽해도 외부 도달성이 없으면 채택 0.
+2. **phase 단위 피로감 회피** — 작은 정리 phase 를 여러 개 만드는 것보다 *thematic chunk* 한 개가 인지/관리 비용 ↓ (사용자 피드백, 2026-05-17).
+3. **회고 / phase-ship 절차의 정량 가치** — phase 1 회당 회고 1 회 + phase-ship 1 회. 작은 phase 들로 쪼개면 ceremony 가 가치 대비 크다.
 
 ### 목표 (Goal)
 
 본 phase 가 끝났을 때:
 
-1. **sdd CLI 의 marker 관련 동작이 멱등** — 동일 spec 을 두 번 ship 해도 phase-N.md spec 표 행 수가 불변. 동일 phase 를 done 처리해도 queue.md done 항목이 정상 제목 형식.
-2. **워킹트리 상시 깨끗** — SessionStart hook 이 `git status` 출력에 영향을 주지 않음. phase-ship cleanliness 가정 충족.
-3. **Phase-level integration test 자동화** — `tests/test-phase16-integration.sh` 작성으로 phase-16 시나리오 3 개가 *한 명령* 으로 PASS 검증. 후속 phase 가 동일 패턴 채용 가능.
-4. **`doctor.sh` 의 신규 경로 인지** — phase-16 산출물 (rca / decisions 디렉토리, rca.md / adr.md 템플릿) 이 doctor 점검 대상에 포함되어 install 미러 drift 가 즉시 노출.
+1. **내부 신뢰성 부채 종식** — sdd CLI marker 멱등성 (✓ 17-01), 워킹트리 cleanliness, phase-level 자동 검증, doctor 새 경로 인지, governance/test 잡탕 정리.
+2. **외부 접근성 확립** — 신규 사용자가 *단일 명령* 으로 install 가능. 키트 사용자가 *단일 진입점* (`/hk`) 으로 다음 행동 안내 받음.
+3. **운영 자동화 진입점 완성** — 후속 phase 가 *같은 패턴* 으로 phase integration test / install 흐름 / 진입점 확장 가능.
 
 ### 성공 기준 (Success Criteria) — 정량 우선
 
-1. **Marker idempotency 검증** — fixture spec-x 를 만들어 ship → ship 반복 시 `phase-N.md` 의 spec 표 행 수 변동 0. `sdd spec new` 도 동일 (slug 중복 시 거부 또는 in-place 갱신).
-2. **`sdd phase done` 출력 형식** — `**phase-N** — 제목 — completed YYYY-MM-DD` 패턴 (phase-08 ~ 15 와 동일). title 누락 시 fail.
-3. **SessionStart 후 `git status --porcelain` 빈 출력** — `check-kit-version.sh` hook 실행해도 워킹트리 영향 없음. tracked 캐시 필드 0.
-4. **`tests/test-phase16-integration.sh` 작성 + 3 시나리오 자동 PASS** — Knowledge Type closure / Stale 탐지 / Reliability 슬로건 grep 모두 한 명령으로.
-5. **`doctor.sh` checklist 확장** — `docs/rca/`, `docs/decisions/`, `templates/rca.md`, `templates/adr.md` 4 항목 점검 — fixture (template 누락) 시 doctor FAIL.
+1. **Marker 멱등성** (✓ spec-17-01 완료) — `tests/test-sdd-marker-idempotent.sh` 3/3 PASS.
+2. **워킹트리 cleanliness** — SessionStart hook (`check-kit-version.sh`) 실행 후 `git status --porcelain` 빈 출력.
+3. **Phase-16 integration self-test** — `tests/test-phase16-integration.sh` 한 명령으로 시나리오 1/2/3 모두 PASS.
+4. **`doctor.sh` 확장** — `docs/rca/`, `docs/decisions/`, `rca.md`, `adr.md` 4 항목 점검 — fixture 누락 시 FAIL.
+5. **단일 명령 install** — `curl -sSL <url> | bash` 한 줄로 새 프로젝트에 키트 설치 가능 (fixture 환경 검증).
+6. **`/hk` 단일 진입점** — `/hk` 호출 시 sdd status 기반으로 *현 상태에 맞는 다음 행동* (예: "Plan Accept 필요", "Ship 가능", "phase done 권장") 1 줄 안내.
+7. **Governance/test 잡탕 정리** — §6.4 표현 명확화 + stale ADR 회귀 마커 self-contained + ADR 가이드 1 줄 + CHANGELOG 정책.
 
 ## 🧩 작업 단위 (SPECs)
 
 > 본 표는 phase 의 *작업 지도* 입니다. SPEC 은 *요점 + 방향성 + 참조* 까지만 적습니다.
-> 자세한 spec/plan/task 는 `specs/spec-{N}-{seq}-{slug}/` 에서 작성합니다.
-> sdd 가 `<!-- sdd:specs:start --> ~ <!-- sdd:specs:end -->` 사이를 자동 갱신하므로 마커는 그대로 두세요.
+> sdd 가 `<!-- sdd:specs:start --> ~ <!-- sdd:specs:end -->` 사이를 자동 갱신합니다.
 
 <!-- sdd:specs:start -->
 | ID | 슬러그 | 우선순위 | 상태 | 디렉토리 |
 |---|---|:---:|---|---|
-| spec-17-01 | sdd-marker-bugs-fix | P0 | Backlog | (미생성) |
-| spec-17-02 | installed-cache-separation | P1 | Backlog | (미생성) |
-| spec-17-03 | phase-integration-test-and-doctor | P1 | Backlog | (미생성) |
+| `spec-17-01` | sdd-marker-bugs-fix | P0 | Merged | `specs/spec-17-01-sdd-marker-bugs-fix/` |
+| `spec-17-02` | accessibility-install-and-entry | P0 | Merged | `specs/spec-17-02-accessibility-install-and-entry/` |
+| `spec-17-03` | internal-reliability-infra | P? | Merged | `specs/spec-17-03-internal-reliability-infra/` |
+| `spec-17-04` | governance-test-coherence | P2 | Merged | `specs/spec-17-04-governance-test-coherence/` |
+| `spec-17-05` | pre-ship-fixes | P? | Active | `specs/spec-17-05-pre-ship-fixes/` |
 <!-- sdd:specs:end -->
 
 > 상태 허용값: `Backlog` / `In Progress` / `Merged`
 
-### spec-17-01 — sdd CLI marker 버그 3 종 fix
+### spec-17-01 — sdd CLI marker 버그 3 종 fix (✓ Merged)
 
-- **요점**: `sdd ship` / `sdd spec new` 의 phase-N.md spec 표 갱신을 *append* 가 아닌 *in-place update* 로 수정. `sdd phase done` 의 queue.md done entry 작성 시 phase-N.md H1 (`# phase-N: 제목`) 에서 제목 추출.
-- **방향성**: 기존 `sdd:specs:start ~ end` marker 블록 안에서 *slug 매칭* 으로 update vs append 분기. 단위 fixture (테스트 spec-x 생성/ship 반복) 으로 멱등 검증. RCA-001 의 prevention 이 본 spec 의 *직접 구현*.
-- **참조**:
-  - `docs/rca/RCA-001-sdd-ship-spec-add-missing.md` (본 spec 이 prevention 실현)
-  - phase-16 회고 W5 (RCA-001 invariant 위반 4 회 재발) / W10 (productivity tax 정량화)
-- **연관 모듈**: `sources/bin/sdd` (cmd_ship, cmd_spec_new, cmd_phase_done), `.harness-kit/bin/sdd`
+- **요점**: `sdd ship` / `sdd spec new` / `sdd phase done` 의 marker 처리 멱등성 확보.
+- **상태**: 머지됨 (commit `5aebd0d`, PR #122). RCA-001 prevention 직접 구현.
+- **연관 모듈**: `sources/bin/sdd`, `tests/test-sdd-marker-idempotent.sh`
 
-### spec-17-02 — installed.json 캐시 필드 분리
+### spec-17-02 — Accessibility: install + entry point + onboarding (📦 묶음, P0)
 
-- **요점**: `installed.json` 의 `lastVersionCheck` / `latestKnownVersion` 두 필드를 `.harness-kit/cache.json` 으로 이관. `cache.json` 은 `.gitignore` 처리. install.sh 가 기존 환경 마이그레이션 (필드가 installed.json 에 남아있어도 무시 / 새 cache.json 생성).
-- **방향성**: 캐시는 *로컬 상태*, installed.json 은 *프로젝트 메타*. 책임 분리. `_drift_kit_version` 과 `check-kit-version.sh` 의 read/write 경로를 cache.json 으로 전환. 단위 검증: hook 후 `git status --porcelain` 빈 출력.
-- **참조**:
-  - phase-16 회고 C3 (워킹트리 항상 dirty)
-- **연관 모듈**: `sources/hooks/check-kit-version.sh`, `sources/bin/sdd` (`_drift_kit_version`), `install.sh` (마이그레이션 로직), `.gitignore`
+- **요점**: 외부 사용자가 키트에 *낮은 마찰* 로 닿도록 — 단일 명령 install (검증) + 단일 진입점 + README onboarding.
+  - **curl 인스톨러 검증**: `get.sh` 이미 존재 + README 에 명시 — 동작 검증만, 수정 거의 없음 가능성 큼.
+  - **`/hk` 단일 진입점 (메인 작업)**: `.claude/commands/hk.md` 신규. `sdd status --json` 기반으로 *현 상태에 맞는 다음 행동 1 줄* 추천 + 관련 슬래시 커맨드 안내. 슬래시 커맨드 10여개를 외울 필요 ↓.
+  - **README onboarding 갱신**: Step 1 에 `/hk` 도 안내 (`/hk-align` 또는 `/hk`). 기존 한국어 본문 구조 유지, minor 3-5 줄.
+- **방향성**: *외부 사용자 경험* 우선. 사용자가 키트 채택 후 *어떤 슬래시 커맨드를 외워야 하나* 의 부담 ↓. 한 spec 으로 묶어야 onboarding 흐름이 일관됨 — 분리 시 부분만 노출 위험.
+- **참조**: Icebox "접근성 개선 Phase 후보" (phase-16 회고 시점 사용자 의도)
+- **연관 모듈**: `sources/commands/hk.md` (신규), `.claude/commands/hk.md` (신규), `README.md`, `get.sh` (검증만)
 
-### spec-17-03 — phase-level integration test 자동화 + doctor 확장
+### spec-17-03 — Internal reliability infrastructure (📦 묶음)
 
-- **요점**: `tests/test-phase16-integration.sh` 작성 — phase-16.md 시나리오 1/2/3 을 한 스크립트로. 추가로 `doctor.sh` 의 templates / 디렉토리 checklist 에 `docs/rca/`, `docs/decisions/`, `rca.md`, `adr.md` 4 항목 추가.
-- **방향성**: phase-integration 테스트 스크립트는 *phase-NN-integration.sh* 명명 규약 신설 (후속 phase 도 동일 패턴). doctor 확장은 기존 checklist 함수에 항목 추가 — 최소 침습. `test-doctor.sh` (있다면) 도 신규 항목 검증.
-- **참조**:
-  - phase-16 회고 W2 (phase integration script 부재) / W6 (doctor 신규 경로 누락)
-- **연관 모듈**: `tests/test-phase16-integration.sh` (신규), `sources/bin/doctor.sh` 또는 `doctor.sh`, `.harness-kit/bin/doctor.sh`
+- **요점**: phase-16 회고에서 식별된 *내부 운영 인프라 부채* 4 건 한 spec 으로 묶음 처리.
+  - **C3 cache 분리**: `installed.json` 의 `lastVersionCheck` / `latestKnownVersion` 두 필드를 `.harness-kit/cache.json` 으로 이관 + `.gitignore`. install.sh 마이그레이션 로직.
+  - **W2 phase integration test**: `tests/test-phase16-integration.sh` 작성 (시나리오 1/2/3 한 스크립트). `phase-NN-integration.sh` 명명 규약 신설.
+  - **W6 doctor 확장**: `doctor.sh` 의 checklist 에 `docs/rca/`, `docs/decisions/`, `rca.md`, `adr.md` 4 항목 추가 (optional — 디렉토리 부재 시 silent skip).
+  - **선택**: `sdd_marker_grep` helper 일반화 — spec-17-01 의 호출 측 분기 우회를 일반화 (선택, 시간 남으면).
+- **방향성**: 각 fix 가 작아도 *내부 도그푸딩 인프라* 라는 동일 테마. 4-6 commit 예상.
+- **참조**: phase-16 회고 W2/W6/C3, spec-17-01 walkthrough 의 marker helper 일반화 후보
+- **연관 모듈**: `sources/hooks/check-kit-version.sh`, `sources/bin/sdd`, `install.sh`, `.gitignore`, `doctor.sh`, `tests/test-phase16-integration.sh` (신규)
+
+### spec-17-04 — Governance + test coherence (📦 잡탕 cleanup, P2)
+
+- **요점**: phase-16 회고의 작은 governance/test 잔재 4 건을 한 spec 으로 묶음 정리.
+  - **W1 §6.4 표현 명확화**: "Used in" 열 (RCA 전용 어휘) vs Rules ("ADR adopt closure") 표현 충돌 → 명확화. 인간 작성자 혼선 해소.
+  - **W3 stale ADR 회귀 마커 self-contained**: `tests/test-drift-stale-adr.sh` 의 ADR-001 본문 종속을 별도 fixture (ADR-998-valid-paths 같은) 로 분리.
+  - **W4 ADR 가이드**: `_drift_stale_adr` 의 "stale 검사 대상 경로 형식 = inline backtick + 슬래시 + 확장자" 안내를 ADR 템플릿 또는 agent.md 에 1 줄.
+  - **W7 CHANGELOG 정책**: "phase ship 시 CHANGELOG draft entry 추가" 룰을 CLAUDE.md "릴리스 전략" 섹션에 추가. 다음 release 시 catch-up 부담 ↓.
+- **방향성**: 본 spec 의 각 항목이 *단발 fix* 라 spec-x 분리하면 5 PR 누적 — 한 spec 묶음으로 review 1 회. 3-5 commit 예상.
+- **참조**: phase-16 회고 W1/W3/W4/W7
+- **연관 모듈**: `sources/governance/constitution.md`, `tests/test-drift-stale-adr.sh`, `sources/templates/adr.md`, `sources/governance/agent.md`, `CLAUDE.md`
 
 ## 📌 결정 기록 (Review)
 
-> Phase PR review 중 발생한 결정·합의·발견을 누적합니다. Spec walkthrough 의 결정 기록과 동일 패턴이며 Phase 레벨 living decision log 역할 (→ agent.md §6.3.2).
+> Phase PR review 중 발생한 결정·합의·발견을 누적합니다.
 
 | 이슈 | 선택지 | 결정 | 이유 |
 |---|---|---|---|
-| Phase base branch 사용 시점 | 처음부터 / mid-phase 도입 / 미사용 | **처음부터** (`phase-17-coherence-fix`) | phase-16 의 mid-phase 전환 cost (rebuild + force-push + 회고 fix) 가 컸음. 본 phase 는 *정합성 fix* 라 통합 검증 지점 필수. 처음부터 base branch. |
-| sdd marker 버그 3 종 묶음 vs 개별 spec | 묶음 / 개별 | **묶음 (spec-17-01)** | 셋 다 동일 marker 처리 패턴 (slug 매칭 + 갱신 분기). 개별 분리 시 review 3 회. 한 PR 로 review + 통합 fixture 1 회. |
-| Out of Scope — phase-16 회고 W1/W3/W4/W7/W9 | 포함 / Icebox 잔류 | **Icebox 잔류** | W1/W3/W4/W7 은 *작은 문구/가이드/정책 수정* 으로 phase 단위 묶음 가치 낮음. W9 는 *측정 누적* 이 선행 필요 (3 개월+). 본 phase 의 *코드 정합성* 테마와 다름. spec-x 또는 별 phase. |
-| 접근성 개선 (phase-18 후보) 와 분리 | 통합 진행 / 분리 | **분리** | 접근성 = *외부 노출*, 정합성 = *내부 일관성*. 같은 phase 에 묶으면 scope 폭주. 정합성을 먼저 완수해야 외부 노출 시 self-credibility 확보. |
+| Phase base branch 사용 시점 | 처음부터 / mid-phase 도입 / 미사용 | **처음부터** (`phase-17-coherence-fix`) | phase-16 의 mid-phase 전환 cost 학습 |
+| 당초 sdd marker 버그 3 종 묶음 | 묶음 / 개별 | **묶음 (spec-17-01)** | 동일 marker 처리 패턴, helper 공유 |
+| 당초 Out of Scope (W1/W3/W4/W7/W9 + 접근성) | 포함 / Icebox 잔류 | **(취소) Icebox 잔류** | 사용자 피드백으로 *재정의* (아래) |
+| **(재정의 2026-05-17) Phase scope 확장** | 좁게 (3 정합성 spec) / 넓게 (4 spec: 정합성 + 접근성 + governance 잡탕) | **넓게** (운영 성숙도) | 사용자 피드백: "phase-17, phase-18 이런게 너무 자잘한 내용을 처리해서 처리 단위에 대한 피로감만 커". 작은 phase 여럿보다 *thematic chunk* 한 개가 인지/관리 비용 ↓. 외부 도달성 + 내부 신뢰성을 한 phase 로 묶어 자기 강화 |
+| **(재정의 2026-05-17) 접근성 개선** | 별 phase-18 / phase-17 통합 | **phase-17 통합** (spec-17-03) | 외부 가치 + 내부 신뢰성이 같은 phase 에서 ship 되면 키트 채택률 ↑ 효과 1 회 ship 으로 |
+| **(재정의 2026-05-17) governance/test 잡탕** | 5 spec-x 분리 / 1 spec 묶음 | **1 spec 묶음** (spec-17-04) | 단발 fix 5 개 = 5 PR ceremony. 묶으면 review 1 회 |
 
-## 🧪 통합 테스트 시나리오 (간결)
+## 🧪 통합 테스트 시나리오
 
 > 본 phase 의 Done 조건 중 하나. 자세한 구현은 각 spec 의 task.md / `tests/`.
 
-### 시나리오 1: Marker 멱등성
+### 시나리오 1: Marker 멱등성 (✓ spec-17-01 완료)
 
-- **Given**: 임시 fixture phase + spec-x 작성 (`phase-99-fixture.md`, spec-x-marker-test)
-- **When**: spec-x ship 후 다시 ship / spec new 후 다시 spec new
-- **Then**: `phase-99-fixture.md` 의 spec 표 행 수가 *최초 1 회 ship 후* 와 동일 (중복 0)
-- **연관 SPEC**: spec-17-01
+- **Given**: fixture phase-99 + spec-99-01 (Backlog)
+- **When**: `sdd spec new marker-test` / `sdd phase done 99`
+- **Then**: phase-99.md 행 수 1, queue.md done entry `**phase-99** — 제목 — completed YYYY-MM-DD`
+- **연관 SPEC**: spec-17-01 ✓
 
-### 시나리오 2: Cache separation
+### 시나리오 2: 워킹트리 cleanliness + integration self-test
 
-- **Given**: spec-17-02 머지 후 / `installed.json` 에 `lastVersionCheck` / `latestKnownVersion` 필드 부재 / `.harness-kit/cache.json` 존재 (gitignore 됨)
-- **When**: SessionStart hook (`check-kit-version.sh`) 실행 후 `git status --porcelain`
-- **Then**: 빈 출력 (워킹트리 변경 0)
+- **Given**: spec-17-02 머지 후
+- **When**: SessionStart hook 실행 → `git status --porcelain` / `bash tests/test-phase16-integration.sh`
+- **Then**: 워킹트리 변경 0 / 시나리오 1/2/3 모두 PASS
 - **연관 SPEC**: spec-17-02
 
-### 시나리오 3: Phase integration self-test
+### 시나리오 3: 단일 명령 install + 진입점
 
-- **Given**: spec-17-03 머지 후 / `tests/test-phase16-integration.sh` 존재
-- **When**: `bash tests/test-phase16-integration.sh`
-- **Then**: 3 시나리오 (Knowledge Type closure / Stale 탐지 / Reliability 슬로건) 모두 PASS
+- **Given**: 깨끗한 임시 디렉토리 + git init
+- **When**: `curl -sSL <url> | bash` / `/hk` 호출 (또는 dry-run 시뮬레이션)
+- **Then**: 키트 설치 완료 (`.harness-kit/` 존재) / `/hk` 가 현 상태에 맞는 1 줄 안내 출력
 - **연관 SPEC**: spec-17-03
 
-### 통합 테스트 실행
+### 시나리오 4: Governance/test coherence
 
-```bash
-# 본 phase 의 통합 테스트는 phase 시작 시 채움 — fixture 환경 구성 포함
-bash tests/test-phase17-integration.sh
-```
+- **Given**: spec-17-04 머지 후
+- **When**: `grep -E "Used in.*RCA" constitution.md` / `tests/test-drift-stale-adr.sh` / `grep "backtick + 슬래시" agent.md`
+- **Then**: §6.4 표현 명확 / 회귀 마커가 self-contained / ADR 가이드 hit
+- **연관 SPEC**: spec-17-04
 
 ## 🔗 의존성
 
-- **선행 phase**: phase-16 (Reliability Layer 강화) — 본 phase 가 phase-16 산출물의 *정합성 fix*
-- **외부 시스템**: 없음 (로컬 git + bash)
-- **연관 ADR**:
-  - `docs/decisions/ADR-001-knowledge-types.md` (phase-16 의 closure decision — 본 phase 가 그것의 자기 일관성 강화)
-- **연관 RCA**:
-  - `docs/rca/RCA-001-sdd-ship-spec-add-missing.md` (spec-17-01 이 prevention 의 직접 구현)
+- **선행 phase**: phase-16 (Reliability Layer 강화) — 본 phase 가 phase-16 산출물의 *운영 성숙도 강화*
+- **외부 시스템**: 없음 (로컬 git + bash + curl)
+- **연관 ADR**: ADR-001-knowledge-types
+- **연관 RCA**: RCA-001-sdd-ship-spec-add-missing (spec-17-01 이 prevention 의 직접 구현 ✓)
 
 ## 📝 위험 요소 및 완화
 
 | 위험 | 영향 | 완화책 |
 |---|---|---|
-| phase-17 자체가 *self-correction* 이라 코드 변경 회귀 위험 ↑ — 잘못 고치면 sdd CLI 가 더 불안정 | reliability layer 의 self-credibility 추가 손상 | 시나리오 1 (marker 멱등성) 을 fixture 기반 자동 테스트로 박음. spec-17-01 머지 전 fixture 통과 강제. |
-| `installed.json` 캐시 분리 시 기존 사용자 환경 (마이그레이션) | 다른 프로젝트의 `installed.json` 이 캐시 필드를 가진 채로 update 받을 때 충돌 | install.sh / update.sh 에 마이그레이션 로직 — 캐시 필드 있으면 cache.json 으로 이전, installed.json 에서 제거. 기존 동작 silent backward compat. |
-| `test-phase16-integration.sh` 가 fixture 환경 가정 (예: ADR-999) 충돌 — 다른 테스트와 같은 fixture 이름 사용 시 race | 통합 테스트 flakiness | fixture 이름에 spec-17-03 prefix 사용 + `trap cleanup EXIT` 로 격리 보장. |
-| doctor.sh 확장이 기존 사용자 환경에서 false negative 폭증 (`docs/rca/` 가 없으면 무조건 FAIL) | 사용자가 phase-16 산출물을 install 안 받았으면 doctor 가 잘못된 FAIL | 점검 항목을 *optional* 로 — 디렉토리 부재 시 silent skip, 디렉토리 존재 시 템플릿 동일성 검사. spec-16-01 / 02 머지 받은 환경에서만 적극 검증. |
+| spec 묶음이 너무 커서 review 부담 ↑ | spec-17-02/03/04 가 각 multi-feature — PR 분량 큼 | walkthrough 결정 기록 표를 *commit 단위* 로 자세히 — review 가 commit-by-commit 가능. PR 본문에 *기능별 hash* 명시 |
+| curl 인스톨러의 보안 우려 (외부 URL pipe to bash) | 사용자가 install 거부하거나 보안 사고 | README 에 URL 정확성 + verify 옵션 (sha256, `curl ... -o install.sh && cat && bash`) 명시 |
+| `/hk` 진입점이 너무 많은 케이스 추천하려다 잘못된 행동 안내 | 사용자 혼란 | 첫 버전은 *4-5 핵심 상태* 만 (no phase / active spec planning / Plan Accept 가능 / Ship 가능 / phase ship 가능). 나머지는 폴백 |
+| spec-17-04 의 묶음이 잡탕화 — 응집성 ↓ | 무엇이 어디 들어가는지 헷갈림 | walkthrough 에 항목별 분리 commit + 매핑 표 |
 
 ## 🏁 Phase Done 조건
 
-- [ ] spec-17-01 / 02 / 03 모두 merge (phase branch → main)
-- [ ] 통합 테스트 시나리오 3 개 PASS
-- [ ] 성공 기준 5 개 정량 측정 결과 기록 (본 문서 "검증 결과" 섹션)
-- [ ] phase-16 회고 W5 / W10 / C3 / W2 / W6 모두 *closed* 처리 — 본 phase 머지 commit log 에 ref
+- [ ] spec-17-01 ✓ / 02 / 03 / 04 모두 merge (phase branch → main)
+- [ ] 통합 테스트 시나리오 4 개 PASS
+- [ ] 성공 기준 7 개 정량 측정 결과 기록 (본 문서 "검증 결과" 섹션)
+- [ ] phase-16 회고 W5/W10/C3/W2/W6/W1/W3/W4/W7 + 접근성 개선 Icebox 항목 모두 *closed* 처리
 - [ ] 사용자 최종 승인
 
 ## 📊 검증 결과 (phase 완료 시 작성)

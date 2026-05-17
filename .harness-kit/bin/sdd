@@ -281,9 +281,11 @@ EOF
 }
 
 # kit 버전 감지: kitOrigin 에서 raw version.json 을 curl 로 조회 (다운로드 없음)
-# 24시간 캐시: lastVersionCheck + latestKnownVersion 을 installed.json 에 저장
+# 24시간 캐시: lastVersionCheck + latestKnownVersion 을 .harness-kit/cache.json 에 저장
+# (이전엔 installed.json 이었으나 tracked 파일이라 매 SessionStart drift 발생 — spec-17-03)
 _drift_kit_version() {
   local installed_json="$SDD_ROOT/.harness-kit/installed.json"
+  local cache_json="$SDD_ROOT/.harness-kit/cache.json"
   [ -f "$installed_json" ] || return 1
   [ "${HARNESS_DRIFT_FETCH:-1}" = "0" ] && return 1
   command -v curl >/dev/null 2>&1 || return 1
@@ -301,9 +303,25 @@ _drift_kit_version() {
   slug=$(echo "$origin" | sed 's|git@github.com:||; s|https://github.com/||; s|\.git$||')
   [ -z "$slug" ] && return 1
 
-  local last_check latest_known cache_valid=0
-  last_check=$(jq -r '.lastVersionCheck // empty' "$installed_json" 2>/dev/null || echo "")
-  latest_known=$(jq -r '.latestKnownVersion // empty' "$installed_json" 2>/dev/null || echo "")
+  # Migration (1회만): installed.json 캐시 필드 있으면 cache.json 으로 이동
+  if jq -e 'has("lastVersionCheck") or has("latestKnownVersion")' "$installed_json" >/dev/null 2>&1; then
+    local legacy_last legacy_known
+    legacy_last=$(jq -r '.lastVersionCheck // empty' "$installed_json" 2>/dev/null || echo "")
+    legacy_known=$(jq -r '.latestKnownVersion // empty' "$installed_json" 2>/dev/null || echo "")
+    if [ -n "$legacy_last" ] || [ -n "$legacy_known" ]; then
+      jq -n --arg ts "$legacy_last" --arg v "$legacy_known" \
+        '{lastVersionCheck: $ts, latestKnownVersion: $v}' > "$cache_json" 2>/dev/null
+    fi
+    local tmp_inst
+    tmp_inst=$(jq 'del(.lastVersionCheck, .latestKnownVersion)' "$installed_json" 2>/dev/null || echo "")
+    [ -n "$tmp_inst" ] && echo "$tmp_inst" > "$installed_json"
+  fi
+
+  local last_check="" latest_known="" cache_valid=0
+  if [ -f "$cache_json" ]; then
+    last_check=$(jq -r '.lastVersionCheck // empty' "$cache_json" 2>/dev/null || echo "")
+    latest_known=$(jq -r '.latestKnownVersion // empty' "$cache_json" 2>/dev/null || echo "")
+  fi
 
   if [ -n "$last_check" ]; then
     local now_epoch cache_epoch
@@ -323,10 +341,8 @@ _drift_kit_version() {
     [ -z "$latest" ] && return 1
     local now_iso
     now_iso=$(date -u +%Y-%m-%dT%H:%M:%SZ)
-    local tmp
-    tmp=$(jq --arg ts "$now_iso" --arg v "$latest" \
-      '.lastVersionCheck=$ts | .latestKnownVersion=$v' "$installed_json" 2>/dev/null || echo "")
-    [ -n "$tmp" ] && echo "$tmp" > "$installed_json"
+    jq -n --arg ts "$now_iso" --arg v "$latest" \
+      '{lastVersionCheck: $ts, latestKnownVersion: $v}' > "$cache_json" 2>/dev/null || true
   fi
 
   # latest > installed_ver 일 때만 알림 (다운그레이드/개발 브랜치 무시)
@@ -993,6 +1009,11 @@ queue_phase_is_done() {
 queue_mark_done() {
   local phase_id="${1:-$(state_get phase)}"
   [ -z "$phase_id" ] || [ "$phase_id" = "null" ] && return 0
+  # normalize: 사용자가 'phase done 16' 처럼 prefix 없이 호출 시 자동 보정
+  case "$phase_id" in
+    phase-*) ;;
+    *) phase_id="phase-$phase_id" ;;
+  esac
   local q="$(state_queue_file)"
   ensure_queue_file
   local title=""
@@ -1163,13 +1184,14 @@ spec_new() {
   done
 
   # phase-{N}.md 의 spec 표에 행 추가 또는 갱신
-  # 기존 Backlog 행이 있으면 Active 로 업데이트, 없으면 새 행 append
+  # 기존 행 (backtick 형식 또는 plain text Backlog 행) 있으면 in-place update
+  # 없으면 새 행 append
   local row="| \`${short_id}\` | ${slug} | P? | Active | \`specs/${id}/\` |"
-  # 정확 토큰 매칭: 마커 row 의 ID 필드는 항상 백틱 포함이므로 \`ID\` 로 검색하여
-  # phase 본문 텍스트의 비백틱 ID 매치 또는 더 긴 ID (spec-N-NN1) 의 부분 일치 회피
+  # 매칭 패턴: 백틱 형식 (auto-generated) 또는 plain '| spec-N-NN |' (수동 작성 Backlog)
   if sdd_marker_grep "$phase_file" "specs" "\`${short_id}\`"; then
-    local updated_row="| \`${short_id}\` | ${slug} | P? | Active | \`specs/${id}/\` |"
-    sdd_marker_update_row "$phase_file" "specs" "\`${short_id}\`" "$updated_row"
+    sdd_marker_update_row "$phase_file" "specs" "\`${short_id}\`" "$row"
+  elif sdd_marker_grep "$phase_file" "specs" "| ${short_id} |"; then
+    sdd_marker_update_row "$phase_file" "specs" "| ${short_id} |" "$row"
   else
     sdd_marker_append "$phase_file" "specs" "$row"
   fi
@@ -1429,12 +1451,19 @@ cmd_ship() {
       local tmp_pf
       tmp_pf="$(mktemp)"
       # 상태 전이 모델: Backlog → Active → In Progress → Done → Merged
-      # ship은 Active/In Progress/Done 어느 상태에서든 Merged로 전환
-      awk -v sid="$spec_id" '
+      # ship: Active/In Progress/Done → Merged.
+      # 동일 short_id 의 plain text Backlog 행이 잔류하면 제거 (한 spec = 한 행).
+      awk -v sid="$spec_id" -v short_sid="$scope" '
         index($0, sid) && (/\| In Progress \|/ || /\| Active \|/ || /\| Done \|/) {
           sub(/\| In Progress \|/, "| Merged |")
           sub(/\| Active \|/, "| Merged |")
           sub(/\| Done \|/, "| Merged |")
+          print
+          next
+        }
+        # 동일 short_id 의 plain Backlog 행 (수동 작성, sdd spec new 이전) 제거
+        $0 ~ "\\| " short_sid " \\|" && /\| Backlog \|/ {
+          next
         }
         { print }
       ' "$phase_file" > "$tmp_pf" && mv "$tmp_pf" "$phase_file"

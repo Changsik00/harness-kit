@@ -218,14 +218,14 @@ Artifacts whose frontmatter exposes a `type:` field MUST use exactly one of the 
 
 | Type | Used in | When to apply |
 |---|---|---|
-| `decision` | ADR | A non-trivial design choice with rationale; long-lived. |
-| `invariant` | ADR / runbook-style notes | A property the system MUST preserve (e.g. domain ≠ infra). |
-| `failure-pattern` | RCA | A recurring failure with reproduction + prevention. |
-| `convention` | ADR / style guide | A naming/structure rule adopted for consistency. |
-| `tradeoff` | ADR | A choice with explicit cost on the rejected side. |
+| `decision` | ADR only | A non-trivial design choice with rationale; long-lived. |
+| `invariant` | ADR + runbook-style notes (shared) | A property the system MUST preserve (e.g. domain ≠ infra). |
+| `failure-pattern` | RCA only | A recurring failure with reproduction + prevention. |
+| `convention` | ADR + style guide (shared) | A naming/structure rule adopted for consistency. |
+| `tradeoff` | ADR only | A choice with explicit cost on the rejected side. |
 
 Rules:
-- `type:` MUST be present in any frontmatter that adopts this vocabulary (RCA and ADR; both adopt the closure).
+- `type:` MUST be present in any frontmatter that adopts this vocabulary. Both RCA and ADR adopt the same closure (5 values), but each artifact MUST use only the types marked applicable in the "Used in" column above (e.g. ADR MUST NOT use `failure-pattern`; RCA MUST NOT use `decision`).
 - Values outside the set are a violation — grep tools rely on closure.
 - Vocabulary changes (add / rename / remove) are themselves architecture decisions — record as an ADR with `type: decision`.
 

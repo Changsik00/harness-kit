@@ -70,6 +70,7 @@
 - **alignment phase 생략** — 사용자가 "배포하자" 하면 분류·옵션 제시 없이 위 절차 즉시 수행.
 - **버전 결정**: `MAJOR.MINOR.PATCH` (semver). 사용자가 버전을 지정하지 않으면 변경 성격으로 추정 (`feat`만 있으면 minor, `fix/docs/chore`만 있으면 patch, breaking change 가 있으면 major) 후 한 줄로 알린 뒤 진행.
 - **변경 항목 출처**: `git log {직전버전tag}..main --oneline` 으로 PR 머지 commit 을 식별해 CHANGELOG 작성.
+- **Phase ship 시 CHANGELOG draft 갱신**: phase 머지 commit 직후, `CHANGELOG.md` 최상단의 `## [Unreleased]` 섹션 (없으면 신설) 에 해당 phase 의 주요 변경 항목 draft entry 를 추가. 다음 release commit 에서 `## [Unreleased]` → `## [X.Y.Z] — YYYY-MM-DD` 로 stamp. 목적: 다중 phase 누적 시 catch-up 부담 분산.
 - **본 룰 자체의 변경**: 본 섹션 갱신은 정식 SDD-x 또는 FF 로 처리 (release PR 안에 룰 변경을 끼우지 않음. 단, 본 룰을 *처음 박는 0.9.1* 은 자기-적용 예외).
 
 ### `.harness-kit/installed.json` 동기화 주의

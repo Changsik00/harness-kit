@@ -101,11 +101,11 @@ latest=$(curl -sf --max-time 5 "$raw_url" | jq -r '.version // empty')
 
 ### 6. 캐시 업데이트
 
-업데이트 조회 성공 시 `installed.json` 의 캐시를 갱신합니다:
+업데이트 조회 성공 시 `.harness-kit/cache.json` 을 갱신합니다 (spec-17-03 에서 `installed.json` 으로부터 분리되었습니다 — `.gitignore` 대상):
 
 ```bash
-jq --arg ts "$(date -u +%Y-%m-%dT%H:%M:%SZ)" --arg v "$latest" \
-  '.lastVersionCheck=$ts | .latestKnownVersion=$v' installed.json
+jq -n --arg ts "$(date -u +%Y-%m-%dT%H:%M:%SZ)" --arg v "$latest" \
+  '{lastVersionCheck: $ts, latestKnownVersion: $v}' > .harness-kit/cache.json
 ```
 
 ## 주의
