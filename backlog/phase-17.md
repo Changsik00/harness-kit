@@ -58,7 +58,7 @@ phase-16 (Reliability Layer 강화) 직후 *독립 Opus sub-agent 회고* 에서
 <!-- sdd:specs:start -->
 | ID | 슬러그 | 우선순위 | 상태 | 디렉토리 |
 |---|---|:---:|---|---|
-| `spec-17-01` | sdd-marker-bugs-fix | P0 | Active | `specs/spec-17-01-sdd-marker-bugs-fix/` |
+| `spec-17-01` | sdd-marker-bugs-fix | P0 | Merged | `specs/spec-17-01-sdd-marker-bugs-fix/` |
 | spec-17-02 | installed-cache-separation | P1 | Backlog | (미생성) |
 | spec-17-03 | phase-integration-test-and-doctor | P1 | Backlog | (미생성) |
 <!-- sdd:specs:end -->

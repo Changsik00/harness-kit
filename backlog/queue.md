@@ -8,7 +8,7 @@
 ## 📦 진행 중 Phase
 
 <!-- sdd:active:start -->
-- **phase-17** — 정합성 fix (Coherence Fix) — 1 spec — 다음: spec-17-01-sdd-marker-bugs-fix
+- **phase-17** — 정합성 fix (Coherence Fix) — 1 spec — 다음: (spec 없음)
 <!-- sdd:active:end -->
 
 ## 📥 spec-x 대기
