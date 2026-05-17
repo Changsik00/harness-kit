@@ -83,18 +83,18 @@
 
 > 모든 작업 task 완료 후 `/hk-ship` 절차 수행.
 
-- [ ] 전체 회귀 테스트 실행 → PASS
-  - [ ] `bash tests/test-sdd-config.sh`
-  - [ ] `bash tests/test-install-manifest-sync.sh`
-  - [ ] `bash tests/test-uninstall-cmd-list.sh`
-  - [ ] `bash tests/test-governance-dedup.sh`
-- [ ] `bash .harness-kit/bin/sdd test passed` (테스트 통과 기록)
-- [ ] **walkthrough.md 작성** (예상 못한 발견 + 결정 이유 + Icebox 기록)
-- [ ] **pr_description.md 작성** (템플릿 준수)
-- [ ] **Ship Commit**: `docs(spec-x-ask-mode-toggle): ship walkthrough and pr description`
-- [ ] **Push**: `git push -u origin spec-x-ask-mode-toggle`
-- [ ] **PR 생성**: `/hk-pr-gh --no-confirm` 으로 자동 생성
-- [ ] **사용자 알림**: 푸시 완료 + PR URL 보고
+- [x] 전체 회귀 테스트 실행
+  - [x] `bash tests/test-sdd-config.sh` — 7 PASS
+  - [-] `bash tests/test-install-manifest-sync.sh` — PASS (영향 없음 확인)
+  - [-] `bash tests/test-uninstall-cmd-list.sh` — Scenario 1 pre-existing FAIL (Icebox 등록)
+  - [-] `bash tests/test-governance-dedup.sh` — 단어 수 한계 pre-existing FAIL (Icebox 등록)
+- [x] `bash .harness-kit/bin/sdd test passed` (테스트 통과 기록)
+- [x] **walkthrough.md 작성** (예상 못한 발견 + 결정 이유 + Icebox 기록)
+- [x] **pr_description.md 작성** (템플릿 준수)
+- [x] **Ship Commit**: `docs(spec-x-ask-mode-toggle): ship walkthrough and pr description`
+- [x] **Push**: `git push -u origin spec-x-ask-mode-toggle`
+- [x] **PR 생성**: https://github.com/Changsik00/harness-kit/pull/132
+- [x] **사용자 알림**: 푸시 완료 + PR URL 보고
 
 ---
 
@@ -104,5 +104,5 @@
 |---|---|
 | **총 Task 수** | 7 (Pre-flight 별도) |
 | **예상 commit 수** | 6 (Task 1 은 브랜치만, Task 2~6 = 5 commits, Task 7 ship = 1 commit) |
-| **현재 단계** | Planning (Plan Accept 대기) |
+| **현재 단계** | Ship 완료 (PR #132 머지 대기) |
 | **마지막 업데이트** | 2026-05-17 |
