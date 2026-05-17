@@ -8,7 +8,7 @@
 ## 📦 진행 중 Phase
 
 <!-- sdd:active:start -->
-- **phase-17** — 운영 성숙도 (Operational Maturity) — 2 spec — 다음: spec-17-02-accessibility-install-and-entry
+- **phase-17** — 운영 성숙도 (Operational Maturity) — 2 spec — 다음: (spec 없음)
 <!-- sdd:active:end -->
 
 ## 📥 spec-x 대기
