@@ -15,10 +15,12 @@ cd "$SDD_ROOT"
 
 SDD_BIN=".harness-kit/bin/sdd"
 FIXTURE="docs/decisions/ADR-999-stale-fixture.md"
+VALID_FIXTURE="docs/decisions/ADR-998-valid-paths-fixture.md"
 
 # Ensure clean state on exit (even on test failure)
 cleanup() { rm -f "$FIXTURE"; }
-trap cleanup EXIT
+cleanup_valid() { rm -f "$VALID_FIXTURE"; }
+trap 'cleanup; cleanup_valid' EXIT
 
 pass() { printf "  ✓ %s\n" "$1"; }
 fail() { printf "  ✗ %s\n" "$1"; echo "    output: $2"; exit 1; }
@@ -58,13 +60,32 @@ if ! echo "$output" | grep -q "stale ADR: 1 (missing-path)"; then
 fi
 pass "fixture ADR (1 missing path) → stale ADR: 1 detected"
 
-# ─── Step 3: regression after fixture removal ────────────────────
+# ─── Step 3: regression with self-contained valid-paths fixture ──
+# Self-contained: a fixture ADR whose backtick paths all exist → no stale line.
+# Does NOT depend on ADR-001 body (W3 — spec-17-04).
 cleanup
+cat > "$VALID_FIXTURE" <<'EOF'
+---
+id: ADR-998
+type: decision
+date: 2026-05-17
+status: accepted
+---
+# ADR-998: Fixture for regression — all paths valid
+
+## Context
+Existing paths only: `sources/bin/sdd`, `README.md`, `version.json`.
+
+## Decision
+This ADR exists only for the regression test (Step 3) — all backtick paths MUST exist.
+EOF
+
 output=$(HARNESS_DRIFT_FETCH=0 bash "$SDD_BIN" status 2>&1 || true)
+cleanup_valid
 if echo "$output" | grep -q "stale ADR"; then
-  fail "ADR-001 regression — existing ADR paths should all be valid" "$output"
+  fail "regression: fixture with all-valid paths should produce no stale line" "$output"
 fi
-pass "regression: ADR-001 paths all valid"
+pass "regression: ADR-998 (all-valid-paths fixture) → no stale line"
 
 echo ""
 echo "All tests passed."
