@@ -5,9 +5,9 @@ harness-kit의 주요 변경 사항을 버전별로 정리합니다.
 
 ---
 
-## [Unreleased]
+## [0.10.0] — 2026-05-17
 
-> phase-17 (운영 성숙도) 의 draft entry. 다음 release commit 에서 `## [X.Y.Z] — YYYY-MM-DD` 로 stamp 됩니다.
+> phase-17 — 운영 성숙도 (Operational Maturity). 외부 접근성 (`/hk` + curl) + 내부 신뢰성 (cache 분리 + integration test + governance/test 정합) 5 spec.
 
 ### Added
 - `sources/commands/hk.md` — `/hk` 단일 진입점 슬래시 커맨드. `sdd status` 기반 8 상태 분기, 다음 행동 1 줄 안내 (#123)
@@ -15,6 +15,7 @@ harness-kit의 주요 변경 사항을 버전별로 정리합니다.
 - `tests/test-sdd-marker-idempotent.sh` — sdd CLI marker 멱등성 회귀 테스트 3/3 (#122)
 - `tests/test-phase16-integration.sh` — phase-16 통합 시나리오 3 자동화. `phase-NN-integration.sh` 명명 규약 신설 (#124)
 - `tests/test-phase17-integration.sh` — phase-17 통합 시나리오 4 (3 PASS / 1 skip) 자동화 (#126)
+- README "슬래시 커맨드" 표에 `/hk`, `/hk-update` 행 추가 (review W3 해소) (release)
 - `.harness-kit/cache.json` — `lastVersionCheck` / `latestKnownVersion` 캐시 필드 분리. `.gitignore` 추가 (#124)
 - `doctor.sh` 확장 — `docs/rca/`, `docs/decisions/` optional dir + `rca.md` / `adr.md` 템플릿 점검 (#124)
 - `sources/templates/adr.md` 의 stale 검사 경로 가이드 Note 블록 (#125)

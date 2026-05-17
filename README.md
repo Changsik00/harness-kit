@@ -345,7 +345,9 @@ sdd archive --keep=2
 
 | 커맨드 | 설명 |
 |---|---|
+| `/hk` | **단일 진입점** — `sdd status` 기반 현 상태 1 줄 + 다음 행동 1 줄 (8 상태 분기). 13 커맨드 암기 회피용 |
 | `/hk-align` | 세션 부트스트랩 — 거버넌스 로드 + `sdd status`로 현재 상태 확인 |
+| `/hk-update` | 키트 원격 갱신 (`bash <(curl ... get.sh) --update` 또는 로컬 `update.sh` fallback) |
 | `/hk-doctor` | 설치 환경 점검 — 필수 도구, 파일 구조, hook 상태 PASS/FAIL 출력 |
 | `/hk-plan-accept` | plan.md 승인 → Strict Loop 시작 |
 | `/hk-ship` | Spec 완료 — walkthrough/pr_description 검증 후 ship + push + PR 생성 |
