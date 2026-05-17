@@ -51,8 +51,8 @@ sdd — harness-kit 메타 명령
 
   plan accept                   현재 spec 의 plan 을 승인 (planAccepted=true)
 
-  config ux-mode [interactive|text]
-                                uxMode 설정 조회/변경 (생략 시 현재값 출력)
+  config ux-mode [interactive|text|toggle]
+                                uxMode 설정 조회/변경 (생략 시 현재값 출력, toggle: 현재값 자동 반전)
 
   task done <num>               task.md 의 N 번 항목을 [x] 로 마킹
 
@@ -1433,7 +1433,7 @@ cmd_config() {
   local sub="${1:-}"; shift || true
   case "$sub" in
     ux-mode) _config_ux_mode "$@" ;;
-    *)       die "사용법: sdd config ux-mode [interactive|text]" ;;
+    *)       die "사용법: sdd config ux-mode [interactive|text|toggle]" ;;
   esac
 }
 
@@ -1451,7 +1451,16 @@ _config_ux_mode() {
 
   case "$value" in
     interactive|text) ;;
-    *) die "허용된 값: interactive | text (입력: $value)" ;;
+    toggle)
+      local current
+      current=$(jq -r '.uxMode // "interactive"' "$installed_json" 2>/dev/null || echo "interactive")
+      if [ "$current" = "interactive" ]; then
+        value="text"
+      else
+        value="interactive"
+      fi
+      ;;
+    *) die "허용된 값: interactive | text | toggle (입력: $value)" ;;
   esac
 
   local tmp
