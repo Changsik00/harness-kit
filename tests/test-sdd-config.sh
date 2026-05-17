@@ -118,6 +118,48 @@ else
 fi
 
 # ─────────────────────────────────────────────────────────
+# T5: sdd config ux-mode toggle → 현재값 자동 반전
+# ─────────────────────────────────────────────────────────
+echo ""
+echo "T5: sdd config ux-mode toggle → 현재값 자동 반전"
+F5=$(make_fixture)
+FIXTURES_TO_CLEAN+=("$F5")
+
+# 초기 상태: interactive (fixture 기본값) → toggle → text 가 되어야 함
+run_sdd "$F5" config ux-mode interactive >/dev/null
+OUT5A=$(run_sdd "$F5" config ux-mode toggle 2>&1)
+ACTUAL5A=$(get_ux_mode "$F5")
+if [ "$ACTUAL5A" = "text" ] && echo "$OUT5A" | grep -q "text"; then
+  ok "toggle: interactive → text 반전 + 출력에 새 값 포함"
+else
+  fail "toggle interactive→text 실패 — installed: $ACTUAL5A, 출력: $OUT5A"
+fi
+
+# 한 번 더 toggle → interactive 복원
+OUT5B=$(run_sdd "$F5" config ux-mode toggle 2>&1)
+ACTUAL5B=$(get_ux_mode "$F5")
+if [ "$ACTUAL5B" = "interactive" ] && echo "$OUT5B" | grep -q "interactive"; then
+  ok "toggle: text → interactive 복원 + 출력에 새 값 포함"
+else
+  fail "toggle text→interactive 실패 — installed: $ACTUAL5B, 출력: $OUT5B"
+fi
+
+# ─────────────────────────────────────────────────────────
+# T6: invalid 입력 에러 메시지에 toggle 도 표시되는지
+# ─────────────────────────────────────────────────────────
+echo ""
+echo "T6: invalid 입력 에러에 toggle 허용값 노출"
+F6=$(make_fixture)
+FIXTURES_TO_CLEAN+=("$F6")
+
+OUT6=$(run_sdd "$F6" config ux-mode invalid 2>&1 || true)
+if echo "$OUT6" | grep -q "toggle"; then
+  ok "에러 메시지에 toggle 노출"
+else
+  fail "에러 메시지에 toggle 누락 — 실제: $OUT6"
+fi
+
+# ─────────────────────────────────────────────────────────
 echo ""
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo "  결과: PASS=$PASS  FAIL=$FAIL"
