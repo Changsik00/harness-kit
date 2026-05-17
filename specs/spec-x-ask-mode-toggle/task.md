@@ -27,51 +27,55 @@
 > 브랜치 생성 후 첫 commit 으로 묶음.
 
 ### 2-1. SDD 산출물 commit
-- [ ] `git add specs/spec-x-ask-mode-toggle/spec.md specs/spec-x-ask-mode-toggle/plan.md specs/spec-x-ask-mode-toggle/task.md`
-- [ ] Commit: `docs(spec-x-ask-mode-toggle): add spec/plan/task`
+- [x] `git add specs/spec-x-ask-mode-toggle/spec.md specs/spec-x-ask-mode-toggle/plan.md specs/spec-x-ask-mode-toggle/task.md`
+- [x] Commit: `docs(spec-x-ask-mode-toggle): add spec/plan/task`
 
 ---
 
 ## Task 3: `sdd config ux-mode toggle` 액션 추가 (TDD)
 
 ### 3-1. 실패 테스트 작성 (TDD Red)
-- [ ] `tests/test-sdd-config.sh` 에 T5 추가 (toggle 시나리오)
-- [ ] `bash tests/test-sdd-config.sh` 실행 → T5 FAIL 확인
-- [ ] Commit: `test(spec-x-ask-mode-toggle): add failing test for ux-mode toggle action`
+- [x] `tests/test-sdd-config.sh` 에 T5/T6 추가 (toggle 시나리오 + error 메시지)
+- [x] `bash tests/test-sdd-config.sh` 실행 → T5/T6 FAIL 확인
+- [x] Commit: `test(spec-x-ask-mode-toggle): add failing test for ux-mode toggle action`
 
 ### 3-2. CLI 구현 (TDD Green)
-- [ ] `sources/bin/sdd` 의 `_config_ux_mode` 에 `toggle` 분기 추가
-- [ ] `sources/bin/sdd` 의 도움말 (line ~54) `[interactive|text]` → `[interactive|text|toggle]`
-- [ ] `bash tests/test-sdd-config.sh` 실행 → 전체 PASS 확인
-- [ ] Commit: `feat(spec-x-ask-mode-toggle): add toggle action to sdd config ux-mode`
+- [x] `sources/bin/sdd` 의 `_config_ux_mode` 에 `toggle` 분기 추가
+- [x] `sources/bin/sdd` 의 도움말 (line ~54) `[interactive|text]` → `[interactive|text|toggle]`
+- [x] `.harness-kit/bin/sdd` 동기화 (도그푸딩)
+- [x] `bash tests/test-sdd-config.sh` 실행 → 전체 PASS 확인 (7/7)
+- [x] Commit: `feat(spec-x-ask-mode-toggle): add toggle action to sdd config ux-mode`
 
 ---
 
 ## Task 4: `/hk-ask-mode` 슬래시 커맨드 추가
 
 ### 4-1. sources/commands 추가
-- [ ] `sources/commands/hk-ask-mode.md` 작성 (description + 단일 bash 호출)
-- [ ] `.claude/commands/hk-ask-mode.md` 동일 복사 (도그푸딩)
-- [ ] `.harness-kit/installed.json` 의 `installedCommands` 배열에 `"hk-ask-mode"` 추가 (알파벳 순서)
-- [ ] Commit: `feat(spec-x-ask-mode-toggle): add /hk-ask-mode slash command`
+- [x] `sources/commands/hk-ask-mode.md` 작성 (description + 단일 bash 호출)
+- [x] `.claude/commands/hk-ask-mode.md` 동일 복사 (도그푸딩)
+- [x] `.harness-kit/installed.json` 의 `installedCommands` 배열에 `"hk-ask-mode"` 추가 (알파벳 순서)
+- [x] Commit: `feat(spec-x-ask-mode-toggle): add /hk-ask-mode slash command`
 
 ---
 
 ## Task 5: 거버넌스 문서 동기화
 
 ### 5-1. agent.md §8.4 갱신
-- [ ] `sources/governance/agent.md` §8.4 의 변경 방법 안내 갱신
-- [ ] `.harness-kit/agent/agent.md` 동일 갱신 (sources↔installed 정합성)
-- [ ] `bash tests/test-governance-dedup.sh` 실행 → PASS 확인
-- [ ] Commit: `docs(spec-x-ask-mode-toggle): document toggle action and /hk-ask-mode in agent.md §8.4`
+- [x] `sources/governance/agent.md` §8.4 의 변경 방법 안내 갱신
+- [x] `.harness-kit/agent/agent.md` 동일 갱신 (sources↔installed 정합성)
+- [-] `bash tests/test-governance-dedup.sh` PASS 확인 — Pre-existing FAIL (단어 수 초과 6415→6418w, main 부터 초과 상태). 본 spec 원인 아님 → Icebox 등록.
+- [x] Commit: `docs(spec-x-ask-mode-toggle): document toggle action and /hk-ask-mode in agent.md §8.4`
 
 ---
 
 ## Task 6: 부수 발견 — Icebox 등록
 
-### 6-1. `sdd specx new` slug 중복 버그 기록
-- [ ] `backlog/queue.md` Icebox 섹션에 한 줄 추가: "sdd specx new 가 생성하는 spec.md 의 Branch 필드에 slug 가 중복 입력됨 (예: `spec-x-foo-foo`)"
-- [ ] Commit: `chore(spec-x-ask-mode-toggle): record sdd specx new slug duplication bug in icebox`
+### 6-1. 부수 발견 3 건 Icebox 등록
+- [x] `backlog/queue.md` Icebox 섹션에 3 건 추가:
+  - `sdd specx new` 의 spec.md Branch 필드 slug 중복 버그
+  - `tests/test-uninstall-cmd-list.sh` Scenario 1 pre-existing FAIL (glob 패턴 불일치)
+  - 거버넌스 단어 수 한계 초과 (6418w > 6000w)
+- [x] Commit: `chore(spec-x-ask-mode-toggle): record findings in icebox (...)`
 
 ---
 
