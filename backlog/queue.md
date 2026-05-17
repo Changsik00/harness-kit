@@ -15,6 +15,7 @@
 
 <!-- sdd:specx:start -->
 없음
+- [ ] spec-x-phase-17-define — phase-17-define
 <!-- sdd:specx:end -->
 
 ## 🧊 Icebox
