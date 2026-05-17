@@ -281,9 +281,11 @@ EOF
 }
 
 # kit 버전 감지: kitOrigin 에서 raw version.json 을 curl 로 조회 (다운로드 없음)
-# 24시간 캐시: lastVersionCheck + latestKnownVersion 을 installed.json 에 저장
+# 24시간 캐시: lastVersionCheck + latestKnownVersion 을 .harness-kit/cache.json 에 저장
+# (이전엔 installed.json 이었으나 tracked 파일이라 매 SessionStart drift 발생 — spec-17-03)
 _drift_kit_version() {
   local installed_json="$SDD_ROOT/.harness-kit/installed.json"
+  local cache_json="$SDD_ROOT/.harness-kit/cache.json"
   [ -f "$installed_json" ] || return 1
   [ "${HARNESS_DRIFT_FETCH:-1}" = "0" ] && return 1
   command -v curl >/dev/null 2>&1 || return 1
@@ -301,9 +303,25 @@ _drift_kit_version() {
   slug=$(echo "$origin" | sed 's|git@github.com:||; s|https://github.com/||; s|\.git$||')
   [ -z "$slug" ] && return 1
 
-  local last_check latest_known cache_valid=0
-  last_check=$(jq -r '.lastVersionCheck // empty' "$installed_json" 2>/dev/null || echo "")
-  latest_known=$(jq -r '.latestKnownVersion // empty' "$installed_json" 2>/dev/null || echo "")
+  # Migration (1회만): installed.json 캐시 필드 있으면 cache.json 으로 이동
+  if jq -e 'has("lastVersionCheck") or has("latestKnownVersion")' "$installed_json" >/dev/null 2>&1; then
+    local legacy_last legacy_known
+    legacy_last=$(jq -r '.lastVersionCheck // empty' "$installed_json" 2>/dev/null || echo "")
+    legacy_known=$(jq -r '.latestKnownVersion // empty' "$installed_json" 2>/dev/null || echo "")
+    if [ -n "$legacy_last" ] || [ -n "$legacy_known" ]; then
+      jq -n --arg ts "$legacy_last" --arg v "$legacy_known" \
+        '{lastVersionCheck: $ts, latestKnownVersion: $v}' > "$cache_json" 2>/dev/null
+    fi
+    local tmp_inst
+    tmp_inst=$(jq 'del(.lastVersionCheck, .latestKnownVersion)' "$installed_json" 2>/dev/null || echo "")
+    [ -n "$tmp_inst" ] && echo "$tmp_inst" > "$installed_json"
+  fi
+
+  local last_check="" latest_known="" cache_valid=0
+  if [ -f "$cache_json" ]; then
+    last_check=$(jq -r '.lastVersionCheck // empty' "$cache_json" 2>/dev/null || echo "")
+    latest_known=$(jq -r '.latestKnownVersion // empty' "$cache_json" 2>/dev/null || echo "")
+  fi
 
   if [ -n "$last_check" ]; then
     local now_epoch cache_epoch
@@ -323,10 +341,8 @@ _drift_kit_version() {
     [ -z "$latest" ] && return 1
     local now_iso
     now_iso=$(date -u +%Y-%m-%dT%H:%M:%SZ)
-    local tmp
-    tmp=$(jq --arg ts "$now_iso" --arg v "$latest" \
-      '.lastVersionCheck=$ts | .latestKnownVersion=$v' "$installed_json" 2>/dev/null || echo "")
-    [ -n "$tmp" ] && echo "$tmp" > "$installed_json"
+    jq -n --arg ts "$now_iso" --arg v "$latest" \
+      '{lastVersionCheck: $ts, latestKnownVersion: $v}' > "$cache_json" 2>/dev/null || true
   fi
 
   # latest > installed_ver 일 때만 알림 (다운그레이드/개발 브랜치 무시)
