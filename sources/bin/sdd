@@ -1430,12 +1430,19 @@ cmd_ship() {
       local tmp_pf
       tmp_pf="$(mktemp)"
       # 상태 전이 모델: Backlog → Active → In Progress → Done → Merged
-      # ship은 Active/In Progress/Done 어느 상태에서든 Merged로 전환
-      awk -v sid="$spec_id" '
+      # ship: Active/In Progress/Done → Merged.
+      # 동일 short_id 의 plain text Backlog 행이 잔류하면 제거 (한 spec = 한 행).
+      awk -v sid="$spec_id" -v short_sid="$scope" '
         index($0, sid) && (/\| In Progress \|/ || /\| Active \|/ || /\| Done \|/) {
           sub(/\| In Progress \|/, "| Merged |")
           sub(/\| Active \|/, "| Merged |")
           sub(/\| Done \|/, "| Merged |")
+          print
+          next
+        }
+        # 동일 short_id 의 plain Backlog 행 (수동 작성, sdd spec new 이전) 제거
+        $0 ~ "\\| " short_sid " \\|" && /\| Backlog \|/ {
+          next
         }
         { print }
       ' "$phase_file" > "$tmp_pf" && mv "$tmp_pf" "$phase_file"
