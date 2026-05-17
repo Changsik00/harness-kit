@@ -356,7 +356,7 @@ At key decision points requiring user input, the Agent SHOULD use the `AskUserQu
 - `"uxMode": "text"` — skip `AskUserQuestion`; fall back to text output for all decision points
 - Field absent — treat as `"interactive"` (backward-compatible default)
 
-To change: `sdd config ux-mode text` or `sdd config ux-mode interactive`
+To change: `sdd config ux-mode [interactive|text|toggle]` (or run `/hk-ask-mode` — toggles the current value).
 
 **Usage notes**: `AskUserQuestion` is Claude Code-specific. Keep options to 2–4, use concise labels, and put trade-offs in the description field.
 
