@@ -1137,10 +1137,62 @@ cmd_spec() {
   esac
 }
 
+# Pre-spec validation (agent.md §11 Planning Economy):
+# phase 활성 + 직전 merged spec 존재 시 *주의 환기* 출력 (gate 아님).
+# 직전 spec 의 walkthrough 발견/이월 + 잔여 spec 표 + 재검증 4 질문 표시.
+_pre_spec_validation() {
+  local slug="$1"
+  local phase_id
+  phase_id="$(state_get phase 2>/dev/null)"
+  [ -z "$phase_id" ] || [ "$phase_id" = "null" ] && return 0
+
+  local phase_file="$SDD_BACKLOG/${phase_id}.md"
+  [ -f "$phase_file" ] || return 0
+
+  # 직전 merged spec 추출 (phase.md 표에서 Merged 행 중 마지막)
+  local prev_spec
+  prev_spec=$(awk '
+    /^\| `spec-/ && /\| Merged \|/ {
+      match($0, /`spec-[^`]+`/)
+      if (RSTART > 0) print substr($0, RSTART+1, RLENGTH-2)
+    }
+  ' "$phase_file" 2>/dev/null | tail -1)
+  [ -z "$prev_spec" ] && return 0
+
+  # walkthrough 위치 (specs/<prev_spec>-*/walkthrough.md)
+  local prev_dir prev_wt
+  prev_dir=$(find "$SDD_SPECS" -maxdepth 1 -type d -name "${prev_spec}-*" 2>/dev/null | head -1)
+  [ -z "$prev_dir" ] && return 0
+  prev_wt="${prev_dir}/walkthrough.md"
+  [ -f "$prev_wt" ] || return 0
+
+  echo ""
+  echo "${C_CYN}📋 직전 spec 변경 영향 (${prev_spec})${C_RST}"
+  grep -h "^## 🔍\|^## 🚧" "$prev_wt" 2>/dev/null | sed 's/^/  /'
+  echo "  → 자세한 내용: ${prev_wt#$SDD_ROOT/}"
+
+  echo ""
+  echo "${C_CYN}📋 phase.md 잔여 spec${C_RST}"
+  local remaining
+  remaining=$(grep -E "\| (Backlog|Active) \|" "$phase_file" 2>/dev/null | wc -l | tr -d ' ')
+  echo "  남은 spec: ${remaining} 개 (${phase_file#$SDD_ROOT/} 참고)"
+
+  echo ""
+  echo "${C_YLW}💡 본 spec (${slug}) 시작 전 재검증 (agent.md §11):${C_RST}"
+  echo "  - 직전 변경으로 가정이 깨졌는가? (방향성)"
+  echo "  - scope 가 여전히 적절한가? (크기)"
+  echo "  - 잔여 spec 과 bundle 가능한가? (응집도)"
+  echo "  - 1-2 commit 이면 phase FF 가 나은가? (경제성)"
+  echo "  → 재조정 필요 시 'sdd spec new' 취소 + phase.md / queue.md 조정"
+  echo ""
+}
+
 spec_new() {
   local slug="${1:-}"
   [ -z "$slug" ] && die "사용법: sdd spec new <slug>"
   sdd_slug_ok "$slug" || die "slug 형식 오류: 소문자/숫자/하이픈"
+
+  _pre_spec_validation "$slug"
 
   local phase_id
   phase_id="$(state_get phase)"
