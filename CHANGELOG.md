@@ -5,6 +5,35 @@ harness-kit의 주요 변경 사항을 버전별로 정리합니다.
 
 ---
 
+## [Unreleased]
+
+> phase-17 (운영 성숙도) 의 draft entry. 다음 release commit 에서 `## [X.Y.Z] — YYYY-MM-DD` 로 stamp 됩니다.
+
+### Added
+- `sources/commands/hk.md` — `/hk` 단일 진입점 슬래시 커맨드. `sdd status` 기반 8 상태 분기, 다음 행동 1 줄 안내 (#123)
+- README onboarding (Step 1 의 `/hk` 진입점 안내, curl 인스톨러 명시) (#123)
+- `tests/test-sdd-marker-idempotent.sh` — sdd CLI marker 멱등성 회귀 테스트 3/3 (#122)
+- `tests/test-phase16-integration.sh` — phase-16 통합 시나리오 3 자동화. `phase-NN-integration.sh` 명명 규약 신설 (#124)
+- `tests/test-phase17-integration.sh` — phase-17 통합 시나리오 4 (3 PASS / 1 skip) 자동화 (#126)
+- `.harness-kit/cache.json` — `lastVersionCheck` / `latestKnownVersion` 캐시 필드 분리. `.gitignore` 추가 (#124)
+- `doctor.sh` 확장 — `docs/rca/`, `docs/decisions/` optional dir + `rca.md` / `adr.md` 템플릿 점검 (#124)
+- `sources/templates/adr.md` 의 stale 검사 경로 가이드 Note 블록 (#125)
+- `CLAUDE.md` "릴리스 전략" 의 `Phase ship 시 CHANGELOG draft` 룰 (#125)
+
+### Fixed
+- `sources/bin/sdd` `cmd_spec_new` / `cmd_ship` / `queue_mark_done` marker 멱등성 — RCA-001 prevention 직접 구현 (#122)
+- `sources/governance/constitution.md` §6.4 closure 표 "Used in" 열 표현 명확화 (`ADR only` / `RCA only` / `(shared)` 마크) (#125)
+- `tests/test-drift-stale-adr.sh` Step 3 회귀 마커 self-contained 화 — `ADR-998-valid-paths-fixture` 사용 (#125)
+- `install.sh` 가 신규 installed.json 에 cache 필드 작성하던 잔재 제거 (#126)
+- `sources/commands/hk-update.md` 의 cache 갱신 destination 을 `.harness-kit/cache.json` 으로 정정 (#126)
+- `.harness-kit/installed.json.installedCommands` 에 신규 `hk` 추가 (도그푸딩 매니페스트 정합) (#126)
+- `backlog/queue.md` Icebox 의 spec-17-02 / spec-17-03 매핑 swap (#126)
+
+### Changed
+- phase-17 재정의: "정합성 fix (3 spec)" → "운영 성숙도 (4 spec + pre-ship sweep)" — 사용자 피드백 (phase 단위 피로감) 반영 (#123)
+
+---
+
 ## [0.9.1] — 2026-05-13
 
 ### Added
