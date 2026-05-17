@@ -8,7 +8,7 @@
 ## 📦 진행 중 Phase
 
 <!-- sdd:active:start -->
-- **phase-17** — 운영 성숙도 (Operational Maturity) — 5 spec — 다음: spec-17-05-pre-ship-fixes
+(active phase 없음. `bin/sdd phase new <slug>` 로 시작)
 <!-- sdd:active:end -->
 
 ## 📥 spec-x 대기
@@ -84,6 +84,7 @@
 - [x] spec-x-phase-16-define (완료)
 - **phase-16** — Reliability Layer 강화 — completed 2026-05-16
 - [x] spec-x-phase-17-define (완료)
+- **phase-17** — 운영 성숙도 (Operational Maturity) — completed 2026-05-17
 <!-- sdd:done:end -->
 
 ---
