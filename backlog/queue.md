@@ -15,6 +15,7 @@
 
 <!-- sdd:specx:start -->
 없음
+- [ ] spec-x-planning-economy — planning-economy
 <!-- sdd:specx:end -->
 
 ## 🧊 Icebox
