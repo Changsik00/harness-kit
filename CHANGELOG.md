@@ -5,6 +5,24 @@ harness-kit의 주요 변경 사항을 버전별로 정리합니다.
 
 ---
 
+## [0.12.0] — 2026-05-18
+
+> UX 토글 + 아카이브 통합 검색. `uxMode` 가 한 번에 뒤집히고, archived spec/ADR/RCA 가 grep wrapper 로 닿는다.
+
+### Added
+- `sdd config ux-mode toggle` — 현재값 자동 반전 (interactive ↔ text) (#132)
+- `/hk-ask-mode` 슬래시 커맨드 — uxMode 토글 단일 명령 (#132)
+- `sdd search <keyword> [--scope=<s>] [--ignore-case]` — 마크다운 자산 통합 검색 wrapper. scope: `all`(기본) / `active` / `archive` / `decisions` / `rca` / `backlog`. 카테고리별 그룹 헤더 + `<rel path>:<line>:<text>` 출력 (#133)
+- `tests/test-sdd-search.sh` — fixture 기반 8 시나리오 단위 테스트 (#133)
+
+### Changed
+- `agent.md §8.4` AskUserQuestion Tool Preference — 변경 방법 안내에 `toggle` 액션 + `/hk-ask-mode` 슬래시 명시 (#132)
+
+### Fixed
+- `sdd search` 단일 파일 scope 결과 경로 누락 — `grep -H` 추가로 always-prefix path (single-file 디렉토리 회귀 방지 테스트 포함) (#133)
+
+---
+
 ## [0.11.0] — 2026-05-17
 
 > Planning Economy (SDD ceremony 비용 인식 + phase 내 inter-spec 재검증) + state.json 단일평면 footgun 가드.
