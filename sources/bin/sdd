@@ -75,6 +75,8 @@ sdd — harness-kit 메타 명령
   doctor                        환경 진단 — 필수 도구/설치 파일/훅 권한 체크리스트 출력
   pr-watch <pr-number>          PR merge 감지 — merge 확인 시 post-merge 안내 자동 출력
   run-test <cmd...>             테스트 실행 + 통과 시 자동으로 sdd test passed 기록
+  search <keyword> [--scope=<s>] [--ignore-case]
+                                마크다운 자산 통합 검색 (scope: all/active/archive/decisions/rca/backlog)
 
   help                          이 도움말
   version                       키트 버전
@@ -2165,6 +2167,83 @@ cmd_run_test() {
 }
 
 # ============================================================
+# search — 마크다운 자산 통합 검색 (active/archive/decisions/rca/backlog)
+# ============================================================
+cmd_search() {
+  local keyword="" scope="all" ic=""
+  while [ $# -gt 0 ]; do
+    case "$1" in
+      --scope=*) scope="${1#--scope=}"; shift ;;
+      --ignore-case|-i) ic="-i"; shift ;;
+      --*) die "알 수 없는 옵션: $1" ;;
+      *)
+        if [ -z "$keyword" ]; then
+          keyword="$1"
+        else
+          die "키워드는 하나만 허용 (이미 '$keyword')"
+        fi
+        shift
+        ;;
+    esac
+  done
+
+  [ -z "$keyword" ] && die "사용법: sdd search <keyword> [--scope=<s>] [--ignore-case]"
+
+  case "$scope" in
+    all|active|archive|decisions|rca|backlog) ;;
+    *) die "잘못된 scope: $scope (허용: all | active | archive | decisions | rca | backlog)" ;;
+  esac
+
+  _search_dispatch "$keyword" "$scope" "$ic"
+}
+
+_search_dispatch() {
+  local kw="$1" sc="$2" ic="$3"
+  local total=0 hits count
+  local pairs="active|specs archive|archive/specs|archive/backlog decisions|docs/decisions rca|docs/rca backlog|backlog"
+  local entry group dirs
+
+  for entry in $pairs; do
+    group="${entry%%|*}"
+    dirs=$(echo "${entry#*|}" | tr '|' ' ')
+    [ "$sc" = "all" ] || [ "$sc" = "$group" ] || continue
+
+    hits=$(_search_in "$dirs" "$kw" "$ic")
+    if [ -n "$hits" ]; then
+      count=$(printf '%s\n' "$hits" | grep -c '^')
+      printf '\n▶ %s (%s hits)\n' "$group" "$count"
+      printf '%s\n' "$hits" | sed "s|^$SDD_ROOT/||"
+      total=$(( total + count ))
+    fi
+  done
+
+  if [ "$total" -eq 0 ]; then
+    printf '검색 결과 없음 (keyword=%s, scope=%s)\n' "$kw" "$sc"
+    return 1
+  fi
+  return 0
+}
+
+# 검색 실제 수행 — dirs (공백 구분 목록) 안의 *.md 에 대해 grep
+# 출력: <abs path>:<line>:<text> 한 줄씩. 매치 없으면 빈 문자열.
+_search_in() {
+  local dirs="$1" kw="$2" ic="$3"
+  local d out=""
+  for d in $dirs; do
+    [ -d "$SDD_ROOT/$d" ] || continue
+    if [ -n "$ic" ]; then
+      out="$out$(find "$SDD_ROOT/$d" -type f -name '*.md' -exec grep -nEi -- "$kw" {} + 2>/dev/null)
+"
+    else
+      out="$out$(find "$SDD_ROOT/$d" -type f -name '*.md' -exec grep -nE -- "$kw" {} + 2>/dev/null)
+"
+    fi
+  done
+  # 빈 줄 제거
+  printf '%s' "$out" | sed '/^$/d'
+}
+
+# ============================================================
 main() {
   local cmd="${1:-help}"; shift || true
   case "$cmd" in
@@ -2185,6 +2264,7 @@ main() {
     doctor)   cmd_doctor "$@" ;;
     pr-watch)  cmd_pr_watch "$@" ;;
     run-test)  cmd_run_test "$@" ;;
+    search)   cmd_search "$@" ;;
     *)         err "알 수 없는 명령: $cmd"; cmd_help; exit 1 ;;
   esac
 }
