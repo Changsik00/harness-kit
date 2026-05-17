@@ -5,6 +5,22 @@ harness-kit의 주요 변경 사항을 버전별로 정리합니다.
 
 ---
 
+## [0.11.0] — 2026-05-17
+
+> Planning Economy (SDD ceremony 비용 인식 + phase 내 inter-spec 재검증) + state.json 단일평면 footgun 가드.
+
+### Added
+- `agent.md §11` Planning Economy & Inter-Spec Re-Validation — SDD ceremony 비용 인식 (6-8K 토큰), scope economy thresholds (FF / spec-x / spec), phase 내 매 spec 시작 시 재검증 4 질문 (#129)
+- `sources/bin/sdd cmd_spec_new` pre-spec validation — phase 활성 + 직전 merged spec 존재 시 walkthrough carry-over + 잔여 spec + 재검증 질문 자동 출력 (attention prompt, not gate) (#129)
+- `docs/decisions/ADR-002-planning-economy.md` — Planning Economy 거버넌스 결정 기록 (type: decision) (#129)
+- `sources/bin/lib/state.sh die_if_active_spec` helper — 활성 spec(spec-x 또는 SDD-P) 존재 시 die 하고 컨텍스트별 해결 명령 안내 (#130)
+- `tests/test-sdd-state-guard.sh` — `phase activate` / `phase new` / `spec new` 가드 + `--force` 우회 + 회귀 13 check (#130)
+
+### Fixed
+- `sources/bin/sdd phase_activate` / `phase_new` / `spec_new` — 활성 spec 컨텍스트 silent reset footgun 가드 추가. `--force` 플래그로 우회 가능 (`phase_new` 는 기존 플래그 의미 확장) (#130)
+
+---
+
 ## [0.10.0] — 2026-05-17
 
 > phase-17 — 운영 성숙도 (Operational Maturity). 외부 접근성 (`/hk` + curl) + 내부 신뢰성 (cache 분리 + integration test + governance/test 정합) 5 spec.
