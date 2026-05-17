@@ -993,6 +993,11 @@ queue_phase_is_done() {
 queue_mark_done() {
   local phase_id="${1:-$(state_get phase)}"
   [ -z "$phase_id" ] || [ "$phase_id" = "null" ] && return 0
+  # normalize: 사용자가 'phase done 16' 처럼 prefix 없이 호출 시 자동 보정
+  case "$phase_id" in
+    phase-*) ;;
+    *) phase_id="phase-$phase_id" ;;
+  esac
   local q="$(state_queue_file)"
   ensure_queue_file
   local title=""
