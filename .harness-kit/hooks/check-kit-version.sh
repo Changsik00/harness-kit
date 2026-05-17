@@ -8,8 +8,9 @@
 #   - HARNESS_DRIFT_FETCH != 0
 #   - HARNESS_HOOK_MODE != off, HARNESS_HOOK_MODE_KIT_VERSION != off
 #
-# 캐시: installed.json 의 lastVersionCheck / latestKnownVersion 을 24h 캐시로 사용
+# 캐시: .harness-kit/cache.json 의 lastVersionCheck / latestKnownVersion 을 24h 캐시로 사용
 # (sources/bin/sdd:285-341 _drift_kit_version 와 동일 필드).
+# 이전엔 installed.json 에 저장했으나 tracked 파일이라 매 SessionStart drift 발생 — cache.json 으로 분리 (spec-17-03).
 #
 # 어떤 실패도 silent skip — exit 0 보장.
 
@@ -21,6 +22,7 @@ set -uo pipefail
 
 HARNESS_ROOT="$(pwd)"
 INSTALLED_JSON="$HARNESS_ROOT/.harness-kit/installed.json"
+CACHE_JSON="$HARNESS_ROOT/.harness-kit/cache.json"
 
 [ -f "$INSTALLED_JSON" ] || exit 0
 command -v jq   >/dev/null 2>&1 || exit 0
@@ -31,8 +33,24 @@ installed_ver=$(jq -r '.kitVersion // empty' "$INSTALLED_JSON" 2>/dev/null || ec
 { [ -z "$origin" ] || [ -z "$installed_ver" ]; } && exit 0
 echo "$origin" | grep -q "github.com" || exit 0
 
-last_check=$(jq -r '.lastVersionCheck // empty'   "$INSTALLED_JSON" 2>/dev/null || echo "")
-latest_known=$(jq -r '.latestKnownVersion // empty' "$INSTALLED_JSON" 2>/dev/null || echo "")
+# Migration (1회만): installed.json 의 캐시 필드가 있으면 cache.json 으로 이동 + installed.json 정리
+if jq -e 'has("lastVersionCheck") or has("latestKnownVersion")' "$INSTALLED_JSON" >/dev/null 2>&1; then
+  legacy_last=$(jq -r '.lastVersionCheck // empty'   "$INSTALLED_JSON" 2>/dev/null || echo "")
+  legacy_known=$(jq -r '.latestKnownVersion // empty' "$INSTALLED_JSON" 2>/dev/null || echo "")
+  if [ -n "$legacy_last" ] || [ -n "$legacy_known" ]; then
+    jq -n --arg ts "$legacy_last" --arg v "$legacy_known" \
+      '{lastVersionCheck: $ts, latestKnownVersion: $v}' > "$CACHE_JSON" 2>/dev/null
+  fi
+  tmp=$(jq 'del(.lastVersionCheck, .latestKnownVersion)' "$INSTALLED_JSON" 2>/dev/null || echo "")
+  [ -n "$tmp" ] && echo "$tmp" > "$INSTALLED_JSON"
+fi
+
+last_check=""
+latest_known=""
+if [ -f "$CACHE_JSON" ]; then
+  last_check=$(jq -r '.lastVersionCheck // empty'   "$CACHE_JSON" 2>/dev/null || echo "")
+  latest_known=$(jq -r '.latestKnownVersion // empty' "$CACHE_JSON" 2>/dev/null || echo "")
+fi
 cache_valid=0
 if [ -n "$last_check" ]; then
   now_epoch=$(date -u +%s 2>/dev/null || echo "0")
@@ -51,9 +69,8 @@ else
     | jq -r '.version // empty' 2>/dev/null || echo "")
   [ -z "$latest" ] && exit 0
   now_iso=$(date -u +%Y-%m-%dT%H:%M:%SZ)
-  tmp=$(jq --arg ts "$now_iso" --arg v "$latest" \
-    '.lastVersionCheck=$ts | .latestKnownVersion=$v' "$INSTALLED_JSON" 2>/dev/null || echo "")
-  [ -n "$tmp" ] && echo "$tmp" > "$INSTALLED_JSON"
+  jq -n --arg ts "$now_iso" --arg v "$latest" \
+    '{lastVersionCheck: $ts, latestKnownVersion: $v}' > "$CACHE_JSON" 2>/dev/null || true
 fi
 
 [ "$latest" = "$installed_ver" ] && exit 0
