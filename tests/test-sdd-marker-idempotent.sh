@@ -18,19 +18,22 @@ STATE_JSON="$SDD_ROOT/.claude/state/current.json"
 FIXTURE_PHASE_FILE="backlog/phase-99.md"
 FIXTURE_SPEC_DIR=""  # captured during test, cleaned at exit
 
-# state backup (restore on exit)
+# state + queue backup (restore on exit)
 STATE_BACKUP=""
+QUEUE_BACKUP=""
 if [ -f "$STATE_JSON" ]; then
   STATE_BACKUP="$(cat "$STATE_JSON")"
+fi
+if [ -f backlog/queue.md ]; then
+  QUEUE_BACKUP="$(cat backlog/queue.md)"
 fi
 
 cleanup() {
   rm -f "$FIXTURE_PHASE_FILE"
   [ -n "$FIXTURE_SPEC_DIR" ] && [ -d "$FIXTURE_SPEC_DIR" ] && rm -rf "$FIXTURE_SPEC_DIR"
-  # queue.md 의 fixture done entry 제거
-  if [ -f backlog/queue.md ] && grep -q "phase-99" backlog/queue.md; then
-    grep -v "phase-99" backlog/queue.md > backlog/queue.md.tmp && \
-      mv backlog/queue.md.tmp backlog/queue.md
+  # queue.md 전체 복원 (active 섹션 + done entry 모두)
+  if [ -n "$QUEUE_BACKUP" ]; then
+    echo "$QUEUE_BACKUP" > backlog/queue.md
   fi
   # state restore
   if [ -n "$STATE_BACKUP" ]; then
