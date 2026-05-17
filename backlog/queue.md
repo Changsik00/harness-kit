@@ -91,6 +91,7 @@
 - [x] spec-x-planning-economy (완료)
 - [x] spec-x-sdd-state-guard (완료)
 - [x] spec-x-ask-mode-toggle (완료)
+- [x] spec-x-sdd-search (완료)
 <!-- sdd:done:end -->
 
 ---
