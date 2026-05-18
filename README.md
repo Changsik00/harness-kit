@@ -291,6 +291,7 @@ sdd archive --keep=2
 ├── .claude/                        # Claude Code 통합
 │   ├── settings.json               #   permissions + hooks (jq 머지)
 │   ├── commands/                   #   슬래시 커맨드 (hk- prefix)
+│   │   ├── hk.md
 │   │   ├── hk-align.md
 │   │   ├── hk-plan-accept.md
 │   │   ├── hk-ship.md
@@ -301,7 +302,10 @@ sdd archive --keep=2
 │   │   ├── hk-code-review.md
 │   │   ├── hk-spec-critique.md
 │   │   ├── hk-cleanup.md
-│   │   └── hk-archive.md
+│   │   ├── hk-archive.md
+│   │   ├── hk-ask-mode.md
+│   │   ├── hk-doctor.md
+│   │   └── hk-update.md
 │   └── state/current.json          #   런타임 state (gitignore)
 │
 ├── backlog/                        # phase 정의 (평면 파일)
@@ -359,6 +363,7 @@ sdd archive --keep=2
 | `/hk-spec-critique` | spec.md 비평 — Opus sub-agent로 유사 기법 조사 + 대안 제안 |
 | `/hk-cleanup` | 프로젝트 정리 — 동기화 불일치, 잔여 파일, stale 요소 감지 및 정리 |
 | `/hk-archive` | 완료된 phase의 spec/backlog를 `archive/`로 정리 |
+| `/hk-ask-mode` | AskUserQuestion UX 모드 토글 — `interactive` ↔ `text` |
 
 ### sdd 서브커맨드 (에이전트 내부용)
 
@@ -377,13 +382,17 @@ sdd archive --keep=2
 | `sdd spec list [--phase=N]` | Spec 목록 |
 | `sdd spec show [spec-NN-NN-slug]` | Spec 상세 (생략 시 active) |
 | `sdd plan accept` | 현재 Spec의 plan을 승인 |
+| `sdd config ux-mode [interactive\|text\|toggle]` | AskUserQuestion 모드 설정 |
 | `sdd task done <num>` | task.md의 N번 항목을 완료 마킹 |
 | `sdd test passed` | 테스트 통과 시각 기록 (`lastTestPass` 갱신) |
 | `sdd ship [--check]` | walkthrough/pr_description 검증 후 ship 커밋 생성 |
 | `sdd archive [--keep=N] [--dry-run]` | 완료 Phase의 파일을 `archive/`로 이동 |
 | `sdd pr-watch <pr-number>` | PR merge 자동 감지 (30초 폴링, 60분 타임아웃) — merge 시 post-merge 절차 출력 |
 | `sdd run-test <cmd...>` | 테스트 결과 자동 기록 wrapper — exit 0 시 `sdd test passed` 자동 호출 |
+| `sdd search <keyword> [--scope=<s>] [--ignore-case]` | 마크다운 자산 통합 검색 (spec/plan/walkthrough 등) |
+| `sdd specx new <slug>` | spec-x-{slug} 디렉토리 생성 + 템플릿 복사 |
 | `sdd specx done <slug>` | spec-x 작업을 queue.md done으로 이동 |
+| `sdd phase activate <phase-NN> [--base]` | 비활성 Phase를 active로 전환 |
 | `sdd hooks [status]` | hook 모드 현황 출력 |
 | `sdd hooks block\|warn\|off <name>` | 특정 hook 모드 전환 안내 |
 | `sdd help` | 도움말 |
@@ -401,6 +410,8 @@ sdd archive --keep=2
 | Task 실행 | Sonnet (sub-agent) | 상대적으로 기계적, 빠르고 저렴 |
 | 코드 리뷰 / 비평 | Opus (sub-agent) | 미묘한 문제를 잡으려면 별도 컨텍스트의 깊은 분석 필요 |
 | 코드 분석 | Opus (sub-agent) | 구조 파악, 영향 범위 판단 |
+
+**예외 — docs-only 태스크**: 모든 task가 마크다운 파일 생성·편집만인 Spec (코드·스크립트·테스트 없음) 은 메인 스레드에서 직접 실행합니다. sub-agent 스핀업 오버헤드가 작업 자체보다 크기 때문입니다.
 
 ---
 
