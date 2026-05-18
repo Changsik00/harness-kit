@@ -15,6 +15,7 @@
 
 <!-- sdd:specx:start -->
 없음
+- [ ] spec-x-kit-update-notify — kit-update-notify
 <!-- sdd:specx:end -->
 
 ## 🧊 Icebox
