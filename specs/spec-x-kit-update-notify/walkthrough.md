@@ -1,82 +1,58 @@
 # Walkthrough: spec-x-kit-update-notify
 
-> 본 문서는 *작업 기록* 입니다. 결정 과정, 사용자 협의, 검증 결과를 미래의 자신과 리뷰어에게 남깁니다.
-> 작업을 진행하는 동안 *지속적으로* 갱신하세요. 마지막에 한 번에 작성하지 마세요.
+> 본 문서는 *작업 기록* 입니다. 결정 과정, 사용자 협의, 검증 결과를 남깁니다.
 
 ## 📌 결정 기록
 
-> 작업 중 이슈가 발생했을 때, 어떤 선택지가 있었고 왜 이 방향을 결정했는지 기록합니다.
-
 | 이슈 | 선택지 | 결정 | 이유 |
 |---|---|---|---|
-| <이슈 1> | A 또는 B | A | <이유> |
+| 버전 알림 전달 방법 | (A) check-kit-version.sh 단독 / (B) sdd --brief 에 suffix 포함 | **(B)** | Claude Code compact format 은 첫 번째 훅 출력만 포함. (A)는 두 번째 훅이라 에이전트 컨텍스트에 도달하지 못함 |
+| hk-update 실행 주체 | (A) 사용자가 직접 복사-붙여넣기 / (B) 에이전트가 Bash 직접 실행 / (C) 임시 동의 후 직접 실행 | **(C)** | (A)는 기존 방식이고 "잘 안돼"의 원인. (B)는 확인 없는 destructive 작업. (C)는 step 4에서 이미 Y/n 확인을 받으므로 추가 마찰 없음 |
+| check-kit-version.sh 유지 여부 | 제거 / 유지 | **유지** | cache.json 갱신 역할(24h TTL) 담당. 제거하면 brief의 suffix도 캐시 없어 동작 안 함 |
 
 ### ADR 승격 가이드
 
-> 위 결정 중 *cross-spec / long-lived* 인 것이 있다면 ADR 로 승격합니다 (constitution §6.3).
->
-> 승격 기준:
-> - 다른 spec 의 작업이 본 결정에 의존하는가?
-> - 6 개월 이상 유지될 가능성이 높은가?
-> - frontmatter `type:` 어휘 (`decision` / `invariant` / `convention` / `tradeoff`) 중 하나에 해당하는가?
->
-> 셋 중 둘 이상이면 ADR 후보. 비강제 — 미체크여도 ship 차단 없음.
-
-- [ ] ADR 승격 대상 있음 → 작성됨: `docs/decisions/ADR-<NNN>-<slug>.md`
-- [ ] 없음
+- [x] 없음 — 특정 slash command 실행 정책 변경, 이 프로젝트 한정
 
 ## 💬 사용자 협의
 
-> 사용자와 논의한 내용과 합의 사항을 기록합니다.
-
-- **주제**: <논의 주제>
-  - **사용자 의견**: <사용자가 제시한 방향>
-  - **합의**: <최종 합의 내용>
+- **주제**: hk-update 시 에이전트가 직접 실행할 수 있는지 / 어떤 방식이 낫는지
+  - **사용자 의견**: 처음엔 규칙 제거 고려 → 특별 항목으로 임시 동의 방식 선택
+  - **합의**: step 4 Y/n 확인 후 에이전트 Bash 직접 실행 (임시 동의 기반)
 
 ## 🧪 검증 결과
 
-### 1. 자동화 테스트
+### 자동화 테스트
 
-#### 단위 테스트
-- **명령**: `<프로젝트의 단위 테스트 명령>`
-- **결과**: ✅ Passed (X tests in Y.Y s) / ❌ Failed (자세한 내용 아래)
-- **로그 요약**:
-```text
-(핵심 로그 붙여넣기)
-```
+| 테스트 | 결과 |
+|---|---|
+| `tests/test-install-claude-import.sh` | ✅ ALL PASS (6/6) |
+| `tests/test-marker-append-guard.sh` | ✅ ALL 5 CHECKS PASSED |
+| `tests/test-marker-edge-cases.sh` | ✅ ALL 8 CHECKS PASSED |
 
-#### 통합 테스트 (Integration Test Required = yes 인 경우)
-- **명령**: `<프로젝트의 통합 테스트 명령>`
-- **결과**: ✅ Passed / ❌ Failed
-- **로그 요약**:
-```text
-(핵심 로그 붙여넣기)
-```
+`sdd test passed` → `lastTestPass: 2026-05-18T07:59:18Z`
 
-### 2. 수동 검증
+### 수동 검증
 
-> 에이전트가 실행한 단계와 결과를 시간순으로 기록.
-
-1. **Action**: `<실행한 명령 또는 행동>`
-   - **Result**: <관찰된 결과>
+1. **Action**: `cache.json`에 `latestKnownVersion: "0.99.0"` 임시 기록 후 `sdd status --brief`
+   - **Result**: `harness-kit 0.12.0 →UPDATE:0.99.0 | ...` ✅
+2. **Action**: `cache.json` 없는 상태에서 `sdd status --brief`
+   - **Result**: `harness-kit 0.12.0 | ...` (기존 포맷 그대로) ✅
 
 ## 🔍 발견 사항
 
-<!-- 작업 중 발견한 흥미로운 점, 사이드 이슈, 다음 SPEC 후보 -->
+- **compact 포맷의 단일 훅 제약 확인**: 이번 작업에서 Claude Code `compact hook success` 포맷이 첫 번째 훅 출력만 포함한다는 것을 실증적으로 확인. `check-kit-version.sh`가 두 번째 훅이라 에이전트가 그 출력을 볼 수 없었던 것. brief suffix 방식이 이를 우회하는 올바른 해결책.
+- **`sources/claude-fragments/` 업데이트 불필요 확인**: `settings.json` IMPORTANT 에코는 `install.sh`가 직접 삽입하는 하드코딩 구문이 아니라 현재 `.claude/settings.json`에만 존재. `sources/` 에는 해당 fragment 없어서 dogfooding 동기화로 충분.
+- **get.sh "git pull" 가이드 미확인**: 사용자가 구버전에서 봤다고 보고했으나 현재 `get.sh`에는 해당 문구 없음. 현재 코드 기준 이슈 없음.
 
-- <발견 1>
-- <발견 2>
+## 🚧 이월 항목
 
-## 🚧 이월 항목 (Optional)
-
-> 본 SPEC 범위를 벗어나 다음 작업으로 미룬 항목.
-
-- <항목 1> → `backlog/queue.md` 에 추가됨
+- `sources/` 에 `settings.json` IMPORTANT 에코 fragment 추가 — 현재 install.sh가 에코 메시지를 hard-code로 삽입하는지, fragment로 관리하는지 검토 필요. 후속 spec 후보.
 
 ## 📅 메타
 
 | 항목 | 값 |
 |---|---|
-| **작성자** | Agent + <user> |
-| **작성 기간** | YYYY-MM-DD ~ YYYY-MM-DD |
-| **최종 commit** | `<short hash>` |
+| **작성자** | Agent + dennis |
+| **작성 기간** | 2026-05-18 |
+| **최종 commit** | (push 후 갱신) |
