@@ -72,32 +72,37 @@ latest=$(curl -sf --max-time 5 "$raw_url" | jq -r '.version // empty')
 
 ### 5. 업데이트 실행
 
-승인 시, `kitOrigin` 에서 `owner/repo` 를 도출해 다음 안내를 출력합니다.
+`kitOrigin` 에서 `owner/repo` 를 도출합니다.
 
-**1차 (권장) — 원격 직접 실행 (로컬 클론 불필요)**:
+**비-GitHub 저장소**: `kitOrigin` 이 github.com 이 아니면 아래 "수동 실행" 안내만 출력하고 종료합니다.
+
+#### GitHub 저장소인 경우 — 에이전트가 직접 실행
+
+사용자가 step 4 에서 Y (또는 "응" / "네" / "실행해줘" / "업데이트해줘") 로 승인한 경우, **에이전트가 Bash 툴로 직접 실행**합니다:
+
+```bash
+bash <(curl -fsSL https://raw.githubusercontent.com/<owner>/<repo>/main/get.sh) --update
+```
+
+실행 완료 후 새 버전을 확인합니다:
+
+```bash
+jq -r '.kitVersion' .harness-kit/installed.json
+```
+
+#### 사용자가 N 으로 거절한 경우 — 수동 실행 안내
 
 ```
-업데이트를 시작합니다. 다음 명령어를 실행하세요:
+수동으로 실행하려면 (로컬 클론 불필요):
 
   bash <(curl -fsSL https://raw.githubusercontent.com/<owner>/<repo>/main/get.sh) --update
 
-# 자동 수락:    위 명령 끝에 --yes 추가
-# 특정 버전 핀: --version <ver> 를 --update 앞에 추가
+Claude Code 프롬프트에서 바로 실행하려면 ! prefix 사용:
+
+  ! bash <(curl -fsSL https://raw.githubusercontent.com/<owner>/<repo>/main/get.sh) --update
+
+특정 버전 설치: --version <ver> 를 --update 앞에 추가
 ```
-
-**2차 (Fallback) — 로컬 클론 보유 / 오프라인 환경**:
-
-```
-  bash <kit-dir>/update.sh .
-
-# <kit-dir> 를 모르는 경우:
-#   git clone <kitOrigin> ~/harness-kit && bash ~/harness-kit/update.sh .
-```
-
-**비-GitHub 저장소**: `kitOrigin` 이 github.com 이 아니면 1차 안내를 생략하고 2차만 출력합니다 (`get.sh` 가 GitHub raw URL 을 가정).
-
-> **에이전트가 직접 `update.sh` (또는 원격 변형) 를 실행하지 않습니다** — 사용자가 직접 입력해야 합니다.
-> (update 는 uninstall → install 재실행으로 파일을 교체하는 파괴적 작업)
 
 ### 6. 캐시 업데이트
 
