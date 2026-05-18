@@ -15,6 +15,7 @@
 
 <!-- sdd:specx:start -->
 없음
+- [ ] spec-x-claude-md-nested — claude-md-nested
 <!-- sdd:specx:end -->
 
 ## 🧊 Icebox
