@@ -256,6 +256,8 @@ The main session runs on **Opus** (planning, coordination, judgment). Sub-agents
 
 When delegating implementation to a Sonnet sub-agent, the main Opus agent MUST provide clear, specific instructions including: target files, expected behavior, test expectations, and commit message format.
 
+**Dispatch exception — docs-only tasks**: When all Spec tasks are limited to markdown/documentation file creation or editing (no code, scripts, or tests), run them in the main thread — sub-agent spin-up overhead exceeds the saving. See §6.7 sub-agent dispatch threshold for the general rule.
+
 ### 6.7 Workflow Patterns
 
 Generic agent behavior patterns that improve UX, latency, and cost without per-task tuning.
