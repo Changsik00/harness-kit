@@ -625,8 +625,20 @@ cmd_status() {
   fi
 
   if [ $brief -eq 1 ]; then
+    local update_suffix=""
+    local _brief_cache="$SDD_ROOT/.harness-kit/cache.json"
+    if [ -f "$_brief_cache" ] && command -v jq >/dev/null 2>&1; then
+      local _latest_known
+      _latest_known=$(jq -r '.latestKnownVersion // empty' "$_brief_cache" 2>/dev/null || echo "")
+      if [ -n "$_latest_known" ] && [ "$_latest_known" != "$kit_ver" ]; then
+        local _newer
+        _newer=$(printf '%s\n%s\n' "$kit_ver" "$_latest_known" \
+          | sort -t. -k1,1n -k2,2n -k3,3n | tail -1)
+        [ "$_newer" = "$_latest_known" ] && update_suffix=" →UPDATE:${_latest_known}"
+      fi
+    fi
     printf '%s | phase=%s spec=%s branch=%s plan=%s\n' \
-      "harness-kit $kit_ver" "${phase:-none}" "${spec:-none}" "${branch:-?}" "${plan_accepted:-false}"
+      "harness-kit ${kit_ver}${update_suffix}" "${phase:-none}" "${spec:-none}" "${branch:-?}" "${plan_accepted:-false}"
     return 0
   fi
 
