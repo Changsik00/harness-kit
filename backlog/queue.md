@@ -15,7 +15,6 @@
 
 <!-- sdd:specx:start -->
 없음
-- [ ] spec-x-claude-md-nested — claude-md-nested
 <!-- sdd:specx:end -->
 
 ## 🧊 Icebox
@@ -98,6 +97,7 @@
 - [x] spec-x-ask-mode-toggle (완료)
 - [x] spec-x-sdd-search (완료)
 - [x] spec-x-claude-md-slim (완료)
+- [x] spec-x-claude-md-nested (완료)
 <!-- sdd:done:end -->
 
 ---
