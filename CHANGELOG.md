@@ -5,6 +5,25 @@ harness-kit의 주요 변경 사항을 버전별로 정리합니다.
 
 ---
 
+## [0.12.1] — 2026-05-18
+
+> kit 업데이트 알림 전달 버그 수정 + 에이전트 직접 실행 UX 개선. 디렉토리별 CLAUDE.md 도입.
+
+### Added
+- `sources/CLAUDE.md`, `specs/CLAUDE.md` — 디렉토리 특화 컨텍스트 (kit-origin / work-log 시점 분리) (#136)
+
+### Fixed
+- `sdd status --brief` 에 `→UPDATE:X.Y.Z` suffix 추가 — SessionStart compact 포맷에 업데이트 알림 포함되어 에이전트에 안정적으로 도달 (#137)
+- `/hk-update` step 5: 사용자 승인 시 에이전트가 `bash <(curl...) --update` 직접 실행 (임시 동의 기반). 거절 시 `!` prefix 수동 안내 (#137)
+- SessionStart IMPORTANT 에코에 `→UPDATE:` 패턴 감지 지시 추가 (#137)
+
+### Changed
+- `root CLAUDE.md` 슬림화 — 릴리스 전략 섹션을 `docs/release-strategy.md` 로 분리 (108→71줄) (#135)
+- `agent.md §6.6` docs-only task dispatch 예외 명시 — 순수 마크다운 작업은 main thread 에서 처리 (FF)
+- `README.md` — 누락된 커맨드 4개, sdd 서브커맨드 4개, 모델 분배 예외 노트 동기화 (FF)
+
+---
+
 ## [0.12.0] — 2026-05-18
 
 > UX 토글 + 아카이브 통합 검색. `uxMode` 가 한 번에 뒤집히고, archived spec/ADR/RCA 가 grep wrapper 로 닿는다.
