@@ -5,6 +5,17 @@ harness-kit의 주요 변경 사항을 버전별로 정리합니다.
 
 ---
 
+## [0.13.1] — 2026-05-19
+
+> `sdd_find_root()` 파일시스템 앵커링 전환으로 다중 디바이스 환경의 rootDir 절대경로 크리티컬섹션 수정.
+
+### Fixed
+- `sdd_find_root()` — `harness.config.json`의 `rootDir` 절대경로 의존 제거, `.harness-kit/` 위치 기반 파일시스템 앵커링으로 교체. git 추적 상태에서 다른 디바이스/경로 환경의 사일런트 오작동 방지 (#143)
+- `install.sh` — `harness.config.json` 출력에서 `rootDir` 필드 제거. 신규 설치 시 절대경로 미저장 (#143)
+- `sources/hooks/check-branch.sh` — 주석의 constitution 섹션 번호 `§9.1` → `§10.1` 수정 (#143)
+
+---
+
 ## [0.13.0] — 2026-05-19
 
 > `sdd config precheck` CLI로 PR 사전 검증 명령 등록·관리. installed.json 기반 동적 task.md 동기화.
