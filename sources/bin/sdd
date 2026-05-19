@@ -1748,7 +1748,7 @@ specx_new() {
   # 템플릿 복사 (spec, plan, task, walkthrough)
   for f in spec plan task walkthrough; do
     if [ -f "$SDD_TEMPLATES/$f.md" ]; then
-      sed "s/{phaseN}/x/g; s/{seq}/${slug}/g; s/{slug}/${slug}/g" \
+      sed "s/{phaseN}/x/g; s/{seq}-{slug}/${slug}/g; s/{seq}/${slug}/g; s/{slug}/${slug}/g" \
         "$SDD_TEMPLATES/$f.md" > "$dir/$f.md"
     else
       : > "$dir/$f.md"
