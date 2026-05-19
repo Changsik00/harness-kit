@@ -40,8 +40,8 @@ else
   fail "installedCommands 키 부재"
 fi
 
-# 실제 sources/commands/ 의 hk-* 와 일치 (개수 비교)
-expected=$(find "$ROOT/sources/commands" -maxdepth 1 -name 'hk-*.md' 2>/dev/null | wc -l | tr -d ' ')
+# 실제 sources/commands/ 의 *.md 와 일치 (install.sh 와 동일 glob)
+expected=$(find "$ROOT/sources/commands" -maxdepth 1 -name '*.md' 2>/dev/null | wc -l | tr -d ' ')
 actual=$(jq '.installedCommands | length' "$F1/.harness-kit/installed.json" 2>/dev/null || echo 0)
 if [ "$expected" -gt 0 ] && [ "$actual" -eq "$expected" ]; then
   ok "installedCommands 개수 일치 (sources $expected = installed $actual)"
