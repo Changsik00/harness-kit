@@ -5,6 +5,17 @@ harness-kit의 주요 변경 사항을 버전별로 정리합니다.
 
 ---
 
+## [0.13.0] — 2026-05-19
+
+> `sdd config precheck` CLI로 PR 사전 검증 명령 등록·관리. installed.json 기반 동적 task.md 동기화.
+
+### Added
+- `sdd config precheck list` — installed.json에 등록된 precheck 명령 목록 출력 (#141)
+- `sdd config precheck add <command>` — precheck 명령 추가. 중복 시 warn + skip. 활성 spec task.md의 `<!-- sdd:precheck:start/end -->` 마커 자동 동기화 (#141)
+- `sdd config precheck remove <index>` — 1-기반 인덱스로 precheck 제거. 마커 자동 동기화 (#141)
+
+---
+
 ## [0.12.2] — 2026-05-19
 
 > sdd specx new Branch 필드 중복 버그 + 테스트 glob 불일치 수정.
