@@ -15,7 +15,7 @@
 
 <!-- sdd:specx:start -->
 없음
-- [ ] spec-x-kit-update-notify — kit-update-notify
+- [ ] spec-x-sdd-bugfix — sdd-bugfix
 <!-- sdd:specx:end -->
 
 ## 🧊 Icebox
@@ -99,6 +99,7 @@
 - [x] spec-x-sdd-search (완료)
 - [x] spec-x-claude-md-slim (완료)
 - [x] spec-x-claude-md-nested (완료)
+- [x] spec-x-kit-update-notify (완료)
 <!-- sdd:done:end -->
 
 ---
