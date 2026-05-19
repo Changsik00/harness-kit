@@ -383,6 +383,9 @@ sdd archive --keep=2
 | `sdd spec show [spec-NN-NN-slug]` | Spec 상세 (생략 시 active) |
 | `sdd plan accept` | 현재 Spec의 plan을 승인 |
 | `sdd config ux-mode [interactive\|text\|toggle]` | AskUserQuestion 모드 설정 |
+| `sdd config precheck list` | 등록된 precheck 명령 목록 출력 |
+| `sdd config precheck add <command>` | precheck 명령 추가 (중복 시 warn + skip). 활성 spec task.md 마커 자동 동기화 |
+| `sdd config precheck remove <index>` | precheck 명령 제거 (1-기반 인덱스). 마커 자동 동기화 |
 | `sdd task done <num>` | task.md의 N번 항목을 완료 마킹 |
 | `sdd test passed` | 테스트 통과 시각 기록 (`lastTestPass` 갱신) |
 | `sdd ship [--check]` | walkthrough/pr_description 검증 후 ship 커밋 생성 |
@@ -442,6 +445,31 @@ export HARNESS_HOOK_MODE_TEST_PASSED=block
 # 일회성 우회
 HARNESS_HOOK_MODE=off git commit -m "..."
 ```
+
+---
+
+## ⚙️ Precheck 설정
+
+PR 전 lint, type-check 등을 **`hk-ship` 전 자동 실행**하도록 `installed.json`의 `precheck` 배열에 명령을 등록합니다.
+
+```bash
+# 명령 추가
+sdd config precheck add "npm run lint"
+sdd config precheck add "npm run typecheck"
+
+# 목록 확인
+sdd config precheck list
+# 1. npm run lint
+# 2. npm run typecheck
+
+# 제거 (1-기반 인덱스)
+sdd config precheck remove 1
+```
+
+`add` / `remove` 시 활성 spec의 `task.md`에 `<!-- sdd:precheck:start/end -->` 마커가 있으면 체크리스트를 자동으로 동기화합니다. 마커가 없으면 경고 후 계속합니다.
+
+> spec-18-02: task.md 템플릿 마커 자동 삽입 (예정)
+> spec-18-03: `hk-ship` precheck 자동 실행 + 실패 UX (예정)
 
 ---
 
