@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # PreToolUse hook (matcher: Bash)
-# 목적: main 브랜치에서 git commit / git push 를 차단 (constitution §9.1)
+# 목적: main 브랜치에서 git commit / git push 를 차단 (constitution §10.1)
 #
 # 동작:
 #   - HARNESS_HOOK_MODE=warn (기본): 위반 시 stderr 출력 + exit 0
@@ -26,7 +26,7 @@ branch="$(hook_branch)"
 
 if [ "$branch" = "main" ] || [ "$branch" = "master" ]; then
   hook_violation \
-    "main 브랜치 직접 작업 금지 (constitution §9.1)" \
+    "main 브랜치 직접 작업 금지 (constitution §10.1)" \
     "현재 브랜치: $branch" \
     "명령:        $cmd" \
     "해결: feature 브랜치 생성 후 다시 시도" \
