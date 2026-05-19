@@ -5,14 +5,14 @@ set -euo pipefail
 # spec-9-003/spec-9-004: harness.config.json 경로 config 시스템 검증
 #
 # 검증 항목:
-#   1) --yes 실행 → harness.config.json 생성 (rootDir 포함)
-#   2) --yes 실행 → rootDir 값이 설치 대상 경로와 일치
+#   1) --yes 실행 → harness.config.json 생성 (rootDir 미포함)
+#   2) --yes 실행 → rootDir 필드가 harness.config.json 에 없음 (파일시스템 앵커링)
 #   3) --yes 실행 → backlog/ 생성
 #   4) --yes 실행 → specs/ 생성
 #   5) --prefix hk- 실행 → harness.config.json 생성
 #   6) --prefix hk- 실행 → hk-backlog/ / hk-specs/ 생성
 #   7) --prefix hk- 실행 → backlog/ 미생성
-#   8) harness.config.json 의 backlogDir/specsDir/rootDir 값 정확성
+#   8) harness.config.json 의 backlogDir/specsDir 값 정확성 (rootDir 미포함)
 #   9) config 있는 상태에서 sdd status → 오류 없이 실행
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
@@ -47,7 +47,7 @@ bash "$INSTALL" --yes "$FIXTURE_A" > /dev/null 2>&1
 
 check
 if [ -f "$FIXTURE_A/.harness-kit/harness.config.json" ]; then
-  pass "harness.config.json 생성됨 (rootDir 포함)"
+  pass "harness.config.json 생성됨"
 else
   fail "harness.config.json 미생성"
 fi
@@ -55,10 +55,10 @@ fi
 check
 if command -v jq >/dev/null 2>&1; then
   rd=$(jq -r '.rootDir // empty' "$FIXTURE_A/.harness-kit/harness.config.json" 2>/dev/null || echo "")
-  if [ "$rd" = "$FIXTURE_A" ]; then
-    pass "rootDir=$FIXTURE_A"
+  if [ -z "$rd" ]; then
+    pass "rootDir 필드 없음 (파일시스템 앵커링 — 절대경로 미저장)"
   else
-    fail "rootDir 불일치: expected=$FIXTURE_A actual=$rd"
+    fail "rootDir 가 기록됨: $rd (기록하지 않아야 함)"
   fi
 else
   pass "(jq 없음 — rootDir 검증 스킵)"
@@ -128,17 +128,17 @@ echo "▶ harness.config.json 값 검증"
 
 check
 if command -v jq >/dev/null 2>&1; then
-  rd=$(jq -r '.rootDir  // empty' "$FIXTURE_B/.harness-kit/harness.config.json" 2>/dev/null || echo "")
+  rd=$(jq -r '.rootDir    // empty' "$FIXTURE_B/.harness-kit/harness.config.json" 2>/dev/null || echo "")
   bd=$(jq -r '.backlogDir // empty' "$FIXTURE_B/.harness-kit/harness.config.json" 2>/dev/null || echo "")
   sd=$(jq -r '.specsDir   // empty' "$FIXTURE_B/.harness-kit/harness.config.json" 2>/dev/null || echo "")
   ok=1
-  [ "$rd" = "$FIXTURE_B" ]    || ok=0
-  [ "$bd" = "hk-backlog" ]    || ok=0
-  [ "$sd" = "hk-specs" ]      || ok=0
+  [ -z "$rd" ]              || ok=0
+  [ "$bd" = "hk-backlog" ] || ok=0
+  [ "$sd" = "hk-specs" ]   || ok=0
   if [ $ok -eq 1 ]; then
-    pass "rootDir=$FIXTURE_B, backlogDir=hk-backlog, specsDir=hk-specs"
+    pass "rootDir 없음, backlogDir=hk-backlog, specsDir=hk-specs"
   else
-    fail "값 불일치: rootDir=$rd backlogDir=$bd specsDir=$sd"
+    fail "값 불일치: rootDir=${rd:-(empty)} backlogDir=$bd specsDir=$sd"
   fi
 else
   pass "(jq 없음 — 값 검증 스킵)"
