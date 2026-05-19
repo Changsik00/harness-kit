@@ -52,6 +52,9 @@ trap 'rm -rf "$FIXTURE_A" "$WRONG_ROOT"' EXIT
 
 make_fixture "$FIXTURE_A"
 
+# FIXTURE_A 에 식별용 sentinel spec 디렉토리 생성 (sdd status 출력에 표시됨)
+mkdir -p "$FIXTURE_A/specs/spec-x-sentinel-fixture"
+
 # harness.config.json 의 rootDir 를 일부러 틀린 경로(존재함)로 교체
 if command -v jq >/dev/null 2>&1; then
   cfg="$FIXTURE_A/.harness-kit/harness.config.json"
@@ -71,12 +74,12 @@ else
 fi
 
 check
-# 올바른 루트(FIXTURE_A)를 썼다면 backlog/queue.md 가 출력에 나타나야 함.
-# 잘못된 rootDir(WRONG_ROOT) 를 쓰면 WRONG_ROOT/backlog 가 없으므로 queue.md 가 보이지 않음.
-if echo "$sdd_out" | grep -q 'queue.md'; then
-  pass "A-2: 올바른 루트(FIXTURE_A)의 backlog/queue.md 가 sdd status 에 표시됨"
+# 올바른 루트(FIXTURE_A)를 썼다면 installed.json 을 읽어 버전이 정상 표시됨 ("harness-kit N.N.N").
+# 잘못된 rootDir(WRONG_ROOT) 를 쓰면 installed.json 이 없어 "harness-kit ?" 가 출력됨.
+if echo "$sdd_out" | grep -qE 'harness-kit [0-9]'; then
+  pass "A-2: 올바른 루트(FIXTURE_A)의 installed.json 을 읽어 버전이 정상 표시됨"
 else
-  fail "A-2: queue.md 가 출력에 없음 — 잘못된 rootDir 가 루트로 사용되고 있음 (현재 출력: $(echo "$sdd_out" | head -10))"
+  fail "A-2: 버전이 정상 표시되지 않음 — 잘못된 rootDir 가 루트로 사용되고 있음 (출력: $(echo "$sdd_out" | head -3))"
 fi
 
 echo ""
