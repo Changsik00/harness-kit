@@ -5,6 +5,16 @@ harness-kit의 주요 변경 사항을 버전별로 정리합니다.
 
 ---
 
+## [0.12.2] — 2026-05-19
+
+> sdd specx new Branch 필드 중복 버그 + 테스트 glob 불일치 수정.
+
+### Fixed
+- `sdd specx new <slug>` 생성된 `spec.md` Branch 필드 중복 수정 — `spec-x-foo-foo` → `spec-x-foo` (#139)
+- `tests/test-uninstall-cmd-list.sh` Scenario 1 glob `hk-*.md` → `*.md` (install.sh 동작과 일치) (#139)
+
+---
+
 ## [0.12.1] — 2026-05-18
 
 > kit 업데이트 알림 전달 버그 수정 + 에이전트 직접 실행 UX 개선. 디렉토리별 CLAUDE.md 도입.
