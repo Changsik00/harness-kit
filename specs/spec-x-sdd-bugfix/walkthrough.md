@@ -1,82 +1,52 @@
 # Walkthrough: spec-x-sdd-bugfix
 
-> 본 문서는 *작업 기록* 입니다. 결정 과정, 사용자 협의, 검증 결과를 미래의 자신과 리뷰어에게 남깁니다.
-> 작업을 진행하는 동안 *지속적으로* 갱신하세요. 마지막에 한 번에 작성하지 마세요.
+> 본 문서는 *작업 기록* 입니다.
 
 ## 📌 결정 기록
 
-> 작업 중 이슈가 발생했을 때, 어떤 선택지가 있었고 왜 이 방향을 결정했는지 기록합니다.
-
 | 이슈 | 선택지 | 결정 | 이유 |
 |---|---|---|---|
-| <이슈 1> | A 또는 B | A | <이유> |
+| Bug 1 수정 위치 | (A) 템플릿 변경 / (B) specx_new() sed 패턴 수정 | **(B)** | 템플릿은 일반 spec/phase에서도 공용. sed에서 `{seq}-{slug}` 복합 패턴을 선행 치환하면 템플릿 건드릴 필요 없음 |
+| Bug 2 수정 위치 | (A) 테스트 glob 수정 / (B) install.sh glob 수정 | **(A)** | install.sh의 `*.md` 가 정답 (hk.md 포함이 의도된 동작). 테스트가 잘못된 기대값을 갖고 있었음 |
 
 ### ADR 승격 가이드
 
-> 위 결정 중 *cross-spec / long-lived* 인 것이 있다면 ADR 로 승격합니다 (constitution §6.3).
->
-> 승격 기준:
-> - 다른 spec 의 작업이 본 결정에 의존하는가?
-> - 6 개월 이상 유지될 가능성이 높은가?
-> - frontmatter `type:` 어휘 (`decision` / `invariant` / `convention` / `tradeoff`) 중 하나에 해당하는가?
->
-> 셋 중 둘 이상이면 ADR 후보. 비강제 — 미체크여도 ship 차단 없음.
-
-- [ ] ADR 승격 대상 있음 → 작성됨: `docs/decisions/ADR-<NNN>-<slug>.md`
-- [ ] 없음
+- [x] 없음
 
 ## 💬 사용자 협의
 
-> 사용자와 논의한 내용과 합의 사항을 기록합니다.
-
-- **주제**: <논의 주제>
-  - **사용자 의견**: <사용자가 제시한 방향>
-  - **합의**: <최종 합의 내용>
+없음 (버그픽스 2개 번들, 사용자 결정 불필요)
 
 ## 🧪 검증 결과
 
-### 1. 자동화 테스트
+### 자동화 테스트
 
-#### 단위 테스트
-- **명령**: `<프로젝트의 단위 테스트 명령>`
-- **결과**: ✅ Passed (X tests in Y.Y s) / ❌ Failed (자세한 내용 아래)
-- **로그 요약**:
-```text
-(핵심 로그 붙여넣기)
-```
+| 테스트 | 결과 |
+|---|---|
+| `tests/test-uninstall-cmd-list.sh` | ✅ PASS=9 FAIL=0 |
+| `tests/test-install-claude-import.sh` | ✅ ALL PASS (6/6) |
+| `tests/test-marker-append-guard.sh` | ✅ ALL 5 CHECKS PASSED |
+| `tests/test-marker-edge-cases.sh` | ✅ ALL 8 CHECKS PASSED |
 
-#### 통합 테스트 (Integration Test Required = yes 인 경우)
-- **명령**: `<프로젝트의 통합 테스트 명령>`
-- **결과**: ✅ Passed / ❌ Failed
-- **로그 요약**:
-```text
-(핵심 로그 붙여넣기)
-```
+`sdd test passed` → `2026-05-19T02:06:15Z`
 
-### 2. 수동 검증
+### 수동 검증
 
-> 에이전트가 실행한 단계와 결과를 시간순으로 기록.
-
-1. **Action**: `<실행한 명령 또는 행동>`
-   - **Result**: <관찰된 결과>
+1. **Action**: `sdd specx new test-slug` → `spec.md` Branch 필드 확인
+   - **Result**: `| **Branch** | \`spec-x-test-slug\` |` ✅ (이전: `spec-x-test-slug-test-slug`)
 
 ## 🔍 발견 사항
 
-<!-- 작업 중 발견한 흥미로운 점, 사이드 이슈, 다음 SPEC 후보 -->
+- **테스트 중 state 오염**: `sdd specx new test-slug` 검증 시 active spec이 `spec-x-test-slug`로 변경되어 plan accept 훅이 차단됨. python3으로 직접 state.json 복원. `specx new` 가 state를 갱신하는 부작용 — 향후 검증 목적의 `--no-state` 옵션 icebox 후보.
 
-- <발견 1>
-- <발견 2>
+## 🚧 이월 항목
 
-## 🚧 이월 항목 (Optional)
-
-> 본 SPEC 범위를 벗어나 다음 작업으로 미룬 항목.
-
-- <항목 1> → `backlog/queue.md` 에 추가됨
+- `sdd specx new --no-state` 옵션 — 검증/테스트 목적 생성 시 state 오염 방지
 
 ## 📅 메타
 
 | 항목 | 값 |
 |---|---|
-| **작성자** | Agent + <user> |
-| **작성 기간** | YYYY-MM-DD ~ YYYY-MM-DD |
-| **최종 commit** | `<short hash>` |
+| **작성자** | Agent + dennis |
+| **작성 기간** | 2026-05-19 |
+| **최종 commit** | (push 후 갱신) |
