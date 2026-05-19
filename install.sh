@@ -526,10 +526,10 @@ if [ $DRY_RUN -eq 1 ]; then
 else
   _gi_bool="true"; [ $HK_GITIGNORE -eq 0 ] && _gi_bool="false"
   if [ -n "$HK_PREFIX" ]; then
-    printf '{"rootDir":"%s","backlogDir":"%s","specsDir":"%s","gitignore":%s}\n' \
-      "$TARGET" "$BACKLOG_DIR" "$SPECS_DIR" "$_gi_bool" > "$HK_CONFIG"
+    printf '{"backlogDir":"%s","specsDir":"%s","gitignore":%s}\n' \
+      "$BACKLOG_DIR" "$SPECS_DIR" "$_gi_bool" > "$HK_CONFIG"
   else
-    printf '{"rootDir":"%s","gitignore":%s}\n' "$TARGET" "$_gi_bool" > "$HK_CONFIG"
+    printf '{"gitignore":%s}\n' "$_gi_bool" > "$HK_CONFIG"
   fi
   ok "harness.config.json 작성 완료"
 fi

@@ -53,6 +53,9 @@ sdd — harness-kit 메타 명령
 
   config ux-mode [interactive|text|toggle]
                                 uxMode 설정 조회/변경 (생략 시 현재값 출력, toggle: 현재값 자동 반전)
+  config precheck list           precheck 명령 목록 출력
+  config precheck add <command>  precheck 명령 추가 + task.md 동기화
+  config precheck remove <index> precheck 명령 제거 (1-기반 index)
 
   task done <num>               task.md 의 N 번 항목을 [x] 로 마킹
 
@@ -1446,9 +1449,118 @@ task_done() {
 cmd_config() {
   local sub="${1:-}"; shift || true
   case "$sub" in
-    ux-mode) _config_ux_mode "$@" ;;
-    *)       die "사용법: sdd config ux-mode [interactive|text|toggle]" ;;
+    ux-mode)  _config_ux_mode "$@" ;;
+    precheck) _config_precheck "$@" ;;
+    *)        die "사용법: sdd config ux-mode|precheck ..." ;;
   esac
+}
+
+_config_precheck() {
+  local subsub="${1:-}"; shift || true
+  case "$subsub" in
+    list)   _config_precheck_list ;;
+    add)    _config_precheck_add "$@" ;;
+    remove) _config_precheck_remove "$@" ;;
+    *)      die "사용법: sdd config precheck list|add <command>|remove <index>" ;;
+  esac
+}
+
+_config_precheck_list() {
+  local installed_json="$SDD_ROOT/.harness-kit/installed.json"
+  [ -f "$installed_json" ] || die "installed.json 없음: $installed_json"
+  local count
+  count=$(jq '.precheck // [] | length' "$installed_json" 2>/dev/null || echo "0")
+  if [ "$count" -eq 0 ]; then
+    echo "precheck: (없음)"
+    return 0
+  fi
+  local i=1
+  while IFS= read -r cmd; do
+    [ -z "$cmd" ] && continue
+    printf "  %d. %s\n" "$i" "$cmd"
+    i=$((i + 1))
+  done <<EOF
+$(jq -r '.precheck // [] | .[]' "$installed_json")
+EOF
+}
+
+_config_precheck_add() {
+  local command="${1:-}"
+  [ -z "$command" ] && die "사용법: sdd config precheck add <command>"
+  local installed_json="$SDD_ROOT/.harness-kit/installed.json"
+  [ -f "$installed_json" ] || die "installed.json 없음: $installed_json"
+
+  local already
+  already=$(jq --arg cmd "$command" '.precheck // [] | any(. == $cmd)' "$installed_json" 2>/dev/null || echo "false")
+  if [ "$already" = "true" ]; then
+    warn "중복 skip: '$command' 이미 등록됨"
+    return 0
+  fi
+
+  local tmp
+  tmp=$(jq --arg cmd "$command" '.precheck = ((.precheck // []) + [$cmd])' "$installed_json" 2>/dev/null) || die "installed.json 갱신 실패"
+  echo "$tmp" > "$installed_json"
+  ok "precheck 추가: $command"
+  _sync_precheck_task_marker
+}
+
+_config_precheck_remove() {
+  local index="${1:-}"
+  [ -z "$index" ] && die "사용법: sdd config precheck remove <index> (1-기반)"
+  local installed_json="$SDD_ROOT/.harness-kit/installed.json"
+  [ -f "$installed_json" ] || die "installed.json 없음: $installed_json"
+
+  local count
+  count=$(jq '.precheck // [] | length' "$installed_json" 2>/dev/null || echo "0")
+  if [ "$index" -lt 1 ] || [ "$index" -gt "$count" ]; then
+    die "범위 오류: index=$index (허용: 1~$count)"
+  fi
+
+  local tmp
+  tmp=$(jq --argjson i "$((index - 1))" '.precheck |= del(.[$i])' "$installed_json" 2>/dev/null) || die "installed.json 갱신 실패"
+  echo "$tmp" > "$installed_json"
+  ok "precheck 제거: index $index"
+  _sync_precheck_task_marker
+}
+
+_sync_precheck_task_marker() {
+  local active_spec
+  active_spec="$(state_get spec 2>/dev/null)"
+  [ -z "$active_spec" ] || [ "$active_spec" = "null" ] && return 0
+
+  local task_file="$SDD_SPECS/${active_spec}/task.md"
+  [ -f "$task_file" ] || return 0
+
+  if ! grep -qF "<!-- sdd:precheck:start -->" "$task_file" 2>/dev/null; then
+    warn "task.md 에 sdd:precheck 마커 없음 — 갱신 생략 (${task_file#$SDD_ROOT/})"
+    return 0
+  fi
+
+  local installed_json="$SDD_ROOT/.harness-kit/installed.json"
+  local count
+  count=$(jq '.precheck // [] | length' "$installed_json" 2>/dev/null || echo "0")
+
+  local content
+  if [ "$count" -eq 0 ]; then
+    content="<!-- precheck 미설정 — sdd config precheck add <command> 로 추가 -->"
+  else
+    content=""
+    local i=1
+    while IFS= read -r cmd; do
+      [ -z "$cmd" ] && continue
+      if [ -z "$content" ]; then
+        content="- [ ] \`${cmd}\` (precheck)"
+      else
+        content="${content}
+- [ ] \`${cmd}\` (precheck)"
+      fi
+      i=$((i + 1))
+    done <<EOF
+$(jq -r '.precheck // [] | .[]' "$installed_json")
+EOF
+  fi
+
+  sdd_marker_replace "$task_file" "precheck" "$content"
 }
 
 _config_ux_mode() {

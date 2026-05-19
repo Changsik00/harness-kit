@@ -17,24 +17,16 @@ warn() { echo "${C_YLW}⚠${C_RST} $*" >&2; }
 err()  { echo "${C_RED}✗${C_RST} $*" >&2; }
 die()  { err "$*"; exit 1; }
 
-# 프로젝트 루트 찾기 (CWD 부터 위로 올라가며 .harness-kit/installed.json 또는 .claude/state/current.json 이 있는 디렉토리)
+# 프로젝트 루트 찾기 (CWD 부터 위로 올라가며 .harness-kit/ 디렉토리가 있는 위치를 루트로 결정)
+# 파일시스템 앵커링 방식 — harness.config.json 의 rootDir 절대경로에 의존하지 않음.
+# rootDir 는 다른 디바이스/사용자 경로를 가리킬 수 있으므로 루트 탐지에 사용하지 않는다.
 sdd_find_root() {
   local d="${1:-$PWD}"
   local depth=0
   while [ "$d" != "/" ] && [ $depth -lt 10 ]; do
-    if [ -f "$d/.harness-kit/harness.config.json" ]; then
-      local root=""
-      if command -v jq >/dev/null 2>&1; then
-        root=$(jq -r '.rootDir // empty' "$d/.harness-kit/harness.config.json" 2>/dev/null || true)
-      else
-        root=$(grep -o '"rootDir":"[^"]*"' "$d/.harness-kit/harness.config.json" 2>/dev/null | cut -d'"' -f4 || true)
-      fi
-      if [ -n "$root" ] && [ -d "$root" ]; then
-        echo "$root"
-        return 0
-      fi
-    fi
-    if [ -f "$d/.harness-kit/installed.json" ] || [ -f "$d/.claude/state/current.json" ]; then
+    if [ -f "$d/.harness-kit/harness.config.json" ] || \
+       [ -f "$d/.harness-kit/installed.json" ] || \
+       [ -f "$d/.claude/state/current.json" ]; then
       echo "$d"
       return 0
     fi
