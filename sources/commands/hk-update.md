@@ -7,7 +7,7 @@
 ### 1. 설치 정보 읽기
 
 ```bash
-INSTALLED_JSON="$SDD_ROOT/.harness-kit/installed.json"
+INSTALLED_JSON="$(pwd)/.harness-kit/installed.json"
 ```
 
 `installed.json` 에서 다음을 읽습니다:
