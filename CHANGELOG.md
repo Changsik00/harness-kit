@@ -5,6 +5,15 @@ harness-kit의 주요 변경 사항을 버전별로 정리합니다.
 
 ---
 
+## [0.13.4] — 2026-05-21
+
+> `hk-ship` typecheck 감지 로직 개선 — 에이전트 판단 기반으로 전환.
+
+### Fixed
+- `hk-ship` 품질 게이트 2-B — typecheck 감지를 정적 스크립트명 매칭에서 에이전트 판단으로 전환. husky/lefthook pre-push hook 존재 시 위임 skip, `installed.json` precheck 등록 시 2-D 위임, 없을 때는 turbo.json → package.json scripts → tsc 직접 순으로 자동 감지 (#148)
+
+---
+
 ## [0.13.3] — 2026-05-21
 
 > lint 품질 게이트 강화 — staged-lint 로컬 eslint 탐색 + hk-ship 명시적 차단.
