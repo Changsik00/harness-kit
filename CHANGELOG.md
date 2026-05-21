@@ -5,6 +5,15 @@ harness-kit의 주요 변경 사항을 버전별로 정리합니다.
 
 ---
 
+## [0.13.2] — 2026-05-21
+
+> `/hk-update` kitOrigin 빈 문자열 오류 반복 수정.
+
+### Fixed
+- `/hk-update` bash 코드의 `$SDD_ROOT` → `$(pwd)` 변경 — 에이전트 bash 환경에서 `SDD_ROOT` 미설정 시 `/.harness-kit/installed.json` 경로로 치환되어 kitOrigin 빈 문자열 경고가 매 세션 반복되던 문제 수정 (#146)
+
+---
+
 ## [0.13.1] — 2026-05-19
 
 > `sdd_find_root()` 파일시스템 앵커링 전환으로 다중 디바이스 환경의 rootDir 절대경로 크리티컬섹션 수정.
