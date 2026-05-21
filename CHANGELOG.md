@@ -5,6 +5,16 @@ harness-kit의 주요 변경 사항을 버전별로 정리합니다.
 
 ---
 
+## [0.13.3] — 2026-05-21
+
+> lint 품질 게이트 강화 — staged-lint 로컬 eslint 탐색 + hk-ship 명시적 차단.
+
+### Fixed
+- `check-staged-lint.sh` — 글로벌 eslint 대신 `node_modules/.bin/eslint` 우선 탐색, 없을 때만 글로벌 폴백. pnpm/npm/yarn 무관하게 로컬 설치 eslint 사용 (#147)
+- `hk-ship` 품질 게이트 — 패키지 매니저 자동 감지(pnpm/yarn/npm) + `lint`/`type-check`/`test` 스크립트 순차 실행 + `precheck` 배열 순차 실행. 실패 시 즉시 차단 (기존: 모호한 "실행 권고") (#147)
+
+---
+
 ## [0.13.2] — 2026-05-21
 
 > `/hk-update` kitOrigin 빈 문자열 오류 반복 수정.
