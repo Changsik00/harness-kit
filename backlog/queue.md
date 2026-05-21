@@ -100,6 +100,7 @@
 - [x] spec-x-claude-md-slim (완료)
 - [x] spec-x-claude-md-nested (완료)
 - [x] spec-x-kit-update-notify (완료)
+- **phase-18** — Precheck Gate — 설정 기반 PR 사전 검증 자동화 — completed 2026-05-21
 <!-- sdd:done:end -->
 
 ---
