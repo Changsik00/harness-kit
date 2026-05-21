@@ -20,13 +20,55 @@ description: 현재 SPEC 작업 종료 — walkthrough/pr_description 검증 후
 
 ## 2. 품질 게이트
 
-프로젝트의 설정 파일(`package.json`, `Makefile`, `pyproject.toml` 등)을 확인하여 적절한 lint/test 명령을 실행합니다:
+**실패 시 즉시 멈추고 사용자에게 보고. 에이전트가 임의로 fix 시도 금지 — 사용자 결정 대기.**
 
-1. **Lint / Type Check**: 프로젝트에 lint 또는 typecheck 스크립트가 있으면 실행
-2. **단위 테스트**: 프로젝트의 테스트 명령 실행
-3. **(Integration Test Required = yes 인 경우)** 통합 테스트 명령 실행
+### 2-A. 패키지 매니저 감지 (Node.js)
 
-실패 시 멈추고 사용자에게 보고. 에이전트가 임의로 fix 시도 금지 — 사용자 결정 대기.
+```bash
+if [ -f "pnpm-lock.yaml" ]; then   PM="pnpm"
+elif [ -f "yarn.lock" ];           then   PM="yarn"
+elif [ -f "package-lock.json" ];   then   PM="npm"
+else                                      PM=""
+fi
+```
+
+### 2-B. Lint / Type Check
+
+`package.json` 에 해당 스크립트가 있으면 **반드시 실행**합니다 (없으면 skip):
+
+```bash
+has_lint=$(jq -r '.scripts.lint // empty' package.json 2>/dev/null)
+has_typecheck=$(jq -r '.scripts["type-check"] // .scripts.typecheck // empty' package.json 2>/dev/null)
+
+[ -n "$has_lint" ]      && $PM run lint
+[ -n "$has_typecheck" ] && $PM run type-check   # 또는 typecheck
+```
+
+실패 시 **즉시 멈춤** — 사용자가 lint 오류를 직접 수정해야 합니다.
+
+### 2-C. 단위 테스트
+
+```bash
+has_test=$(jq -r '.scripts.test // empty' package.json 2>/dev/null)
+[ -n "$has_test" ] && $PM run test
+```
+
+### 2-D. Precheck 명령 (installed.json 등록 항목)
+
+`.harness-kit/installed.json` 에 `precheck` 배열이 있으면 순서대로 실행:
+
+```bash
+prechecks=$(jq -r '.precheck[]? // empty' .harness-kit/installed.json 2>/dev/null)
+while IFS= read -r cmd; do
+  [ -z "$cmd" ] && continue
+  echo "▶ precheck: $cmd"
+  eval "$cmd" || { echo "✖ precheck 실패: $cmd"; exit 1; }
+done <<< "$prechecks"
+```
+
+### 2-E. Integration Test
+
+`spec.md` 의 `Integration Test Required: yes` 인 경우에만 실행.
 
 ## 3. Ship Commit
 

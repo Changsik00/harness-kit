@@ -36,11 +36,17 @@ _warn() {
 if [ "$project_type" = "node" ]; then
   node_files="$(echo "$staged_files" | grep -E '\.(js|jsx|ts|tsx|mjs|cjs)$' || true)"
   if [ -n "$node_files" ]; then
-    if command -v eslint > /dev/null 2>&1; then
+    eslint_bin=""
+    if [ -x "$HARNESS_ROOT/node_modules/.bin/eslint" ]; then
+      eslint_bin="$HARNESS_ROOT/node_modules/.bin/eslint"
+    elif command -v eslint > /dev/null 2>&1; then
+      eslint_bin="eslint"
+    fi
+    if [ -n "$eslint_bin" ]; then
       # shellcheck disable=SC2086
-      eslint $node_files 2>&1 || _warn "eslint 경고가 있습니다 (커밋은 통과)"
+      "$eslint_bin" $node_files 2>&1 || _warn "eslint 경고가 있습니다 (커밋은 통과)"
     else
-      _warn "eslint 미설치 — JS/TS lint skip (npm install -g eslint 로 설치)"
+      _warn "eslint 미설치 — JS/TS lint skip (로컬: pnpm add -D eslint, 글로벌: npm install -g eslint)"
     fi
   fi
 fi
