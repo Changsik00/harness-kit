@@ -34,17 +34,20 @@ fi
 
 ### 2-B. Lint / Type Check
 
-`package.json` 에 해당 스크립트가 있으면 **반드시 실행**합니다 (없으면 skip):
+**Lint**: `package.json`에 `lint` 스크립트가 있으면 실행합니다.
 
-```bash
-has_lint=$(jq -r '.scripts.lint // empty' package.json 2>/dev/null)
-has_typecheck=$(jq -r '.scripts["type-check"] // .scripts.typecheck // empty' package.json 2>/dev/null)
+**Type Check**: 에이전트가 프로젝트 구조를 보고 스스로 판단하여 실행합니다.
 
-[ -n "$has_lint" ]      && $PM run lint
-[ -n "$has_typecheck" ] && $PM run type-check   # 또는 typecheck
-```
+판단 순서:
+1. `.husky/pre-push`, `lefthook.yml` 등 기존 git pre-push hook 설정이 있으면 → `git push` 시 자동 실행되므로 **여기서는 skip**
+2. `installed.json`의 `precheck` 배열에 typecheck 관련 명령이 있으면 → 2-D에서 실행되므로 **여기서는 skip**
+3. 위 둘 다 없을 때 에이전트가 직접 판단하여 실행:
+   - `turbo.json`에 typecheck task 있으면 → `$PM turbo run typecheck`
+   - `package.json` scripts에 `typecheck` / `type-check` 있으면 → `$PM run typecheck`
+   - `tsconfig.json` 존재 + 위 스크립트 없으면 → `$PM exec tsc --noEmit`
+   - TypeScript 파일 없으면 → skip
 
-실패 시 **즉시 멈춤** — 사용자가 lint 오류를 직접 수정해야 합니다.
+실패 시 **즉시 멈춤** — 사용자가 오류를 직접 수정해야 합니다.
 
 ### 2-C. 단위 테스트
 
