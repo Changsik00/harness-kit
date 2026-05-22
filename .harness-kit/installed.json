@@ -1,7 +1,7 @@
 {
-  "kitVersion": "0.13.5",
+  "kitVersion": "0.13.6",
   "kitOrigin": "git@github.com:Changsik00/harness-kit.git",
-  "installedAt": "2026-05-23T00:00:00Z",
+  "installedAt": "2026-05-23T06:00:00Z",
   "uxMode": "interactive",
   "installedCommands": [
     "hk",

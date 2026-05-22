@@ -5,6 +5,15 @@ harness-kit의 주요 변경 사항을 버전별로 정리합니다.
 
 ---
 
+## [0.13.6] — 2026-05-23
+
+> `install.sh` — `curl|bash` 설치 시 `kitOrigin` 빈값 기록 버그 수정.
+
+### Fixed
+- `install.sh` — `git remote get-url origin` 실패 시 (curl|bash, 로컬 아카이브 설치 등) `kitOrigin` 이 빈값으로 기록되어 `/hk-update` 가 동작하지 않던 버그 수정. 폴백으로 기본 GitHub URL 하드코딩
+
+---
+
 ## [0.13.5] — 2026-05-23
 
 > `check-secrets.sh` 듀얼 모드 — 사용자 직접 `git commit` 시 시크릿 검사 우회 수정.
