@@ -13,11 +13,14 @@ source "$HOOK_DIR/_lib.sh"
 hook_resolve_mode "SECRETS" "block"
 
 cmd="$(hook_tool_input command)"
-[ -z "$cmd" ] && exit 0
-
-# git commit 만 검사
-if ! echo "$cmd" | grep -qE '^[[:space:]]*git[[:space:]]+commit\b'; then
-  exit 0
+if [ -z "$cmd" ]; then
+  # git hook 모드 (직접 commit) — 명령어 매칭 불필요, staged 검사로 진입
+  :
+else
+  # Claude Code 모드 — git commit 명령만 검사
+  if ! echo "$cmd" | grep -qE '^[[:space:]]*git[[:space:]]+commit\b'; then
+    exit 0
+  fi
 fi
 
 violations=""
