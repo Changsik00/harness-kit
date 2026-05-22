@@ -42,8 +42,8 @@ fi
 staged_diff="$(git -C "$HARNESS_ROOT" diff --cached 2>/dev/null)"
 
 if [ -n "$staged_diff" ]; then
-  # AWS Access Key
-  if echo "$staged_diff" | grep -qE 'AKIA[0-9A-Z]{16}'; then
+  # AWS Access Key (추가된 줄만 검사)
+  if echo "$staged_diff" | grep -E '^\+[^+]' | grep -qE 'AKIA[0-9A-Z]{16}'; then
     violations="${violations}  AWS Access Key 패턴 발견 (AKIA...)\n"
   fi
 
@@ -59,8 +59,8 @@ if [ -n "$staged_diff" ]; then
     violations="${violations}  시크릿 할당 패턴 발견 (password=, secret=, api_key= 등)\n"
   fi
 
-  # GitHub/GitLab 토큰
-  if echo "$staged_diff" | grep -qE '(ghp_[a-zA-Z0-9]{36}|gho_[a-zA-Z0-9]{36}|glpat-[a-zA-Z0-9\-]{20,})'; then
+  # GitHub/GitLab 토큰 (추가된 줄만 검사)
+  if echo "$staged_diff" | grep -E '^\+[^+]' | grep -qE '(ghp_[a-zA-Z0-9]{36}|gho_[a-zA-Z0-9]{36}|glpat-[a-zA-Z0-9\-]{20,})'; then
     violations="${violations}  GitHub/GitLab 토큰 패턴 발견\n"
   fi
 fi

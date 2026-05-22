@@ -3,12 +3,12 @@ set -uo pipefail
 
 # test-check-secrets-dual-mode.sh
 # spec-x-check-secrets-dual-mode:
-#   - 직접 git commit 시 (Claude Code 환경변수 없음) secret 검사 동작 여부
-#   - pre-commit.sh 에서 check-secrets.sh 호출 여부
+#   - 직접 git commit 시 (pre-commit.sh → HARNESS_GIT_HOOK_MODE=1) secret 검사 동작
+#   - Claude Code 모드 (CLAUDE_TOOL_INPUT_command) 동작
+#   - pre-commit.sh 에서 HARNESS_GIT_HOOK_MODE=1 로 check-secrets.sh 호출 여부
 #
 # 주의: _lib.sh 가 HARNESS_ROOT="$(pwd)" 로 무조건 덮어씀 → 스크립트 실행 시
 #       cwd 를 temp repo 로 고정해야 정확한 git diff --cached 대상 확보.
-#       bash -c "cd ... && ..." 패턴 사용.
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
@@ -44,17 +44,13 @@ _install_hooks() {
   chmod +x "$repo/.harness-kit/hooks/"*.sh
 }
 
-# _run_secrets: repo 내부에서 check-secrets.sh 실행 (cd → _lib.sh의 pwd = repo)
-# 선택적 환경변수 prefix 인자: "CLAUDE_TOOL_INPUT_command=git commit -m x"
+# _run_secrets: cwd=repo 에서 check-secrets.sh 실행
+# env_prefix: 환경변수 인라인 (예: "HARNESS_GIT_HOOK_MODE=1" 또는 "CLAUDE_TOOL_INPUT_command='git commit -m x'")
 _run_secrets() {
-  local repo="$1"; shift
-  local env_prefix="${1:-}"
+  local repo="$1"
+  local env_prefix="${2:-}"
   local script="$repo/.harness-kit/hooks/check-secrets.sh"
-  if [ -n "$env_prefix" ]; then
-    bash -c "cd '$repo' && $env_prefix bash '$script'" 2>/dev/null
-  else
-    bash -c "cd '$repo' && bash '$script'" 2>/dev/null
-  fi
+  bash -c "cd '$repo' && ${env_prefix} bash '$script'" 2>/dev/null
 }
 
 _run_precommit() {
@@ -79,31 +75,31 @@ else
 fi
 
 # ─────────────────────────────────────────────────────────
-# Test 2: Claude Code 환경 없음 + AWS 키 staged → 차단
-#   직접 git commit 시나리오: CLAUDE_TOOL_INPUT_command 미설정
+# Test 2: HARNESS_GIT_HOOK_MODE=1 (git hook 모드) + AWS 키 staged → 차단
 # ─────────────────────────────────────────────────────────
 echo ""
-echo "▶ Test 2: 직접 commit 모드 + AWS 키 staged → 차단"
+echo "▶ Test 2: git hook 모드 + AWS 키 staged → 차단"
 REPO2="$(_make_repo)"
 _install_hooks "$REPO2"
 
-echo "AWS_KEY=AKIAIOSFODNN7EXAMPLE12345" > "$REPO2/secret.sh"
+# AWS 키 패턴 분리: 이 파일 staged 시 AKIA[0-9A-Z]{16} self-trigger 방지
+_AKIA_PFX="AKIA"; echo "${_AKIA_PFX}IOSFODNN7EXAMPLE12345" > "$REPO2/secret.sh"
 git -C "$REPO2" add secret.sh
 
 exit_code=0
-_run_secrets "$REPO2" || exit_code=$?
+_run_secrets "$REPO2" "HARNESS_GIT_HOOK_MODE=1" || exit_code=$?
 
 if [ "$exit_code" -ne 0 ]; then
-  ok "Test 2: 직접 commit 모드에서 AWS 키 staged → 차단됨 (exit=$exit_code)"
+  ok "Test 2: git hook 모드에서 AWS 키 staged → 차단됨 (exit=$exit_code)"
 else
-  fail "Test 2: 직접 commit 모드에서 AWS 키 staged → 통과 (차단되어야 함)"
+  fail "Test 2: git hook 모드에서 AWS 키 staged → 통과 (차단되어야 함)"
 fi
 
 # ─────────────────────────────────────────────────────────
-# Test 3: Claude Code 환경 없음 + 정상 파일 staged → 통과
+# Test 3: HARNESS_GIT_HOOK_MODE=1 (git hook 모드) + 정상 파일 staged → 통과
 # ─────────────────────────────────────────────────────────
 echo ""
-echo "▶ Test 3: 직접 commit 모드 + 정상 파일 staged → 통과"
+echo "▶ Test 3: git hook 모드 + 정상 파일 staged → 통과"
 REPO3="$(_make_repo)"
 _install_hooks "$REPO3"
 
@@ -111,23 +107,23 @@ echo "echo hello" > "$REPO3/app.sh"
 git -C "$REPO3" add app.sh
 
 exit_code=0
-_run_secrets "$REPO3" || exit_code=$?
+_run_secrets "$REPO3" "HARNESS_GIT_HOOK_MODE=1" || exit_code=$?
 
 if [ "$exit_code" -eq 0 ]; then
-  ok "Test 3: 직접 commit 모드에서 정상 파일 → 통과 (exit=0)"
+  ok "Test 3: git hook 모드에서 정상 파일 → 통과 (exit=0)"
 else
-  fail "Test 3: 직접 commit 모드에서 정상 파일 → 차단됨 (통과되어야 함)"
+  fail "Test 3: git hook 모드에서 정상 파일 → 차단됨 (통과되어야 함)"
 fi
 
 # ─────────────────────────────────────────────────────────
-# Test 4: Claude Code 모드 + git commit 명령 + AWS 키 staged → 차단
+# Test 4: Claude Code 모드 + git commit + AWS 키 staged → 차단
 # ─────────────────────────────────────────────────────────
 echo ""
 echo "▶ Test 4: Claude Code 모드 + git commit + AWS 키 staged → 차단"
 REPO4="$(_make_repo)"
 _install_hooks "$REPO4"
 
-echo "AWS_KEY=AKIAIOSFODNN7EXAMPLE12345" > "$REPO4/secret.sh"
+_AKIA_PFX="AKIA"; echo "${_AKIA_PFX}IOSFODNN7EXAMPLE12345" > "$REPO4/secret.sh"
 git -C "$REPO4" add secret.sh
 
 exit_code=0
@@ -147,7 +143,7 @@ echo "▶ Test 5: Claude Code 모드 + git status + AWS 키 staged → skip"
 REPO5="$(_make_repo)"
 _install_hooks "$REPO5"
 
-echo "AWS_KEY=AKIAIOSFODNN7EXAMPLE12345" > "$REPO5/secret.sh"
+_AKIA_PFX="AKIA"; echo "${_AKIA_PFX}IOSFODNN7EXAMPLE12345" > "$REPO5/secret.sh"
 git -C "$REPO5" add secret.sh
 
 exit_code=0
@@ -160,74 +156,119 @@ else
 fi
 
 # ─────────────────────────────────────────────────────────
-# Test 6: pre-commit.sh 가 check-secrets.sh 호출 구문 포함 여부
+# Test 6: 환경변수 없음 (cmd=empty, HARNESS_GIT_HOOK_MODE 미설정) → 안전 탈출 (exit 0)
 # ─────────────────────────────────────────────────────────
 echo ""
-echo "▶ Test 6: pre-commit.sh 에 check-secrets.sh 호출 포함"
-if grep -q 'check-secrets.sh' "$PRECOMMIT_HOOK" 2>/dev/null; then
-  ok "Test 6: pre-commit.sh 에 check-secrets.sh 호출 존재"
-else
-  fail "Test 6: pre-commit.sh 에 check-secrets.sh 호출 없음"
-fi
+echo "▶ Test 6: 환경변수 없음 → 안전 탈출 (exit 0)"
+REPO6="$(_make_repo)"
+_install_hooks "$REPO6"
 
-# ─────────────────────────────────────────────────────────
-# Test 7: pre-commit.sh 경유 + AWS 키 staged → 차단
-# ─────────────────────────────────────────────────────────
-echo ""
-echo "▶ Test 7: pre-commit.sh 경유 + AWS 키 staged → 차단"
-REPO7="$(_make_repo)"
-_install_hooks "$REPO7"
-
-echo "AWS_KEY=AKIAIOSFODNN7EXAMPLE12345" > "$REPO7/secret.sh"
-git -C "$REPO7" add secret.sh
+_AKIA_PFX="AKIA"; echo "${_AKIA_PFX}IOSFODNN7EXAMPLE12345" > "$REPO6/secret.sh"
+git -C "$REPO6" add secret.sh
 
 exit_code=0
-_run_precommit "$REPO7" || exit_code=$?
+_run_secrets "$REPO6" "" || exit_code=$?
 
-if [ "$exit_code" -ne 0 ]; then
-  ok "Test 7: pre-commit.sh 경유 AWS 키 staged → 차단됨 (exit=$exit_code)"
+if [ "$exit_code" -eq 0 ]; then
+  ok "Test 6: 환경변수 없음 → 안전 탈출 (exit=0)"
 else
-  fail "Test 7: pre-commit.sh 경유 AWS 키 staged → 통과 (차단되어야 함)"
+  fail "Test 6: 환경변수 없음인데 차단됨 (안전 탈출되어야 함)"
 fi
 
 # ─────────────────────────────────────────────────────────
-# Test 8: .env 파일 staged → 직접 commit 모드 차단
+# Test 7: pre-commit.sh 가 HARNESS_GIT_HOOK_MODE=1 로 check-secrets.sh 호출 여부
 # ─────────────────────────────────────────────────────────
 echo ""
-echo "▶ Test 8: 직접 commit 모드 + .env 파일 staged → 차단"
+echo "▶ Test 7: pre-commit.sh 에 HARNESS_GIT_HOOK_MODE=1 check-secrets.sh 호출 포함"
+if grep -q 'HARNESS_GIT_HOOK_MODE=1' "$PRECOMMIT_HOOK" 2>/dev/null; then
+  ok "Test 7: pre-commit.sh 에 HARNESS_GIT_HOOK_MODE=1 호출 존재"
+else
+  fail "Test 7: pre-commit.sh 에 HARNESS_GIT_HOOK_MODE=1 없음"
+fi
+
+# ─────────────────────────────────────────────────────────
+# Test 8: pre-commit.sh 경유 + AWS 키 staged → 차단
+# ─────────────────────────────────────────────────────────
+echo ""
+echo "▶ Test 8: pre-commit.sh 경유 + AWS 키 staged → 차단"
 REPO8="$(_make_repo)"
 _install_hooks "$REPO8"
 
-echo "DB_PASSWORD=supersecret123" > "$REPO8/.env"
-git -C "$REPO8" add .env
+_AKIA_PFX="AKIA"; echo "${_AKIA_PFX}IOSFODNN7EXAMPLE12345" > "$REPO8/secret.sh"
+git -C "$REPO8" add secret.sh
 
 exit_code=0
-_run_secrets "$REPO8" || exit_code=$?
+_run_precommit "$REPO8" || exit_code=$?
 
 if [ "$exit_code" -ne 0 ]; then
-  ok "Test 8: 직접 commit 모드에서 .env staged → 차단됨 (exit=$exit_code)"
+  ok "Test 8: pre-commit.sh 경유 AWS 키 staged → 차단됨 (exit=$exit_code)"
 else
-  fail "Test 8: 직접 commit 모드에서 .env staged → 통과 (차단되어야 함)"
+  fail "Test 8: pre-commit.sh 경유 AWS 키 staged → 통과 (차단되어야 함)"
 fi
 
 # ─────────────────────────────────────────────────────────
-# Test 9: pre-commit.sh 경유 + 정상 파일 staged → 통과 (state 파일 없음)
+# Test 9: .env 파일 staged → git hook 모드 차단
 # ─────────────────────────────────────────────────────────
 echo ""
-echo "▶ Test 9: pre-commit.sh 경유 + 정상 파일 staged → 통과"
+echo "▶ Test 9: git hook 모드 + .env 파일 staged → 차단"
 REPO9="$(_make_repo)"
 _install_hooks "$REPO9"
 
-echo "echo world" > "$REPO9/app.sh"
-git -C "$REPO9" add app.sh
+# .env 파일 staged 여부로 차단 — 내용은 무관
+echo "DUMMY=value" > "$REPO9/.env"
+git -C "$REPO9" add .env
 
 exit_code=0
-_run_precommit "$REPO9" || exit_code=$?
+_run_secrets "$REPO9" "HARNESS_GIT_HOOK_MODE=1" || exit_code=$?
+
+if [ "$exit_code" -ne 0 ]; then
+  ok "Test 9: git hook 모드에서 .env staged → 차단됨 (exit=$exit_code)"
+else
+  fail "Test 9: git hook 모드에서 .env staged → 통과 (차단되어야 함)"
+fi
+
+# ─────────────────────────────────────────────────────────
+# Test 10: pre-commit.sh 경유 + 정상 파일 staged → 통과
+# ─────────────────────────────────────────────────────────
+echo ""
+echo "▶ Test 10: pre-commit.sh 경유 + 정상 파일 staged → 통과"
+REPO10="$(_make_repo)"
+_install_hooks "$REPO10"
+
+echo "echo world" > "$REPO10/app.sh"
+git -C "$REPO10" add app.sh
+
+exit_code=0
+_run_precommit "$REPO10" || exit_code=$?
 
 if [ "$exit_code" -eq 0 ]; then
-  ok "Test 9: pre-commit.sh 경유 정상 파일 → 통과 (exit=0)"
+  ok "Test 10: pre-commit.sh 경유 정상 파일 → 통과 (exit=0)"
 else
-  fail "Test 9: pre-commit.sh 경유 정상 파일 → 차단됨 (통과되어야 함)"
+  fail "Test 10: pre-commit.sh 경유 정상 파일 → 차단됨 (통과되어야 함)"
+fi
+
+# ─────────────────────────────────────────────────────────
+# Test 11: Private Key 패턴 → git hook 모드 차단 (BSD grep -- 필요)
+#   macOS BSD grep 에서 _pk_begin 변수 분리로 self-trigger 방지 검증
+# ─────────────────────────────────────────────────────────
+echo ""
+echo "▶ Test 11: git hook 모드 + Private Key staged → 차단"
+REPO11="$(_make_repo)"
+_install_hooks "$REPO11"
+
+# _pk_begin / KEY_SUFFIX 변수 분리: 이 파일 staged 시 self-trigger 방지
+KEY_PFX="-----BEGIN"
+KEY_SUFFIX=" RSA PRIVATE KEY-----"
+echo "${KEY_PFX}${KEY_SUFFIX}" > "$REPO11/key.pem"
+git -C "$REPO11" add key.pem
+
+exit_code=0
+_run_secrets "$REPO11" "HARNESS_GIT_HOOK_MODE=1" || exit_code=$?
+
+if [ "$exit_code" -ne 0 ]; then
+  ok "Test 11: Private Key staged → 차단됨 (exit=$exit_code)"
+else
+  fail "Test 11: Private Key staged → 통과 (차단되어야 함, BSD grep -- 미적용 의심)"
 fi
 
 # ─────────────────────────────────────────────────────────
