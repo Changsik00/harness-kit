@@ -506,7 +506,7 @@ else
     done
     _cmd_json="${_cmd_json}]"
   fi
-  _kit_origin=$(git -C "$KIT_DIR" remote get-url origin 2>/dev/null || echo "")
+  _kit_origin=$(git -C "$KIT_DIR" remote get-url origin 2>/dev/null || echo "https://github.com/Changsik00/harness-kit.git")
   cat > "$INSTALLED_JSON" <<EOF
 {
   "kitVersion": "$KIT_VERSION",
