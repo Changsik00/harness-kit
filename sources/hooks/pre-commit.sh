@@ -18,6 +18,11 @@ if [ -f "$HARNESS_HOOKS/check-staged-lint.sh" ]; then
   bash "$HARNESS_HOOKS/check-staged-lint.sh" || true
 fi
 
+# secret 검사 (차단 모드 — 시크릿 발견 시 커밋 중단)
+if [ -f "$HARNESS_HOOKS/check-secrets.sh" ]; then
+  bash "$HARNESS_HOOKS/check-secrets.sh" || exit 1
+fi
+
 # Plan Accept 검사
 STATE_FILE="$HARNESS_ROOT/.claude/state/current.json"
 [ -f "$STATE_FILE" ] || exit 0
