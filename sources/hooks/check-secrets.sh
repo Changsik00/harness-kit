@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
-# PreToolUse hook (matcher: Bash)
+# PreToolUse hook (matcher: Bash) + git pre-commit hook 겸용
 # 목적: git commit 시 staged 파일에 시크릿/토큰/키 패턴이 포함되어 있는지 검사
+#
+# 실행 경로:
+#   1. Claude Code PreToolUse (Bash 도구): CLAUDE_TOOL_INPUT_command = "git commit ..."
+#   2. pre-commit.sh 에서 직접 호출:       HARNESS_GIT_HOOK_MODE=1
 #
 # 검사 패턴:
 #   - AWS 키: AKIA[0-9A-Z]{16}
@@ -13,10 +17,16 @@ source "$HOOK_DIR/_lib.sh"
 hook_resolve_mode "SECRETS" "block"
 
 cmd="$(hook_tool_input command)"
-[ -z "$cmd" ] && exit 0
-
-# git commit 만 검사
-if ! echo "$cmd" | grep -qE '^[[:space:]]*git[[:space:]]+commit\b'; then
+if [ -n "$cmd" ]; then
+  # Claude Code 모드 — git commit 명령만 검사
+  if ! echo "$cmd" | grep -qE '^[[:space:]]*git[[:space:]]+commit\b'; then
+    exit 0
+  fi
+elif [ "${HARNESS_GIT_HOOK_MODE:-0}" = "1" ]; then
+  # pre-commit.sh 에서 호출 (직접 commit 모드) — 명령어 매칭 불필요
+  :
+else
+  # cmd 없고 git hook 모드도 아님 → 안전 탈출 (Claude Code 환경변수 미제공)
   exit 0
 fi
 
@@ -32,13 +42,15 @@ fi
 staged_diff="$(git -C "$HARNESS_ROOT" diff --cached 2>/dev/null)"
 
 if [ -n "$staged_diff" ]; then
-  # AWS Access Key
-  if echo "$staged_diff" | grep -qE 'AKIA[0-9A-Z]{16}'; then
+  # AWS Access Key (추가된 줄만 검사)
+  if echo "$staged_diff" | grep -E '^\+[^+]' | grep -qE 'AKIA[0-9A-Z]{16}'; then
     violations="${violations}  AWS Access Key 패턴 발견 (AKIA...)\n"
   fi
 
-  # Private Key
-  if echo "$staged_diff" | grep -qE '-----BEGIN.*(PRIVATE KEY|RSA|EC|OPENSSH)'; then
+  # Private Key (추가된 줄만 검사 — 제거 라인의 self-trigger 방지)
+  # _pk_begin 변수 분리: staged diff 내 리터럴 패턴 매칭 방지
+  _pk_begin="-----BEGIN"
+  if echo "$staged_diff" | grep -E '^\+[^+]' | grep -qE -- "${_pk_begin}.*(PRIVATE KEY|RSA|EC|OPENSSH)"; then
     violations="${violations}  Private Key 패턴 발견\n"
   fi
 
@@ -47,8 +59,8 @@ if [ -n "$staged_diff" ]; then
     violations="${violations}  시크릿 할당 패턴 발견 (password=, secret=, api_key= 등)\n"
   fi
 
-  # GitHub/GitLab 토큰
-  if echo "$staged_diff" | grep -qE '(ghp_[a-zA-Z0-9]{36}|gho_[a-zA-Z0-9]{36}|glpat-[a-zA-Z0-9\-]{20,})'; then
+  # GitHub/GitLab 토큰 (추가된 줄만 검사)
+  if echo "$staged_diff" | grep -E '^\+[^+]' | grep -qE '(ghp_[a-zA-Z0-9]{36}|gho_[a-zA-Z0-9]{36}|glpat-[a-zA-Z0-9\-]{20,})'; then
     violations="${violations}  GitHub/GitLab 토큰 패턴 발견\n"
   fi
 fi
