@@ -5,6 +5,16 @@ harness-kit의 주요 변경 사항을 버전별로 정리합니다.
 
 ---
 
+## [0.13.5] — 2026-05-23
+
+> `check-secrets.sh` 듀얼 모드 — 사용자 직접 `git commit` 시 시크릿 검사 우회 수정.
+
+### Fixed
+- `check-secrets.sh` — `HARNESS_GIT_HOOK_MODE=1` 명시 신호 기반 듀얼 모드 구현. Claude Code PreToolUse / git pre-commit hook 양쪽에서 동작. BSD grep `-----BEGIN` 옵션 오인식 수정 (`--` 추가), staged diff 추가 라인(`+`)만 검사하도록 변경 (#149)
+- `pre-commit.sh` — `HARNESS_GIT_HOOK_MODE=1 bash check-secrets.sh` 호출 추가. 사용자 직접 commit 시 시크릿 감지 발동 (#149)
+
+---
+
 ## [0.13.4] — 2026-05-21
 
 > `hk-ship` typecheck 감지 로직 개선 — 에이전트 판단 기반으로 전환.
