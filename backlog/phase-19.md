@@ -63,7 +63,9 @@ ADR, RCA             decisions.md             (raw 111개 재탐색 안 함)
 <!-- sdd:specs:start -->
 | ID | 슬러그 | 우선순위 | 상태 | 디렉토리 |
 |---|---|:---:|---|---|
-| `spec-19-01` | wiki-layer-bootstrap | P? | Merged | `specs/spec-19-01-wiki-layer-bootstrap/` |
+| `spec-19-01` | wiki-layer-bootstrap | P1 | Merged | `specs/spec-19-01-wiki-layer-bootstrap/` |
+| `spec-19-02` | hk-wiki-ingest | P1 | Backlog | `specs/spec-19-02-hk-wiki-ingest/` |
+| `spec-19-03` | doctor-wiki-slim | P2 | Backlog | `specs/spec-19-03-doctor-wiki-slim/` |
 <!-- sdd:specs:end -->
 
 ### spec-19-01 — 문서 위키 레이어 설계 & 부트스트랩
