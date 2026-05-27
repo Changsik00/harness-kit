@@ -2111,6 +2111,7 @@ cmd_archive() {
     ok_msg="${ok_msg} + spec-x ${specx_count}개"
   fi
   ok "${ok_msg} → archive/"
+  printf "  → wiki 갱신: /hk-wiki-ingest\n"
 }
 
 cmd_doctor() {

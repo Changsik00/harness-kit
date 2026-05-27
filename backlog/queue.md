@@ -8,7 +8,7 @@
 ## 📦 진행 중 Phase
 
 <!-- sdd:active:start -->
-- **phase-19** — 문서 지식 그래프 (Doc Knowledge Graph) — 3 specs — 다음: spec-19-02 (hk-wiki-ingest)
+- **phase-19** — 문서 지식 그래프 (Doc Knowledge Graph) — 2 spec — 다음: spec-19-02-hk-wiki-ingest
 <!-- sdd:active:end -->
 
 ## 📥 spec-x 대기
