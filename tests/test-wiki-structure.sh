@@ -88,7 +88,8 @@ for f in purpose.md index.md log.md decisions.md patterns.md; do
   filepath="$WIKI_DIR/$f"
   [ -f "$filepath" ] || continue
   check
-  kind_val="$(grep "^kind:" "$filepath" | sed 's/kind: *//' | tr -d '[:space:]')"
+  # frontmatter(첫 --- ~ 두 번째 ---) 영역에서만 kind 값 추출
+  kind_val="$(awk 'NR==1 && /^---/{in_fm=1; next} in_fm && /^---/{exit} in_fm && /^kind:/{print; exit}' "$filepath" | sed 's/kind: *//' | tr -d '[:space:]')"
   if [ "$kind_val" = "catalog" ] || [ "$kind_val" = "synthesis" ]; then
     pass "$f — kind: $kind_val (유효)"
   else
