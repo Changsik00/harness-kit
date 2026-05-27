@@ -281,6 +281,9 @@ The Agent MUST immediately **STOP** execution and request re-alignment if:
 - A task cannot be completed as planned.
 - A direct commit to `main` is about to occur (→ constitution §10.1).
 - A hook blocks a tool call (the stderr message is authoritative).
+- An unplanned decision is required (e.g., task decomposition, implementation strategy A/B, unexpected edge case handling).
+
+When stopping for a decision, the Agent MUST follow §8.5 **Choice Presentation Protocol** — every set of options presented to the User MUST include a [Recommendation] line.
 
 ## 8. Communication Rules
 
@@ -361,6 +364,51 @@ At key decision points requiring user input, the Agent SHOULD use the `AskUserQu
 To change: `sdd config ux-mode [interactive|text|toggle]` (or run `/hk-ask-mode` — toggles the current value).
 
 **Usage notes**: `AskUserQuestion` is Claude Code-specific. Keep options to 2–4, use concise labels, and put trade-offs in the description field.
+
+### 8.5 Choice Presentation Protocol (Mandatory)
+
+Whenever the Agent presents multiple options to the User and requests a decision — **anywhere in the workflow**, not only during Alignment Phase — the output MUST include a [Recommendation] line. This rule has no exceptions.
+
+**Applies to**:
+- Alignment Phase work mode selection (§3).
+- Hard Stop for Review after spec/plan/task (§4.4).
+- Task decomposition proposals mid-loop.
+- Implementation strategy A/B/C choices.
+- Unexpected edge case handling decisions.
+- Any ad-hoc option presentation during Execution Phase (§6).
+- Go/No-Go decisions at Phase Ship (`/hk-phase-ship`).
+
+**Required format**:
+
+```
+[Intent / Context]
+<What decision is needed and why — 1-2 lines>
+
+[Options]
+1. <Option A — concise summary>
+2. <Option B — concise summary>
+3. <Option C — concise summary>  ← only if applicable
+
+[Recommendation]
+<Option number> — <short justification based on prior patterns, risk, or project constraints>
+
+[Decision Request]
+<One explicit question asking the User to choose>
+```
+
+**Rationale**:
+- The User often reviews these decisions on mobile (via Telegram notifications or Remote Control) where reading long options is slow.
+- A [Recommendation] with reasoning lets the User make a fast, informed choice.
+- "Missing recommendation" is a recurring failure mode — the Agent MUST self-check before sending any multi-option message.
+
+**Self-check before output**: Before presenting options, the Agent MUST internally verify:
+1. Are there 2+ distinct options? → If yes, [Recommendation] is required.
+2. Is the recommendation justified by a concrete reason (prior pattern, risk, constraint)?
+3. Is the decision question unambiguous (one question, not multiple)?
+
+If any of the three fails, the Agent MUST revise before sending.
+
+**Exception**: Binary confirmation questions (Yes/No to proceed) do not require [Recommendation] if the default direction is already stated. Example: "Plan 을 이대로 수락하시겠습니까? [Y/n]" is acceptable as-is.
 
 ## 9. Research Spec Protocol
 
