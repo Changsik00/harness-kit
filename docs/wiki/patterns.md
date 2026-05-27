@@ -1,8 +1,8 @@
 ---
 kind: synthesis
 sources:
-  - specs/spec-x-planning-economy/walkthrough.md
-  - specs/spec-17-04-governance-test-coherence/walkthrough.md
+  - archive/specs/spec-x-planning-economy/walkthrough.md
+  - archive/specs/spec-17-04-governance-test-coherence/walkthrough.md
   - docs/decisions/ADR-002-planning-economy.md
   - docs/rca/RCA-001-sdd-ship-spec-add-missing.md
 linked:
