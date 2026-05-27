@@ -14,3 +14,13 @@ SDD 작업 시작 시 `/hk-align` 슬래시 커맨드를 호출하면 전체 거
 - main 브랜치 직접 작업 금지
 
 자세한 내용은 `.harness-kit/agent/constitution.md` 와 `.harness-kit/agent/agent.md` 참조.
+
+## 검증된 패턴 & 안티패턴 (phase-08~18 distilled)
+
+**❌ 안티패턴 (피할 것):**
+- **ceremony-over-work**: 1-2 commit 작업에 full SDD ceremony 금지. → FF (사용자 명시 승인) 또는 spec-x demote.
+- **silent-inter-spec-drift**: 다음 spec 시작 전 직전 spec 실제 변경 영향 검토 의무. phase plan은 draft — 재검증 필수 (ADR-002).
+
+**✅ 굿 패턴:**
+- **bundle-before-spec-x**: 같은 테마 소규모 항목 3개+ → spec-x 여러 개 대신 하나로 묶기. phase 응집도 + ceremony 절감.
+- **phase-FF**: 1-2 commit, 단일 파일, 가역적 변경 → spec 없이 phase base 브랜치 직접 커밋 (사용자 명시 승인 필요).
