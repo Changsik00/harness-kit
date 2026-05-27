@@ -3,6 +3,13 @@ id: ADR-002
 type: invariant
 date: 2026-05-17
 status: accepted
+sources:
+  - specs/spec-x-planning-economy/walkthrough.md
+linked:
+  - "[[wiki/decisions]]"
+  - "[[wiki/patterns]]"
+  - "[[ADR-001]]"
+updated: 2026-05-27
 ---
 
 # ADR-002: Planning Economy & Inter-Spec Re-Validation
