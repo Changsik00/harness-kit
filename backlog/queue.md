@@ -8,7 +8,7 @@
 ## 📦 진행 중 Phase
 
 <!-- sdd:active:start -->
-- **phase-19** — 문서 지식 그래프 (Doc Knowledge Graph) — 0/0 spec — (다음: 첫 spec 생성 대기)
+- **phase-19** — 문서 지식 그래프 (Doc Knowledge Graph) — 1 spec — 다음: (spec 없음)
 <!-- sdd:active:end -->
 
 ## 📥 spec-x 대기
