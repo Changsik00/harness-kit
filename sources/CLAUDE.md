@@ -18,3 +18,4 @@
 | `hooks/` | `.claude/scripts/harness/hooks/` | 후크 스크립트 |
 | `bin/` | `.harness-kit/bin/` | `sdd` 메타 명령 |
 | `claude-fragments/` | `.claude/settings.json` / `CLAUDE.md` 머지 | fragment 조각 |
+| `root/` | 프로젝트 루트 (`$TARGET/`) | telegram/discord 알림 런처(`*.sh`). `.env.*.example` 은 install 이 heredoc 생성 (키트엔 `.env*` 파일 없음 — 시크릿 안전) |

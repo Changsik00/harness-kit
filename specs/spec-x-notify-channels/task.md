@@ -73,7 +73,7 @@
 ## Task 7: 문서 갱신 (경량)
 
 ### 7-1. sources/CLAUDE.md 디렉토리 표
-- [ ] `sources/CLAUDE.md` 하위 디렉토리 표에 `root/` 행 1줄 추가
+- [x] `sources/CLAUDE.md` 하위 디렉토리 표에 `root/` 행 1줄 추가
 - [ ] Commit: `docs(spec-x-notify-channels): document sources/root in sources/CLAUDE.md`
 
 ---
