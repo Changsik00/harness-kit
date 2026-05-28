@@ -26,9 +26,9 @@
 ## Task 2: .gitattributes — `*.sh` LF 보장 (Critique #2)
 
 ### 2-1. eol=lf 정책 확인/보강
-- [ ] `.gitattributes` 에 `*.sh text eol=lf` 존재 확인, 없으면 추가
-- [ ] 검증: `git check-attr eol -- sources/bin/sdd` → `eol: lf`
-- [ ] Commit: `chore(spec-x-notify-channels): enforce LF for *.sh via .gitattributes` (변경 없으면 이 태스크 [-] pass)
+- [x] `.gitattributes` 에 `*.sh text eol=lf` 추가 (없었음 — 신규 생성). autocrlf=true 라 기존 .sh 는 이미 LF 저장, renormalize 노이즈 없음
+- [x] 검증: `git check-attr eol -- sources/root/telegram.sh` → `eol: lf` 확인
+- [x] Commit: `chore(spec-x-notify-channels): enforce LF for *.sh via .gitattributes`
 
 ---
 
