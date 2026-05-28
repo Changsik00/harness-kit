@@ -3,6 +3,14 @@ id: ADR-001
 type: decision
 date: 2026-05-16
 status: accepted
+sources:
+  - archive/specs/spec-16-01-rca-and-knowledge-types/walkthrough.md
+  - archive/specs/spec-16-02-adr-activation-trigger/walkthrough.md
+linked:
+  - "[[wiki/decisions]]"
+  - "[[ADR-002]]"
+  - "[[RCA-001]]"
+updated: 2026-05-27
 ---
 
 # ADR-001: Knowledge Type Vocabulary (5 어휘 closure)

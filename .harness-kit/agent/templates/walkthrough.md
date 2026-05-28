@@ -73,6 +73,15 @@
 
 - <항목 1> → `backlog/queue.md` 에 추가됨
 
+## 🔗 관련 문서 (Related)
+
+<!-- [[wikilinks]] 로 연결. 실제 파일 경로: docs/wiki/, docs/decisions/, docs/rca/ -->
+<!-- 예: [[wiki/decisions]], [[ADR-001]], [[RCA-001]], [[spec-19-01]] -->
+
+- 관련 wiki:
+- 관련 ADR:
+- 관련 RCA:
+
 ## 📅 메타
 
 | 항목 | 값 |

@@ -4,6 +4,14 @@ type: failure-pattern
 date: 2026-05-15
 severity: medium
 status: active
+sources:
+  - archive/specs/spec-x-readme-refresh/walkthrough.md
+  - archive/specs/spec-x-phase-16-define/walkthrough.md
+linked:
+  - "[[wiki/decisions]]"
+  - "[[wiki/patterns]]"
+  - "[[ADR-001]]"
+updated: 2026-05-27
 ---
 
 # RCA-001: sdd ship 이 spec/plan/task 산출물을 git add 하지 않음

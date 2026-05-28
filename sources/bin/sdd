@@ -2111,6 +2111,7 @@ cmd_archive() {
     ok_msg="${ok_msg} + spec-x ${specx_count}개"
   fi
   ok "${ok_msg} → archive/"
+  printf "  → wiki 갱신: /hk-wiki-ingest\n"
 }
 
 cmd_doctor() {
@@ -2192,6 +2193,92 @@ cmd_doctor() {
 
   printf "\n훅 파일\n"
   _check_hooks
+
+  # ── wiki layer checks ──────────────────────────────
+  _check_wiki_layer() {
+    local wiki_dir="$SDD_ROOT/docs/wiki"
+    if [ ! -d "$wiki_dir" ]; then
+      _doc_warn "wiki layer 없음 — /hk-wiki-ingest 실행 권장"
+      return
+    fi
+    _doc_pass "docs/wiki/ 존재"
+
+    # W-2: orphan [[wikilinks]]
+    local orphan=0
+    for f in "$wiki_dir"/*.md; do
+      [ -f "$f" ] || continue
+      while IFS= read -r link; do
+        # strip [[ and ]]
+        local name="${link#[[}"
+        name="${name%]]}"
+        # strip namespace prefix (wiki/, ADR-, RCA- etc.)
+        local bare="${name#*/}"
+        # check candidate paths
+        local found=0
+        if [ -f "$wiki_dir/${bare}.md" ] || \
+           [ -f "$SDD_ROOT/docs/decisions/${name}.md" ] || \
+           [ -f "$SDD_ROOT/docs/rca/${name}.md" ] || \
+           [ -f "$wiki_dir/${name}.md" ]; then
+          found=1
+        fi
+        if [ "$found" -eq 0 ]; then
+          orphan=$((orphan + 1))
+        fi
+      done < <(grep -oE '\[\[[^]]+\]\]' "$f" 2>/dev/null || true)
+    done
+    if [ "$orphan" -gt 0 ]; then
+      _doc_warn "${orphan}개 고아 wikilink 감지 (참조 대상 파일 없음)"
+    else
+      _doc_pass "[[wikilinks]] 고아 링크 없음"
+    fi
+
+    # W-3: stale docs (90 days = 7776000 seconds)
+    local stale=0
+    local now
+    now=$(date +%s)
+    local stale_threshold=7776000
+    for doc_dir in "$SDD_ROOT/docs/decisions" "$SDD_ROOT/docs/rca"; do
+      [ -d "$doc_dir" ] || continue
+      for f in "$doc_dir"/*.md; do
+        [ -f "$f" ] || continue
+        local last_ts
+        last_ts=$(git -C "$SDD_ROOT" log -1 --format="%ct" -- "$f" 2>/dev/null || echo "")
+        if [ -n "$last_ts" ] && [ "$last_ts" -gt 0 ] 2>/dev/null; then
+          local age=$(( now - last_ts ))
+          if [ "$age" -gt "$stale_threshold" ]; then
+            stale=$((stale + 1))
+          fi
+        fi
+      done
+    done
+    if [ "$stale" -gt 0 ]; then
+      _doc_warn "${stale}개 stale 문서 (90일+ 미참조) — docs/decisions/ docs/rca/"
+    else
+      _doc_pass "decisions/rca 문서 최근 참조 OK"
+    fi
+  }
+
+  _check_gov_size() {
+    local const_f="$SDD_ROOT/sources/governance/constitution.md"
+    local agent_f="$SDD_ROOT/sources/governance/agent.md"
+    if [ ! -f "$const_f" ] || [ ! -f "$agent_f" ]; then
+      return
+    fi
+    local total_w
+    total_w=$(wc -w < "$const_f")
+    local agent_w
+    agent_w=$(wc -w < "$agent_f")
+    total_w=$(( total_w + agent_w ))
+    if [ "$total_w" -gt 7000 ]; then
+      _doc_warn "governance ${total_w}w (> 7000w 상한) — rule prune 검토 권장"
+    else
+      _doc_pass "governance ${total_w}w (< 7000w)"
+    fi
+  }
+
+  printf "\nwiki layer\n"
+  _check_wiki_layer
+  _check_gov_size
 
   printf "\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
   if [ "$fail" -eq 0 ] && [ "$warn" -eq 0 ]; then

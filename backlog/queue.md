@@ -8,7 +8,7 @@
 ## 📦 진행 중 Phase
 
 <!-- sdd:active:start -->
-(active phase 없음. `bin/sdd phase new <slug>` 로 시작)
+- **phase-19** — 문서 지식 그래프 (Doc Knowledge Graph) — 3 spec — 다음: spec-19-03-doctor-wiki-slim
 <!-- sdd:active:end -->
 
 ## 📥 spec-x 대기
@@ -27,8 +27,8 @@
 - `sdd specx new` 버그 — 생성된 spec.md 의 Branch 필드에 slug 가 중복 입력됨 (예: `spec-x-foo-foo`). 단순 변수 치환 오류로 추정
 - `tests/test-uninstall-cmd-list.sh` Scenario 1 pre-existing FAIL — `find sources/commands -name 'hk-*.md'` 가 `hk.md` (no dash) 를 제외하는 반면 install.sh 는 `*.md` 로 모두 포함. 글롭 패턴 통일 필요 (phase-17 의 `hk.md` 도입 시점부터 노출됨)
 - 거버넌스 문서 단어 수 한계 초과 — `tests/test-governance-dedup.sh` 가 상한 6000w 인데 현재 6418w. 한계 재설정 또는 거버넌스 다이어트 검토
-- **root CLAUDE.md 슬림화** — 릴리스 전략 등 저빈도 내용을 `docs/release-strategy.md` 로 분리, root 는 포인터만. 항상-온 컨텍스트 토큰 절감 (Claude Code harness 기사 인사이트 #1)
-- **분기별 governance prune protocol** — 거버넌스 ratchet 누적 방지. `/hk-governance-refresh` 또는 sdd 진단에 "rule age > 6mo" 경고. 모델 진화에 맞춰 stale rule 제거 메커니즘 부재 (기사 인사이트 #2)
+- **root CLAUDE.md 슬림화** — 릴리스 전략 등 저빈도 내용을 `docs/release-strategy.md` 로 분리, root 는 포인터만. 항상-온 컨텍스트 토큰 절감 (Claude Code harness 기사 인사이트 #1) → phase-19 spec-19-03 에서 처리
+- **분기별 governance prune protocol** — 거버넌스 ratchet 누적 방지. `/hk-governance-refresh` 또는 sdd 진단에 "rule age > 6mo" 경고. 모델 진화에 맞춰 stale rule 제거 메커니즘 부재 (기사 인사이트 #2) → phase-19 spec-19-03 에서 처리
 - **하위 디렉토리 CLAUDE.md** — `sources/CLAUDE.md` (키트 원본 시점) / `specs/CLAUDE.md` (작업 로그 시점) 분리로 두 시점 혼동 방지 (기사 인사이트 #3)
 - **LSP/MCP 활용 가이드** — agent.md §6.5 (Static Analysis First) 확장. 적용 대상 프로젝트가 LSP 지원 언어일 때 grep 대신 심볼 기반 정의/참조 추적 권장 (기사 인사이트 #4)
 
