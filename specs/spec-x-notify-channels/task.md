@@ -85,10 +85,10 @@
 - [x] 전체 스모크 테스트 (`bash -n` 5종 PASS + dry-run + install/uninstall/재install 사이클 검증) + 회귀 테스트 3종(gitignore 22/22, layout 15/15, uninstall pre-existing FAIL 무관 확인)
 - [x] **walkthrough.md 작성** (결정 기록 + fixture 검증 로그 + jq 가용 정정 + 런처 무동작 명기)
 - [x] **pr_description.md 작성** (템플릿 준수)
-- [ ] **Ship Commit**: `docs(spec-x-notify-channels): ship walkthrough and pr description`
-- [ ] **Push**: `git push -u origin spec-x-notify-channels`
-- [ ] **PR 생성**: `/hk-pr-gh` (사용자 승인 후)
-- [ ] **사용자 알림**: 푸시 완료 + PR URL 보고
+- [x] **Ship Commit**: `docs(spec-x-notify-channels): ship walkthrough and pr description` (`53187f4`)
+- [x] **Push**: `git push -u origin spec-x-notify-channels` 완료 (신규 계정 SSH 키 `github_ed25519` + repo-local `core.sshCommand` 로 인증 해결)
+- [-] **PR 생성**: gh CLI 미설치 → GitHub 웹에서 사용자 생성 (`pull/new/spec-x-notify-channels`, 본문 = pr_description.md)
+- [x] **사용자 알림**: 푸시 완료 + PR URL 보고
 
 ---
 
