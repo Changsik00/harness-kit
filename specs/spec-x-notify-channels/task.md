@@ -35,10 +35,10 @@
 ## Task 3: sources/root/ 런처 스크립트 추가
 
 ### 3-1. telegram.sh / discord.sh 일반판 작성
-- [ ] `sources/root/telegram.sh` — 일반판 (한국어 헤더 주석, 정규화 규칙 적용, `NM_NOTIFY_CHANNEL=telegram` export)
-- [ ] `sources/root/discord.sh` — discord 일반판 (`NM_NOTIFY_CHANNEL=discord`)
-- [ ] 검증: `bash -n sources/root/telegram.sh` + `bash -n sources/root/discord.sh` PASS
-- [ ] Commit: `feat(spec-x-notify-channels): add generic telegram/discord launchers under sources/root`
+- [x] `sources/root/telegram.sh` — 일반판 (한국어 헤더, `#!/usr/bin/env bash` + `set -euo pipefail`, `${VAR:-}` 가드, `NM_NOTIFY_CHANNEL=telegram` export, 플러그인 핀 유지)
+- [x] `sources/root/discord.sh` — discord 일반판 (`NM_NOTIFY_CHANNEL=discord`)
+- [x] 검증: `bash -n` 양쪽 PASS
+- [x] Commit: `feat(spec-x-notify-channels): add generic telegram/discord launchers under sources/root`
 
 ---
 
