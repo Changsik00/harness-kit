@@ -42,24 +42,21 @@
 
 ---
 
-## Task 4: sources/root/ env 템플릿 추가
+## Task 4: env 템플릿 — Task 5(install.sh)로 병합
 
-### 4-1. .env.*.example placeholder 작성
-- [ ] `sources/root/.env.telegram.example` — 키가 `notify-telegram.sh` 참조 변수명과 일치 (NFR6)
-- [ ] `sources/root/.env.discord.example` — 키가 `notify-discord.sh` 참조 변수명과 일치 (NFR6)
-- [ ] 검증: 실제 토큰 문자열 없음 + 헬퍼 변수명 일치 확인
-- [ ] Commit: `feat(spec-x-notify-channels): add .env.{telegram,discord}.example placeholders`
+- [-] 사용자 결정: 키트에 `.env*` 파일을 두지 않고 install.sh 가 heredoc 으로 생성. → 별도 파일/커밋 없음, Task 5 에 흡수. (헬퍼 키 확인 완료: TELEGRAM_BOT_TOKEN/TELEGRAM_CHAT_ID, DISCORD_BOT_TOKEN/DISCORD_CHANNEL_ID)
 
 ---
 
 ## Task 5: install.sh 루트 복사 + gitignore + §4 출력
 
-### 5-1. 루트 복사 스텝 + gitignore 추가 + 계획 출력
-- [ ] `install.sh` 에 `sources/root/*.sh` → `$TARGET/` (+`do_run "chmod +x"` dry-run 존중), `.env.*.example` → `$TARGET/` 복사 스텝 (실제 `.env.*` 불간섭)
-- [ ] `.env.telegram`/`.env.discord` 를 대상 `.gitignore` harness 블록에 멱등 추가
-- [ ] §4 설치 계획 출력에 루트 4파일 표시 (Critique #5)
-- [ ] 검증: `bash -n install.sh` + `install.sh --dry-run <fixture>` 출력에 루트 복사 + §4 표시
-- [ ] Commit: `feat(spec-x-notify-channels): install root launchers + env templates to target root`
+### 5-1. 루트 설치 스텝 + gitignore 추가 + 계획 출력
+- [x] `install.sh` §12b: `sources/root/*.sh` → `$TARGET/` 복사 (+`do_run "chmod +x"` dry-run 존중)
+- [x] `.env.telegram.example`/`.env.discord.example` 를 `$TARGET/` 에 heredoc 생성 (헬퍼 키 일치, 실제 `.env.*` 불간섭, DRY_RUN 존중)
+- [x] `.env.telegram`/`.env.discord` 를 §16 gitignore 에 멱등 추가
+- [x] §4 설치 계획 출력에 루트 4파일 표시 (Critique #5)
+- [x] 검증: `bash -n install.sh` PASS + dry-run 출력 확인 + 실제 install fixture 에 런처(755)/`.example`(키 일치)/gitignore 확인, 실제 `.env.*` 미생성 확인
+- [ ] Commit: `feat(spec-x-notify-channels): install root launchers + generate env templates at target root`
 
 ---
 
