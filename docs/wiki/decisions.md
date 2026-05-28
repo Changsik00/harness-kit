@@ -3,13 +3,16 @@ kind: synthesis
 sources:
   - docs/decisions/ADR-001-knowledge-types.md
   - docs/decisions/ADR-002-planning-economy.md
+  - docs/decisions/ADR-003-wiki-frontmatter-schema.md
   - docs/rca/RCA-001-sdd-ship-spec-add-missing.md
+  - specs/spec-19-01-wiki-layer-bootstrap/walkthrough.md
 linked:
   - "[[wiki/patterns]]"
   - "[[ADR-001]]"
   - "[[ADR-002]]"
+  - "[[ADR-003]]"
   - "[[RCA-001]]"
-updated: 2026-05-27
+updated: 2026-05-28
 ---
 
 # 핵심 결정 증류
@@ -64,3 +67,20 @@ spec-x demote는 phase가 끝난 후 잔재일 때만.
 **교훈**: "암묵적 전제"가 가장 위험한 버그 경로. sdd ship의 add 매트릭스는 spec 디렉토리 전체를 포함해야 함.
 
 **Invariant**: `sdd ship` 후 해당 spec 디렉토리 내 신규 산출물 untracked이 남으면 안 됨.
+
+---
+
+## [[ADR-003]] — Wiki Frontmatter `kind:` vs ADR `type:` 네임스페이스 분리 (2026-05-27)
+
+**결정**: wiki 페이지는 `kind:` 슬롯, ADR/RCA는 `type:` 슬롯을 사용한다. 두 네임스페이스는 공존하되 겹치지 않는다.
+
+| 슬롯 | 사용 파일 | 허용 값 |
+|---|---|---|
+| `type:` | ADR/RCA (`docs/decisions/`, `docs/rca/`) | 5어휘 closure (ADR-001) |
+| `kind:` | wiki 페이지 (`docs/wiki/`) | `catalog`, `synthesis`, `reference` |
+
+**왜**: ADR-001의 `type:` 5어휘 closure는 ADR/RCA 전용. wiki 페이지에 `type: decision`을 붙이면 `grep -rh "^type:"` 쿼리가 오염되어 wiki 파일이 ADR/RCA로 오인됨.
+
+**주의**: `type:`과 `kind:` 값 모두 closure 밖 값은 거버넌스 위반. vocabulary 변경은 ADR 대상.
+
+출처: spec-19-01 walkthrough §결정 기록, [[ADR-003-wiki-frontmatter-schema]]

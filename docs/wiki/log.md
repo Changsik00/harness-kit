@@ -3,7 +3,7 @@ kind: catalog
 sources: []
 linked:
   - "[[wiki/index]]"
-updated: 2026-05-27
+updated: 2026-05-28
 ---
 
 # Wiki Ingest Log
@@ -18,6 +18,17 @@ updated: 2026-05-27
 - **갱신된 wiki 페이지**: decisions.md, patterns.md, ...
 - **추가된 내용 요약**: <1~3줄>
 ```
+
+---
+
+### 2026-05-28 — phase-19 spec-19-01/02/03 인제스트
+
+- **대상**: specs/spec-19-01-wiki-layer-bootstrap, specs/spec-19-02-hk-wiki-ingest, specs/spec-19-03-doctor-wiki-slim
+- **갱신된 wiki 페이지**: decisions.md, patterns.md
+- **추가된 내용 요약**:
+  - decisions.md: [[ADR-003]] wiki `kind:` vs ADR `type:` 네임스페이스 분리 결정 추가
+  - patterns.md: `bash-pipeline-sigpipe-trap` (SIGPIPE 오탐) + `frontmatter-range-grep` (frontmatter 범위 파싱) 신규 패턴 2개 추가
+  - spec-19-02/03의 기술적 발견 (install 경로, SDD_ROOT 재정의 불가)은 spec 수준 메모로 보존, wiki 보편화 불필요
 
 ---
 
