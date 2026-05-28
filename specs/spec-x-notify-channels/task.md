@@ -63,9 +63,9 @@
 ## Task 6: uninstall.sh 루트 정리 + gitignore awk 보강 (시크릿 보존)
 
 ### 6-1. 런처/.example 제거, 실제 .env.* 보존, gitignore 라인 동반 제거
-- [ ] `uninstall.sh` 에 런처 + `.example` 제거 추가, 실제 `.env.telegram`/`.env.discord` 보존 (주석 명시)
-- [ ] §7 gitignore 정리 awk 가 `.env.telegram`/`.env.discord` 라인도 제거하도록 보강 (FR6 — install 블록과 짝맞춤)
-- [ ] 검증: `bash -n uninstall.sh` + 더미 `.env.telegram` 보존 + `install→uninstall→install` 2회 후 gitignore 비중복 (jq 가용 시)
+- [x] `uninstall.sh` 에 런처 + `.example` 제거 추가 (+백업 루프 포함), 실제 `.env.telegram`/`.env.discord` 보존 (주석 명시)
+- [x] §7 gitignore awk 를 블록-범위 명시 매칭으로 교체 — 헤더+5라인+leading blank 제거. 기존 `.harness-kit/` 누락 버그도 해결 (FR6)
+- [x] 검증: `bash -n uninstall.sh` PASS + 더미 `.env.telegram` 보존 확인 + `install→uninstall→install` 사이클 후 gitignore 정확히 1블록(비중복) 확인
 - [ ] Commit: `feat(spec-x-notify-channels): preserve real .env on uninstall + symmetric gitignore cleanup`
 
 ---
