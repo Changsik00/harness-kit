@@ -82,9 +82,9 @@
 
 > 모든 작업 task 완료 후 `/hk-ship` 절차를 따릅니다.
 
-- [ ] 전체 스모크 테스트 (`bash -n` 4종 + dry-run + 가능 시 update 사이클 gitignore 검증) → PASS
-- [ ] **walkthrough.md 작성** (증거 로그 + jq 미설치 한계 + 런처 무동작(플러그인 미설치) 명기 — Critique #7)
-- [ ] **pr_description.md 작성** (템플릿 준수)
+- [x] 전체 스모크 테스트 (`bash -n` 5종 PASS + dry-run + install/uninstall/재install 사이클 검증) + 회귀 테스트 3종(gitignore 22/22, layout 15/15, uninstall pre-existing FAIL 무관 확인)
+- [x] **walkthrough.md 작성** (결정 기록 + fixture 검증 로그 + jq 가용 정정 + 런처 무동작 명기)
+- [x] **pr_description.md 작성** (템플릿 준수)
 - [ ] **Ship Commit**: `docs(spec-x-notify-channels): ship walkthrough and pr description`
 - [ ] **Push**: `git push -u origin spec-x-notify-channels`
 - [ ] **PR 생성**: `/hk-pr-gh` (사용자 승인 후)
