@@ -1,0 +1,105 @@
+# Task List: spec-x-notify-channels
+
+> 모든 task 는 한 commit 에 대응합니다 (One Task = One Commit).
+> 매 commit 직후 본 파일의 체크박스를 갱신해야 합니다.
+
+## Pre-flight (Plan 작성 단계)
+
+- [x] Spec ID 확정 및 디렉토리 생성
+- [x] spec.md 작성 (+ critique 반영)
+- [x] plan.md 작성 (+ critique 반영)
+- [x] task.md 작성 (이 파일)
+- [-] 백로그 업데이트 — spec-x 는 phase.md 불필요. queue.md specx 등록은 state 부재로 ship 시 수동 처리.
+- [x] Critique 수행 (critique.md) + 반영 결정 (대안 C + #2~#7 전부)
+- [x] 사용자 Plan Accept
+
+---
+
+## Task 1: 브랜치 확인
+
+### 1-1. 브랜치 검증
+- [x] 현재 브랜치가 `spec-x-notify-channels` 이고 `main` 이 아님을 확인 (이미 존재 — 신규 생성 불필요)
+- [x] Commit: 없음 (확인만)
+
+---
+
+## Task 2: .gitattributes — `*.sh` LF 보장 (Critique #2)
+
+### 2-1. eol=lf 정책 확인/보강
+- [ ] `.gitattributes` 에 `*.sh text eol=lf` 존재 확인, 없으면 추가
+- [ ] 검증: `git check-attr eol -- sources/bin/sdd` → `eol: lf`
+- [ ] Commit: `chore(spec-x-notify-channels): enforce LF for *.sh via .gitattributes` (변경 없으면 이 태스크 [-] pass)
+
+---
+
+## Task 3: sources/root/ 런처 스크립트 추가
+
+### 3-1. telegram.sh / discord.sh 일반판 작성
+- [ ] `sources/root/telegram.sh` — 일반판 (한국어 헤더 주석, 정규화 규칙 적용, `NM_NOTIFY_CHANNEL=telegram` export)
+- [ ] `sources/root/discord.sh` — discord 일반판 (`NM_NOTIFY_CHANNEL=discord`)
+- [ ] 검증: `bash -n sources/root/telegram.sh` + `bash -n sources/root/discord.sh` PASS
+- [ ] Commit: `feat(spec-x-notify-channels): add generic telegram/discord launchers under sources/root`
+
+---
+
+## Task 4: sources/root/ env 템플릿 추가
+
+### 4-1. .env.*.example placeholder 작성
+- [ ] `sources/root/.env.telegram.example` — 키가 `notify-telegram.sh` 참조 변수명과 일치 (NFR6)
+- [ ] `sources/root/.env.discord.example` — 키가 `notify-discord.sh` 참조 변수명과 일치 (NFR6)
+- [ ] 검증: 실제 토큰 문자열 없음 + 헬퍼 변수명 일치 확인
+- [ ] Commit: `feat(spec-x-notify-channels): add .env.{telegram,discord}.example placeholders`
+
+---
+
+## Task 5: install.sh 루트 복사 + gitignore + §4 출력
+
+### 5-1. 루트 복사 스텝 + gitignore 추가 + 계획 출력
+- [ ] `install.sh` 에 `sources/root/*.sh` → `$TARGET/` (+`do_run "chmod +x"` dry-run 존중), `.env.*.example` → `$TARGET/` 복사 스텝 (실제 `.env.*` 불간섭)
+- [ ] `.env.telegram`/`.env.discord` 를 대상 `.gitignore` harness 블록에 멱등 추가
+- [ ] §4 설치 계획 출력에 루트 4파일 표시 (Critique #5)
+- [ ] 검증: `bash -n install.sh` + `install.sh --dry-run <fixture>` 출력에 루트 복사 + §4 표시
+- [ ] Commit: `feat(spec-x-notify-channels): install root launchers + env templates to target root`
+
+---
+
+## Task 6: uninstall.sh 루트 정리 + gitignore awk 보강 (시크릿 보존)
+
+### 6-1. 런처/.example 제거, 실제 .env.* 보존, gitignore 라인 동반 제거
+- [ ] `uninstall.sh` 에 런처 + `.example` 제거 추가, 실제 `.env.telegram`/`.env.discord` 보존 (주석 명시)
+- [ ] §7 gitignore 정리 awk 가 `.env.telegram`/`.env.discord` 라인도 제거하도록 보강 (FR6 — install 블록과 짝맞춤)
+- [ ] 검증: `bash -n uninstall.sh` + 더미 `.env.telegram` 보존 + `install→uninstall→install` 2회 후 gitignore 비중복 (jq 가용 시)
+- [ ] Commit: `feat(spec-x-notify-channels): preserve real .env on uninstall + symmetric gitignore cleanup`
+
+---
+
+## Task 7: 문서 갱신 (경량)
+
+### 7-1. sources/CLAUDE.md 디렉토리 표
+- [ ] `sources/CLAUDE.md` 하위 디렉토리 표에 `root/` 행 1줄 추가
+- [ ] Commit: `docs(spec-x-notify-channels): document sources/root in sources/CLAUDE.md`
+
+---
+
+## Task 8: Ship (필수)
+
+> 모든 작업 task 완료 후 `/hk-ship` 절차를 따릅니다.
+
+- [ ] 전체 스모크 테스트 (`bash -n` 4종 + dry-run + 가능 시 update 사이클 gitignore 검증) → PASS
+- [ ] **walkthrough.md 작성** (증거 로그 + jq 미설치 한계 + 런처 무동작(플러그인 미설치) 명기 — Critique #7)
+- [ ] **pr_description.md 작성** (템플릿 준수)
+- [ ] **Ship Commit**: `docs(spec-x-notify-channels): ship walkthrough and pr description`
+- [ ] **Push**: `git push -u origin spec-x-notify-channels`
+- [ ] **PR 생성**: `/hk-pr-gh` (사용자 승인 후)
+- [ ] **사용자 알림**: 푸시 완료 + PR URL 보고
+
+---
+
+## 진행 요약
+
+| 항목 | 값 |
+|---|---|
+| **총 Task 수** | 8 (브랜치 확인 포함) |
+| **예상 commit 수** | 5~6 (Task 2 조건부 + 3·4·5·6·7) + ship 1 |
+| **현재 단계** | Planning (Critique 반영 완료) |
+| **마지막 업데이트** | 2026-05-28 |
