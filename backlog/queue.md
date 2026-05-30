@@ -16,6 +16,7 @@
 <!-- sdd:specx:start -->
 없음
 - [ ] spec-x-sdd-bugfix — sdd-bugfix
+- [ ] spec-x-doctor-hookspath-lefthook — doctor-hookspath-lefthook
 <!-- sdd:specx:end -->
 
 ## 🧊 Icebox
