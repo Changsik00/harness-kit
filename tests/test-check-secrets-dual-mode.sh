@@ -272,6 +272,70 @@ else
 fi
 
 # ─────────────────────────────────────────────────────────
+# Test 12: env 변수 보간 ${VAR:-default} → 오탐 아님 (통과)
+#   spec-x-harness-footguns: ${POSTGRES_PASSWORD:-...} 는 시크릿 값이 아님
+# ─────────────────────────────────────────────────────────
+echo ""
+echo "▶ Test 12: env 보간 password=\${VAR:-default} staged → 통과 (오탐 아님)"
+REPO12="$(_make_repo)"
+_install_hooks "$REPO12"
+
+# 단일 인용 printf 로 ${...} 리터럴 보존
+printf 'export POSTGRES_PASSWORD=${DB_PASSWORD:-default}\n' > "$REPO12/config.sh"
+git -C "$REPO12" add config.sh
+
+exit_code=0
+_run_secrets "$REPO12" "HARNESS_GIT_HOOK_MODE=1" || exit_code=$?
+
+if [ "$exit_code" -eq 0 ]; then
+  ok "Test 12: env 보간 → 통과 (exit=0)"
+else
+  fail "Test 12: env 보간인데 차단됨 (오탐 — exit=$exit_code)"
+fi
+
+# ─────────────────────────────────────────────────────────
+# Test 13: placeholder 값 (changeme) → 오탐 아님 (통과)
+# ─────────────────────────────────────────────────────────
+echo ""
+echo "▶ Test 13: password: changeme staged → 통과 (placeholder, 오탐 아님)"
+REPO13="$(_make_repo)"
+_install_hooks "$REPO13"
+
+printf 'password: changeme\napi_key: your_api_key_here\n' > "$REPO13/example.yml"
+git -C "$REPO13" add example.yml
+
+exit_code=0
+_run_secrets "$REPO13" "HARNESS_GIT_HOOK_MODE=1" || exit_code=$?
+
+if [ "$exit_code" -eq 0 ]; then
+  ok "Test 13: placeholder 값 → 통과 (exit=0)"
+else
+  fail "Test 13: placeholder 인데 차단됨 (오탐 — exit=$exit_code)"
+fi
+
+# ─────────────────────────────────────────────────────────
+# Test 14: 진짜 하드코딩 시크릿 → 차단 유지 (regression)
+# ─────────────────────────────────────────────────────────
+echo ""
+echo "▶ Test 14: password=하드코딩값 staged → 차단 유지"
+REPO14="$(_make_repo)"
+_install_hooks "$REPO14"
+
+# 키워드/구분자 분리: 이 스크립트 staged 시 self-trigger 방지 (기존 _AKIA_PFX 컨벤션)
+_PW_KEY="password"
+printf '%s=Xy9hardcodedP4ssValue\n' "$_PW_KEY" > "$REPO14/leak.sh"
+git -C "$REPO14" add leak.sh
+
+exit_code=0
+_run_secrets "$REPO14" "HARNESS_GIT_HOOK_MODE=1" || exit_code=$?
+
+if [ "$exit_code" -ne 0 ]; then
+  ok "Test 14: 하드코딩 시크릿 → 차단됨 (exit=$exit_code)"
+else
+  fail "Test 14: 하드코딩 시크릿인데 통과 (차단되어야 함)"
+fi
+
+# ─────────────────────────────────────────────────────────
 # 결과
 # ─────────────────────────────────────────────────────────
 echo ""
