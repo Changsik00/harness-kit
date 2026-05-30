@@ -35,9 +35,12 @@ sdd — harness-kit 메타 명령
                                 기존 파일을 쓰려면 'sdd phase activate <id>',
                                 정말 새로 추가해야 하면 --force.
                                 --force 는 활성 spec 가드도 함께 우회 (silent reset).
-  phase activate <phase-NN> [--base] [--force]
+  phase activate <phase-NN> [--base[=<branch>]] [--force]
                                 backlog/ 에 미리 작성한 phase 활성화 (본문 미수정).
-                                --base:  phase.md 메타의 'Base Branch' 필드를 사용.
+                                --base[=<branch>]: base 브랜치 모드. <branch> 명시 시 그 값을,
+                                  생략 시 phase.md 메타의 'Base Branch' 필드를 사용.
+                                  결정된 값은 phase.md 메타에 자동 기입됨.
+                                  이미 active 인 같은 phase 재활성화 시 active spec 은 보존됨.
                                 --force: 활성 spec 가드 우회 (활성 spec 컨텍스트 silent reset).
   phase list                    모든 phase 와 spec 카운트
   phase show [phase-N]          phase 상세 (생략 시 active)
@@ -919,6 +922,14 @@ phase_new() {
   echo "  2. ${C_CYN}sdd spec new <slug>${C_RST} 로 첫 spec 시작"
 }
 
+# phase.md 메타 표 'Base Branch' 행의 값 셀을 주어진 브랜치로 교체한다.
+# 현재 값이 placeholder / "미정" / 이미 채워진 값 무엇이든 덮어쓴다 (spec-x-harness-footguns).
+_set_phase_base_meta() {
+  local file="$1" branch="$2"
+  sed -i.tmp -E "s#^([|] \*\*Base Branch\*\* [|])[^|]*[|]#\1 ${branch} |#" "$file"
+  rm -f "$file.tmp"
+}
+
 # 사전 정의된 phase-NN.md 를 활성화 (본문 미수정).
 # 사용자가 backlog/ 에 phase 를 미리 작성해 둔 경우 sdd state/queue 에 등록한다.
 phase_activate() {
@@ -944,19 +955,27 @@ phase_activate() {
     die "다른 active phase 존재: $cur_phase — 'sdd phase done' 후 재시도 또는 명시적 전환"
   fi
 
-  # --base / --force 플래그
+  # --base / --base=<branch> / --force 플래그
   local base_mode=0
   local force_mode=0
+  local base_arg=""
   local arg
   for arg in "${@:2}"; do
     case "$arg" in
-      --base)  base_mode=1 ;;
-      --force) force_mode=1 ;;
+      --base=*) base_mode=1; base_arg="${arg#--base=}" ;;
+      --base)   base_mode=1 ;;
+      --force)  force_mode=1 ;;
     esac
   done
 
-  # 활성 spec 가드 (--force 로 우회 가능)
-  [ $force_mode -eq 0 ] && die_if_active_spec "phase activate"
+  # 같은 phase 재활성화(base 추가 등)인지 판별 — active spec 컨텍스트를 보존하기 위함
+  local same_phase=0
+  [ "$cur_phase" = "$id" ] && same_phase=1
+
+  # 활성 spec 가드 (--force 로 우회 가능). 단, 같은 phase 재활성화는 spec 을 보존하므로 가드 생략
+  if [ $same_phase -eq 0 ] && [ $force_mode -eq 0 ]; then
+    die_if_active_spec "phase activate"
+  fi
 
   # phase.md 첫 줄 제목에서 슬러그(표시용) 추출
   local slug
@@ -964,23 +983,35 @@ phase_activate() {
   [ -z "$slug" ] && slug="$id"
 
   state_set phase "$id"
-  state_set spec "null"
-  state_set planAccepted "false"
+  # 같은 phase 재활성화 시 active spec / planAccepted 보존 (silent reset 방지)
+  if [ $same_phase -eq 0 ]; then
+    state_set spec "null"
+    state_set planAccepted "false"
+  fi
 
   if [ $base_mode -eq 1 ]; then
-    # phase.md 메타 표 'Base Branch' 행에서 phase-NN-... 형식 추출
-    local meta_base
-    meta_base="$(grep -E '^\| \*\*Base Branch\*\*' "$file" \
-                 | head -1 \
-                 | sed 's/.*| *\*\*Base Branch\*\* *|//; s/`//g; s/^ *//; s/ *|.*$//')"
+    # base 브랜치 결정: --base=<branch> 명시 인자 우선, 없으면 phase.md 메타에서 추출
     local base_branch=""
-    case "$meta_base" in
-      phase-[0-9]*-*) base_branch="$meta_base" ;;
+    case "$base_arg" in
+      "") : ;;
+      phase-[0-9]*-*) base_branch="$base_arg" ;;
+      *) die "--base=<branch> 형식 오류: phase-NN-<slug> (예: phase-10-ops-tooling)" ;;
     esac
     if [ -z "$base_branch" ]; then
-      die "phase.md 메타의 'Base Branch' 필드를 phase-NN-<slug> 형식으로 먼저 채워주세요 (예: phase-03-stt-v2)"
+      local meta_base
+      meta_base="$(grep -E '^\| \*\*Base Branch\*\*' "$file" \
+                   | head -1 \
+                   | sed 's/.*| *\*\*Base Branch\*\* *|//; s/`//g; s/^ *//; s/ *|.*$//')"
+      case "$meta_base" in
+        phase-[0-9]*-*) base_branch="$meta_base" ;;
+      esac
+    fi
+    if [ -z "$base_branch" ]; then
+      die "base 브랜치를 결정할 수 없습니다 — 'sdd phase activate $id --base=phase-NN-<slug>' 로 지정하거나 phase.md 의 'Base Branch' 메타를 채우세요"
     fi
     state_set baseBranch "$base_branch"
+    # phase.md 메타 'Base Branch' 행 자동 갱신 (phase_new 와 동일 정책)
+    _set_phase_base_meta "$file" "$base_branch"
     ok "base branch: $base_branch"
   fi
 
