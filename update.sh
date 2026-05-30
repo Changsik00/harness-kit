@@ -192,3 +192,18 @@ echo "${C_GRN}━━━━━━━━━━━━━━━━━━━━━━
 echo "${C_GRN}업데이트 완료: ${PREV_VER} → ${NEW_VER}${C_RST}"
 echo "${C_GRN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${C_RST}"
 echo ""
+
+# ── 8. 업데이트 산물 커밋 안내 ─────────────────────────────────
+# update.sh 는 .harness-kit/*, .claude/* 를 덮어쓰지만 커밋하지 않는다.
+# 미커밋 상태로 두면 이후 spec 브랜치를 만들 때 따라붙어 PR scope 를 오염시킨다.
+# 자동 커밋은 dirty repo 위험이 있으므로 명시적 안내만 한다 (spec-x-harness-footguns).
+if git -C "$TARGET" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+  _hk_dirty="$(git -C "$TARGET" status --porcelain -- '.harness-kit' '.claude' 2>/dev/null)"
+  if [ -n "$_hk_dirty" ]; then
+    warn "업데이트 산물이 미커밋 상태입니다 (.harness-kit/, .claude/)."
+    echo "${C_YLW}   다음 작업(특히 새 브랜치 생성) 전에 별도로 커밋하세요:${C_RST}"
+    echo "${C_CYN}     git add .harness-kit .claude${C_RST}"
+    echo "${C_CYN}     git commit -m \"chore: apply harness-kit update ${NEW_VER}\"${C_RST}"
+    echo ""
+  fi
+fi
