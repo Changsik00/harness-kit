@@ -5,6 +5,21 @@ harness-kit의 주요 변경 사항을 버전별로 정리합니다.
 
 ---
 
+## [0.13.7] — 2026-05-30
+
+> 하네스 운영 footgun 3종 수정 + 문서 지식 그래프(wiki 레이어) 부트스트랩.
+
+### Added
+- 문서 지식 그래프 — `docs/wiki/` 레이어 부트스트랩 + wiki ingest 파이프라인 (`/hk-wiki-ingest`). archive 된 spec 의 walkthrough 를 읽어 wiki 페이지를 증분 갱신 (#154)
+
+### Fixed
+- 시크릿 가드 오탐 제거 — `check-secrets.sh` 가 `${VAR}`·`$(..)`·`${VAR:-default}`(bash 기본값 연산자)·placeholder(`changeme` 등) 를 시크릿으로 오탐하던 정규식 수정. 실제 하드코딩 시크릿은 계속 차단 (#158)
+- `update.sh` / `/hk-update` — 업데이트 산물(`.harness-kit/*`·`.claude/*`) 미커밋 시 커밋 안내 추가. 미커밋 산물이 새 spec 브랜치를 오염시키던 문제 예방 (#158)
+- `sdd spec new` / `sdd specx new` — 미커밋 install drift 감지 시 비차단 경고 (`_warn_install_drift`) (#158)
+- `sdd phase activate --base` — `--base=<branch>` 인자 지원 + phase.md `Base Branch` 메타 자동 기입 + 이미 active 인 같은 phase 재활성화 시 active spec 보존 (#158)
+
+---
+
 ## [0.13.6] — 2026-05-23
 
 > `install.sh` — `curl|bash` 설치 시 `kitOrigin` 빈값 기록 버그 수정.
