@@ -191,6 +191,28 @@ if [ -d "$TARGET/.git" ]; then
     WARN=$((WARN+1))
   fi
 fi
+
+# lefthook + core.hooksPath 충돌 감지 (issue #161) — harness 는 진단·안내만
+if [ -d "$TARGET/.git" ]; then
+  _lh=0
+  if [ -f "$TARGET/lefthook.yml" ] || [ -f "$TARGET/lefthook.yaml" ] \
+     || [ -f "$TARGET/.lefthook.yml" ] || [ -f "$TARGET/.lefthook.yaml" ]; then
+    _lh=1
+  elif [ -f "$TARGET/package.json" ] && grep -q 'lefthook' "$TARGET/package.json" 2>/dev/null; then
+    _lh=1
+  fi
+  if [ "$_lh" -eq 1 ]; then
+    printf "  %-38s  " "lefthook × core.hooksPath"
+    _hp="$(git -C "$TARGET" config --local --get core.hooksPath 2>/dev/null || true)"
+    if [ -n "$_hp" ]; then
+      printf "%s\n" "${C_YLW}⚠ 충돌 — git config --unset --local core.hooksPath (issue #161)${C_RST}"
+      WARN=$((WARN+1))
+    else
+      printf "%s\n" "${C_GRN}✓ core.hooksPath 미설정${C_RST}"
+      PASS=$((PASS+1))
+    fi
+  fi
+fi
 echo ""
 
 # ========== 7. 프로젝트 품질 도구 ==========

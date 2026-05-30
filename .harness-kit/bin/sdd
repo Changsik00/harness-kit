@@ -2224,6 +2224,28 @@ cmd_doctor() {
     [ "$bad" -eq 0 ] && _doc_pass "훅 파일 실행 권한 OK"
   }
 
+  # lefthook 사용 + core.hooksPath 로컬 설정 충돌 감지 (issue #161).
+  # lefthook v2.x 는 core.hooksPath 명시 설정 시 'lefthook install'(prepare) 을
+  # 거부 → pnpm install / turbo 연쇄 실패. harness 는 진단·안내만 (git 설정 자동 변경 안 함).
+  _check_lefthook_hookspath() {
+    git -C "$SDD_ROOT" rev-parse --is-inside-work-tree >/dev/null 2>&1 || return 0
+    local lh=0
+    if [ -f "$SDD_ROOT/lefthook.yml" ] || [ -f "$SDD_ROOT/lefthook.yaml" ] \
+       || [ -f "$SDD_ROOT/.lefthook.yml" ] || [ -f "$SDD_ROOT/.lefthook.yaml" ]; then
+      lh=1
+    elif [ -f "$SDD_ROOT/package.json" ] && grep -q 'lefthook' "$SDD_ROOT/package.json" 2>/dev/null; then
+      lh=1
+    fi
+    [ "$lh" -eq 0 ] && return 0
+    local hp
+    hp="$(git -C "$SDD_ROOT" config --local --get core.hooksPath 2>/dev/null || true)"
+    if [ -n "$hp" ]; then
+      _doc_warn "lefthook + core.hooksPath 충돌 — 'lefthook install'(prepare) 거부로 pnpm install/turbo 실패 가능. 해결: git config --unset --local core.hooksPath (issue #161)"
+    else
+      _doc_pass "lefthook 환경 — core.hooksPath 미설정 (정상)"
+    fi
+  }
+
   printf "\n🩺 harness-kit doctor\n"
   printf "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
 
@@ -2245,6 +2267,7 @@ cmd_doctor() {
 
   printf "\n훅 파일\n"
   _check_hooks
+  _check_lefthook_hookspath
 
   # ── wiki layer checks ──────────────────────────────
   _check_wiki_layer() {
