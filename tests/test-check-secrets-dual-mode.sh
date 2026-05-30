@@ -336,6 +336,27 @@ else
 fi
 
 # ─────────────────────────────────────────────────────────
+# Test 15: 키워드가 ${..} 보간 내부 + :- 기본값 연산자 → 오탐 아님
+#   현장 제보 원본 형태: ${POSTGRES_PASSWORD:-default}
+# ─────────────────────────────────────────────────────────
+echo ""
+echo "▶ Test 15: \${POSTGRES_PASSWORD:-default} 보간 staged → 통과 (현장 제보 형태)"
+REPO15="$(_make_repo)"
+_install_hooks "$REPO15"
+
+printf 'run: echo ${POSTGRES_PASSWORD:-defaultpass}\n' > "$REPO15/run.sh"
+git -C "$REPO15" add run.sh
+
+exit_code=0
+_run_secrets "$REPO15" "HARNESS_GIT_HOOK_MODE=1" || exit_code=$?
+
+if [ "$exit_code" -eq 0 ]; then
+  ok "Test 15: 보간(:- 연산자) → 통과 (exit=0)"
+else
+  fail "Test 15: 보간인데 차단됨 (오탐 — exit=$exit_code)"
+fi
+
+# ─────────────────────────────────────────────────────────
 # 결과
 # ─────────────────────────────────────────────────────────
 echo ""
