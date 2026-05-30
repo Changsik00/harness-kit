@@ -5,6 +5,15 @@ harness-kit의 주요 변경 사항을 버전별로 정리합니다.
 
 ---
 
+## [0.13.8] — 2026-05-30
+
+> lefthook × core.hooksPath 충돌을 doctor 가 조기 진단 (issue #161).
+
+### Fixed
+- `sdd doctor` / 루트 `doctor.sh` — `lefthook 사용 + core.hooksPath 로컬 설정` 충돌 감지 + `git config --unset --local core.hooksPath` 가이드 출력(비차단). lefthook v2.x 가 hooksPath 명시 설정 시 `lefthook install`(prepare)을 거부해 pnpm install/turbo 가 연쇄 실패하던 문제를, turbo 의 모호한 실패 대신 1줄 진단으로 전환. harness 는 사용자 git 설정을 변경하지 않음 (#162, issue #161)
+
+---
+
 ## [0.13.7] — 2026-05-30
 
 > 하네스 운영 footgun 3종 수정 + 문서 지식 그래프(wiki 레이어) 부트스트랩.
