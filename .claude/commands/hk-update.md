@@ -90,6 +90,17 @@ bash <(curl -fsSL https://raw.githubusercontent.com/<owner>/<repo>/main/get.sh) 
 jq -r '.kitVersion' .harness-kit/installed.json
 ```
 
+#### 업데이트 후 — 산물 커밋 (필수 안내)
+
+`update.sh` 는 `.harness-kit/*` · `.claude/*` 를 덮어쓰지만 **자동 커밋하지 않습니다**. 미커밋 상태로 두면 이후 새 spec 브랜치를 만들 때 그대로 따라붙어 PR scope 를 오염시킵니다. 업데이트 직후 **별도 커밋**을 안내하세요:
+
+```bash
+git add .harness-kit .claude
+git commit -m "chore: apply harness-kit update <new-version>"
+```
+
+> `update.sh` 종료 메시지에도 동일 안내가 출력됩니다. 미커밋 산물이 없으면 안내는 생략됩니다.
+
 #### 사용자가 N 으로 거절한 경우 — 수동 실행 안내
 
 ```
