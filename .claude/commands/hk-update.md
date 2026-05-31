@@ -81,8 +81,10 @@ latest=$(curl -sf --max-time 5 "$raw_url" | jq -r '.version // empty')
 사용자가 step 4 에서 Y (또는 "응" / "네" / "실행해줘" / "업데이트해줘") 로 승인한 경우, **에이전트가 Bash 툴로 직접 실행**합니다:
 
 ```bash
-bash <(curl -fsSL https://raw.githubusercontent.com/<owner>/<repo>/main/get.sh) --update
+bash <(curl -fsSL https://raw.githubusercontent.com/<owner>/<repo>/main/get.sh) --update --yes
 ```
+
+> `--yes` 필수: 에이전트 Bash 환경엔 controlling TTY 가 없어 `update.sh` 의 확인 프롬프트(`read < /dev/tty`)가 빈 값으로 읽혀 항상 "취소됨"으로 종료됩니다. step 4 에서 이미 사용자 승인을 받았으므로 재확인은 생략합니다. (사람이 `!` prefix 나 터미널에서 직접 실행하는 아래 경로는 TTY 가 있으므로 `--yes` 없이 둡니다.)
 
 실행 완료 후 새 버전을 확인합니다:
 

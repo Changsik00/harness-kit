@@ -5,6 +5,15 @@ harness-kit의 주요 변경 사항을 버전별로 정리합니다.
 
 ---
 
+## [0.13.9] — 2026-05-31
+
+> `/hk-update` 의 에이전트 실행 경로가 TTY 부재로 항상 취소되던 hotfix.
+
+### Fixed
+- `/hk-update` 스킬 — 에이전트 직접 실행 명령에 `--yes` 누락. 에이전트 Bash 환경엔 controlling TTY 가 없어 `update.sh` 의 `read -r _ans < /dev/tty` 확인 프롬프트가 빈 값으로 읽혀 항상 "취소됨"으로 종료 → 에이전트가 `/hk-update` 를 설계대로 완료할 수 없던 문제. 스킬 step 4 에서 이미 사용자 승인을 받으므로 `get.sh ... --update --yes` 로 `update.sh` 의 재확인 프롬프트를 건너뛰도록 수정. 사람이 `!` prefix·터미널에서 직접 실행하는 수동 경로(TTY 존재)는 `--yes` 없이 유지. `sources/commands/hk-update.md` 와 도그푸딩 복사본 `.claude/commands/hk-update.md` 동시 수정 (#165)
+
+---
+
 ## [0.13.8] — 2026-05-30
 
 > lefthook × core.hooksPath 충돌을 doctor 가 조기 진단 (issue #161).

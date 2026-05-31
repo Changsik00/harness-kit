@@ -197,6 +197,13 @@ When passing a task with `[-]`, the Agent MUST:
 ### 6.3 Commit & Ship Enforcement
 - Commit format, pre-push validation, and PR creation rules → constitution §10.2.
 - **Task Completeness Check**: Before push, the Agent MUST verify that **ALL** checkboxes in `task.md` are marked `[x]` or `[-]` — including Pre-flight items (e.g., "Plan Accept") and Ship items (e.g., "Push", "PR creation"). No `[ ]` may remain.
+- **Pre-Push Quality Gate (MANDATORY)**: Before any `git push`, the Agent MUST run the full CI suite locally and confirm GREEN:
+  ```
+  pnpm run ci
+  ```
+  If the project has no `ci` script, fall back to: `pnpm turbo run lint typecheck test` (with any project-specific filters).
+  Additionally run `pnpm run format:check` to catch prettier issues that turbo lint cache may miss.
+  **Push is FORBIDDEN if either check is not GREEN.** Fix all issues, re-run both checks, then push.
 
 **Completion Checklists by Work Type**:
 

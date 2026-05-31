@@ -44,12 +44,32 @@
 
 > 모든 작업 task 완료 후 `/hk-ship` 절차를 따릅니다.
 
-- [ ] 코드 품질 점검 (lint / type check) — 스택별 명령
-- [ ] 전체 테스트 실행 → 모두 PASS
+### 🚦 Pre-Push Quality Gate (push 전 필수 — CI 재현)
+
+> **이 단계를 건너뛰면 push 금지.** 로컬에서 GREEN 확인 후 push한다.
+
+- [ ] **전체 CI 재현** (root `pnpm run ci` 또는 동등 명령):
+  ```
+  pnpm run ci
+  ```
+  → 출력 마지막 줄이 `Tasks: N successful, N total` 이어야 함. `Failed:` 행 있으면 중단.
+
+- [ ] **prettier 전체 체크** (turbo lint 캐시 false-pass 방지):
+  ```
+  pnpm run format:check
+  ```
+  → 포맷 오류 파일 있으면 `pnpm run format` 후 커밋 추가.
+
 - [ ] (Integration Test Required = yes 인 경우) 통합 테스트 실행 → PASS
+
+### 📝 산출물 작성
+
 - [ ] **walkthrough.md 작성** (증거 로그)
 - [ ] **pr_description.md 작성** (템플릿 준수)
 - [ ] **Ship Commit**: `docs(spec-{phaseN}-{seq}): ship walkthrough and pr description`
+
+### 🚀 Push & PR
+
 - [ ] **Push**: `git push -u origin spec-{phaseN}-{seq}-<slug>`
 - [ ] **PR 생성**: 에이전트가 `gh pr create` 또는 `/hk-pr-gh` 로 생성 (사용자 승인 후)
 - [ ] **사용자 알림**: 푸시 완료 + PR URL 보고
