@@ -244,9 +244,9 @@ When calling the Bash tool, the Agent MUST follow these rules:
 
 When the project has static analysis tools configured (type-checker, linter), use them as the primary diagnostic authority before making corrections. The Agent MUST NOT guess or over-correct beyond their findings.
 
-### 6.6 Model Allocation Strategy
+### 6.6 Model & Context Allocation Strategy
 
-The main session runs on **Opus** (planning, coordination, judgment). Sub-agents are dispatched with explicit model overrides:
+The main session runs on **Opus** as the **context orchestrator** — it owns the thread of intent and dispatches scoped jobs to sub-agents that run in their own isolated context windows (orchestrator–worker pattern). Sub-agents are dispatched with explicit model overrides:
 
 | Role | Model | Rationale |
 |---|---|---|
@@ -256,6 +256,16 @@ The main session runs on **Opus** (planning, coordination, judgment). Sub-agents
 | Code analysis | Opus (sub-agent, `model: "opus"`) | Structural understanding and impact assessment |
 
 When delegating implementation to a Sonnet sub-agent, the main Opus agent MUST provide clear, specific instructions including: target files, expected behavior, test expectations, and commit message format.
+
+**Context Orchestration (offloading policy)**: The orchestrator keeps the main context lean by offloading token-heavy or context-polluting work to isolated sub-agents and ingesting only their distilled results.
+
+- **What to offload**: token-heavy or noisy work — multi-file implementation, broad search/exploration, log triage. Keep in the main thread: judgment, coordination, scope/architecture decisions, and final verification.
+- **Context in (scoped slice)**: give the sub-agent only what its job needs (target files, expected behavior, test command, commit format) — NOT the full history.
+- **Result out (contract)**: the sub-agent returns a distilled result (commits, test/typecheck status, findings), NOT its raw transcript — this is what preserves the main context.
+- **Verification stays with the orchestrator**: the main agent MUST review the sub-agent's output against the spec before shipping — never ship on the worker's word alone.
+- **Fan-out**: dispatch independent jobs concurrently (→ §6.7 Parallel by default), then fan results back in.
+
+(→ ADR-005 for rationale and trade-offs.)
 
 **Dispatch exception — docs-only tasks**: When all Spec tasks are limited to markdown/documentation file creation or editing (no code, scripts, or tests), run them in the main thread — sub-agent spin-up overhead exceeds the saving. See §6.7 sub-agent dispatch threshold for the general rule.
 
