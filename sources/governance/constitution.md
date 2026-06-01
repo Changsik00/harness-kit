@@ -63,8 +63,9 @@ This section defines the roles and boundaries of work types used in harness-kit.
 
 ### 3.1 Phase (Epic)
 
-- **Role**: A grouping of related Specs. Can serve as an independent integration test and release unit.
+- **Role**: A grouping of related *work* (Specs plus small phase-FF commits). Can serve as an independent integration test and release unit.
 - **Entry Condition**: 3+ Specs, or inter-Spec dependencies exist, or integration testing is required.
+- **In-Phase Work Sizing**: Not every item in a Phase must be a Spec. Within an active Phase (base-branch mode), small/clear/reversible items (1–2 commits) MAY be committed directly to the phase branch as **phase-FF** — no spec artifacts, no per-item re-approval (the approved Phase plan already authorizes them). The Agent right-sizes each item: full Spec for substantial or uncertain work, phase-FF for trivial work. This is a first-class choice up front, not only a demotion. Decisions worth keeping go in `phase.md`'s decision log. (→ agent.md §11.4)
 - **Exit Condition**: All Specs merged, integration tests PASS, User go/no-go via `/hk-phase-ship`, and (base mode) Phase PR merge (→ agent.md §6.3.2).
 - **Phase Ship Rule**: The Agent MUST NOT create a Phase PR (phase branch → main) without explicit User go/no-go approval. The `/hk-phase-ship` procedure — including success criteria verification, integration test execution, and go/no-go report — MUST be completed before PR creation. The Phase PR body MUST follow the `phase-ship.md` template.
 - **Base Branch (opt-in)**: A Phase MAY optionally have a `phase-N-{slug}` base branch. In this case, Spec PRs target the phase branch instead of main, and the phase branch merges to main after all Specs are complete. The base branch is created just-in-time at the first Spec's hk-ship.

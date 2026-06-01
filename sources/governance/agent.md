@@ -467,9 +467,11 @@ The Agent MUST state the recommended mode (with one-line reasoning) at the start
 
 The Agent reports the assessment to the User before continuing with the next spec.
 
-### 11.4 Re-Adjustment Options (in Phase)
+### 11.4 In-Phase Work Sizing & Re-Adjustment
 
-Within a phase, prefer **bundle** or **phase FF** over spec-x demotion (preserves thematic cohesion + saves ceremony):
+**phase-FF is a first-class in-phase mode, not only a fallback.** When starting any item inside an active Phase, the Agent sizes it *up front*: substantial or uncertain → full Spec; small/clear/reversible (1–2 commits) → **phase-FF** (direct commit to the phase base branch, no spec artifacts). Do NOT default to Spec for every item in a Phase, and do NOT bundle small items into a Spec merely to avoid FF. Decisions worth keeping go in `phase.md`'s decision log, not a per-commit walkthrough.
+
+When *reshaping* an already-planned spec mid-phase, prefer **bundle** or **phase-FF** over spec-x demotion (preserves thematic cohesion + saves ceremony):
 
 | Situation | Action |
 |---|---|
@@ -478,7 +480,7 @@ Within a phase, prefer **bundle** or **phase FF** over spec-x demotion (preserve
 | Direction valid, scope 1–2 commits, no bundle target | **Phase FF** — commit directly to the phase branch without spec artifacts |
 | Direction valid, scope appropriate | **Proceed as planned** |
 
-spec-x demotion is reserved for *leftover work after a phase has ended*, not for in-phase reshaping.
+> **phase-FF vs FF (Mode C)**: phase-FF commits ride the Phase's PR (reviewed at `/hk-phase-ship`) and require base-branch mode; Mode C FF commits to `main` with no PR. phase-FF does NOT change `state.json`'s active spec. spec-x demotion is reserved for *leftover work after a phase has ended*, not for in-phase reshaping.
 
 ### 11.5 Tool Support
 
