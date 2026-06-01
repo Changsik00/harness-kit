@@ -8,7 +8,7 @@
 ## 📦 진행 중 Phase
 
 <!-- sdd:active:start -->
-- **phase-19** — 문서 지식 그래프 (Doc Knowledge Graph) — 3 spec — 다음: spec-19-03-doctor-wiki-slim
+(active phase 없음. `bin/sdd phase new <slug>` 로 시작)
 <!-- sdd:active:end -->
 
 ## 📥 spec-x 대기
@@ -106,6 +106,7 @@
 - [x] spec-x-check-secrets-dual-mode (완료)
 - [x] spec-x-harness-footguns (완료)
 - [x] spec-x-doctor-hookspath-lefthook (완료)
+- **phase-19** — 문서 지식 그래프 (Doc Knowledge Graph) — completed 2026-06-01
 <!-- sdd:done:end -->
 
 ---

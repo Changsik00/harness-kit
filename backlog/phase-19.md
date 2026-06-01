@@ -10,7 +10,7 @@
 | 항목 | 값 |
 |---|---|
 | **Phase ID** | `phase-19` |
-| **상태** | In Progress |
+| **상태** | Completed |
 | **시작일** | 2026-05-27 |
 | **목표 종료일** | 2026-06-17 |
 | **소유자** | dennis |
@@ -65,7 +65,7 @@ ADR, RCA             decisions.md             (raw 111개 재탐색 안 함)
 |---|---|:---:|---|---|
 | `spec-19-01` | wiki-layer-bootstrap | P1 | Merged | `specs/spec-19-01-wiki-layer-bootstrap/` |
 | `spec-19-02` | hk-wiki-ingest | P2 | Merged | `specs/spec-19-02-hk-wiki-ingest/` |
-| `spec-19-03` | doctor-wiki-slim | P? | Active | `specs/spec-19-03-doctor-wiki-slim/` |
+| `spec-19-03` | doctor-wiki-slim | P? | Merged | `specs/spec-19-03-doctor-wiki-slim/` |
 <!-- sdd:specs:end -->
 
 ### spec-19-01 — 문서 위키 레이어 설계 & 부트스트랩
