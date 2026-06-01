@@ -73,6 +73,7 @@
 
       "Bash(.harness-kit/bin/sdd:*)",
       "Bash(.harness-kit/bin/bb-pr:*)",
+      "Bash(.harness-kit/bin/notify-telegram.sh:*)",
       "Bash(.harness-kit/hooks/*)",
       "Bash(doctor.sh:*)"
     ],
@@ -187,6 +188,26 @@
           {
             "type": "command",
             "command": ".harness-kit/hooks/check-scope.sh"
+          }
+        ]
+      }
+    ],
+    "Notification": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": ".harness-kit/hooks/notify-on-input-wait.sh"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": ".harness-kit/hooks/notify-on-input-wait.sh"
           }
         ]
       }

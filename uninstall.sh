@@ -58,7 +58,7 @@ fi
 TS="$(date +%Y%m%d-%H%M%S)"
 BACKUP="$TARGET/.harness-uninstall-backup-$TS"
 mkdir -p "$BACKUP"
-for p in .harness-kit .claude CLAUDE.md; do
+for p in .harness-kit .claude CLAUDE.md telegram.sh discord.sh .env.telegram.example .env.discord.example; do
   [ -e "$TARGET/$p" ] && cp -rf "$TARGET/$p" "$BACKUP/" 2>/dev/null || true
 done
 log "안전 백업: $BACKUP"
@@ -79,6 +79,16 @@ if [ -d "$TARGET/scripts/harness" ]; then
   rm -rf "$TARGET/scripts/harness"
   rmdir "$TARGET/scripts" 2>/dev/null || true
 fi
+
+# 2. 루트 런처 + env 템플릿 제거 (실제 토큰 파일은 보존)
+#    telegram.sh/discord.sh/.env.*.example 는 키트가 설치한 것 → 제거.
+#    실제 .env.telegram / .env.discord 는 사용자 시크릿이므로 절대 건드리지 않음.
+for rf in telegram.sh discord.sh .env.telegram.example .env.discord.example; do
+  if [ -f "$TARGET/$rf" ]; then
+    rm -f "$TARGET/$rf"
+    ok "루트 파일 제거: $rf"
+  fi
+done
 
 # 3. .claude/settings.json 에서 hooks 제거
 SETTINGS="$TARGET/.claude/settings.json"
@@ -140,15 +150,25 @@ if [ -f "$TARGET/CLAUDE.md" ] && grep -q "HARNESS-KIT:BEGIN" "$TARGET/CLAUDE.md"
 fi
 
 # 7. .gitignore 정리
+# '# harness-kit' 헤더 + 그 뒤로 이어지는 키트 관리 라인 블록을 통째로 제거.
+# skip=N 카운터 대신 "헤더 직후 연속된 알려진 패턴" 을 명시 매칭 — 순서/개수 무관하게
+# .harness-kit/, .harness-backup-*/, .claude/state/, .env.telegram, .env.discord 모두 제거.
+# 블록 밖(비-키트 라인) 의 동일 패턴은 건드리지 않아 사용자 시크릿 ignore 라인을 보존.
 if [ -f "$TARGET/.gitignore" ]; then
   tmp="$(mktemp)"
   awk '
-    /^# harness-kit$/ { skip=2; next }
-    skip > 0 && /^\.claude\/state\// { skip--; next }
-    skip > 0 && /^\.harness-backup-\*\// { skip--; next }
+    /^# harness-kit$/                  { inblk=1; next }
+    inblk==1 && /^!?\.harness-kit\/$/   { next }
+    inblk==1 && /^\.harness-backup-\*\/$/ { next }
+    inblk==1 && /^\.claude\/state\/$/   { next }
+    inblk==1 && /^\.env\.telegram$/     { next }
+    inblk==1 && /^\.env\.discord$/      { next }
+    inblk==1                           { inblk=0 }
     { print }
   ' "$TARGET/.gitignore" > "$tmp"
-  mv "$tmp" "$TARGET/.gitignore"
+  # harness 블록은 보통 파일 끝에 append 되므로 leftover 빈 줄 정리
+  sed -e :a -e '/^$/{$d;N;ba' -e '}' "$tmp" > "$TARGET/.gitignore" 2>/dev/null || mv "$tmp" "$TARGET/.gitignore"
+  rm -f "$tmp"
   ok ".gitignore 정리"
 fi
 

@@ -1,0 +1,2 @@
+# Shell 스크립트는 LF 로 저장 — macOS/Linux 에서 bash\r shebang 오류 방지 (autocrlf 설정 무관 강제)
+*.sh text eol=lf

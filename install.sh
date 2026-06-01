@@ -163,11 +163,14 @@ ${C_BLU}━━━━━━━━━━━━━━━━━━━━━━━━
 
 생성할 파일:
   - .harness-kit/installed.json         (설치 버전 기록)
+  - telegram.sh / discord.sh            (알림 채널 런처, 프로젝트 루트)
+  - .env.telegram.example               (텔레그램 토큰 템플릿, 루트)
+  - .env.discord.example                (디스코드 토큰 템플릿, 루트)
 
 머지/추가할 파일:
   - .claude/settings.json               (jq 머지)
   - CLAUDE.md                           (HARNESS-KIT 블록 추가)
-  - .gitignore                          (!.harness-kit/ un-ignore 추가)
+  - .gitignore                          (!.harness-kit/ + .env.telegram/.env.discord)
 
 모드: $([ $DRY_RUN -eq 1 ] && echo 'DRY RUN (실제 변경 없음)' || echo '실제 설치')
 Hooks: $([ $NO_HOOKS -eq 1 ] && echo '설치 안 함' || echo '설치')
@@ -348,6 +351,42 @@ if [ -d "$KIT_DIR/sources/bin" ]; then
 fi
 
 # ============================================================
+# 12b. 루트 런처 + env 템플릿 설치 (telegram/discord 알림 채널)
+# ============================================================
+# 런처(*.sh)는 키트 관리 파일이라 덮어쓰고, .env.*.example placeholder 는 생성한다.
+# 실제 토큰 파일(.env.telegram / .env.discord)은 절대 생성·덮어쓰지 않는다 (시크릿 안전 불변식).
+if [ -d "$KIT_DIR/sources/root" ]; then
+  log "루트 런처/env 템플릿 설치"
+  for f in "$KIT_DIR/sources/root"/*.sh; do
+    [ -e "$f" ] || continue
+    _rf="$TARGET/$(basename "$f")"
+    do_cp "$f" "$_rf"
+    do_run "chmod +x '$_rf'"
+  done
+  if [ $DRY_RUN -eq 1 ]; then
+    echo "${C_DIM}[dry-run]${C_RST} .env.telegram.example / .env.discord.example 생성 (루트)"
+  else
+    cat > "$TARGET/.env.telegram.example" <<'ENVEOF'
+# 이 파일을 .env.telegram 으로 복사한 뒤 실제 값을 채우세요.
+#   cp .env.telegram.example .env.telegram
+# .env.telegram 은 절대 커밋하지 마세요 (.gitignore 에 추가됨).
+# TELEGRAM_BOT_TOKEN: BotFather 발급 봇 토큰 / TELEGRAM_CHAT_ID: 수신 chat_id
+TELEGRAM_BOT_TOKEN=
+TELEGRAM_CHAT_ID=
+ENVEOF
+    cat > "$TARGET/.env.discord.example" <<'ENVEOF'
+# 이 파일을 .env.discord 으로 복사한 뒤 실제 값을 채우세요.
+#   cp .env.discord.example .env.discord
+# .env.discord 은 절대 커밋하지 마세요 (.gitignore 에 추가됨).
+# DISCORD_BOT_TOKEN: Discord 봇 토큰 / DISCORD_CHANNEL_ID: 발송 대상 채널 ID
+DISCORD_BOT_TOKEN=
+DISCORD_CHANNEL_ID=
+ENVEOF
+    ok "루트 런처/env 템플릿 설치 완료"
+  fi
+fi
+
+# ============================================================
 # 13. .claude/settings.json 머지
 # ============================================================
 log ".claude/settings.json 머지"
@@ -481,6 +520,9 @@ else
   [ "$_hk_self_host" -eq 0 ] && _gi_ensure "$_hk_pat" "$_hk_line"
   _gi_ensure '^\.harness-backup-\*/$'  '.harness-backup-*/'
   _gi_ensure '^\.claude/state/$'       '.claude/state/'
+  # 알림 채널 토큰 파일 — 실수 커밋 방지 (uninstall.sh §7 이 함께 제거)
+  _gi_ensure '^\.env\.telegram$'       '.env.telegram'
+  _gi_ensure '^\.env\.discord$'        '.env.discord'
 
   ok ".gitignore 갱신"
 fi
