@@ -83,11 +83,12 @@ echo "  constitution.md: ${CONST_WORDS} words"
 echo "  agent.md:        ${AGENT_WORDS} words"
 echo "  합계:            ${TOTAL} words"
 
-# 합계 6000w 이하 유지 (비대화 방지 상한선)
-# 2026-05-10: 5000 → 6000. agent.md §6.7 Workflow Patterns 신설로 5000 정확히 차서
-# generic-useful 패턴 거버넌스화가 막힘 → 한도가 본질 (가이드 배포) 을 막지 않도록 헤드룸 확보.
-# 무절제 상향 금지 — 6500+ 은 별도 정당화 필요.
-LIMIT=6000
+# 합계 8000w 이하 유지 (비대화 방지 상한선)
+# 2026-05-10: 5000 → 6000. agent.md §6.7 Workflow Patterns 신설로 5000 정확히 차서.
+# 2026-06-01: 6000 → 8000. §8.5(Choice Presentation)·§13(Rule Prune) 누적 + phase-FF
+#   1급화로 7155w 도달. constitution §13 budget 과 일치(8000)시킴. 한도가 본질(가이드 배포)을 막지 않도록.
+# 무절제 상향 금지 — 다음 상향은 별도 정당화 필요. ratchet 누적 시 §13 Rule Prune 으로 다이어트 우선.
+LIMIT=8000
 if [ "$TOTAL" -le "$LIMIT" ]; then
   pass "합계 ${TOTAL}w — 상한(${LIMIT}w) 이하"
 else

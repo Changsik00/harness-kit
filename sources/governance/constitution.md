@@ -299,4 +299,4 @@ A rule is a **candidate for review** (not mandatory deletion) when both conditio
 Review means: "Is this rule still load-bearing, or has the model's default behavior made it redundant?"
 Prune only after validating the rule is no longer needed. Non-obvious invariants should be kept even if old.
 
-The governance word budget is **7,000 words** (constitution + agent.md combined). `sdd doctor` warns when exceeded.
+The governance word budget is **8,000 words** (constitution + agent.md combined). `sdd doctor` warns when exceeded.
