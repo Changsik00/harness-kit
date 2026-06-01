@@ -44,22 +44,13 @@
 
 > 모든 작업 task 완료 후 `/hk-ship` 절차를 따릅니다.
 
-### 🚦 Pre-Push Quality Gate (push 전 필수 — CI 재현)
+### 🚦 Pre-Push Quality Gate (push 전 필수)
 
-> **이 단계를 건너뛰면 push 금지.** 로컬에서 GREEN 확인 후 push한다.
+> **이 단계를 건너뛰면 push 금지.** 로컬에서 모두 통과(GREEN) 확인 후 push 한다.
+> 명령은 스택별로 다르다. 프로젝트가 `sdd config precheck add "<명령>"` 으로 등록한 검사가 있으면 그것을 실행한다.
 
-- [ ] **전체 CI 재현** (root `pnpm run ci` 또는 동등 명령):
-  ```
-  pnpm run ci
-  ```
-  → 출력 마지막 줄이 `Tasks: N successful, N total` 이어야 함. `Failed:` 행 있으면 중단.
-
-- [ ] **prettier 전체 체크** (turbo lint 캐시 false-pass 방지):
-  ```
-  pnpm run format:check
-  ```
-  → 포맷 오류 파일 있으면 `pnpm run format` 후 커밋 추가.
-
+- [ ] **코드 품질 점검** (lint / type-check) — 스택별 명령 또는 등록된 precheck
+- [ ] **전체 테스트 실행** → 모두 PASS
 - [ ] (Integration Test Required = yes 인 경우) 통합 테스트 실행 → PASS
 
 ### 📝 산출물 작성
