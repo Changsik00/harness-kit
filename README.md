@@ -321,6 +321,10 @@ sdd archive --keep=2
 │   ├── specs/
 │   └── backlog/
 │
+├── telegram.sh / discord.sh        # 알림 채널 런처 (선택 사용)
+├── .env.telegram.example           #   토큰 템플릿 (실제 .env.*는 키트가 생성 안 함)
+├── .env.discord.example
+│
 └── CLAUDE.md                       # @import 3줄 추가
 ```
 
@@ -490,6 +494,39 @@ chmod 600 ~/.config/bitbucket/token
 > 다른 경로를 사용하려면 `BITBUCKET_TOKEN_FILE` 환경변수로 지정할 수 있습니다.
 
 > GitHub 사용자는 `gh auth login`만 하면 `/hk-pr-gh`가 바로 동작합니다.
+
+---
+
+## 🔔 알림 채널 (Telegram / Discord)
+
+Claude Code가 **입력을 기다리며 멈춘 순간**(예: 권한 확인, Plan Accept 대기)을 Telegram·Discord로 알려줍니다. 자리를 비운 사이에도 에이전트가 멈춘 걸 놓치지 않습니다.
+
+install 시 프로젝트 루트에 다음이 생성됩니다:
+
+| 파일 | 역할 |
+|---|---|
+| `telegram.sh` / `discord.sh` | 채널을 켠 채 Claude Code를 실행하는 런처 (`NM_NOTIFY_CHANNEL` export) |
+| `.env.telegram.example` / `.env.discord.example` | 토큰 템플릿. 실제 `.env.telegram` / `.env.discord`는 키트가 만들지도 덮어쓰지도 않습니다 (시크릿 안전) |
+
+`.env.telegram` / `.env.discord`는 install이 `.gitignore`에 자동 등록합니다.
+
+```bash
+# 1. 템플릿을 복사해 토큰을 채운다 (커밋 금지 — gitignore 처리됨)
+cp .env.telegram.example .env.telegram
+#   TELEGRAM_BOT_TOKEN=...   (BotFather 발급)
+#   TELEGRAM_CHAT_ID=...     (수신 chat_id)
+
+# 2. 런처로 Claude Code 실행 — 입력 대기 시 Telegram 알림
+./telegram.sh
+```
+
+Discord도 동일하게 `.env.discord`(`DISCORD_BOT_TOKEN` / `DISCORD_CHANNEL_ID`)를 채우고 `./discord.sh`로 실행합니다.
+
+| 환경변수 | 기본 | 설명 |
+|---|:---:|---|
+| `HARNESS_SKIP_PERMISSIONS` | `0` | `1`이면 런처가 `--dangerously-skip-permissions`로 실행. 기본은 비활성 |
+
+> 토큰 파일(`.env.telegram` / `.env.discord`)이 없으면 알림은 조용히 건너뜁니다(silent skip) — 런처는 토큰이 있을 때만 동작합니다.
 
 ---
 
