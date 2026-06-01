@@ -5,6 +5,24 @@ harness-kit의 주요 변경 사항을 버전별로 정리합니다.
 
 ---
 
+## [0.14.0] — 2026-06-01
+
+> Telegram / Discord 알림 채널 완성 — 루트 런처 + env 템플릿 설치 메커니즘 신설.
+
+### Added
+- 알림 채널 (Telegram / Discord) — 휴면 상태였던 알림 dispatcher 의 빠진 절반(런처 + 토큰 템플릿)을 완성. install 이 프로젝트 루트에 `telegram.sh`/`discord.sh` 런처와 `.env.*.example` 템플릿을 설치하고, `.env.telegram`/`.env.discord` 를 `.gitignore` 에 멱등 등록. 입력 대기 hook 이 채널로 알림을 발송 (#169, #157 대체)
+- `sources/root/` — 프로젝트 루트로 설치되는 파일을 위한 키트 디렉토리 신설 (루트 설치 메커니즘 자체가 부재했음) (#169)
+- `.gitattributes` — `*.sh text eol=lf` 강제로 Windows CRLF → `bash\r` 실행 오류 방지 (#169)
+
+### Changed
+- 런처에서 비표준 `--channels plugin:*@claude-plugins-official` 플래그 제거 — 채널 선택은 `NM_NOTIFY_CHANNEL` env 로 dispatcher 가 처리하므로 불필요했고, 표준 Claude Code CLI 에 없어 일반 사용자 실행 시 오류 (#169)
+- 런처의 `--dangerously-skip-permissions` 를 `HARNESS_SKIP_PERMISSIONS=1` opt-in 으로 전환 (기본 비활성) (#169)
+
+### Security
+- 시크릿 안전 불변식 — 키트는 실제 토큰을 보유·배포·덮어쓰지 않음. install 은 placeholder(`.env.*.example`)만 생성하고 실제 `.env.*` 는 건드리지 않으며, uninstall(=update 의 일부)도 사용자 토큰을 보존 (#169)
+
+---
+
 ## [0.13.9] — 2026-05-31
 
 > `/hk-update` 의 에이전트 실행 경로가 TTY 부재로 항상 취소되던 hotfix.
