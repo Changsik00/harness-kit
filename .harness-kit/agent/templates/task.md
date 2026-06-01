@@ -17,7 +17,7 @@
 ## Task 1: <한글 제목>
 
 ### 1-1. 브랜치 생성
-- [ ] `git checkout -b spec-{phaseN}-{seq}-<slug>` (브랜치 이름 = spec 디렉토리 이름, `feature/` prefix 없음)
+- [ ] `git checkout -b spec-{phaseN}-{seq}-{slug}` (브랜치 이름 = spec 디렉토리 이름, `feature/` prefix 없음)
 - [ ] Commit: 없음 (브랜치 생성만)
 
 ### 1-2. 테스트 작성 (TDD Red)
@@ -44,13 +44,24 @@
 
 > 모든 작업 task 완료 후 `/hk-ship` 절차를 따릅니다.
 
-- [ ] 코드 품질 점검 (lint / type check) — 스택별 명령
-- [ ] 전체 테스트 실행 → 모두 PASS
+### 🚦 Pre-Push Quality Gate (push 전 필수)
+
+> **이 단계를 건너뛰면 push 금지.** 로컬에서 모두 통과(GREEN) 확인 후 push 한다.
+> 명령은 스택별로 다르다. 프로젝트가 `sdd config precheck add "<명령>"` 으로 등록한 검사가 있으면 그것을 실행한다.
+
+- [ ] **코드 품질 점검** (lint / type-check) — 스택별 명령 또는 등록된 precheck
+- [ ] **전체 테스트 실행** → 모두 PASS
 - [ ] (Integration Test Required = yes 인 경우) 통합 테스트 실행 → PASS
+
+### 📝 산출물 작성
+
 - [ ] **walkthrough.md 작성** (증거 로그)
 - [ ] **pr_description.md 작성** (템플릿 준수)
 - [ ] **Ship Commit**: `docs(spec-{phaseN}-{seq}): ship walkthrough and pr description`
-- [ ] **Push**: `git push -u origin spec-{phaseN}-{seq}-<slug>`
+
+### 🚀 Push & PR
+
+- [ ] **Push**: `git push -u origin spec-{phaseN}-{seq}-{slug}`
 - [ ] **PR 생성**: 에이전트가 `gh pr create` 또는 `/hk-pr-gh` 로 생성 (사용자 승인 후)
 - [ ] **사용자 알림**: 푸시 완료 + PR URL 보고
 

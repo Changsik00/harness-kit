@@ -28,3 +28,5 @@ tests/fixtures/_target/
 
 # Hook 캐시 (kit 버전 알림) — 매 SessionStart 마다 자동 갱신, 추적 대상 아님
 .harness-kit/cache.json
+.env.telegram
+.env.discord

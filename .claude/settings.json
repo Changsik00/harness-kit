@@ -2,6 +2,7 @@
   "permissions": {
     "allow": [
       "Bash(.harness-kit/bin/bb-pr:*)",
+      "Bash(.harness-kit/bin/notify-telegram.sh:*)",
       "Bash(.harness-kit/bin/sdd:*)",
       "Bash(.harness-kit/hooks/*)",
       "Bash(awk:*)",
@@ -182,6 +183,26 @@
         ]
       }
     ],
+    "Notification": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": ".harness-kit/hooks/notify-on-input-wait.sh"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": ".harness-kit/hooks/notify-on-input-wait.sh"
+          }
+        ]
+      }
+    ],
     "SessionStart": [
       {
         "hooks": [
@@ -195,7 +216,7 @@
           },
           {
             "type": "command",
-            "command": "echo 'IMPORTANT: New session started. (1) If the session-start brief contains →UPDATE: (e.g. harness-kit 0.12.0 →UPDATE:0.13.0), harness-kit has a new version available — immediately report this to the user and suggest running /hk-update. (2) Recommend the user to run /hk-align before starting any work.' >&2"
+            "command": "echo 'IMPORTANT: New session started. You MUST proactively recommend the user to run /hk-align before starting any work.' >&2"
           }
         ]
       }

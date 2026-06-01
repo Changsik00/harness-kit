@@ -1,23 +1,7 @@
 {
   "kitVersion": "0.15.0",
   "kitOrigin": "git@github.com:Changsik00/harness-kit.git",
-  "installedAt": "2026-06-01T00:00:00Z",
+  "installedAt": "2026-06-01T13:28:08Z",
   "uxMode": "interactive",
-  "installedCommands": [
-    "hk",
-    "hk-align",
-    "hk-archive",
-    "hk-ask-mode",
-    "hk-cleanup",
-    "hk-code-review",
-    "hk-doctor",
-    "hk-phase-review",
-    "hk-phase-ship",
-    "hk-plan-accept",
-    "hk-pr-bb",
-    "hk-pr-gh",
-    "hk-ship",
-    "hk-spec-critique",
-    "hk-update"
-  ]
+  "installedCommands": ["hk-align","hk-archive","hk-ask-mode","hk-cleanup","hk-code-review","hk-doctor","hk-phase-review","hk-phase-ship","hk-plan-accept","hk-pr-bb","hk-pr-gh","hk-ship","hk-spec-critique","hk-update","hk-wiki-ingest","hk"]
 }
