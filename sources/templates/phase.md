@@ -29,10 +29,10 @@
 2. <기준 2>
 3. <기준 3>
 
-## 🧩 작업 단위 (SPECs)
+## 🧩 작업 단위 (SPEC + phase-FF)
 
-> 본 표는 phase 의 *작업 지도* 입니다. SPEC 은 *요점 + 방향성 + 참조* 까지만 적습니다.
-> 자세한 spec/plan/task 는 `specs/spec-{N}-{seq}-{slug}/` 에서 작성합니다.
+> 본 절은 phase 의 *작업 지도* 입니다. phase 설계 시 각 작업을 크기에 맞게 미리 배치합니다 — 실질적/불확실 → **SPEC**(아래 표), 작고 가역적인 1–2 commit → **phase-FF**(맨 아래 목록, spec 산출물 없음, → ADR-004).
+> SPEC 은 *요점 + 방향성 + 참조* 까지만 적습니다. 자세한 spec/plan/task 는 `specs/spec-{N}-{seq}-{slug}/` 에서 작성합니다.
 > sdd 가 `<!-- sdd:specs:start --> ~ <!-- sdd:specs:end -->` 사이를 자동 갱신하므로 마커는 그대로 두세요.
 
 <!-- sdd:specs:start -->
@@ -60,6 +60,14 @@
 - **연관 모듈**:
 
 <!-- 추가 SPEC 들... -->
+
+### phase-FF 예정 항목 (spec 미생성)
+
+> 작고 가역적인 1–2 commit 항목. spec 산출물 없이 phase base 브랜치에 직접 커밋(phase-FF, → ADR-004). phase 승인이 항목 실행을 위임하므로 항목별 재승인 불필요. 착수 시 §11.3 재검증으로 크기를 재확인하고, 커질 경우 SPEC 으로 승격합니다. (draft — 진행 중 조정 가능)
+
+| 항목 | 요점 | 예상 commit |
+|---|---|:---:|
+| <한글 제목> | <무엇을 바꾸는가> | 1 |
 
 ## 📌 결정 기록 (Review)
 
