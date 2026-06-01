@@ -288,3 +288,14 @@ Once a Plan is explicitly accepted (Plan Accept), the Agent is authorized to:
 - Violation of any rule invalidates current execution authority.
 - The Agent MUST immediately stop, acknowledge the violation, and request user re-alignment.
 - Hooks installed under `.claude/settings.json` may enforce specific rules at the tool-call level (e.g., main branch protection, plan-accept gate). Hook stderr output is authoritative.
+
+## 13. Rule Prune Guidance
+
+A rule is a **candidate for review** (not mandatory deletion) when both conditions hold:
+1. The rule was written **6+ months ago**, AND
+2. The model has advanced **2+ generations** since it was written.
+
+Review means: "Is this rule still load-bearing, or has the model's default behavior made it redundant?"
+Prune only after validating the rule is no longer needed. Non-obvious invariants should be kept even if old.
+
+The governance word budget is **7,000 words** (constitution + agent.md combined). `sdd doctor` warns when exceeded.

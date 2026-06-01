@@ -4,8 +4,8 @@ type: decision
 date: 2026-05-16
 status: accepted
 sources:
-  - specs/spec-16-01-knowledge-types/walkthrough.md
-  - specs/spec-16-02-adr-activation/walkthrough.md
+  - archive/specs/spec-16-01-rca-and-knowledge-types/walkthrough.md
+  - archive/specs/spec-16-02-adr-activation-trigger/walkthrough.md
 linked:
   - "[[wiki/decisions]]"
   - "[[ADR-002]]"

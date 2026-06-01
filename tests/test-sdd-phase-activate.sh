@@ -280,6 +280,65 @@ else
 fi
 
 # ─────────────────────────────────────────────────────────
+# Check 10: phase activate --base=<branch> → 메타 자동 기입 (spec-x-harness-footguns)
+# ─────────────────────────────────────────────────────────
+echo ""
+echo "Check 10: phase activate --base=phase-03-explicit → state + phase.md 메타 자동 기입"
+
+F10="$(make_fixture)"
+trap "rm -rf '$F1' '$F2' '$F3' '$F5' '$F6' '$F7' '$F9' '$F10'" EXIT
+write_predef_phase "$F10" "phase-03" "STT v2"  # 메타 = 기본 placeholder ("미정" 상황 모사)
+
+out=$(cd "$F10" && bash .harness-kit/bin/sdd phase activate phase-03 --base=phase-03-explicit 2>&1)
+rc=$?
+base_branch=$(jq -r '.baseBranch' "$F10/.claude/state/current.json")
+
+if [ "$rc" -eq 0 ] && [ "$base_branch" = "phase-03-explicit" ]; then
+  ok "rc=0, state.baseBranch=phase-03-explicit (명시 인자 사용)"
+else
+  fail "rc=$rc, baseBranch=$base_branch (expected phase-03-explicit), out=$out"
+fi
+
+if grep -qE '^\| \*\*Base Branch\*\* \| phase-03-explicit \|' "$F10/backlog/phase-03.md"; then
+  ok "phase.md 'Base Branch' 메타가 phase-03-explicit 로 자동 갱신됨"
+else
+  fail "phase.md 'Base Branch' 메타 미갱신 — $(grep 'Base Branch' "$F10/backlog/phase-03.md")"
+fi
+
+# ─────────────────────────────────────────────────────────
+# Check 11: 같은 phase 재활성화 시 active spec 보존 (spec-x-harness-footguns)
+# ─────────────────────────────────────────────────────────
+echo ""
+echo "Check 11: 이미 active 인 phase 를 --base 로 재활성화 → active spec 리셋되지 않음"
+
+F11="$(make_fixture)"
+trap "rm -rf '$F1' '$F2' '$F3' '$F5' '$F6' '$F7' '$F9' '$F10' '$F11'" EXIT
+write_predef_phase "$F11" "phase-03" "STT v2"
+
+# 1차 활성화 후 active spec 주입 (실행 중 상태 모사)
+(cd "$F11" && bash .harness-kit/bin/sdd phase activate phase-03 >/dev/null 2>&1)
+jq '.spec = "spec-03-01-foo" | .planAccepted = true' "$F11/.claude/state/current.json" > "$F11/.claude/state/tmp.json"
+mv "$F11/.claude/state/tmp.json" "$F11/.claude/state/current.json"
+
+# 2차: 같은 phase 를 --base 로 재활성화
+out=$(cd "$F11" && bash .harness-kit/bin/sdd phase activate phase-03 --base=phase-03-bar 2>&1)
+rc=$?
+spec_after=$(jq -r '.spec' "$F11/.claude/state/current.json")
+base_after=$(jq -r '.baseBranch' "$F11/.claude/state/current.json")
+
+if [ "$rc" -eq 0 ] && [ "$spec_after" = "spec-03-01-foo" ]; then
+  ok "active spec 보존됨 (spec=$spec_after, rc=$rc)"
+else
+  fail "active spec 리셋됨 — spec=$spec_after, rc=$rc, out=$out"
+fi
+
+if [ "$base_after" = "phase-03-bar" ]; then
+  ok "baseBranch=phase-03-bar 설정됨"
+else
+  fail "baseBranch=$base_after (expected phase-03-bar)"
+fi
+
+# ─────────────────────────────────────────────────────────
 # 결과
 # ─────────────────────────────────────────────────────────
 echo ""

@@ -5,6 +5,39 @@ harness-kit의 주요 변경 사항을 버전별로 정리합니다.
 
 ---
 
+## [0.13.9] — 2026-05-31
+
+> `/hk-update` 의 에이전트 실행 경로가 TTY 부재로 항상 취소되던 hotfix.
+
+### Fixed
+- `/hk-update` 스킬 — 에이전트 직접 실행 명령에 `--yes` 누락. 에이전트 Bash 환경엔 controlling TTY 가 없어 `update.sh` 의 `read -r _ans < /dev/tty` 확인 프롬프트가 빈 값으로 읽혀 항상 "취소됨"으로 종료 → 에이전트가 `/hk-update` 를 설계대로 완료할 수 없던 문제. 스킬 step 4 에서 이미 사용자 승인을 받으므로 `get.sh ... --update --yes` 로 `update.sh` 의 재확인 프롬프트를 건너뛰도록 수정. 사람이 `!` prefix·터미널에서 직접 실행하는 수동 경로(TTY 존재)는 `--yes` 없이 유지. `sources/commands/hk-update.md` 와 도그푸딩 복사본 `.claude/commands/hk-update.md` 동시 수정 (#165)
+
+---
+
+## [0.13.8] — 2026-05-30
+
+> lefthook × core.hooksPath 충돌을 doctor 가 조기 진단 (issue #161).
+
+### Fixed
+- `sdd doctor` / 루트 `doctor.sh` — `lefthook 사용 + core.hooksPath 로컬 설정` 충돌 감지 + `git config --unset --local core.hooksPath` 가이드 출력(비차단). lefthook v2.x 가 hooksPath 명시 설정 시 `lefthook install`(prepare)을 거부해 pnpm install/turbo 가 연쇄 실패하던 문제를, turbo 의 모호한 실패 대신 1줄 진단으로 전환. harness 는 사용자 git 설정을 변경하지 않음 (#162, issue #161)
+
+---
+
+## [0.13.7] — 2026-05-30
+
+> 하네스 운영 footgun 3종 수정 + 문서 지식 그래프(wiki 레이어) 부트스트랩.
+
+### Added
+- 문서 지식 그래프 — `docs/wiki/` 레이어 부트스트랩 + wiki ingest 파이프라인 (`/hk-wiki-ingest`). archive 된 spec 의 walkthrough 를 읽어 wiki 페이지를 증분 갱신 (#154)
+
+### Fixed
+- 시크릿 가드 오탐 제거 — `check-secrets.sh` 가 `${VAR}`·`$(..)`·`${VAR:-default}`(bash 기본값 연산자)·placeholder(`changeme` 등) 를 시크릿으로 오탐하던 정규식 수정. 실제 하드코딩 시크릿은 계속 차단 (#158)
+- `update.sh` / `/hk-update` — 업데이트 산물(`.harness-kit/*`·`.claude/*`) 미커밋 시 커밋 안내 추가. 미커밋 산물이 새 spec 브랜치를 오염시키던 문제 예방 (#158)
+- `sdd spec new` / `sdd specx new` — 미커밋 install drift 감지 시 비차단 경고 (`_warn_install_drift`) (#158)
+- `sdd phase activate --base` — `--base=<branch>` 인자 지원 + phase.md `Base Branch` 메타 자동 기입 + 이미 active 인 같은 phase 재활성화 시 active spec 보존 (#158)
+
+---
+
 ## [0.13.6] — 2026-05-23
 
 > `install.sh` — `curl|bash` 설치 시 `kitOrigin` 빈값 기록 버그 수정.

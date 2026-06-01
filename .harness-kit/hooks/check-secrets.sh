@@ -55,7 +55,21 @@ if [ -n "$staged_diff" ]; then
   fi
 
   # 일반 시크릿 (추가된 줄만, 값이 있는 경우)
-  if echo "$staged_diff" | grep -E '^\+' | grep -qiE '(password|secret|api_key|api_secret|access_token|private_key)[[:space:]]*[=:][[:space:]]*[^[:space:]]+'; then
+  # 단, 값이 shell 변수 보간(${..}/$(..)/$VAR)이거나 placeholder(changeme/example 등)
+  # 인 경우는 시크릿이 아니므로 사전 제외 (오탐 방지 — spec-x-harness-footguns).
+  # _var_re / _ph_re 는 값 바로 뒤([=:] 직후)만 앵커링하여, "실제 시크릿 + 부수적 변수"
+  # 라인은 계속 탐지되도록 한다.
+  _keys='(password|secret|api_key|api_secret|access_token|private_key)'
+  _q='["'"'"']?'                                   # 선택적 따옴표 (single 또는 double)
+  _var_re="[=:][[:space:]]*${_q}[$][{(A-Za-z_]"    # 값 = \$VAR / \${..} / \$(..)
+  _ph_re="[=:][[:space:]]*${_q}(changeme|change-me|placeholder|example|sample|your[_-]|xxx+|dummy|todo|<[^>]+>|[.]{3})"
+  _op_re="${_keys}[[:space:]]*:[-=?+]"             # \${VAR:-default} 등 bash 파라미터 확장 연산자
+  if echo "$staged_diff" | grep -E '^\+' \
+       | grep -iE "${_keys}[[:space:]]*[=:][[:space:]]*[^[:space:]]+" \
+       | grep -vE "$_var_re" \
+       | grep -viE "$_ph_re" \
+       | grep -viE "$_op_re" \
+       | grep -q .; then
     violations="${violations}  시크릿 할당 패턴 발견 (password=, secret=, api_key= 등)\n"
   fi
 

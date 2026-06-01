@@ -128,6 +128,56 @@ do
 done
 
 # ─────────────────────────────────────────────
+# 검증 6: sources[] 경로 실존 확인
+# ─────────────────────────────────────────────
+echo ""
+echo "▶ Check 6: sources[] 경로 실존 확인"
+check_sources_paths() {
+  local filepath="$1"
+  local name
+  name="$(basename "$filepath")"
+  # frontmatter 영역(첫 --- ~ 두 번째 ---)에서 sources: 블록의 경로 항목 추출
+  local in_fm=0 in_sources=0
+  while IFS= read -r line; do
+    if [ "$in_fm" -eq 0 ] && [ "$line" = "---" ]; then
+      in_fm=1; continue
+    fi
+    [ "$in_fm" -eq 1 ] && [ "$line" = "---" ] && break
+    if [ "$in_fm" -eq 1 ]; then
+      if printf '%s\n' "$line" | grep -q "^sources:"; then
+        in_sources=1; continue
+      fi
+      # sources 블록 종료: 다른 최상위 키
+      if [ "$in_sources" -eq 1 ] && printf '%s\n' "$line" | grep -q "^[a-z]"; then
+        in_sources=0
+      fi
+      if [ "$in_sources" -eq 1 ]; then
+        # "  - path" 형식에서 경로 추출
+        src="$(printf '%s\n' "$line" | sed 's/^[[:space:]]*-[[:space:]]*//')"
+        [ -z "$src" ] && continue
+        check
+        if [ -f "$ROOT/$src" ]; then
+          pass "$name sources: $src"
+        else
+          fail "$name sources: $src — 파일 없음"
+        fi
+      fi
+    fi
+  done < "$filepath"
+}
+
+for f in \
+  "$WIKI_DIR/patterns.md" \
+  "$WIKI_DIR/decisions.md" \
+  "$ADR_DIR/ADR-001-knowledge-types.md" \
+  "$ADR_DIR/ADR-002-planning-economy.md" \
+  "$ADR_DIR/ADR-003-wiki-frontmatter-schema.md" \
+  "$RCA_DIR/RCA-001-sdd-ship-spec-add-missing.md"
+do
+  [ -f "$f" ] && check_sources_paths "$f"
+done
+
+# ─────────────────────────────────────────────
 # 결과
 # ─────────────────────────────────────────────
 echo ""

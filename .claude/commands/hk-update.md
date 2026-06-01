@@ -81,14 +81,27 @@ latest=$(curl -sf --max-time 5 "$raw_url" | jq -r '.version // empty')
 사용자가 step 4 에서 Y (또는 "응" / "네" / "실행해줘" / "업데이트해줘") 로 승인한 경우, **에이전트가 Bash 툴로 직접 실행**합니다:
 
 ```bash
-bash <(curl -fsSL https://raw.githubusercontent.com/<owner>/<repo>/main/get.sh) --update
+bash <(curl -fsSL https://raw.githubusercontent.com/<owner>/<repo>/main/get.sh) --update --yes
 ```
+
+> `--yes` 필수: 에이전트 Bash 환경엔 controlling TTY 가 없어 `update.sh` 의 확인 프롬프트(`read < /dev/tty`)가 빈 값으로 읽혀 항상 "취소됨"으로 종료됩니다. step 4 에서 이미 사용자 승인을 받았으므로 재확인은 생략합니다. (사람이 `!` prefix 나 터미널에서 직접 실행하는 아래 경로는 TTY 가 있으므로 `--yes` 없이 둡니다.)
 
 실행 완료 후 새 버전을 확인합니다:
 
 ```bash
 jq -r '.kitVersion' .harness-kit/installed.json
 ```
+
+#### 업데이트 후 — 산물 커밋 (필수 안내)
+
+`update.sh` 는 `.harness-kit/*` · `.claude/*` 를 덮어쓰지만 **자동 커밋하지 않습니다**. 미커밋 상태로 두면 이후 새 spec 브랜치를 만들 때 그대로 따라붙어 PR scope 를 오염시킵니다. 업데이트 직후 **별도 커밋**을 안내하세요:
+
+```bash
+git add .harness-kit .claude
+git commit -m "chore: apply harness-kit update <new-version>"
+```
+
+> `update.sh` 종료 메시지에도 동일 안내가 출력됩니다. 미커밋 산물이 없으면 안내는 생략됩니다.
 
 #### 사용자가 N 으로 거절한 경우 — 수동 실행 안내
 

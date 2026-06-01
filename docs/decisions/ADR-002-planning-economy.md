@@ -4,7 +4,7 @@ type: invariant
 date: 2026-05-17
 status: accepted
 sources:
-  - specs/spec-x-planning-economy/walkthrough.md
+  - archive/specs/spec-x-planning-economy/walkthrough.md
 linked:
   - "[[wiki/decisions]]"
   - "[[wiki/patterns]]"

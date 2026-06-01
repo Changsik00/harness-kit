@@ -5,8 +5,8 @@ date: 2026-05-15
 severity: medium
 status: active
 sources:
-  - specs/spec-x-readme-refresh/walkthrough.md
-  - specs/spec-x-phase-16-define/walkthrough.md
+  - archive/specs/spec-x-readme-refresh/walkthrough.md
+  - archive/specs/spec-x-phase-16-define/walkthrough.md
 linked:
   - "[[wiki/decisions]]"
   - "[[wiki/patterns]]"

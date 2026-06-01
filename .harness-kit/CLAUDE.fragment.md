@@ -15,7 +15,9 @@ SDD 작업 시작 시 `/hk-align` 슬래시 커맨드를 호출하면 전체 거
 
 자세한 내용은 `.harness-kit/agent/constitution.md` 와 `.harness-kit/agent/agent.md` 참조.
 
-## 검증된 패턴 & 안티패턴 (phase-08~18 distilled)
+## 검증된 패턴 & 안티패턴 (빠른 참조)
+
+> 상세 내용 및 출처 → `docs/wiki/patterns.md` (SoT)
 
 **❌ 안티패턴 (피할 것):**
 - **ceremony-over-work**: 1-2 commit 작업에 full SDD ceremony 금지. → FF (사용자 명시 승인) 또는 spec-x demote.

@@ -8,7 +8,7 @@
 ## 📦 진행 중 Phase
 
 <!-- sdd:active:start -->
-(active phase 없음. `bin/sdd phase new <slug>` 로 시작)
+- **phase-19** — 문서 지식 그래프 (Doc Knowledge Graph) — 3 spec — 다음: spec-19-03-doctor-wiki-slim
 <!-- sdd:active:end -->
 
 ## 📥 spec-x 대기
@@ -27,12 +27,12 @@
 - `sdd specx new` 버그 — 생성된 spec.md 의 Branch 필드에 slug 가 중복 입력됨 (예: `spec-x-foo-foo`). 단순 변수 치환 오류로 추정
 - `tests/test-uninstall-cmd-list.sh` Scenario 1 pre-existing FAIL — `find sources/commands -name 'hk-*.md'` 가 `hk.md` (no dash) 를 제외하는 반면 install.sh 는 `*.md` 로 모두 포함. 글롭 패턴 통일 필요 (phase-17 의 `hk.md` 도입 시점부터 노출됨)
 - 거버넌스 문서 단어 수 한계 초과 — `tests/test-governance-dedup.sh` 가 상한 6000w 인데 현재 6418w. 한계 재설정 또는 거버넌스 다이어트 검토
-- **hk-wiki-ingest 슬래시 커맨드** — archive 후 Claude가 wiki를 갱신하는 표준 워크플로. `sources/commands/hk-wiki-ingest.md` + 템플릿에 `[[wikilinks]]` 관련 문서 섹션 추가. (phase-19 spec-19-02 deferred)
-- **sdd doctor wiki 점검 3종** — wiki 고아 링크 감지, stale ADR/RCA 90일+ 경고, governance 단어 수 상한 경고. (phase-19 spec-19-03 deferred)
-- **root CLAUDE.md 슬림화** — 릴리스 전략 등 저빈도 내용을 `docs/release-strategy.md` 로 분리, root 는 포인터만. 항상-온 컨텍스트 토큰 절감 (Claude Code harness 기사 인사이트 #1)
-- **분기별 governance prune protocol** — 거버넌스 ratchet 누적 방지. `/hk-governance-refresh` 또는 sdd 진단에 "rule age > 6mo" 경고. 모델 진화에 맞춰 stale rule 제거 메커니즘 부재 (기사 인사이트 #2)
+- **root CLAUDE.md 슬림화** — 릴리스 전략 등 저빈도 내용을 `docs/release-strategy.md` 로 분리, root 는 포인터만. 항상-온 컨텍스트 토큰 절감 (Claude Code harness 기사 인사이트 #1) → phase-19 spec-19-03 에서 처리
+- **분기별 governance prune protocol** — 거버넌스 ratchet 누적 방지. `/hk-governance-refresh` 또는 sdd 진단에 "rule age > 6mo" 경고. 모델 진화에 맞춰 stale rule 제거 메커니즘 부재 (기사 인사이트 #2) → phase-19 spec-19-03 에서 처리
 - **하위 디렉토리 CLAUDE.md** — `sources/CLAUDE.md` (키트 원본 시점) / `specs/CLAUDE.md` (작업 로그 시점) 분리로 두 시점 혼동 방지 (기사 인사이트 #3)
 - **LSP/MCP 활용 가이드** — agent.md §6.5 (Static Analysis First) 확장. 적용 대상 프로젝트가 LSP 지원 언어일 때 grep 대신 심볼 기반 정의/참조 추적 권장 (기사 인사이트 #4)
+- **queue.md 파생 파일 전환** — 다중 사용자/디바이스 환경에서 queue.md merge conflict 를 줄이기 위해 active/done 등을 파생 파일로 분리하는 리팩터링 아이디어 (2026-05-28 드래프트 미착수, 통합 테스트 필요)
+- **lefthook 네이티브 hook 통합** — install 시 `.git/hooks/pre-commit` append 대신 `lefthook.yml` 에 harness 검사를 등록하는 방식. lefthook install 이 디스패처를 재생성하면 append 블록이 덮이는 fragility 해소 (issue #161 제안 #2). bash YAML 편집 비용·사용자 파일 침습으로 보류 — lefthook 타깃 수요 누적 시 승격
 
 **[phase-17 으로 promote 된 항목 — 처리 진행 중]**:
 - ~~접근성 개선~~ → phase-17 **spec-17-02** (accessibility-install-and-entry)
@@ -104,7 +104,8 @@
 - [x] spec-x-kit-update-notify (완료)
 - **phase-18** — Precheck Gate — 설정 기반 PR 사전 검증 자동화 — completed 2026-05-21
 - [x] spec-x-check-secrets-dual-mode (완료)
-- **phase-19** — 문서 지식 그래프 (Doc Knowledge Graph) — completed 2026-05-27
+- [x] spec-x-harness-footguns (완료)
+- [x] spec-x-doctor-hookspath-lefthook (완료)
 <!-- sdd:done:end -->
 
 ---
