@@ -17,7 +17,7 @@
 ## Task 1: <한글 제목>
 
 ### 1-1. 브랜치 생성
-- [ ] `git checkout -b spec-{phaseN}-{seq}-<slug>` (브랜치 이름 = spec 디렉토리 이름, `feature/` prefix 없음)
+- [ ] `git checkout -b spec-{phaseN}-{seq}-{slug}` (브랜치 이름 = spec 디렉토리 이름, `feature/` prefix 없음)
 - [ ] Commit: 없음 (브랜치 생성만)
 
 ### 1-2. 테스트 작성 (TDD Red)
@@ -61,7 +61,7 @@
 
 ### 🚀 Push & PR
 
-- [ ] **Push**: `git push -u origin spec-{phaseN}-{seq}-<slug>`
+- [ ] **Push**: `git push -u origin spec-{phaseN}-{seq}-{slug}`
 - [ ] **PR 생성**: 에이전트가 `gh pr create` 또는 `/hk-pr-gh` 로 생성 (사용자 승인 후)
 - [ ] **사용자 알림**: 푸시 완료 + PR URL 보고
 
