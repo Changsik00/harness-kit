@@ -5,6 +5,20 @@ harness-kit의 주요 변경 사항을 버전별로 정리합니다.
 
 ---
 
+## [0.15.1] — 2026-06-01
+
+> 버그픽스 — sdd/템플릿/hook 견고성 정리 + 도그푸딩 설치본 drift 수습.
+
+### Fixed
+- **`sdd phase new` 번호 산정 사망** — `backlog/` 에 비표준 파일명(`phase-N-slug.md`, 번호 뒤 비숫자 접미사)이 하나라도 있으면 `sed` 결과가 `$((n+1))` 산술에서 unbound variable 로 죽던 버그. 순수 숫자 토큰만 `grep -E '^[0-9]+$'` 필터 + `10#$n` base-10 강제(선행 0 8진수 오류 방어) (#166)
+- **task.md 템플릿 브랜치 토큰 치환 누락** — 브랜치 생성/push 명령이 마지막 토큰을 `{slug}` 가 아닌 `<slug>` 로 작성해 `sdd spec new`/`specx new` 가 브랜치명에 `<slug>` 잔재(또는 채울 시 `spec-x-foo-foo` 중복)를 만들던 문제. 두 곳 `{slug}` 로 통일
+- **check-secrets hook 이 `.env.*.example` 차단** — `.env` staged 검사가 `install.sh` 가 생성하는 추적 대상 example 템플릿까지 막던 footgun. `.example`/`.sample`/`.template` 접미사 화이트리스트 (실제 시크릿은 계속 차단)
+
+### Changed
+- 도그푸딩 설치본 재동기화 — 이전 릴리스가 `version.json` 만 올리고 자기 자신에 install 재실행을 안 해 `.harness-kit/`·`.claude/` 설치본이 `sources/` 원본보다 drift 한 것을 `update.sh` 로 수습 (위 fix 들 + notify-channels 산출물 반영, 타 머신 `rootDir` 잔재 제거)
+
+---
+
 ## [0.15.0] — 2026-06-01
 
 > SDD 경제성 재설계 — phase-FF 1급화 + context orchestration 규약화. 작은 작업의 ceremony 비용 제거 + 메인 context 보존 전략.
