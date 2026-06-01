@@ -33,7 +33,9 @@ fi
 violations=""
 
 # 1. .env 파일이 staged 되어 있는지
-env_files="$(git -C "$HARNESS_ROOT" diff --cached --name-only 2>/dev/null | grep -E '(^|/)\.env(\..+)?$')"
+#    단, .example / .sample / .template 접미사는 시크릿이 아닌 문서용 템플릿이므로 제외
+#    (install.sh 가 생성하는 .env.*.example 은 추적 대상 — 이 hook 이 막으면 안 됨)
+env_files="$(git -C "$HARNESS_ROOT" diff --cached --name-only 2>/dev/null | grep -E '(^|/)\.env(\..+)?$' | grep -vE '\.(example|sample|template)$')"
 if [ -n "$env_files" ]; then
   violations="${violations}  .env 파일 staged: ${env_files}\n"
 fi
