@@ -5,6 +5,20 @@ harness-kit의 주요 변경 사항을 버전별로 정리합니다.
 
 ---
 
+## [0.15.0] — 2026-06-01
+
+> SDD 경제성 재설계 — phase-FF 1급화 + context orchestration 규약화. 작은 작업의 ceremony 비용 제거 + 메인 context 보존 전략.
+
+### Changed
+- **phase-FF 1급화** — phase 안의 모든 작업을 spec 으로 처리하던 암묵 강제 제거. 항목별 right-size: 실질적/불확실 → spec, 작고 가역적인 1–2 commit → phase-FF(phase base 브랜치 직접 커밋, spec 산출물 없음, phase 승인이 항목 실행을 위임). constitution §3.1 In-Phase Work Sizing + agent.md §11.4 + phase.md 템플릿 phase-FF 계획 섹션 (#171, ADR-004)
+- **context orchestration 규약화** — 메인 세션 = context orchestrator 명시 + sub-agent offloading 정책(무엇을 offload / scoped slice in / distilled result out / 검증 보유 / fan-out). agent.md §6.6 `Model Allocation Strategy` → `Model & Context Allocation Strategy` (#172, ADR-005)
+- 거버넌스 단어 상한 6000→8000 (테스트 + constitution §13 일치), always-on `CLAUDE.fragment` ≤150w 트림(208→150, 패턴 상세는 `docs/wiki/patterns.md` 위임), 도그푸딩 복사본 재동기화 (#171)
+
+### Fixed
+- **pre-push quality gate de-hardcode** — agent.md §6.3 + task.md 템플릿이 `pnpm run ci`/`turbo`/`prettier` 를 하드코딩하던 것을 스택 무관 + `sdd config precheck` 위임으로 교체. 제네릭 키트가 비-pnpm 프로젝트에 깨진 게이트를 배포하던 문제 (다운스트림 전용 명령이 #165 로 키트에 역류) (#171)
+
+---
+
 ## [0.14.0] — 2026-06-01
 
 > Telegram / Discord 알림 채널 완성 — 루트 런처 + env 템플릿 설치 메커니즘 신설.
