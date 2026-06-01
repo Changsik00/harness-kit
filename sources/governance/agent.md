@@ -197,13 +197,7 @@ When passing a task with `[-]`, the Agent MUST:
 ### 6.3 Commit & Ship Enforcement
 - Commit format, pre-push validation, and PR creation rules → constitution §10.2.
 - **Task Completeness Check**: Before push, the Agent MUST verify that **ALL** checkboxes in `task.md` are marked `[x]` or `[-]` — including Pre-flight items (e.g., "Plan Accept") and Ship items (e.g., "Push", "PR creation"). No `[ ]` may remain.
-- **Pre-Push Quality Gate (MANDATORY)**: Before any `git push`, the Agent MUST run the full CI suite locally and confirm GREEN:
-  ```
-  pnpm run ci
-  ```
-  If the project has no `ci` script, fall back to: `pnpm turbo run lint typecheck test` (with any project-specific filters).
-  Additionally run `pnpm run format:check` to catch prettier issues that turbo lint cache may miss.
-  **Push is FORBIDDEN if either check is not GREEN.** Fix all issues, re-run both checks, then push.
+- **Pre-Push Quality Gate (MANDATORY)**: Before any `git push`, the Agent MUST run the project's full pre-push checks (lint / type-check / tests) locally and confirm they pass. The commands are stack-specific — use the project's own (e.g. registered via `sdd config precheck add "<command>"`). **Push is FORBIDDEN until all checks pass.** Fix all issues, re-run, then push.
 
 **Completion Checklists by Work Type**:
 
@@ -473,9 +467,11 @@ The Agent MUST state the recommended mode (with one-line reasoning) at the start
 
 The Agent reports the assessment to the User before continuing with the next spec.
 
-### 11.4 Re-Adjustment Options (in Phase)
+### 11.4 In-Phase Work Sizing & Re-Adjustment
 
-Within a phase, prefer **bundle** or **phase FF** over spec-x demotion (preserves thematic cohesion + saves ceremony):
+**phase-FF is a first-class in-phase mode, not only a fallback.** When starting any item inside an active Phase, the Agent sizes it *up front*: substantial or uncertain → full Spec; small/clear/reversible (1–2 commits) → **phase-FF** (direct commit to the phase base branch, no spec artifacts). Do NOT default to Spec for every item in a Phase, and do NOT bundle small items into a Spec merely to avoid FF. Decisions worth keeping go in `phase.md`'s decision log, not a per-commit walkthrough.
+
+When *reshaping* an already-planned spec mid-phase, prefer **bundle** or **phase-FF** over spec-x demotion (preserves thematic cohesion + saves ceremony):
 
 | Situation | Action |
 |---|---|
@@ -484,7 +480,7 @@ Within a phase, prefer **bundle** or **phase FF** over spec-x demotion (preserve
 | Direction valid, scope 1–2 commits, no bundle target | **Phase FF** — commit directly to the phase branch without spec artifacts |
 | Direction valid, scope appropriate | **Proceed as planned** |
 
-spec-x demotion is reserved for *leftover work after a phase has ended*, not for in-phase reshaping.
+> **phase-FF vs FF (Mode C)**: phase-FF commits ride the Phase's PR (reviewed at `/hk-phase-ship`) and require base-branch mode; Mode C FF commits to `main` with no PR. phase-FF does NOT change `state.json`'s active spec. spec-x demotion is reserved for *leftover work after a phase has ended*, not for in-phase reshaping.
 
 ### 11.5 Tool Support
 

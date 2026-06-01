@@ -197,6 +197,7 @@ When passing a task with `[-]`, the Agent MUST:
 ### 6.3 Commit & Ship Enforcement
 - Commit format, pre-push validation, and PR creation rules → constitution §10.2.
 - **Task Completeness Check**: Before push, the Agent MUST verify that **ALL** checkboxes in `task.md` are marked `[x]` or `[-]` — including Pre-flight items (e.g., "Plan Accept") and Ship items (e.g., "Push", "PR creation"). No `[ ]` may remain.
+- **Pre-Push Quality Gate (MANDATORY)**: Before any `git push`, the Agent MUST run the project's full pre-push checks (lint / type-check / tests) locally and confirm they pass. The commands are stack-specific — use the project's own (e.g. registered via `sdd config precheck add "<command>"`). **Push is FORBIDDEN until all checks pass.** Fix all issues, re-run, then push.
 
 **Completion Checklists by Work Type**:
 
@@ -281,6 +282,9 @@ The Agent MUST immediately **STOP** execution and request re-alignment if:
 - A task cannot be completed as planned.
 - A direct commit to `main` is about to occur (→ constitution §10.1).
 - A hook blocks a tool call (the stderr message is authoritative).
+- An unplanned decision is required (e.g., task decomposition, implementation strategy A/B, unexpected edge case handling).
+
+When stopping for a decision, the Agent MUST follow §8.5 **Choice Presentation Protocol** — every set of options presented to the User MUST include a [Recommendation] line.
 
 ## 8. Communication Rules
 
@@ -362,6 +366,51 @@ To change: `sdd config ux-mode [interactive|text|toggle]` (or run `/hk-ask-mode`
 
 **Usage notes**: `AskUserQuestion` is Claude Code-specific. Keep options to 2–4, use concise labels, and put trade-offs in the description field.
 
+### 8.5 Choice Presentation Protocol (Mandatory)
+
+Whenever the Agent presents multiple options to the User and requests a decision — **anywhere in the workflow**, not only during Alignment Phase — the output MUST include a [Recommendation] line. This rule has no exceptions.
+
+**Applies to**:
+- Alignment Phase work mode selection (§3).
+- Hard Stop for Review after spec/plan/task (§4.4).
+- Task decomposition proposals mid-loop.
+- Implementation strategy A/B/C choices.
+- Unexpected edge case handling decisions.
+- Any ad-hoc option presentation during Execution Phase (§6).
+- Go/No-Go decisions at Phase Ship (`/hk-phase-ship`).
+
+**Required format**:
+
+```
+[Intent / Context]
+<What decision is needed and why — 1-2 lines>
+
+[Options]
+1. <Option A — concise summary>
+2. <Option B — concise summary>
+3. <Option C — concise summary>  ← only if applicable
+
+[Recommendation]
+<Option number> — <short justification based on prior patterns, risk, or project constraints>
+
+[Decision Request]
+<One explicit question asking the User to choose>
+```
+
+**Rationale**:
+- The User often reviews these decisions on mobile (via Telegram notifications or Remote Control) where reading long options is slow.
+- A [Recommendation] with reasoning lets the User make a fast, informed choice.
+- "Missing recommendation" is a recurring failure mode — the Agent MUST self-check before sending any multi-option message.
+
+**Self-check before output**: Before presenting options, the Agent MUST internally verify:
+1. Are there 2+ distinct options? → If yes, [Recommendation] is required.
+2. Is the recommendation justified by a concrete reason (prior pattern, risk, constraint)?
+3. Is the decision question unambiguous (one question, not multiple)?
+
+If any of the three fails, the Agent MUST revise before sending.
+
+**Exception**: Binary confirmation questions (Yes/No to proceed) do not require [Recommendation] if the default direction is already stated. Example: "Plan 을 이대로 수락하시겠습니까? [Y/n]" is acceptable as-is.
+
 ## 9. Research Spec Protocol
 
 ### 9.1 Definition of Done for Research
@@ -418,9 +467,11 @@ The Agent MUST state the recommended mode (with one-line reasoning) at the start
 
 The Agent reports the assessment to the User before continuing with the next spec.
 
-### 11.4 Re-Adjustment Options (in Phase)
+### 11.4 In-Phase Work Sizing & Re-Adjustment
 
-Within a phase, prefer **bundle** or **phase FF** over spec-x demotion (preserves thematic cohesion + saves ceremony):
+**phase-FF is a first-class in-phase mode, not only a fallback.** When starting any item inside an active Phase, the Agent sizes it *up front*: substantial or uncertain → full Spec; small/clear/reversible (1–2 commits) → **phase-FF** (direct commit to the phase base branch, no spec artifacts). Do NOT default to Spec for every item in a Phase, and do NOT bundle small items into a Spec merely to avoid FF. Decisions worth keeping go in `phase.md`'s decision log, not a per-commit walkthrough.
+
+When *reshaping* an already-planned spec mid-phase, prefer **bundle** or **phase-FF** over spec-x demotion (preserves thematic cohesion + saves ceremony):
 
 | Situation | Action |
 |---|---|
@@ -429,7 +480,7 @@ Within a phase, prefer **bundle** or **phase FF** over spec-x demotion (preserve
 | Direction valid, scope 1–2 commits, no bundle target | **Phase FF** — commit directly to the phase branch without spec artifacts |
 | Direction valid, scope appropriate | **Proceed as planned** |
 
-spec-x demotion is reserved for *leftover work after a phase has ended*, not for in-phase reshaping.
+> **phase-FF vs FF (Mode C)**: phase-FF commits ride the Phase's PR (reviewed at `/hk-phase-ship`) and require base-branch mode; Mode C FF commits to `main` with no PR. phase-FF does NOT change `state.json`'s active spec. spec-x demotion is reserved for *leftover work after a phase has ended*, not for in-phase reshaping.
 
 ### 11.5 Tool Support
 
