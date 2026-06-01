@@ -35,9 +35,15 @@ export NM_NOTIFY_CHANNEL=discord
 echo -e "${GREEN}    [+] NM_NOTIFY_CHANNEL=discord${NC}"
 
 echo -e "${CYAN}[*] Starting Claude Code with Discord channel...${NC}"
-echo -e "${YELLOW}[!] Running with --dangerously-skip-permissions${NC}"
+
+# --dangerously-skip-permissions 는 기본 비활성. HARNESS_SKIP_PERMISSIONS=1 일 때만 opt-in.
+SKIP_PERMS_FLAG=""
+if [ "${HARNESS_SKIP_PERMISSIONS:-0}" = "1" ]; then
+    SKIP_PERMS_FLAG="--dangerously-skip-permissions"
+    echo -e "${YELLOW}[!] HARNESS_SKIP_PERMISSIONS=1 → --dangerously-skip-permissions 적용${NC}"
+fi
 echo ""
 
-claude --dangerously-skip-permissions \
-       --channels plugin:discord@claude-plugins-official \
-       "$@"
+# 채널 선택은 위에서 export 한 NM_NOTIFY_CHANNEL 로 dispatcher 가 처리한다.
+# shellcheck disable=SC2086
+claude $SKIP_PERMS_FLAG "$@"

@@ -52,6 +52,18 @@
 - **jq 가용**: 이 Git Bash 환경엔 `/mingw64/bin/jq` 존재 — 과거 메모리("Windows jq 미설치")와 상충. 실제 install/uninstall full 사이클 검증 가능했음.
 - **런처 무동작 주의** (critique #7): 런처는 설치되어도 `claude --channels plugin:telegram@claude-plugins-official` 플러그인이 미설치면 알림이 동작하지 않음. 플러그인 설치/인증은 본 spec 범위 밖 (Claude Code 플러그인 영역).
 
+## 🔁 리뷰 대응 & 재처리 (2026-06-01)
+
+PR #157 리뷰(Changsik00)에서 🔴 필수 2건 + 🟡 rebase 지적이 있었으나, 초기 머지(`e65ab37`)는 충돌만 해소하고 🔴 2건을 반영하지 못한 채 진행됨. main 을 `7aa876b` 로 **reset** 하여 머지를 취소하고, 작업물(`48b3666`)을 복구해 아래와 같이 재처리함.
+
+| 리뷰 항목 | 처리 |
+|---|---|
+| 🟡 rebase 필요 (wiki/queue/phase-19 충돌) | 해소 — 충돌 11건 전부 main 버전 채택(브랜치 베이스가 위키 부트스트랩 #153 복사본이라 main 의 #154+ 발전판과 중복이었음). 기능 파일은 충돌 0건. |
+| 🔴 #1 `--channels` 비표준 플래그 | **제거** — 채널 선택은 이미 `export NM_NOTIFY_CHANNEL` 로 dispatcher 가 처리. 표준 CLI 에 없는 플래그라 일반 사용자 실행 시 오류 → 삭제해도 기능 손실 없음. |
+| 🔴 #2 `--dangerously-skip-permissions` 하드코딩 | **env opt-in 전환** — `HARNESS_SKIP_PERMISSIONS=1` 일 때만 적용. 기본은 비활성. telegram/discord 양쪽 동일. |
+
+> 위 53행의 "런처 무동작 주의" 는 `--channels` 제거로 해소됨 — 더 이상 플러그인 미설치 시 오류 경로가 없음.
+
 ## 🚧 이월 항목
 
 - 없음. (런처가 의존하는 Claude Code telegram/discord 플러그인 설치 안내는 별도 사안.)
