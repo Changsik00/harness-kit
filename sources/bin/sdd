@@ -872,8 +872,8 @@ phase_new() {
   local next=1
   local n
   n=$(find "$SDD_BACKLOG" "$SDD_ROOT/archive/backlog" -maxdepth 1 -type f -name 'phase-*.md' 2>/dev/null \
-      | sed 's|.*/phase-||;s|\.md$||' | sort -n | tail -1)
-  [ -n "$n" ] && next=$((n+1))
+      | sed 's|.*/phase-||;s|\.md$||' | grep -E '^[0-9]+$' | sort -n | tail -1)
+  [ -n "$n" ] && next=$((10#$n+1))
 
   local id="phase-$(printf '%02d' "$next")"
   local file="$SDD_BACKLOG/${id}.md"
