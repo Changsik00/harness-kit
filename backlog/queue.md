@@ -8,7 +8,7 @@
 ## 📦 진행 중 Phase
 
 <!-- sdd:active:start -->
-(active phase 없음. `bin/sdd phase new <slug>` 로 시작)
+- **phase-20** — 디렉터 모드 (Director Mode) — context-preserving orchestration — 0/0 spec — (다음: 첫 spec 생성 대기)
 <!-- sdd:active:end -->
 
 ## 📥 spec-x 대기
@@ -35,11 +35,7 @@
 - **LSP/MCP 활용 가이드** — agent.md §6.5 (Static Analysis First) 확장. 적용 대상 프로젝트가 LSP 지원 언어일 때 grep 대신 심볼 기반 정의/참조 추적 권장 (기사 인사이트 #4)
 - **queue.md 파생 파일 전환** — 다중 사용자/디바이스 환경에서 queue.md merge conflict 를 줄이기 위해 active/done 등을 파생 파일로 분리하는 리팩터링 아이디어 (2026-05-28 드래프트 미착수, 통합 테스트 필요)
 - **lefthook 네이티브 hook 통합** — install 시 `.git/hooks/pre-commit` append 대신 `lefthook.yml` 에 harness 검사를 등록하는 방식. lefthook install 이 디스패처를 재생성하면 append 블록이 덮이는 fragility 해소 (issue #161 제안 #2). bash YAML 편집 비용·사용자 파일 침습으로 보류 — lefthook 타깃 수요 누적 시 승격
-- **모델 오케스트레이션 3-tier + 디렉터 모드 명령 (→ Phase 승격 예정)** — `agent.md §6.6` 의 2-tier(Opus orchestrator / Sonnet worker)를 role 기반 3-tier(director / worker / scout=Haiku)로 확장. 핵심:
-  - 모델 *이름* 하드코딩 금지 → `harness.config.json` 의 `models` 역할 매핑 + ADR(role-based config) + `sdd status`/doctor 노출. 검색·grep sweep·기계적 편집 = scout 로 토큰/속도 절감.
-  - **명령으로 디렉터/오케스트레이션 모드 강제** (`/hk-director` on/off): 활성화 시 에이전트가 이후 요청을 *디렉터로서* 수신 — 비자명 작업은 전부 worker(Sonnet)/scout(Haiku) 로 디스패치, 메인은 판단·합성·검증만. persistent 플래그(installed.json `directorMode`, uxMode 선례) + `sdd status` 노출 + 모드 진입 시 오케스트레이션 contract 주입.
-  - 단, dispatch threshold(§6.7) 존중 — 디렉터 모드는 *기본값을 위임 쪽으로* 올릴 뿐, 단발 git commit 까지 무조건 디스패치하지는 않음(over-dispatch 안티패턴 방지).
-  - 도그푸딩 원칙상 다운스트림(NestJS)에서도 유용해야. 기능2(이슈 리포팅) 다음 차례. 2026-06-03 제안
+- ~~모델 오케스트레이션 3-tier + 디렉터 모드~~ → **phase-20** (director-mode) 승격 — 설계 문서 `backlog/phase-20.md` + [[ADR-006]] 초안. 2026-06-03
 
 **[phase-17 으로 promote 된 항목 — 처리 진행 중]**:
 - ~~접근성 개선~~ → phase-17 **spec-17-02** (accessibility-install-and-entry)
