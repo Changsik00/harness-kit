@@ -690,6 +690,14 @@ cmd_status() {
   printf "  Plan Accept:  %s\n" "$([ "$plan_accepted" = "true" ] && echo "${C_GRN}yes${C_RST}" || echo "${C_DIM}no${C_RST}")"
   printf "  Last Test:    %s\n" "${last_test:-${C_DIM}없음${C_RST}}"
 
+  # directorMode 행 (true 일 때만 출력)
+  local installed_json="$SDD_ROOT/.harness-kit/installed.json"
+  local director_mode
+  director_mode=$(jq -r '.directorMode // false' "$installed_json" 2>/dev/null || echo "false")
+  if [ "$director_mode" = "true" ]; then
+    printf "  Director Mode: %s\n" "${C_CYN}on${C_RST}"
+  fi
+
   # task 진행률 (Pre-flight 섹션 후의 task 만 카운트)
   local spec_dir
   if spec_dir="$(state_spec_dir)" && [ -f "$spec_dir/task.md" ]; then
@@ -2304,6 +2312,18 @@ cmd_doctor() {
 
   printf "\nClaude Code 설정\n"
   _check_file ".claude/settings.json" ".claude/settings.json" "install.sh 재실행 또는 수동 생성"
+
+  printf "\n설정\n"
+  local _dm_json="$SDD_ROOT/.harness-kit/installed.json"
+  if [ -f "$_dm_json" ]; then
+    local dm
+    dm=$(jq -r '.directorMode // false' "$_dm_json" 2>/dev/null || echo "false")
+    if [ "$dm" = "true" ]; then
+      _doc_pass "directorMode = on"
+    else
+      _doc_pass "directorMode = off (비활성 — /hk-director on 으로 활성화)"
+    fi
+  fi
 
   printf "\n훅 파일\n"
   _check_hooks

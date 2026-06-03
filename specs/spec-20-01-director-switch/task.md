@@ -57,12 +57,12 @@
 
 ### 4-1. status / doctor 에 directorMode 노출 (TDD Green — 노출 테스트 통과)
 
-- [ ] `sources/bin/sdd` 수정:
+- [x] `sources/bin/sdd` 수정:
   - `cmd_status` — `directorMode=true` 일 때 `Director Mode: on` 행 출력 (installed.json 읽기)
   - `cmd_doctor` — "설정" 섹션에 `directorMode` 점검 추가 (on → pass, off → pass 정보성, WARN 아님)
-- [ ] `bash tests/test-director-mode.sh` 실행 → status grep + doctor grep 케이스 PASS 확인
-- [ ] 전체 테스트 통과 확인
-- [ ] Commit: `feat(spec-20-01): expose directorMode in sdd status and doctor`
+- [x] `bash tests/test-director-mode.sh` 실행 → status grep + doctor grep 케이스 PASS 확인
+- [x] 전체 테스트 통과 확인
+- [x] Commit: `feat(spec-20-01): expose directorMode in sdd status and doctor`
 
 ---
 
