@@ -33,10 +33,10 @@
 
 ### 2-1. 커맨드 파일 생성 (TDD Green — 커맨드 존재 테스트 통과)
 
-- [ ] `sources/commands/hk-director.md` 작성 (frontmatter + 본문: sdd config director-mode 래핑)
-- [ ] `.claude/commands/hk-director.md` 작성 (동일 내용 — 미러)
-- [ ] `bash tests/test-director-mode.sh` 실행 → 커맨드 존재·frontmatter·미러 parity 케이스 PASS 확인
-- [ ] Commit: `feat(spec-20-01): add hk-director slash command (sources + mirror)`
+- [x] `sources/commands/hk-director.md` 작성 (frontmatter + 본문: sdd config director-mode 래핑)
+- [x] `.claude/commands/hk-director.md` 작성 (동일 내용 — 미러)
+- [x] `bash tests/test-director-mode.sh` 실행 → 커맨드 존재·frontmatter·미러 parity 케이스 PASS 확인
+- [x] Commit: `feat(spec-20-01): add hk-director slash command (sources + mirror)`
 
 ---
 
