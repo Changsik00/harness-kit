@@ -8,7 +8,7 @@
 ## 📦 진행 중 Phase
 
 <!-- sdd:active:start -->
-- **phase-20** — 디렉터 모드 (Director Mode) — context-preserving orchestration — 0/0 spec — (다음: 첫 spec 생성 대기)
+- **phase-20** — 디렉터 모드 (Director Mode) — context-preserving orchestration — 1 spec — 다음: spec-20-01-director-switch
 <!-- sdd:active:end -->
 
 ## 📥 spec-x 대기
