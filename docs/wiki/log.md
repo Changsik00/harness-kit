@@ -3,7 +3,7 @@ kind: catalog
 sources: []
 linked:
   - "[[wiki/index]]"
-updated: 2026-05-28
+updated: 2026-06-03
 ---
 
 # Wiki Ingest Log
@@ -18,6 +18,19 @@ updated: 2026-05-28
 - **갱신된 wiki 페이지**: decisions.md, patterns.md, ...
 - **추가된 내용 요약**: <1~3줄>
 ```
+
+---
+
+### 2026-06-03 — spec-x 7개 아카이브 인제스트 (0.15.1 정리)
+
+- **대상**: archive/specs/spec-x-check-secrets-dual-mode, -claude-md-nested, -claude-md-slim, -doctor-hookspath-lefthook, -harness-footguns, -kit-update-notify, -sdd-search (7개 walkthrough)
+- **갱신된 wiki 페이지**: decisions.md, patterns.md
+- **추가된 내용 요약**:
+  - decisions.md: 신규 결정 4건 — [[spec-x-check-secrets-dual-mode]](git hook 모드 = 명시 env var / 시크릿 가드 다단계 grep -v + `+` 라인 필터), [[spec-x-kit-update-notify]](업데이트 알림 = `sdd --brief` suffix), [[spec-x-doctor-hookspath-lefthook]](lefthook×hooksPath 충돌 warn-only)
+  - patterns.md good 4건 — `test-self-trigger-secret-split`, `nested-claude-md-scoped`, `grep-wrapper-over-index`, `bash-data-table-over-nested-closure`
+  - patterns.md anti 1건 — `always-on-context-stale-state`(CLAUDE.md 에 stale 상태 정보 금지)
+  - phase-19 spec 3개는 2026-05-28 에 이미 인제스트됨 (제외). install drift "detect→act" 보강은 기존 패턴과 중복으로 제외
+  - 추출은 Opus 서브에이전트 오프로드 → 메인은 dedup·합성·배치만 담당
 
 ---
 

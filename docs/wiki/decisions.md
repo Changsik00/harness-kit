@@ -11,13 +11,17 @@ sources:
   - archive/specs/spec-15-05-dedupe-hardcoded-lists/walkthrough.md
   - archive/specs/spec-x-sdd-version-source-fix/walkthrough.md
   - archive/specs/spec-x-update-preserve-state/walkthrough.md
+  - archive/specs/spec-x-check-secrets-dual-mode/walkthrough.md
+  - archive/specs/spec-x-kit-update-notify/walkthrough.md
+  - archive/specs/spec-x-doctor-hookspath-lefthook/walkthrough.md
+  - archive/specs/spec-x-harness-footguns/walkthrough.md
 linked:
   - "[[wiki/patterns]]"
   - "[[ADR-001]]"
   - "[[ADR-002]]"
   - "[[ADR-003]]"
   - "[[RCA-001]]"
-updated: 2026-05-28
+updated: 2026-06-03
 ---
 
 # 핵심 결정 증류
@@ -137,3 +141,43 @@ spec-x demote는 phase가 끝난 후 잔재일 때만.
 **교훈**: fixture 는 "install 직후 빈 상태" 가 아니라 "sdd 를 한 번 쓴 흔적까지 포함한 상태" 가 자연스럽다. `.harness-kit/installed.json` + `.claude/state/current.json` 두 파일이 모든 sdd 스모크 테스트의 최소 셋업.
 
 출처: spec-08-02 / spec-14-01 / spec-15-02 walkthrough §발견 사항
+
+---
+
+## [[spec-x-check-secrets-dual-mode]] — git hook 모드 감지는 cmd=empty 추론이 아닌 명시 env var (2026)
+
+**결정**: check-secrets.sh 의 git-hook 모드 감지는 `cmd=empty` 추론 대신 `HARNESS_GIT_HOOK_MODE=1` 명시 신호를 사용한다.
+
+**왜**: Claude Code PreToolUse hook 도 일부 상황에서 command env var 를 미제공해 `cmd=empty` 가 된다. 따라서 cmd=empty 를 "git hook 호출"로 추론하면 false positive 가 생긴다. 명시적 신호만이 두 호출 경로를 정확히 구분한다.
+
+출처: spec-x-check-secrets-dual-mode walkthrough §결정 기록
+
+---
+
+## [[spec-x-check-secrets-dual-mode]] — 시크릿 가드 오탐 완화는 단일 부정 regex 가 아닌 다단계 grep -v + `+` 라인 필터 (2026)
+
+**결정**: 시크릿 가드의 오탐 완화는 단일 부정형 regex 대신 다단계 `grep -v` 파이프와 staged diff 의 `+`(추가) 라인만 검사하는 필터로 처리한다.
+
+**왜**: BSD grep 이 `-----BEGIN` 을 옵션으로 오해하고, 제거(`-`) 라인에서 self-trigger 하는 문제가 있었다. 다단계 `grep -v`(bash 3.2·BSD grep 안전) + `+` 라인 한정 필터가 이를 근본 해결하며 모든 패턴에 일관 적용된다.
+
+출처: spec-x-check-secrets-dual-mode / spec-x-harness-footguns walkthrough §결정 기록
+
+---
+
+## [[spec-x-kit-update-notify]] — 버전 업데이트 알림은 두 번째 훅이 아닌 `sdd --brief` suffix 로 (2026)
+
+**결정**: 키트 업데이트 알림은 별도 두 번째 훅(check-kit-version.sh) 출력이 아니라 `sdd status --brief` 의 suffix 로 노출한다. check-kit-version.sh 는 cache.json(24h TTL) 갱신 역할로 유지한다.
+
+**왜**: Claude Code compact 포맷이 첫 번째 훅 출력만 에이전트 컨텍스트에 포함한다. 두 번째 훅에 알림을 두면 에이전트가 못 본다. SSOT 인 `sdd` 출력의 suffix 가 확실히 전달되는 경로다.
+
+출처: spec-x-kit-update-notify walkthrough §결정 기록
+
+---
+
+## [[spec-x-doctor-hookspath-lefthook]] — lefthook × core.hooksPath 충돌은 자동 수정 아닌 진단·안내(warn) (2026)
+
+**결정**: lefthook 와 core.hooksPath 충돌(issue #161)은 `sdd doctor` + 루트 doctor.sh 양쪽에서 진단+가이드(warn)만 한다. 감지는 lefthook AND hooksPath 조건일 때만 발화한다.
+
+**왜**: 충돌 원인이 사용자의 hooksPath 설정이라 harness 가 직접 고칠 수 없다. 자동 수정/네이티브 통합은 사용자 환경을 침범한다. 소음 방지를 위해 두 조건이 동시 성립할 때만 경고한다 ([[spec-13-02]] graceful degradation 결).
+
+출처: spec-x-doctor-hookspath-lefthook walkthrough §결정 기록
