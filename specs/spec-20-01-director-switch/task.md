@@ -44,12 +44,12 @@
 
 ### 3-1. `_config_director_mode` 함수 구현 (TDD Green — config 테스트 통과)
 
-- [ ] `sources/bin/sdd` 수정:
+- [x] `sources/bin/sdd` 수정:
   - `cmd_config` 라우팅에 `director-mode` 케이스 추가
   - `_config_director_mode` 함수 구현 (on/off/toggle/조회, `uxMode` 패턴 대칭)
   - usage 문자열에 `config director-mode [on|off|toggle]` 행 추가
-- [ ] `bash tests/test-director-mode.sh` 실행 → config on/off/toggle 케이스 PASS 확인
-- [ ] Commit: `feat(spec-20-01): implement sdd config director-mode subcommand`
+- [x] `bash tests/test-director-mode.sh` 실행 → config on/off/toggle 케이스 PASS 확인
+- [x] Commit: `feat(spec-20-01): implement sdd config director-mode subcommand`
 
 ---
 

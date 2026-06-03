@@ -56,6 +56,8 @@ sdd — harness-kit 메타 명령
 
   config ux-mode [interactive|text|toggle]
                                 uxMode 설정 조회/변경 (생략 시 현재값 출력, toggle: 현재값 자동 반전)
+  config director-mode [on|off|toggle]
+                                directorMode 설정 조회/변경 (생략 시 현재값 출력)
   config precheck list           precheck 명령 목록 출력
   config precheck add <command>  precheck 명령 추가 + task.md 동기화
   config precheck remove <index> precheck 명령 제거 (1-기반 index)
@@ -1498,9 +1500,10 @@ task_done() {
 cmd_config() {
   local sub="${1:-}"; shift || true
   case "$sub" in
-    ux-mode)  _config_ux_mode "$@" ;;
-    precheck) _config_precheck "$@" ;;
-    *)        die "사용법: sdd config ux-mode|precheck ..." ;;
+    ux-mode)       _config_ux_mode "$@" ;;
+    precheck)      _config_precheck "$@" ;;
+    director-mode) _config_director_mode "$@" ;;
+    *)             die "사용법: sdd config ux-mode|precheck|director-mode ..." ;;
   esac
 }
 
@@ -1642,6 +1645,43 @@ _config_ux_mode() {
   tmp=$(jq --arg v "$value" '.uxMode = $v' "$installed_json" 2>/dev/null) || die "installed.json 갱신 실패"
   echo "$tmp" > "$installed_json"
   ok "uxMode = $value"
+}
+
+_config_director_mode() {
+  local installed_json="$SDD_ROOT/.harness-kit/installed.json"
+  [ -f "$installed_json" ] || die "installed.json 없음: $installed_json"
+
+  local value="${1:-}"
+  if [ -z "$value" ]; then
+    local current
+    current=$(jq -r '.directorMode // false' "$installed_json" 2>/dev/null || echo "false")
+    echo "directorMode: $current"
+    return 0
+  fi
+
+  case "$value" in
+    on)  value="true" ;;
+    off) value="false" ;;
+    toggle)
+      local current
+      current=$(jq -r '.directorMode // false' "$installed_json" 2>/dev/null || echo "false")
+      if [ "$current" = "true" ]; then
+        value="false"
+      else
+        value="true"
+      fi
+      ;;
+    *) die "허용된 값: on | off | toggle (입력: $value)" ;;
+  esac
+
+  local tmp
+  tmp=$(jq --argjson v "$value" '.directorMode = $v' "$installed_json" 2>/dev/null) || die "installed.json 갱신 실패"
+  echo "$tmp" > "$installed_json"
+  if [ "$value" = "true" ]; then
+    ok "directorMode = on"
+  else
+    ok "directorMode = off"
+  fi
 }
 
 # ============================================================
