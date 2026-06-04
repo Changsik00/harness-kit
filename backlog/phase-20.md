@@ -57,6 +57,7 @@ ADR-005 가 "메인 에이전트 = context orchestrator" 전략(orchestrator–w
 | ID | 슬러그 | 우선순위 | 상태 | 디렉토리 |
 |---|---|:---:|---|---|
 | `spec-20-01` | director-switch | P? | Merged | `specs/spec-20-01-director-switch/` |
+| `spec-20-02` | director-protocol | P? | Merged | `specs/spec-20-02-director-protocol/` |
 <!-- sdd:specs:end -->
 
 > 상태 허용값: `Backlog` / `In Progress` / `Merged`
