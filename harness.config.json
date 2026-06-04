@@ -1,0 +1,8 @@
+{
+  "gitignore": true,
+  "models": {
+    "director": "opus",
+    "worker": "sonnet",
+    "scout": "haiku"
+  }
+}

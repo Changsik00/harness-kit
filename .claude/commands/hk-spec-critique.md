@@ -104,9 +104,25 @@ Agent tool (`subagent_type: general-purpose`, `model: "opus"`)을 사용하여 *
 > 결과는 반드시 **한국어**로 작성하세요.
 > 발견된 것이 없는 항목은 "해당 없음"으로 표기하세요.
 
-## 3. 결과 저장
+## 2.5 디렉터 모드: 페르소나 패널 (선택)
 
-비판 결과를 `specs/<spec-dir>/critique.md`에 저장합니다.
+**활성화 조건**: `directorMode: true` 이고 spec.md 가 **복잡한 설계 결정**을 포함할 때.
+단순 문서 수정·소규모 변경은 단일 리뷰어(§2)로 충분.
+
+**패널 구성**: 디렉터가 관점별 워커 서브에이전트를 병렬 디스패치 → 결과 수집 → 종합·중재.
+
+| 렌즈 | 담당 | 집중 관점 |
+|---|---|---|
+| correctness | worker sub-agent | 요구사항 누락, 모순, 엣지 케이스 |
+| security | worker sub-agent | 보안 가정, 인증·인가, 데이터 노출 |
+| perf | worker sub-agent | 스케일 가정, 병목 위험, 비용 |
+| test-coverage | worker sub-agent | 테스트 가능성, DoD 충분성 |
+
+**디렉터 종합**: 각 워커의 findings 를 수집하여 중복·상충 제거, 심각도 재조정, 최종 spec 개선 권고. (→ agent.md §6.7)
+
+**패널 활성화**: 사용자가 `--panel` 플래그를 전달하거나 디렉터가 spec 복잡도를 판단하여 패널 여부를 결정합니다.
+
+---
 
 ## 4. 반영 항목 선택
 
