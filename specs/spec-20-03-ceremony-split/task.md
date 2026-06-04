@@ -9,8 +9,8 @@
 - [x] spec.md 작성
 - [x] plan.md 작성
 - [x] task.md 작성 (이 파일)
-- [ ] 백로그 업데이트 (`backlog/phase-20.md` SPEC 표 `spec-20-03` 상태 → In Progress)
-- [ ] 사용자 Plan Accept
+- [x] 백로그 업데이트 (`backlog/phase-20.md` SPEC 표 `spec-20-03` 상태 → In Progress)
+- [x] 사용자 Plan Accept
 
 ---
 
@@ -70,21 +70,21 @@
 
 > **이 단계를 건너뛰면 push 금지.** 로컬에서 모두 통과(GREEN) 확인 후 push 한다.
 
-- [ ] **전체 테스트 실행**: `bash tests/test-director-protocol.sh` → PASS
-- [ ] **추가 거버넌스 테스트**: `bash tests/test-governance-dedup.sh` `bash tests/test-director-mode.sh` → PASS
-- [ ] Integration Test Required = no — 통합 테스트 생략
+- [x] **전체 테스트 실행**: `bash tests/test-director-protocol.sh` → PASS
+- [x] **추가 거버넌스 테스트**: `bash tests/test-governance-dedup.sh` `bash tests/test-director-mode.sh` → PASS
+- [x] Integration Test Required = no — 통합 테스트 생략
 
 ### 📝 산출물 작성
 
-- [ ] **walkthrough.md 작성** (결정·협의·검증·발견 기록)
-- [ ] **pr_description.md 작성** (템플릿 준수)
-- [ ] **Ship Commit**: `docs(spec-20-03): ship walkthrough and pr description`
+- [x] **walkthrough.md 작성** (결정·협의·검증·발견 기록)
+- [x] **pr_description.md 작성** (템플릿 준수)
+- [x] **Ship Commit**: `docs(spec-20-03): ship walkthrough and pr description`
 
 ### 🚀 Push & PR
 
-- [ ] **Push**: `git push -u origin spec-20-03-ceremony-split`
-- [ ] **PR 생성**: `gh pr create` 또는 `/hk-pr-gh` (base: `phase-20-director-mode`)
-- [ ] **사용자 알림**: push 완료 + PR URL 보고
+- [x] **Push**: `git push -u origin spec-20-03-ceremony-split`
+- [x] **PR 생성**: `gh pr create` 또는 `/hk-pr-gh` (base: `phase-20-director-mode`)
+- [x] **사용자 알림**: push 완료 + PR URL 보고
 
 ---
 
