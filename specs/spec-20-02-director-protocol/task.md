@@ -9,8 +9,8 @@
 - [x] spec.md 작성
 - [x] plan.md 작성
 - [x] task.md 작성 (이 파일)
-- [ ] 백로그 업데이트 (phase-20.md 상태 갱신)
-- [ ] 사용자 Plan Accept
+- [x] 백로그 업데이트 (phase-20.md 상태 갱신)
+- [x] 사용자 Plan Accept
 
 ---
 
@@ -77,21 +77,21 @@
 
 ### 🚦 Pre-Push Quality Gate (push 전 필수)
 
-- [ ] **전체 테스트 실행**: `bash tests/test-director-protocol.sh` → PASS
-- [ ] **전체 테스트 실행**: `bash tests/test-governance-dedup.sh` → PASS
-- [ ] **전체 테스트 실행**: `bash tests/test-director-mode.sh` → PASS
+- [x] **전체 테스트 실행**: `bash tests/test-director-protocol.sh` → PASS
+- [x] **전체 테스트 실행**: `bash tests/test-governance-dedup.sh` → PASS
+- [x] **전체 테스트 실행**: `bash tests/test-director-mode.sh` → PASS
 
 ### 📝 산출물 작성
 
-- [ ] **walkthrough.md 작성** (발견 사항·결정·증거 로그)
-- [ ] **pr_description.md 작성** (템플릿 준수)
-- [ ] **Ship Commit**: `docs(spec-20-02): ship walkthrough and pr description`
+- [x] **walkthrough.md 작성** (발견 사항·결정·증거 로그)
+- [x] **pr_description.md 작성** (템플릿 준수)
+- [x] **Ship Commit**: `docs(spec-20-02): ship walkthrough and pr description`
 
 ### 🚀 Push & PR
 
-- [ ] **Push**: `git push -u origin spec-20-02-director-protocol`
-- [ ] **PR 생성**: `gh pr create` 또는 `/hk-pr-gh` (base: `phase-20-director-mode`)
-- [ ] **사용자 알림**: 현재 브랜치명 `spec-20-02-director-protocol` + PR URL 보고
+- [x] **Push**: `git push -u origin spec-20-02-director-protocol`
+- [x] **PR 생성**: `gh pr create` 또는 `/hk-pr-gh` (base: `phase-20-director-mode`)
+- [x] **사용자 알림**: 현재 브랜치명 `spec-20-02-director-protocol` + PR URL 보고
 
 ---
 
