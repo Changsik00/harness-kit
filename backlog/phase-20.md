@@ -56,6 +56,10 @@ ADR-005 가 "메인 에이전트 = context orchestrator" 전략(orchestrator–w
 <!-- sdd:specs:start -->
 | ID | 슬러그 | 우선순위 | 상태 | 디렉토리 |
 |---|---|:---:|---|---|
+| `spec-20-01` | director-switch | P? | Merged | `specs/spec-20-01-director-switch/` |
+| `spec-20-02` | director-protocol | P? | Merged | `specs/spec-20-02-director-protocol/` |
+| `spec-20-03` | ceremony-split | P? | Merged | `specs/spec-20-03-ceremony-split/` |
+| `spec-20-04` | model-config-and-review | P? | Merged | `specs/spec-20-04-model-config-and-review/` |
 <!-- sdd:specs:end -->
 
 > 상태 허용값: `Backlog` / `In Progress` / `Merged`
@@ -120,6 +124,7 @@ ADR-005 가 "메인 에이전트 = context orchestrator" 전략(orchestrator–w
 | **D1** Base branch 모드? | base(`phase-20-director-mode` → main 1 PR) / 일반(spec별 main PR) | **base** | 6 spec 을 phase 끝 1 PR 로 번들 → 리뷰 피로↓. 2026-06-03 사용자 승인 |
 | **D2** spec-20-05 범위 | 정식 spec / research-only / 보류 | **research-only 시작** | 가장 새롭고 위험 — 종이 설계보다 작동 실험으로 종료조건 검증 우선 |
 | **D3** 모드 강제 강도 | 커널 차단 / 지시 주입 | **지시 주입** | Claude Code 에 런타임 모드 커널 없음 — hk-align 과 같은 규약 강도 |
+| **D4** 잔여(20-04/05/06) 구조 | 각각 spec / 1 spec 번들 / phase-FF | **1 spec 번들** (spec-20-04) | 2026-06-04 사용자 지적 — 88~172w 변경에 full spec 6개는 ceremony 과잉(산출물=코드 10배). 같은 파일(agent.md) 반복 편집 = bundle 신호. 20-04 모델config + 20-06 review패널 + 20-05 패턴(patterns.md) = **1 ceremony 유닛**. 비용은 유닛 수로 줄이고 *문서는 제대로*(이해+역추적) — 길이로 줄이지 않음 |
 
 ## 🧪 통합 테스트 시나리오 (간결)
 

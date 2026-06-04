@@ -139,7 +139,7 @@ After writing `spec.md`, `plan.md`, and `task.md`, the Agent MUST:
    ```
    spec/plan/task 작성 완료. 다음을 선택하세요:
      1) Plan Accept (/hk-plan-accept) — 실행 단계 즉시 진입
-     2) Critique (/hk-spec-critique) — 요구사항 비판 먼저 (Opus sub-agent, 선택)
+     2) Critique (/hk-spec-critique) — 요구사항 비판 먼저 (sub-agent, 선택)
 
    → Accepted responses: see constitution §5.2
    ```
@@ -147,7 +147,7 @@ After writing `spec.md`, `plan.md`, and `task.md`, the Agent MUST:
 3. **STRICTLY PROHIBITED**: Generating code or running non-read commands until the User selects an option and, if option 1, explicitly approves the Plan.
 
 ### 4.5 Critique Step (Optional)
-Before Plan Accept, the User MAY invoke `/hk-spec-critique` to get an independent Opus sub-agent critique of `spec.md`.
+Before Plan Accept, the User MAY invoke `/hk-spec-critique` to get an independent sub-agent critique of `spec.md`.
 
 - **When**: After spec.md/plan.md/task.md are written, before Plan Accept
 - **Purpose**: Research similar approaches + identify requirement gaps, contradictions, over-engineering + propose alternatives
@@ -176,6 +176,15 @@ For **EVERY** Task in the approved Plan, the Agent MUST:
 5. **Commit**: One Task = One Commit (→ constitution §8), using the commit format (→ constitution §10.2).
 6. **Update task.md**: Mark the task status (see §6.2).
 7. **Auto-proceed or Stop**: If no issues occurred, update `task.md` and **automatically proceed** to the next task — including the Ship task (ship → push → PR creation). If any issue occurs (test failure, unexpected error, scope deviation, push failure), immediately **STOP** and report to the user. On successful PR creation, report the PR URL and wait for User merge.
+
+**Director Mode delegation** (active when `directorMode` is enabled):
+When the Strict Loop runs under director mode, the director MUST delegate
+task execution to a worker sub-agent via a scoped brief (target files,
+expected behaviour, test command, commit format). The worker's commit scope
+MUST include planning artifact files (spec/plan/task). Three invariants apply:
+① Plan Accept and Ship gates are NOT delegated — held by director + user.
+② Worker commit scope MUST include spec/plan/task artifact files.
+③ Verification follows §6.8 rule 4 — action/distillation only, no transcript re-ingestion.
 
 ### 6.2 Task Status Management
 
@@ -244,36 +253,31 @@ When calling the Bash tool, the Agent MUST follow these rules:
 
 When the project has static analysis tools configured (type-checker, linter), use them as the primary diagnostic authority before making corrections. The Agent MUST NOT guess or over-correct beyond their findings.
 
-### 6.6 Model & Context Allocation Strategy
+### 6.6 Role-Based Context Allocation
 
-The main session runs on **Opus** as the **context orchestrator** — it owns the thread of intent and dispatches scoped jobs to sub-agents that run in their own isolated context windows (orchestrator–worker pattern). Sub-agents are dispatched with explicit model overrides:
+Three named roles govern who runs which work. Actual model assignments are in `harness.config.json` `models` — not hardcoded here. Defaults (if key absent): director=opus, worker=sonnet, scout=haiku.
 
-| Role | Model | Rationale |
+| Role | Duties | Typical scope |
 |---|---|---|
-| Spec / Plan / Task authoring | Opus (main) | Architecture decisions and scope require deep reasoning |
-| Task execution | Sonnet (sub-agent, `model: "sonnet"`) | Task execution is relatively mechanical; faster and cheaper |
-| Code review / critique | Opus (sub-agent, `model: "opus"`) | Catching subtle issues requires deep analysis from a different context |
-| Code analysis | Opus (sub-agent, `model: "opus"`) | Structural understanding and impact assessment |
+| **director** | Judgment, architecture, gate decisions (Plan Accept / Ship), intent handshake, cross-spec consistency | main thread; owns the context |
+| **worker** | Implementation, documentation authoring, Strict Loop execution, commit + artifact update | sub-agent; scoped brief, distilled return |
+| **scout** | Search, grep sweeps, log triage, mechanical edits, broad file exploration | sub-agent; disposable context |
 
-When delegating implementation to a Sonnet sub-agent, the main Opus agent MUST provide clear, specific instructions including: target files, expected behavior, test expectations, and commit message format.
+**Dispatch policy** — the director keeps the main context lean by offloading token-heavy work to isolated sub-agents and ingesting only distilled results (→ ADR-005):
 
-**Context Orchestration (offloading policy)**: The orchestrator keeps the main context lean by offloading token-heavy or context-polluting work to isolated sub-agents and ingesting only their distilled results.
-
-- **What to offload**: token-heavy or noisy work — multi-file implementation, broad search/exploration, log triage. Keep in the main thread: judgment, coordination, scope/architecture decisions, and final verification.
-- **Context in (scoped slice)**: give the sub-agent only what its job needs (target files, expected behavior, test command, commit format) — NOT the full history.
-- **Result out (contract)**: the sub-agent returns a distilled result (commits, test/typecheck status, findings), NOT its raw transcript — this is what preserves the main context.
-- **Verification stays with the orchestrator**: the main agent MUST review the sub-agent's output against the spec before shipping — never ship on the worker's word alone.
+- **What to offload**: multi-file implementation, broad search/exploration, log triage — to worker or scout as appropriate.
+- **Context in (scoped slice)**: give the sub-agent only what its job needs (target files, expected behaviour, test command, commit format) — NOT the full history.
+- **Result out (contract)**: the sub-agent returns commit SHA, test status, and decision list only — NOT its raw transcript.
+- **Verification stays with the director**: review sub-agent output against the spec before shipping — never ship on the worker's word alone.
 - **Fan-out**: dispatch independent jobs concurrently (→ §6.7 Parallel by default), then fan results back in.
 
-(→ ADR-005 for rationale and trade-offs.)
-
-**Dispatch exception — docs-only tasks**: When all Spec tasks are limited to markdown/documentation file creation or editing (no code, scripts, or tests), run them in the main thread — sub-agent spin-up overhead exceeds the saving. See §6.7 sub-agent dispatch threshold for the general rule.
+**Dispatch exception — docs-only tasks**: When all Spec tasks are limited to markdown/documentation editing (no code, scripts, or tests), run them in the main thread — sub-agent spin-up overhead exceeds the saving. See §6.7 sub-agent dispatch threshold.
 
 ### 6.7 Workflow Patterns
 
 Generic agent behavior patterns that improve UX, latency, and cost without per-task tuning.
 
-**Model transparency**: Announce session model once at session start (e.g., `[Opus 4.7 — main]`). On sub-agent dispatch, declare model and role (e.g., `Sonnet sub-agent, result-only, background`). Repeat only on model change — silence is fine when stable.
+**Model transparency**: Announce session model once at session start (e.g., `[director — main]`). On sub-agent dispatch, declare role (e.g., `worker sub-agent, result-only, background`). Repeat only on model change — silence is fine when stable.
 
 **Parallel by default**: Independent operations (regression suites, file syncs, multi-section drafting) MUST be dispatched in a single message with multiple tool calls. Sequential processing is the wrong default when tasks have no dependency.
 
@@ -284,6 +288,39 @@ Generic agent behavior patterns that improve UX, latency, and cost without per-t
 **Archive timing**: `sdd archive` is an intentional checkpoint operation, not mid-flow housekeeping. Run when working tree is clean (between Specs, post-merge cleanup, accumulation review). Mid-Spec archive forces drift handling that defeats the cleanup intent.
 
 **Version + CHANGELOG paired update**: When `version.json` changes, `CHANGELOG.md` MUST gain a corresponding entry in the same commit. Conversely, never bump version without summarizing changes since the last release.
+
+**Review orchestration**: Under director mode, review commands (`/hk-code-review`, `/hk-spec-critique`, `/hk-phase-review`) support an optional persona panel — parallel worker sub-agents with distinct lenses (correctness / security / perf / test-coverage) whose findings the director consolidates. For small diffs, a single reviewer is sufficient. See each command for activation criteria.
+
+### 6.8 Director Mode Protocol
+
+Active when `directorMode` is enabled (→ `/hk-director`).
+
+1. **Intent handshake**: Before dispatching workers, confirm intent with the
+   user — restate the goal or ask one clarifying question. Proceed only after
+   confirmation.
+
+2. **Scoped brief dispatch**: Worker brief must include: target files, expected
+   behaviour, test command, commit format, and artifact commit scope.
+   Never pass the full conversation history to a worker.
+
+3. **Distilled contract return**: Worker returns commit SHA, test status, and
+   decision list only — NOT its full transcript. Returning the full transcript
+   is a VIOLATION.
+
+4. **Verification by action, not re-ingestion**: Validate worker output via
+   test re-run + live smoke + distilled contract review.
+   Re-reading the worker's full transcript is PROHIBITED.
+   (→ ADR-005 ④, ADR-006)
+
+5. **Gates stay with director**: Plan Accept and Ship gates are held by
+   director + user. Never delegated to a worker.
+
+6. **No over-dispatch**: Respect §6.7 sub-agent dispatch threshold.
+   Single short commands stay in the main thread.
+   Director mode raises the delegation default — it does not mandate
+   delegation for everything.
+
+**SDD ceremony task delegation**: For delegating Strict Loop execution to a worker, → §6.1 Director Mode delegation block.
 
 ## 7. Deviation & Hard Stop
 

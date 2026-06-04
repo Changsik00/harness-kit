@@ -8,7 +8,7 @@
 ## 📦 진행 중 Phase
 
 <!-- sdd:active:start -->
-- **phase-20** — 디렉터 모드 (Director Mode) — context-preserving orchestration — 0/0 spec — (다음: 첫 spec 생성 대기)
+- **phase-20** — 디렉터 모드 (Director Mode) — context-preserving orchestration — 4 spec — 다음: (spec 없음)
 <!-- sdd:active:end -->
 
 ## 📥 spec-x 대기
@@ -36,6 +36,7 @@
 - **queue.md 파생 파일 전환** — 다중 사용자/디바이스 환경에서 queue.md merge conflict 를 줄이기 위해 active/done 등을 파생 파일로 분리하는 리팩터링 아이디어 (2026-05-28 드래프트 미착수, 통합 테스트 필요)
 - **lefthook 네이티브 hook 통합** — install 시 `.git/hooks/pre-commit` append 대신 `lefthook.yml` 에 harness 검사를 등록하는 방식. lefthook install 이 디스패처를 재생성하면 append 블록이 덮이는 fragility 해소 (issue #161 제안 #2). bash YAML 편집 비용·사용자 파일 침습으로 보류 — lefthook 타깃 수요 누적 시 승격
 - ~~모델 오케스트레이션 3-tier + 디렉터 모드~~ → **phase-20** (director-mode) 승격 — 설계 문서 `backlog/phase-20.md` + [[ADR-006]] 초안. 2026-06-03
+- **`sdd ship` base-mode 갭** — base 브랜치 모드인데 `sdd ship` 이 spec 을 PR *전에* 즉시 `Merged` 표시 + state 리셋(non-base 동작). base 모드에선 spec PR 이 base 에 머지된 *후* Merged 가 맞음. spec-20-01 도그푸딩 중 발견(2026-06-03). `sdd ship` 에 base 모드 분기 필요(PR 까지만, Merged 는 base 머지 신호 후). systemic: phase done/specx done 등 다른 state 전이도 base 모드 정합성 점검 권장
 
 **[phase-17 으로 promote 된 항목 — 처리 진행 중]**:
 - ~~접근성 개선~~ → phase-17 **spec-17-02** (accessibility-install-and-entry)
