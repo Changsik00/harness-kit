@@ -36,10 +36,10 @@
 
 ## Task 3: review 페르소나 패널 옵션
 
-- [ ] `hk-code-review.md` · `hk-spec-critique.md` · `hk-phase-review.md` (sources + `.claude/` 미러) 에 페르소나 패널 절 추가 — 렌즈 목록 + 디렉터 종합·중재 + **소규모 diff 단일 리뷰어 fallback**
-- [ ] `agent.md §6.7` review-orchestration 1줄 cross-ref (+ 미러)
-- [ ] 관련 테스트 PASS
-- [ ] Commit: `feat(spec-20-04): add persona review panel option`
+- [x] `hk-code-review.md` · `hk-spec-critique.md` · `hk-phase-review.md` (sources + `.claude/` 미러) 에 페르소나 패널 절 추가 — 렌즈 목록 + 디렉터 종합·중재 + **소규모 diff 단일 리뷰어 fallback**
+- [x] `agent.md §6.7` review-orchestration 1줄 cross-ref (+ 미러)
+- [x] 관련 테스트 PASS
+- [x] Commit: `feat(spec-20-04): add persona review panel option`
 
 ---
 
