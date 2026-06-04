@@ -24,13 +24,13 @@
 
 ## Task 2: 모델 역할 config (de-hardcode)
 
-- [ ] `sources/governance/agent.md` §6.6 → director/worker/scout 역할·책무 표로 재작성. 모델 이름 제거 + `harness.config.json models` 참조. §6.1/§6.8 과 일관성·중복 정리
-- [ ] `.harness-kit/agent/agent.md` 미러 동기화
-- [ ] `harness.config.json` 에 `models` 키 추가
-- [ ] `sources/bin/sdd` + `.harness-kit/bin/sdd`: `config models` 조회 서브커맨드 (기본값 fallback)
-- [ ] `wc -w` 합계 ≤8000 확인 (초과 시 멈추고 디렉터 보고)
-- [ ] 관련 테스트 케이스 PASS
-- [ ] Commit: `feat(spec-20-04): role-based model config (de-hardcode §6.6)`
+- [x] `sources/governance/agent.md` §6.6 → director/worker/scout 역할·책무 표로 재작성. 모델 이름 제거 + `harness.config.json models` 참조. §6.1/§6.8 과 일관성·중복 정리
+- [x] `.harness-kit/agent/agent.md` 미러 동기화
+- [x] `harness.config.json` 에 `models` 키 추가
+- [x] `sources/bin/sdd` + `.harness-kit/bin/sdd`: `config models` 조회 서브커맨드 (기본값 fallback)
+- [x] `wc -w` 합계 ≤8000 확인 (초과 시 멈추고 디렉터 보고) — 7515w
+- [x] 관련 테스트 케이스 PASS
+- [x] Commit: `feat(spec-20-04): role-based model config (de-hardcode §6.6)`
 
 ---
 

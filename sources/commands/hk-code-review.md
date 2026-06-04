@@ -85,9 +85,25 @@ Agent tool (`subagent_type: general-purpose`, `model: "opus"`) 을 사용하여 
 > 코드 참조 시 반드시 `파일경로:라인번호` 형식으로 위치를 명시하세요.
 > 발견된 것이 없는 관점은 "발견 없음"으로 표기하세요.
 
-## 3. 결과 저장
+## 2.5 디렉터 모드: 페르소나 패널 (선택)
 
-리뷰 결과를 `specs/<spec-dir>/code-review.md` 에 저장합니다.
+**활성화 조건**: `directorMode: true` (→ `sdd config director-mode`) 이고 diff 가 **중규모 이상**(변경 파일 3+ 또는 변경 라인 100+)일 때.
+소규모 diff 는 단일 리뷰어(§2)로 충분 — 패널 over-kill 방지.
+
+**패널 구성**: 디렉터가 렌즈별 워커 서브에이전트를 병렬 디스패치 → 결과 수집 → 종합·중재.
+
+| 렌즈 | 담당 | 집중 관점 |
+|---|---|---|
+| correctness | worker sub-agent | 로직 오류, 엣지 케이스, spec 대비 누락 |
+| security | worker sub-agent | 인증·인가, 시크릿 노출, 입력 검증 |
+| perf | worker sub-agent | 병목, 불필요 재연산, N+1 |
+| test-coverage | worker sub-agent | 핵심 경로·실패 경로 커버, 의미 있는 어서션 |
+
+**디렉터 종합**: 각 워커의 findings 를 수집하여 중복·상충 제거, 심각도 재조정, 최종 go/no-go 판단. (→ agent.md §6.7)
+
+**패널 활성화**: 사용자가 `--panel` 플래그를 전달하거나 디렉터가 diff 크기를 판단하여 패널 여부를 결정합니다.
+
+---
 
 ## 4. 사용자에게 보고
 

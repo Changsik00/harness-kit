@@ -289,6 +289,8 @@ Generic agent behavior patterns that improve UX, latency, and cost without per-t
 
 **Version + CHANGELOG paired update**: When `version.json` changes, `CHANGELOG.md` MUST gain a corresponding entry in the same commit. Conversely, never bump version without summarizing changes since the last release.
 
+**Review orchestration**: Under director mode, review commands (`/hk-code-review`, `/hk-spec-critique`, `/hk-phase-review`) support an optional persona panel — parallel worker sub-agents with distinct lenses (correctness / security / perf / test-coverage) whose findings the director consolidates. For small diffs, a single reviewer is sufficient. See each command for activation criteria.
+
 ### 6.8 Director Mode Protocol
 
 Active when `directorMode` is enabled (→ `/hk-director`).
