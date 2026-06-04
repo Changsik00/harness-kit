@@ -285,6 +285,35 @@ Generic agent behavior patterns that improve UX, latency, and cost without per-t
 
 **Version + CHANGELOG paired update**: When `version.json` changes, `CHANGELOG.md` MUST gain a corresponding entry in the same commit. Conversely, never bump version without summarizing changes since the last release.
 
+### 6.8 Director Mode Protocol
+
+Active when `directorMode` is enabled (→ `/hk-director`).
+
+1. **Intent handshake**: Before dispatching workers, confirm intent with the
+   user — restate the goal or ask one clarifying question. Proceed only after
+   confirmation.
+
+2. **Scoped brief dispatch**: Worker brief must include: target files, expected
+   behaviour, test command, commit format, and artifact commit scope.
+   Never pass the full conversation history to a worker.
+
+3. **Distilled contract return**: Worker returns commit SHA, test status, and
+   decision list only — NOT its full transcript. Returning the full transcript
+   is a VIOLATION.
+
+4. **Verification by action, not re-ingestion**: Validate worker output via
+   test re-run + live smoke + distilled contract review.
+   Re-reading the worker's full transcript is PROHIBITED.
+   (→ ADR-005 ④, ADR-006)
+
+5. **Gates stay with director**: Plan Accept and Ship gates are held by
+   director + user. Never delegated to a worker.
+
+6. **No over-dispatch**: Respect §6.7 sub-agent dispatch threshold.
+   Single short commands stay in the main thread.
+   Director mode raises the delegation default — it does not mandate
+   delegation for everything.
+
 ## 7. Deviation & Hard Stop
 
 The Agent MUST immediately **STOP** execution and request re-alignment if:
