@@ -220,6 +220,73 @@ else
 fi
 
 # ─────────────────────────────────────────────────────────
+# T11: agent.md §6.6 에 director/worker/scout 역할 용어 포함
+# ─────────────────────────────────────────────────────────
+echo ""
+echo "T11: agent.md §6.6 에 director/worker/scout 역할 용어 포함"
+AGENT_SRC="$ROOT/sources/governance/agent.md"
+for ROLE in director worker scout; do
+  if grep -q "$ROLE" "$AGENT_SRC"; then
+    ok "§6.6 역할 용어 확인: $ROLE"
+  else
+    fail "§6.6 역할 용어 누락: $ROLE (sources/governance/agent.md)"
+  fi
+done
+
+# ─────────────────────────────────────────────────────────
+# T12: sdd config models → director/worker/scout 매핑 출력
+# ─────────────────────────────────────────────────────────
+echo ""
+echo "T12: sdd config models → director/worker/scout 매핑 출력"
+F12=$(make_fixture)
+FIXTURES_TO_CLEAN+=("$F12")
+
+OUT12=$(run_sdd "$F12" config models 2>&1)
+for ROLE in director worker scout; do
+  if echo "$OUT12" | grep -q "$ROLE"; then
+    ok "config models 출력에 역할 포함: $ROLE"
+  else
+    fail "config models 출력에 역할 누락: $ROLE — 실제: $OUT12"
+  fi
+done
+
+# ─────────────────────────────────────────────────────────
+# T13: review 커맨드에 "페르소나 패널" 문구 포함
+# ─────────────────────────────────────────────────────────
+echo ""
+echo "T13: review 커맨드에 페르소나 패널 문구 포함"
+for CMD_FILE in \
+  "$ROOT/sources/commands/hk-code-review.md" \
+  "$ROOT/sources/commands/hk-spec-critique.md" \
+  "$ROOT/sources/commands/hk-phase-review.md"; do
+  FNAME="$(basename "$CMD_FILE")"
+  if grep -q "페르소나 패널" "$CMD_FILE" 2>/dev/null; then
+    ok "$FNAME 에 '페르소나 패널' 문구 포함"
+  else
+    fail "$FNAME 에 '페르소나 패널' 문구 누락"
+  fi
+done
+
+# ─────────────────────────────────────────────────────────
+# T14: .claude/ 미러 parity — hk-code-review / hk-spec-critique / hk-phase-review
+# ─────────────────────────────────────────────────────────
+echo ""
+echo "T14: .claude/commands/ 미러 parity (review 커맨드 3종)"
+for CMD_FILE in hk-code-review.md hk-spec-critique.md hk-phase-review.md; do
+  SRC="$ROOT/sources/commands/$CMD_FILE"
+  MIRROR="$ROOT/.claude/commands/$CMD_FILE"
+  if [ -f "$MIRROR" ]; then
+    if diff -q "$SRC" "$MIRROR" >/dev/null 2>&1; then
+      ok ".claude/commands/$CMD_FILE 미러 parity 확인"
+    else
+      fail ".claude/commands/$CMD_FILE 미러 내용이 sources 와 다름"
+    fi
+  else
+    fail ".claude/commands/$CMD_FILE 미러 없음"
+  fi
+done
+
+# ─────────────────────────────────────────────────────────
 echo ""
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo "  결과: PASS=$PASS  FAIL=$FAIL"
