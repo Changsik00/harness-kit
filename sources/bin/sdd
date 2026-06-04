@@ -56,6 +56,8 @@ sdd — harness-kit 메타 명령
 
   config ux-mode [interactive|text|toggle]
                                 uxMode 설정 조회/변경 (생략 시 현재값 출력, toggle: 현재값 자동 반전)
+  config director-mode [on|off|toggle]
+                                directorMode 설정 조회/변경 (생략 시 현재값 출력)
   config precheck list           precheck 명령 목록 출력
   config precheck add <command>  precheck 명령 추가 + task.md 동기화
   config precheck remove <index> precheck 명령 제거 (1-기반 index)
@@ -687,6 +689,14 @@ cmd_status() {
   fi
   printf "  Plan Accept:  %s\n" "$([ "$plan_accepted" = "true" ] && echo "${C_GRN}yes${C_RST}" || echo "${C_DIM}no${C_RST}")"
   printf "  Last Test:    %s\n" "${last_test:-${C_DIM}없음${C_RST}}"
+
+  # directorMode 행 (true 일 때만 출력)
+  local installed_json="$SDD_ROOT/.harness-kit/installed.json"
+  local director_mode
+  director_mode=$(jq -r '.directorMode // false' "$installed_json" 2>/dev/null || echo "false")
+  if [ "$director_mode" = "true" ]; then
+    printf "  Director Mode: %s\n" "${C_CYN}on${C_RST}"
+  fi
 
   # task 진행률 (Pre-flight 섹션 후의 task 만 카운트)
   local spec_dir
@@ -1498,9 +1508,10 @@ task_done() {
 cmd_config() {
   local sub="${1:-}"; shift || true
   case "$sub" in
-    ux-mode)  _config_ux_mode "$@" ;;
-    precheck) _config_precheck "$@" ;;
-    *)        die "사용법: sdd config ux-mode|precheck ..." ;;
+    ux-mode)       _config_ux_mode "$@" ;;
+    precheck)      _config_precheck "$@" ;;
+    director-mode) _config_director_mode "$@" ;;
+    *)             die "사용법: sdd config ux-mode|precheck|director-mode ..." ;;
   esac
 }
 
@@ -1642,6 +1653,43 @@ _config_ux_mode() {
   tmp=$(jq --arg v "$value" '.uxMode = $v' "$installed_json" 2>/dev/null) || die "installed.json 갱신 실패"
   echo "$tmp" > "$installed_json"
   ok "uxMode = $value"
+}
+
+_config_director_mode() {
+  local installed_json="$SDD_ROOT/.harness-kit/installed.json"
+  [ -f "$installed_json" ] || die "installed.json 없음: $installed_json"
+
+  local value="${1:-}"
+  if [ -z "$value" ]; then
+    local current
+    current=$(jq -r '.directorMode // false' "$installed_json" 2>/dev/null || echo "false")
+    echo "directorMode: $current"
+    return 0
+  fi
+
+  case "$value" in
+    on)  value="true" ;;
+    off) value="false" ;;
+    toggle)
+      local current
+      current=$(jq -r '.directorMode // false' "$installed_json" 2>/dev/null || echo "false")
+      if [ "$current" = "true" ]; then
+        value="false"
+      else
+        value="true"
+      fi
+      ;;
+    *) die "허용된 값: on | off | toggle (입력: $value)" ;;
+  esac
+
+  local tmp
+  tmp=$(jq --argjson v "$value" '.directorMode = $v' "$installed_json" 2>/dev/null) || die "installed.json 갱신 실패"
+  echo "$tmp" > "$installed_json"
+  if [ "$value" = "true" ]; then
+    ok "directorMode = on"
+  else
+    ok "directorMode = off"
+  fi
 }
 
 # ============================================================
@@ -2264,6 +2312,18 @@ cmd_doctor() {
 
   printf "\nClaude Code 설정\n"
   _check_file ".claude/settings.json" ".claude/settings.json" "install.sh 재실행 또는 수동 생성"
+
+  printf "\n설정\n"
+  local _dm_json="$SDD_ROOT/.harness-kit/installed.json"
+  if [ -f "$_dm_json" ]; then
+    local dm
+    dm=$(jq -r '.directorMode // false' "$_dm_json" 2>/dev/null || echo "false")
+    if [ "$dm" = "true" ]; then
+      _doc_pass "directorMode = on"
+    else
+      _doc_pass "directorMode = off (비활성 — /hk-director on 으로 활성화)"
+    fi
+  fi
 
   printf "\n훅 파일\n"
   _check_hooks
