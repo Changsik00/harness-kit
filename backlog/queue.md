@@ -8,7 +8,7 @@
 ## 📦 진행 중 Phase
 
 <!-- sdd:active:start -->
-- **phase-20** — 디렉터 모드 (Director Mode) — context-preserving orchestration — 4 spec — 다음: (spec 없음)
+(active phase 없음. `bin/sdd phase new <slug>` 로 시작)
 <!-- sdd:active:end -->
 
 ## 📥 spec-x 대기
@@ -111,6 +111,7 @@
 - [x] spec-x-harness-footguns (완료)
 - [x] spec-x-doctor-hookspath-lefthook (완료)
 - **phase-19** — 문서 지식 그래프 (Doc Knowledge Graph) — completed 2026-06-01
+- **phase-20** — 디렉터 모드 (Director Mode) — context-preserving orchestration — completed 2026-06-04
 <!-- sdd:done:end -->
 
 ---
