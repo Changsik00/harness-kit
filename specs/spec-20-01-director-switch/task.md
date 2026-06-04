@@ -9,8 +9,8 @@
 - [x] spec.md 작성
 - [x] plan.md 작성
 - [x] task.md 작성 (이 파일)
-- [ ] 백로그 업데이트 (`backlog/phase-20.md` SPEC 표 상태 갱신)
-- [ ] 사용자 Plan Accept
+- [x] 백로그 업데이트 (`backlog/phase-20.md` SPEC 표 상태 갱신)
+- [x] 사용자 Plan Accept
 
 ---
 
@@ -18,8 +18,8 @@
 
 ### 1-1. 브랜치 확인
 
-- [ ] `spec-20-01-director-switch` 브랜치에 있음을 확인 (이미 체크아웃 되어 있으므로 생성 불필요)
-- [ ] Commit: 없음 (브랜치 확인만)
+- [x] `spec-20-01-director-switch` 브랜치에 있음을 확인 (이미 체크아웃 되어 있으므로 생성 불필요)
+- [x] Commit: 없음 (브랜치 확인만)
 
 ### 1-2. 테스트 스캐폴딩 (TDD Red)
 
@@ -74,21 +74,21 @@
 
 > **이 단계를 건너뛰면 push 금지.** 로컬에서 모두 통과(GREEN) 확인 후 push 한다.
 
-- [ ] **전체 테스트 실행**: `bash tests/test-director-mode.sh` → 전체 PASS
-- [ ] **기존 테스트 회귀**: `bash tests/test-hk-doctor.sh` 등 기존 테스트 suite PASS (있는 경우)
-- [ ] (Integration Test Required = no — 별도 통합 테스트 불필요)
+- [x] **전체 테스트 실행**: `bash tests/test-director-mode.sh` → 10/10 PASS
+- [x] **회귀**: `sdd status` / `sdd doctor` 정상 (live 스모크 포함)
+- [x] (Integration Test Required = no — 별도 통합 테스트 불필요)
 
 ### 📝 산출물 작성
 
-- [ ] **walkthrough.md 작성** (구현 중 발견·결정·이슈 중심으로 — 구현 나열 금지)
-- [ ] **pr_description.md 작성** (템플릿 준수)
-- [ ] **Ship Commit**: `docs(spec-20-01): ship walkthrough and pr description`
+- [x] **walkthrough.md 작성** (도그푸딩 발견·결정 중심)
+- [x] **pr_description.md 작성** (템플릿 준수)
+- [x] **Ship Commit**: `docs(spec-20-01): ship walkthrough and pr description`
 
 ### 🚀 Push & PR
 
-- [ ] **Push**: `git push -u origin spec-20-01-director-switch`
-- [ ] **PR 생성**: `gh pr create` 또는 `/hk-pr-gh` (base: `phase-20-director-mode`)
-- [ ] **사용자 알림**: 푸시 완료 + PR URL 보고
+- [x] **Push**: `git push -u origin spec-20-01-director-switch`
+- [x] **PR 생성**: base `phase-20-director-mode`
+- [x] **사용자 알림**: 푸시 완료 + PR URL 보고
 
 ---
 
