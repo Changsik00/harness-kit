@@ -6,7 +6,7 @@
 ## Pre-flight
 - [x] spec.md / plan.md / task.md 작성 (디렉터 직접)
 - [x] 백로그 phase-20.md spec 표 등록 (sdd spec new)
-- [ ] 사용자 Plan Accept
+- [x] 사용자 Plan Accept
 
 ---
 
@@ -45,22 +45,22 @@
 
 ## Task 4: 중재 패턴 기록
 
-- [ ] `docs/wiki/patterns.md` good-pattern `mediated-design-dialogue` 추가 (front↔back 협상 + 디렉터 중재 / 종료조건 / 증류)
-- [ ] Commit: `docs(spec-20-04): add mediated design dialogue pattern`
+- [x] `docs/wiki/patterns.md` good-pattern `mediated-design-dialogue` 추가 (front↔back 협상 + 디렉터 중재 / 종료조건 / 증류)
+- [x] Commit: `docs(spec-20-04): add mediated design dialogue pattern`
 
 ---
 
 ## Task 5: Ship
 
 ### Pre-Push Gate
-- [ ] `test-director-mode.sh` + `test-director-protocol.sh` + `test-governance-dedup.sh` 전부 PASS
-- [ ] 단어 예산 ≤8000 + 미러 parity + 모델 이름 하드코딩 0 확인
+- [x] `test-director-mode.sh` + `test-director-protocol.sh` + `test-governance-dedup.sh` 전부 PASS
+- [x] 단어 예산 ≤8000 + 미러 parity + 모델 이름 하드코딩 0 확인
 
 ### 산출물
-- [ ] walkthrough.md (결정·발견·증거 — 번들 통합 회고 포함)
-- [ ] pr_description.md
-- [ ] Ship commit → push → **base PR** (`phase-20-director-mode`)
-- [ ] 머지 후 phase 전 spec Merged → `/hk-phase-ship` 로 phase-20 종결
+- [x] walkthrough.md (결정·발견·증거 — 번들 통합 회고 포함)
+- [x] pr_description.md
+- [x] Ship commit → push → **base PR** (`phase-20-director-mode`)
+- [x] 머지 후 phase 전 spec Merged → `/hk-phase-ship` 로 phase-20 종결
 
 ---
 
