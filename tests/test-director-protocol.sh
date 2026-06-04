@@ -94,6 +94,31 @@ else
   fail "합계 ${TOTAL}w — 상한(${LIMIT}w) 초과"
 fi
 
+# --- Check 5: Ceremony-split delegation terms ---
+echo ""
+echo "▶ Check 5: Ceremony-split 분업 계약 용어 존재"
+
+check
+if grep -q "Director Mode delegation" "$AGENT" 2>/dev/null; then
+  pass "'Director Mode delegation' 용어 확인 (§6.1 위임 단락)"
+else
+  fail "'Director Mode delegation' 용어 없음 (§6.1 위임 단락 미추가)"
+fi
+
+check
+if grep -qi "artifact files\|planning artifacts" "$AGENT" 2>/dev/null; then
+  pass "'artifact files' 또는 'planning artifacts' 용어 확인 (산출물 커밋 의무)"
+else
+  fail "'artifact files' / 'planning artifacts' 용어 없음 (산출물 커밋 의무 미명시)"
+fi
+
+check
+if grep -q "§6.1 Director Mode delegation\|→ §6.1" "$AGENT" 2>/dev/null; then
+  pass "§6.8 참조 줄 확인 (§6.1 cross-ref)"
+else
+  fail "§6.8 참조 줄 없음 (§6.1 Director Mode delegation 참조 미추가)"
+fi
+
 # --- Summary ---
 echo ""
 echo "═══════════════════════════════════════════"

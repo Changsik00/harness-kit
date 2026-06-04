@@ -177,6 +177,15 @@ For **EVERY** Task in the approved Plan, the Agent MUST:
 6. **Update task.md**: Mark the task status (see §6.2).
 7. **Auto-proceed or Stop**: If no issues occurred, update `task.md` and **automatically proceed** to the next task — including the Ship task (ship → push → PR creation). If any issue occurs (test failure, unexpected error, scope deviation, push failure), immediately **STOP** and report to the user. On successful PR creation, report the PR URL and wait for User merge.
 
+**Director Mode delegation** (active when `directorMode` is enabled):
+When the Strict Loop runs under director mode, the director MUST delegate
+task execution to a Sonnet worker sub-agent via a scoped brief (target files,
+expected behaviour, test command, commit format). The worker's commit scope
+MUST include planning artifact files (spec/plan/task). Three invariants apply:
+① Plan Accept and Ship gates are NOT delegated — held by director + user.
+② Worker commit scope MUST include spec/plan/task artifact files.
+③ Verification follows §6.8 rule 4 — action/distillation only, no transcript re-ingestion.
+
 ### 6.2 Task Status Management
 
 **Checkbox states in `task.md`**:
@@ -313,6 +322,8 @@ Active when `directorMode` is enabled (→ `/hk-director`).
    Single short commands stay in the main thread.
    Director mode raises the delegation default — it does not mandate
    delegation for everything.
+
+**SDD ceremony task delegation**: For delegating Strict Loop execution to a worker, → §6.1 Director Mode delegation block.
 
 ## 7. Deviation & Hard Stop
 
