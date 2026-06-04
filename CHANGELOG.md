@@ -5,6 +5,23 @@ harness-kit의 주요 변경 사항을 버전별로 정리합니다.
 
 ---
 
+## [0.16.0] — 2026-06-04
+
+> 디렉터 모드(Director Mode) — context-preserving orchestration. ADR-005 의 orchestrator–worker 전략을 사용자가 켜는 명시적 운영 모드로 구체화. + kit 버그 리포팅 명령.
+
+### Added
+- **디렉터 모드 (phase-20)** — `/hk-director on/off/toggle` 로 켜는 명시적 오케스트레이션 모드. 디렉터(Opus)가 의도·게이트를 보유하고 ceremony 작성·구현은 워커(Sonnet)에 위임, 증류 보고만 수신해 **context(의도의 흐름) 보존**. `installed.json directorMode` 플래그 + `sdd status`/doctor 노출 (#179)
+- **디렉터 운영 프로토콜 (agent.md §6.8)** — 의도 합의 핸드셰이크 / scoped brief 위임 / distilled contract 반납 / **검증=행동·증류, 전문 재흡수 금지** / 게이트는 디렉터 보유 / over-dispatch 금지. [[ADR-006]] (#179)
+- **SDD ceremony 분업 계약 (agent.md §6.1)** — 디렉터=의도·plan 핵심결정·게이트·검수 / 워커=task 분해·문서 직접쓰기·Strict Loop·산출물 커밋 (#179)
+- **review 페르소나 패널** — `hk-code-review`/`hk-spec-critique`/`hk-phase-review` 에 렌즈별(correctness/security/perf/test-coverage) 워커 병렬 → 디렉터 종합·중재 옵션. 소규모 diff 는 단일 리뷰어 fallback (#179)
+- **`/hk-report-issue`** — harness-kit 자체 버그를 kit GitHub 저장소에 컨텍스트(kitVersion/OS/doctor)와 함께 이슈로 리포팅. 시크릿 점검 + 사용자 확인 게이트, gh 부재 시 graceful 안내
+- **ADR-005 (context-orchestration)** / **ADR-006 (director-mode)** + `docs/wiki/patterns.md` `mediated-design-dialogue` 패턴
+
+### Changed
+- **모델 분배 de-hardcode (agent.md §6.6)** — 2-tier 모델이름 표 → director/worker/scout **역할 기반** 표. 실제 모델은 `harness.config.json` `models` 매핑(`sdd config models` 조회). 모델 세대 churn 에 거버넌스 불변 (#179)
+
+---
+
 ## [0.15.1] — 2026-06-01
 
 > 버그픽스 — sdd/템플릿/hook 견고성 정리 + 도그푸딩 설치본 drift 수습.
