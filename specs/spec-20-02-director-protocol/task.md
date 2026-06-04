@@ -19,12 +19,12 @@
 > spec/plan/task 3개를 브랜치에 커밋한다. 이미 브랜치에 있으므로 브랜치 전환 확인만.
 
 ### 1-1. 브랜치 확인
-- [ ] 현재 브랜치가 `spec-20-02-director-protocol` 인지 확인 (`git branch --show-current`)
-- [ ] Commit: 없음 (확인만)
+- [x] 현재 브랜치가 `spec-20-02-director-protocol` 인지 확인 (`git branch --show-current`)
+- [x] Commit: 없음 (확인만)
 
 ### 1-2. 기획 산출물 커밋
-- [ ] `specs/spec-20-02-director-protocol/spec.md`, `plan.md`, `task.md` 스테이징
-- [ ] Commit: `docs(spec-20-02): add spec plan task for director protocol`
+- [x] `specs/spec-20-02-director-protocol/spec.md`, `plan.md`, `task.md` 스테이징
+- [x] Commit: `docs(spec-20-02): add spec plan task for director protocol`
 
 ---
 
@@ -33,13 +33,13 @@
 > 핵심 용어 grep + 미러 parity + 단어 예산 검증 테스트를 먼저 작성. §6.8 미존재 상태에서 실패 확인.
 
 ### 2-1. 테스트 파일 작성
-- [ ] `tests/test-director-protocol.sh` 신규 작성
+- [x] `tests/test-director-protocol.sh` 신규 작성
   - Check 1: `6.8 Director Mode Protocol` 섹션 존재 확인 (`grep` on `sources/governance/agent.md`)
   - Check 2: 핵심 불변식 용어 존재 확인 (`intent handshake`, `distilled contract`, `re-ingestion` 또는 `full transcript`, `Plan Accept`)
   - Check 3: sources ↔ 미러 parity (`diff -q sources/governance/agent.md .harness-kit/agent/agent.md`)
   - Check 4: 단어 예산 (constitution+agent.md 합계 8000w 이하)
-- [ ] `bash tests/test-director-protocol.sh` → Check 1/2 Fail 확인 (§6.8 미존재), Check 3/4 Pass 예상
-- [ ] Commit: `test(spec-20-02): add director protocol verification test`
+- [x] `bash tests/test-director-protocol.sh` → Check 1/2 Fail 확인 (§6.8 미존재), Check 3/4 Pass 예상
+- [x] Commit: `test(spec-20-02): add director protocol verification test`
 
 ---
 
@@ -48,13 +48,13 @@
 > `sources/governance/agent.md` 에 §6.8 Director Mode Protocol 추가 후 미러 동기화. 단어 예산 300w 이하 확인 후 커밋.
 
 ### 3-1. §6.8 절 작성
-- [ ] `sources/governance/agent.md` §6.7 다음에 §6.8 절 추가 (영어, 300w 이하)
-- [ ] `wc -w sources/governance/agent.md sources/governance/constitution.md` → 합계 8000w 이하 확인
-- [ ] `.harness-kit/agent/agent.md` 미러 동기화 (`cp sources/governance/agent.md .harness-kit/agent/agent.md`)
-- [ ] `bash tests/test-director-protocol.sh` → 전체 PASS
-- [ ] `bash tests/test-governance-dedup.sh` → 전체 PASS (특히 Check 2/3)
-- [ ] `bash tests/test-director-mode.sh` → 기존 테스트 회귀 없음 확인
-- [ ] Commit: `feat(spec-20-02): add director mode protocol section to agent.md`
+- [x] `sources/governance/agent.md` §6.7 다음에 §6.8 절 추가 (영어, 300w 이하)
+- [x] `wc -w sources/governance/agent.md sources/governance/constitution.md` → 합계 8000w 이하 확인
+- [x] `.harness-kit/agent/agent.md` 미러 동기화 (`cp sources/governance/agent.md .harness-kit/agent/agent.md`)
+- [x] `bash tests/test-director-protocol.sh` → 전체 PASS
+- [x] `bash tests/test-governance-dedup.sh` → 전체 PASS (특히 Check 2/3)
+- [x] `bash tests/test-director-mode.sh` → 기존 테스트 회귀 없음 확인
+- [x] Commit: `feat(spec-20-02): add director mode protocol section to agent.md`
 
 ---
 
@@ -63,11 +63,11 @@
 > 검증 불변식을 ADR-006 에 흡수하고 상태를 accepted 로 갱신한다.
 
 ### 4-1. ADR-006 갱신
-- [ ] `docs/decisions/ADR-006-director-mode.md` 수정:
+- [x] `docs/decisions/ADR-006-director-mode.md` 수정:
   - `status: proposed` → `status: accepted`
   - Consequences 에 검증 불변식 항목 추가
   - "적용: agent.md §6.8 (spec-20-02)" 기록
-- [ ] Commit: `docs(spec-20-02): accept adr-006 with verification invariant`
+- [x] Commit: `docs(spec-20-02): accept adr-006 with verification invariant`
 
 ---
 
@@ -101,5 +101,5 @@
 |---|---|
 | **총 Task 수** | 5 (Pre-flight 포함 시 4 작업 task) |
 | **예상 commit 수** | 4 (docs planning / test / feat / docs adr) + 1 ship |
-| **현재 단계** | Planning |
+| **현재 단계** | T1-T4 완료 (Ship 대기) |
 | **마지막 업데이트** | 2026-06-04 |
