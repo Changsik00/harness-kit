@@ -19,47 +19,46 @@
 > 브랜치는 이미 `spec-20-03-ceremony-split` (phase-20 base 모드 작업 중). 브랜치 생성 단계 불필요.
 
 ### 1-1. spec/plan/task 파일 스테이징 및 커밋
-- [ ] `git add specs/spec-20-03-ceremony-split/spec.md specs/spec-20-03-ceremony-split/plan.md specs/spec-20-03-ceremony-split/task.md`
-- [ ] `git add backlog/phase-20.md` (SPEC 표 상태 업데이트)
-- [ ] Commit: `docs(spec-20-03): add planning artifacts for ceremony-split`
+- [x] `git add specs/spec-20-03-ceremony-split/spec.md specs/spec-20-03-ceremony-split/plan.md specs/spec-20-03-ceremony-split/task.md`
+- [x] `git add backlog/phase-20.md` (SPEC 표 상태 업데이트)
+- [x] Commit: `docs(spec-20-03): add spec plan task for ceremony split`
 
 ---
 
 ## Task 2: 테스트 확장 (TDD Red)
 
 ### 2-1. test-director-protocol.sh Check 5 추가
-- [ ] `tests/test-director-protocol.sh` 열기 — 기존 Check 4 이후에 Check 5 블록 삽입
-- [ ] Check 5 항목:
+- [x] `tests/test-director-protocol.sh` 열기 — 기존 Check 4 이후에 Check 5 블록 삽입
+- [x] Check 5 항목:
   - `grep -q "Director Mode delegation"` — §6.1 위임 단락 존재
   - `grep -qi "artifact files\|planning artifacts"` — 산출물 커밋 의무
   - `grep -q "§6.1 Director Mode delegation\|→ §6.1"` — §6.8 참조 줄
-- [ ] 테스트 실행 → 3개 항목 FAIL 확인 (Red)
-- [ ] Commit: `test(spec-20-03): add failing checks for ceremony-split delegation terms`
+- [x] 테스트 실행 → 3개 항목 FAIL 확인 (Red) — 실제 2개 FAIL (planning artifacts는 §6.6에 이미 존재)
+- [x] Commit: `test(spec-20-03): extend test for ceremony split delegation`
 
 ---
 
 ## Task 3: §6.1 위임 단락 + §6.8 참조 줄 추가 (TDD Green)
 
 ### 3-1. sources/governance/agent.md 수정
-- [ ] §6.1 말미(7번 항목 뒤)에 "Director Mode delegation" 단락 추가
+- [x] §6.1 말미(7번 항목 뒤)에 "Director Mode delegation" 단락 추가
   - 포함 내용: 위임 조건, 브리핑 범위, 불변식 3가지 (게이트·산출물·검증)
-  - 목표 단어 수: ≤110w
-- [ ] §6.8 에 `→ §6.1 Director Mode delegation` 참조 줄 1행 추가
-- [ ] `wc -w sources/governance/agent.md sources/governance/constitution.md` 실행 → 합계 ≤8000 확인
-  - 초과 시 문장 압축 후 재측정 (디렉터 보고 포함)
+  - 실제 단어 수: 88w (≤110w ✓)
+- [x] §6.8 에 `→ §6.1 Director Mode delegation` 참조 줄 1행 추가
+- [x] `wc -w sources/governance/agent.md sources/governance/constitution.md` 실행 → 합계 7613w ≤8000 확인
 
 ### 3-2. .harness-kit/agent/agent.md 미러 동기화
-- [ ] `cp sources/governance/agent.md .harness-kit/agent/agent.md`
-- [ ] `diff sources/governance/agent.md .harness-kit/agent/agent.md` → 출력 없음 확인
+- [x] `cp sources/governance/agent.md .harness-kit/agent/agent.md`
+- [x] `diff sources/governance/agent.md .harness-kit/agent/agent.md` → 출력 없음 확인
 
 ### 3-3. 테스트 실행 → PASS 확인
-- [ ] `bash tests/test-director-protocol.sh` → 전체 PASS
+- [x] `bash tests/test-director-protocol.sh` → 전체 PASS
   - Check 1: §6.8 섹션 존재 ✓
   - Check 2: 핵심 용어 (기존) ✓
   - Check 3: 미러 parity ✓
-  - Check 4: 단어 예산 ≤8000w ✓
+  - Check 4: 단어 예산 7613w ≤8000w ✓
   - Check 5 (신규): ceremony-split 용어 3개 ✓
-- [ ] Commit: `feat(spec-20-03): add §6.1 delegation block + §6.8 cross-ref + mirror sync`
+- [x] Commit: `feat(spec-20-03): add sdd ceremony delegation to agent.md §6.1`
 
 ---
 
@@ -95,5 +94,5 @@
 |---|---|
 | **총 Task 수** | 4 (T1 산출물 커밋, T2 테스트 Red, T3 구현 Green, T4 Ship) |
 | **예상 commit 수** | 4 |
-| **현재 단계** | Planning |
+| **현재 단계** | T1-T3 완료 (T4 Ship 대기) |
 | **마지막 업데이트** | 2026-06-04 |
