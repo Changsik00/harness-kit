@@ -58,6 +58,13 @@ sdd — harness-kit 메타 명령
                                 turbo: Plan Accept 없이 실행, 커밋 후 자동 검증
                                 governed: 전체 SDD ceremony (기본)
 
+  intent "<goal>" [--test <cmd>] [--files <list>]
+                                Turbo 모드용 의도 선언 (.claude/state/intent.yaml 기록)
+                                --test: 커밋 후 자동 실행할 검증 커맨드
+                                --files: 변경 예정 파일 목록 (쉼표 구분)
+  intent show                   현재 intent 출력 (없으면 안내)
+  intent clear                  intent.yaml 삭제
+
   config ux-mode [interactive|text|toggle]
                                 uxMode 설정 조회/변경 (생략 시 현재값 출력, toggle: 현재값 자동 반전)
   config director-mode [on|off|toggle]
@@ -711,6 +718,14 @@ cmd_status() {
     printf "  Active Mode:   %s\n" "${C_CYN}turbo${C_RST}"
   else
     printf "  Active Mode:   %s\n" "${C_DIM}governed${C_RST}"
+  fi
+
+  # Active Intent 행 (intent.yaml 존재 시)
+  local intent_file="$SDD_ROOT/.claude/state/intent.yaml"
+  if [ -f "$intent_file" ]; then
+    local intent_goal
+    intent_goal=$(grep -E "^goal:" "$intent_file" | sed 's/^goal:[[:space:]]*//' | head -1)
+    [ -n "$intent_goal" ] && printf "  Active Intent: %s\n" "${C_CYN}${intent_goal}${C_RST}"
   fi
 
   # task 진행률 (Pre-flight 섹션 후의 task 만 카운트)
@@ -2624,6 +2639,64 @@ _search_in() {
   printf '%s' "$out" | sed '/^$/d'
 }
 
+_INTENT_FILE() { printf '%s/.claude/state/intent.yaml' "$SDD_ROOT"; }
+
+cmd_intent() {
+  local sub="${1:-show}"; shift || true
+  case "$sub" in
+    show)   _intent_show ;;
+    clear)  _intent_clear ;;
+    *)      _intent_write "$sub" "$@" ;;
+  esac
+}
+
+_intent_write() {
+  local goal="${1:-}"; shift || true
+  [ -z "$goal" ] && die "사용법: sdd intent \"<목표>\" [--test <cmd>] [--files <list>]"
+  local test_cmd="" files=""
+  while [ "$#" -gt 0 ]; do
+    case "$1" in
+      --test)  shift; test_cmd="${1:-}" ;;
+      --files) shift; files="${1:-}" ;;
+      *) die "알 수 없는 옵션: $1 (허용: --test, --files)" ;;
+    esac
+    shift || true
+  done
+  local intent_file
+  intent_file="$(_INTENT_FILE)"
+  mkdir -p "$(dirname "$intent_file")"
+  printf 'goal: %s\n' "$goal" > "$intent_file"
+  [ -n "$test_cmd" ] && printf 'test: %s\n' "$test_cmd" >> "$intent_file"
+  [ -n "$files"    ] && printf 'files: %s\n' "$files"   >> "$intent_file"
+  printf '✓ Intent 기록: %s\n' "$goal"
+  [ -n "$test_cmd" ] && printf '  test: %s\n' "$test_cmd"
+  [ -n "$files"    ] && printf '  files: %s\n' "$files"
+}
+
+_intent_show() {
+  local intent_file
+  intent_file="$(_INTENT_FILE)"
+  if [ ! -f "$intent_file" ]; then
+    printf 'intent 없음 — 설정하려면: sdd intent "<목표>" [--test <cmd>]\n'
+    return 0
+  fi
+  printf '📌 현재 Intent\n'
+  while IFS= read -r line; do
+    printf '  %s\n' "$line"
+  done < "$intent_file"
+}
+
+_intent_clear() {
+  local intent_file
+  intent_file="$(_INTENT_FILE)"
+  if [ -f "$intent_file" ]; then
+    rm -f "$intent_file"
+    printf '✓ Intent 삭제됨\n'
+  else
+    printf 'intent 없음 (이미 없거나 삭제됨)\n'
+  fi
+}
+
 cmd_mode() {
   local sub="${1:-status}"; shift || true
   case "$sub" in
@@ -2669,6 +2742,7 @@ main() {
     specx)   cmd_specx "$@" ;;
     doctor)   cmd_doctor "$@" ;;
     mode)    cmd_mode "$@" ;;
+    intent)  cmd_intent "$@" ;;
     pr-watch)  cmd_pr_watch "$@" ;;
     run-test)  cmd_run_test "$@" ;;
     search)   cmd_search "$@" ;;
