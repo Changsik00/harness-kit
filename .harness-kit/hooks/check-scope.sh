@@ -10,6 +10,8 @@ HOOK_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$HOOK_DIR/_lib.sh"
 hook_resolve_mode "SCOPE" "warn"
 
+[ "$(hook_state mode)" = "turbo" ] && exit 0
+
 target="$(hook_tool_input file_path)"
 [ -z "$target" ] && exit 0
 
