@@ -8,7 +8,7 @@
 ## 📦 진행 중 Phase
 
 <!-- sdd:active:start -->
-(active phase 없음. `bin/sdd phase new <slug>` 로 시작)
+- **phase-21** — Turbo 모드 추가 — 실행 우선 + 사후 검증 — 2 spec — 다음: spec-21-02-turbo-hooks
 <!-- sdd:active:end -->
 
 ## 📥 spec-x 대기
