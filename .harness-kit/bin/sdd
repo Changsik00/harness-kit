@@ -54,6 +54,10 @@ sdd — harness-kit 메타 명령
 
   plan accept                   현재 spec 의 plan 을 승인 (planAccepted=true)
 
+  mode [turbo|governed|status]  실행 모드 전환 (생략 시 현재 모드 출력)
+                                turbo: Plan Accept 없이 실행, 커밋 후 자동 검증
+                                governed: 전체 SDD ceremony (기본)
+
   config ux-mode [interactive|text|toggle]
                                 uxMode 설정 조회/변경 (생략 시 현재값 출력, toggle: 현재값 자동 반전)
   config director-mode [on|off|toggle]
@@ -697,6 +701,16 @@ cmd_status() {
   director_mode=$(jq -r '.directorMode // false' "$installed_json" 2>/dev/null || echo "false")
   if [ "$director_mode" = "true" ]; then
     printf "  Director Mode: %s\n" "${C_CYN}on${C_RST}"
+  fi
+
+  # Active Mode 행 (turbo 일 때만 강조, governed 는 항상 표시)
+  local active_mode
+  active_mode="$(state_get mode)"
+  [ -z "$active_mode" ] || [ "$active_mode" = "null" ] && active_mode="governed"
+  if [ "$active_mode" = "turbo" ]; then
+    printf "  Active Mode:   %s\n" "${C_CYN}turbo${C_RST}"
+  else
+    printf "  Active Mode:   %s\n" "${C_DIM}governed${C_RST}"
   fi
 
   # task 진행률 (Pre-flight 섹션 후의 task 만 카운트)
@@ -2610,6 +2624,31 @@ _search_in() {
   printf '%s' "$out" | sed '/^$/d'
 }
 
+cmd_mode() {
+  local sub="${1:-status}"; shift || true
+  case "$sub" in
+    turbo)
+      state_set mode "turbo"
+      printf '✓ 모드 전환: governed → turbo\n'
+      printf '  Plan Accept 없이 코드 편집 가능\n'
+      printf '  커밋 후 post-commit-verify 자동 실행\n'
+      ;;
+    governed)
+      state_set mode "governed"
+      printf '✓ 모드 전환: turbo → governed\n'
+      printf '  Plan Accept 필요 — 전체 SDD ceremony\n'
+      ;;
+    status|"")
+      local current
+      current="$(state_get mode)"
+      [ -z "$current" ] || [ "$current" = "null" ] && current="governed"
+      printf '현재 모드: %s\n' "$current"
+      ;;
+    *)
+      die "알 수 없는 모드: $sub (허용: turbo | governed | status)" ;;
+  esac
+}
+
 # ============================================================
 main() {
   local cmd="${1:-help}"; shift || true
@@ -2629,6 +2668,7 @@ main() {
     hooks)   cmd_hooks "$@" ;;
     specx)   cmd_specx "$@" ;;
     doctor)   cmd_doctor "$@" ;;
+    mode)    cmd_mode "$@" ;;
     pr-watch)  cmd_pr_watch "$@" ;;
     run-test)  cmd_run_test "$@" ;;
     search)   cmd_search "$@" ;;
