@@ -46,10 +46,10 @@ AI 에이전트의 수준이 높아지면서 "사전 승인 → 실행" 보다 "
 | ID | 슬러그 | 우선순위 | 상태 | 디렉토리 |
 |---|---|:---:|---|---|
 | `spec-21-01` | mode-schema | P? | Merged | `specs/spec-21-01-mode-schema/` |
-| `spec-21-02` | turbo-hooks | P? | Planning | `specs/spec-21-02-turbo-hooks/` |
-| `spec-21-03` | intent-block | P? | Active | `specs/spec-21-03-intent-block/` |
-| `spec-21-04` | governance-update | P? | Active | `specs/spec-21-04-governance-update/` |
-| `spec-21-05` | integration-test | P? | Active | `specs/spec-21-05-integration-test/` |
+| `spec-21-02` | turbo-hooks | P? | Merged | `specs/spec-21-02-turbo-hooks/` |
+| `spec-21-03` | intent-block | P? | Merged | `specs/spec-21-03-intent-block/` |
+| `spec-21-04` | governance-update | P? | Merged | `specs/spec-21-04-governance-update/` |
+| `spec-21-05` | integration-test | P? | Merged | `specs/spec-21-05-integration-test/` |
 <!-- sdd:specs:end -->
 
 > 상태 허용값: `Backlog` / `In Progress` / `Merged`
