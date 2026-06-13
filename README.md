@@ -59,7 +59,7 @@ harness-kit은 그 격차를 메꿉니다. **의도를 문서로 적는 것**에
 | `archive/` | 🗄 완료 항목 보관 — `sdd archive`로 정리. 조회 시 `(archived)` 표시 |
 | `.claude/state/current.json` | ⚙️ 런타임 상태 — `phase`, `spec`, `planAccepted`, `lastTestPass` 등. hook이 읽어 Plan Accept·테스트 통과 여부를 판단. `.gitignore` 대상 |
 
-### 핵심 규칙
+### 🔒 핵심 규칙
 
 | | 규칙 | 강제 수단 |
 |---|---|---|
@@ -67,6 +67,18 @@ harness-kit은 그 격차를 메꿉니다. **의도를 문서로 적는 것**에
 | 1️⃣ | **One Task = One Commit** | task.md 체크박스 |
 | 🚫 | **main 브랜치 직접 작업 금지** | `check-branch.sh` hook |
 | 🧪 | **TDD: 테스트 → 구현 → 커밋** | `check-test-passed.sh` hook |
+
+### ⚡ 실행 모드
+
+작업 규모와 목적에 따라 세 가지 모드를 선택합니다.
+
+| 모드 | 전환 | Plan Accept | 동작 |
+|---|---|:---:|---|
+| 🔵 **Governed** (기본) | `sdd mode governed` | ✅ 필수 | 완전한 SDD 절차. spec.md → task.md → Plan Accept → Strict Loop |
+| ⚡ **Turbo** | `sdd mode turbo` | ⬜ 생략 | Plan Accept 없이 즉시 편집. 커밋 후 `post-commit-verify` 자동 실행 — 테스트 실패 시 `git revert` 자동 수행 |
+| 🏃 **FF** (Fast-Forward) | 수동 | — | spec/PR 없이 main 직접 커밋. 오탈자·설정 변경 등 극소 수정에만 사용 |
+
+> Turbo 모드 전환: `/hk-turbo` 슬래시 커맨드 또는 `sdd mode turbo`. 복귀: `sdd mode governed`.
 
 ---
 
@@ -89,7 +101,7 @@ brew install jq git
 ## 📦 설치
 
 ```bash
-bash <(curl -fsSL https://raw.githubusercontent.com/Changsik00/harness-kit/main/get.sh) --yes ~/Project/my-app
+curl -fsSL https://raw.githubusercontent.com/Changsik00/harness-kit/main/get.sh | bash -s -- --yes ~/Project/my-app
 ```
 
 | 옵션 | 설명 |
@@ -168,26 +180,27 @@ Claude Code 안에서 `/hk-align`을 실행합니다. 이 커맨드가 자동으
 에이전트: sdd spec new retry-logic
 ```
 
-`sdd spec new`가 실행되면 `specs/spec-{N}-{NN}-retry-logic/` 디렉토리가 생성되고 세 개의 파일이 만들어집니다:
+`sdd spec new`가 실행되면 `specs/spec-{N}-{NN}-retry-logic/` 디렉토리가 생성되고 두 개의 파일이 만들어집니다:
 
-- **`spec.md`** — 무엇을 왜 만드는가. 배경, 요구사항, 범위, 완료 기준.
-- **`plan.md`** — 어떻게 만드는가. 기술 결정, 아키텍처, 구현 접근법.
+- **`spec.md`** — 무엇을 왜 어떻게 만드는가. 배경·요구사항·범위·기술 결정·실행 계획을 한 문서에 담습니다.
 - **`task.md`** — 단계별 체크리스트. 각 항목이 하나의 커밋이 됩니다.
 
-이 시점에서는 **PLANNING 모드**입니다. 코드 편집은 허용되지 않습니다. 에이전트가 세 파일의 초안을 작성하고 사용자가 검토합니다.
+이 시점에서는 **PLANNING 모드**입니다. 코드 편집은 허용되지 않습니다. 에이전트가 두 파일의 초안을 작성하고 사용자가 검토합니다.
 
 ### Step 4: Plan Accept (승인)
 
 이 단계는 단순 승인이 아니라 **가정·범위·접근법을 명시적으로 검증하는 게이트**입니다 — 잘못된 전제 위에 코드가 쌓이는 것을 막습니다.
 
-세 파일을 검토한 뒤 만족스러우면 승인합니다. 다음 중 어느 방법이든 됩니다:
+두 파일을 검토한 뒤 만족스러우면 승인합니다. 다음 중 어느 방법이든 됩니다:
 
 - `1`, `Y`, `yes`, `ok`, `accept`를 입력
 - `/hk-plan-accept` 커맨드 실행
 
 승인되면 `sdd plan accept`가 실행되어 `planAccepted=true`가 기록되고, **Strict Loop**가 시작됩니다. 이후 `check-plan-accept.sh` hook이 해제되어 코드 편집이 가능해집니다.
 
-plan.md 또는 task.md에 아직 템플릿 placeholder가 남아있으면 accept가 거부됩니다.
+> 💡 **Turbo 모드**(`sdd mode turbo`)에서는 Plan Accept 없이 즉시 편집이 가능합니다. 커밋 후 `post-commit-verify`가 자동으로 테스트를 실행하고, 실패 시 `git revert`를 수행합니다.
+
+spec.md 또는 task.md에 아직 템플릿 placeholder가 남아있으면 accept가 거부됩니다.
 
 ### Step 5: Strict Loop (자동 실행)
 
@@ -235,11 +248,20 @@ Phase의 모든 Spec이 merge되면 `/hk-phase-ship`을 실행합니다. 이 커
 ```mermaid
 flowchart TD
     A["/hk-align"] --> B["Phase / Spec 생성"]
-    B --> C["PLANNING: spec.md / plan.md / task.md"]
-    C --> D{"Plan Accept?"}
-    D -->|Yes| E["Strict Loop"]
-    E --> F["Test -> Implement -> Commit -> Next Task"]
-    F --> G["/hk-ship: push + PR"]
+    B --> C["📝 PLANNING\nspec.md + task.md"]
+    C --> D{"⚡ 실행 모드"}
+
+    D -->|"🔵 Governed (기본)"| PA{"✅ Plan Accept?"}
+    PA -->|Yes| SL["🔁 Strict Loop\nTest → Impl → Commit"]
+    PA -->|No| C
+
+    D -->|"⚡ Turbo"| TE["즉시 편집 → Commit"]
+    TE --> PCV{"post-commit-verify"}
+    PCV -->|"✅ PASS"| G
+    PCV -->|"❌ FAIL"| RV["git revert"]
+    RV --> TE
+
+    SL --> G["/hk-ship: push + PR"]
     G --> H{"모든 Spec 완료?"}
     H -->|No| B
     H -->|Yes| I["/hk-phase-ship: Phase PR"]
@@ -314,7 +336,7 @@ sdd archive --keep=2
 │
 ├── specs/                          # 실제 작업 (work log)
 │   └── spec-{N}-{NN}-{slug}/
-│       ├── spec.md, plan.md, task.md
+│       ├── spec.md, task.md
 │       └── walkthrough.md, pr_description.md
 │
 ├── archive/                        # 완료 항목 보관
@@ -343,7 +365,7 @@ sdd archive --keep=2
 | 명령 | 설명 |
 |---|---|
 | `install.sh [TARGET]` | 설치 (`--dry-run`, `--force`, `--yes`, `--no-gitignore`, `--export-format=cursor\|copilot`) |
-| `bash <(curl ... get.sh) --update` | **권장** — 원격에서 직접 갱신 (로컬 clone 불필요) |
+| `curl -fsSL ... get.sh \| bash -s -- --update` | **권장** — 원격에서 직접 갱신 (로컬 clone 불필요) |
 | `update.sh [TARGET]` | 로컬 clone 보유 시 갱신 (state 보존) |
 | `uninstall.sh [TARGET]` | 제거 (작업 산출물 보존) |
 | `doctor.sh [TARGET]` | 점검 (의존성, 구조, 권한, hook, state) |
@@ -355,10 +377,11 @@ sdd archive --keep=2
 |---|---|
 | `/hk` | **단일 진입점** — `sdd status` 기반 현 상태 1 줄 + 다음 행동 1 줄 (8 상태 분기). 13 커맨드 암기 회피용 |
 | `/hk-align` | 세션 부트스트랩 — 거버넌스 로드 + `sdd status`로 현재 상태 확인 |
-| `/hk-update` | 키트 원격 갱신 (`bash <(curl ... get.sh) --update` 또는 로컬 `update.sh` fallback) |
+| `/hk-update` | 키트 원격 갱신 (`curl -fsSL ... get.sh \| bash -s -- --update` 또는 로컬 `update.sh` fallback) |
 | `/hk-report-issue` | 키트 자체 버그를 kit GitHub 저장소에 이슈로 리포팅 (gh CLI, 컨텍스트 수집 + 사용자 확인 후 게시) |
 | `/hk-doctor` | 설치 환경 점검 — 필수 도구, 파일 구조, hook 상태 PASS/FAIL 출력 |
-| `/hk-plan-accept` | plan.md 승인 → Strict Loop 시작 |
+| `/hk-plan-accept` | spec.md 승인 → Strict Loop 시작 (Governed 모드) |
+| `/hk-turbo` | Turbo ↔ Governed 모드 토글 |
 | `/hk-ship` | Spec 완료 — walkthrough/pr_description 검증 후 ship + push + PR 생성 |
 | `/hk-phase-ship` | Phase 완료 — 성공 기준 검증 + 통합 테스트 + go/no-go + main PR |
 | `/hk-phase-review` | Phase 회고 — 독립 Opus sub-agent로 비판적 검증 (목표 달성도, 테스트 품질, 잔재 탐지) |

@@ -81,7 +81,7 @@ latest=$(curl -sf --max-time 5 "$raw_url" | jq -r '.version // empty')
 사용자가 step 4 에서 Y (또는 "응" / "네" / "실행해줘" / "업데이트해줘") 로 승인한 경우, **에이전트가 Bash 툴로 직접 실행**합니다:
 
 ```bash
-bash <(curl -fsSL https://raw.githubusercontent.com/<owner>/<repo>/main/get.sh) --update --yes
+curl -fsSL https://raw.githubusercontent.com/<owner>/<repo>/main/get.sh | bash -s -- --update --yes
 ```
 
 > `--yes` 필수: 에이전트 Bash 환경엔 controlling TTY 가 없어 `update.sh` 의 확인 프롬프트(`read < /dev/tty`)가 빈 값으로 읽혀 항상 "취소됨"으로 종료됩니다. step 4 에서 이미 사용자 승인을 받았으므로 재확인은 생략합니다. (사람이 `!` prefix 나 터미널에서 직접 실행하는 아래 경로는 TTY 가 있으므로 `--yes` 없이 둡니다.)
@@ -108,11 +108,11 @@ git commit -m "chore: apply harness-kit update <new-version>"
 ```
 수동으로 실행하려면 (로컬 클론 불필요):
 
-  bash <(curl -fsSL https://raw.githubusercontent.com/<owner>/<repo>/main/get.sh) --update
+  curl -fsSL https://raw.githubusercontent.com/<owner>/<repo>/main/get.sh | bash -s -- --update
 
 Claude Code 프롬프트에서 바로 실행하려면 ! prefix 사용:
 
-  ! bash <(curl -fsSL https://raw.githubusercontent.com/<owner>/<repo>/main/get.sh) --update
+  ! curl -fsSL https://raw.githubusercontent.com/<owner>/<repo>/main/get.sh | bash -s -- --update
 
 특정 버전 설치: --version <ver> 를 --update 앞에 추가
 ```
