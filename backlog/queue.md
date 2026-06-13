@@ -8,7 +8,7 @@
 ## 📦 진행 중 Phase
 
 <!-- sdd:active:start -->
-(active phase 없음. `bin/sdd phase new <slug>` 로 시작)
+- **phase-21** — Ceremony 경량화 — Turbo 모드 + 문서 구조 개선 — 6 spec — 다음: spec-21-06-template-merge
 <!-- sdd:active:end -->
 
 ## 📥 spec-x 대기

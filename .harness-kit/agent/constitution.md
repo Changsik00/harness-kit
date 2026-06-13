@@ -33,11 +33,24 @@ The Constitution defines the invariant laws of this project. All Agents MUST com
 - LIMITED to: Inline fixes, minor wording, config tweaks that do not warrant a PR.
 - **State Rule**: FF work MUST NOT modify `state.json`'s active phase/spec.
 
-### 2.4 Work Mode Decision Tree
+### 2.4 Mode D — Turbo
+- Activated by: `sdd mode turbo`
+- No Plan Accept gate — edits proceed without ceremony.
+- `post-commit-verify` Stop hook automatically runs `intent.test` or precheck after each commit.
+- Auto-reverts on test failure.
+- Use `sdd intent "<goal>" [--test <cmd>]` to declare session-local verification.
+- Exit with: `sdd mode governed`
+- **NOT for**: Architectural changes, cross-cutting refactors, anything requiring PR review.
 
-Use this two-step check at the start of every Alignment Phase (→ agent.md §3):
+### 2.5 Work Mode Decision Tree
+
+Use this check at the start of every Alignment Phase (→ agent.md §3). Replaces the prior two-step tree; Step 0 gates Turbo first:
 
 ```
+Step 0 — Is Turbo mode active? (`sdd mode status`)
+  YES → Execute freely; post-commit-verify guards quality. Skip Steps 1–2.
+  NO  → Step 1
+
 Step 1 — Is a PR required?
   NO  → FF  (Mode C)
   YES → Step 2
@@ -134,11 +147,11 @@ Before any Spec, Plan, or execution:
 - **Unrecognized Response**: For any response not in the above list, the Agent MUST re-request the selection.
 
 ### 5.3 Premature Execution (Critical)
-- **Zero Tolerance**: Writing production code or changing project state BEFORE the User has explicitly approved the `plan.md` is a **CRITICAL VIOLATION**.
+- **Zero Tolerance**: Writing production code or changing project state BEFORE the User has explicitly approved the `spec.md` plan is a **CRITICAL VIOLATION**.
 - **Planning Mode**: Until approval is given, the Agent MUST remain in PLANNING mode and only edit documentation.
 
 ### 5.4 Artifact Integrity (Critical)
-- **Template Enforcement**: Generating `phase`, `spec`, `plan`, `task`, `walkthrough`, or `pr_description` WITHOUT reading and following the official templates in `.harness-kit/agent/templates/` is a **CRITICAL VIOLATION**.
+- **Template Enforcement**: Generating `phase`, `spec`, `task`, `walkthrough`, or `pr_description` WITHOUT reading and following the official templates in `.harness-kit/agent/templates/` is a **CRITICAL VIOLATION**.
 - **Language Requirement**: All artifacts MUST be written in **Korean** (except for code, file paths, and standard technical terms) to ensure clear communication with the User.
 - **Quality Bar**: Each artifact MUST be rich enough to be self-contained for review. Vague placeholders are not acceptable in finalized artifacts.
 
@@ -160,7 +173,7 @@ Before any Spec, Plan, or execution:
   1. **Acknowledge the conflict explicitly**: State what the current plan says vs. what the User is suggesting.
   2. **Propose reconciliation options**: e.g., amend the plan, defer to Icebox, split into a new Spec.
   3. **Wait for User selection**: No action until the User chooses.
-  4. **Record the decision**: Update the relevant artifact (`plan.md`, `walkthrough.md`, `backlog/queue.md`, or `phase.md`) to reflect the agreed direction. When the divergence happens during PR review (after Ship, before merge), `walkthrough.md` is the primary target since it is the living decision log (→ agent.md §6.3).
+  4. **Record the decision**: Update the relevant artifact (`spec.md`, `walkthrough.md`, `backlog/queue.md`, or `phase.md`) to reflect the agreed direction. When the divergence happens during PR review (after Ship, before merge), `walkthrough.md` is the primary target since it is the living decision log (→ agent.md §6.3).
 - The Agent MUST NOT silently follow a divergent opinion without surfacing the conflict first.
 
 ### 5.7 Action Confirmation Rules
@@ -210,7 +223,7 @@ Governs how the Agent confirms irreversible external actions (push, PR creation)
 - Queue dashboard: `backlog/queue.md` (sdd-managed)
 - Phase definition: `backlog/phase-{N}.md` (single file per phase, contains spec table + integration tests + ADR refs)
 - Spec work: `specs/spec-{phaseN}-{seq}-{slug}/` (actual artifacts)
-- ADR: `docs/decisions/ADR-{NNN}-{slug}.md` — for architectural / cross-Spec / long-lived decisions. Routine decisions stay in `walkthrough.md` / `plan.md` / `phase.md`. Template: `.harness-kit/agent/templates/adr.md`. Frontmatter MUST include `type:` from the §6.4 vocabulary (typically `decision`, optionally `invariant` / `convention` / `tradeoff`).
+- ADR: `docs/decisions/ADR-{NNN}-{slug}.md` — for architectural / cross-Spec / long-lived decisions. Routine decisions stay in `walkthrough.md` / `spec.md` / `phase.md`. Template: `.harness-kit/agent/templates/adr.md`. Frontmatter MUST include `type:` from the §6.4 vocabulary (typically `decision`, optionally `invariant` / `convention` / `tradeoff`).
 - Note: `backlog/` and `specs/` are sibling directories — `backlog/` is the *plan*, `specs/` is the *progress log*. Phase definition lives as a *single flat file* in `backlog/`, not a subdirectory.
 
 ### 6.4 Knowledge Type Vocabulary

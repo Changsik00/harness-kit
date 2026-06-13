@@ -3,22 +3,12 @@
 > 모든 task 는 한 commit 에 대응합니다 (One Task = One Commit).
 > 매 commit 직후 본 파일의 체크박스를 갱신해야 합니다.
 
-## Pre-flight (Plan 작성 단계)
-
-- [ ] Spec ID 확정 및 디렉토리 생성
-- [ ] spec.md 작성
-- [ ] plan.md 작성
-- [ ] task.md 작성 (이 파일)
-- [ ] 백로그 업데이트 (해당 phase 의 phase.md SPEC 표 갱신)
-- [ ] 사용자 Plan Accept
-
 ---
 
 ## Task 1: <한글 제목>
 
 ### 1-1. 브랜치 생성
-- [ ] `git checkout -b spec-{phaseN}-{seq}-{slug}` (브랜치 이름 = spec 디렉토리 이름, `feature/` prefix 없음)
-- [ ] Commit: 없음 (브랜치 생성만)
+- [ ] `git checkout -b spec-{phaseN}-{seq}-{slug}`
 
 ### 1-2. 테스트 작성 (TDD Red)
 - [ ] 테스트 케이스 작성: `<test/path/to/test.spec.*>`
@@ -42,36 +32,17 @@
 
 ## Task N: Ship (필수)
 
-> 모든 작업 task 완료 후 `/hk-ship` 절차를 따릅니다.
+### 🚦 Pre-Push Quality Gate
 
-### 🚦 Pre-Push Quality Gate (push 전 필수)
-
-> **이 단계를 건너뛰면 push 금지.** 로컬에서 모두 통과(GREEN) 확인 후 push 한다.
-> 명령은 스택별로 다르다. 프로젝트가 `sdd config precheck add "<명령>"` 으로 등록한 검사가 있으면 그것을 실행한다.
-
-- [ ] **코드 품질 점검** (lint / type-check) — 스택별 명령 또는 등록된 precheck
 - [ ] **전체 테스트 실행** → 모두 PASS
-- [ ] (Integration Test Required = yes 인 경우) 통합 테스트 실행 → PASS
 
 ### 📝 산출물 작성
 
-- [ ] **walkthrough.md 작성** (증거 로그)
-- [ ] **pr_description.md 작성** (템플릿 준수)
-- [ ] **Ship Commit**: `docs(spec-{phaseN}-{seq}): ship walkthrough and pr description`
+- [ ] **walkthrough.md 작성**
+- [ ] **pr_description.md 작성**
+- [ ] Commit: `docs(spec-{phaseN}-{seq}): ship walkthrough and pr description`
 
 ### 🚀 Push & PR
 
-- [ ] **Push**: `git push -u origin spec-{phaseN}-{seq}-{slug}`
-- [ ] **PR 생성**: 에이전트가 `gh pr create` 또는 `/hk-pr-gh` 로 생성 (사용자 승인 후)
-- [ ] **사용자 알림**: 푸시 완료 + PR URL 보고
-
----
-
-## 진행 요약
-
-| 항목 | 값 |
-|---|---|
-| **총 Task 수** | N |
-| **예상 commit 수** | M |
-| **현재 단계** | Planning / Execution / Ship |
-| **마지막 업데이트** | YYYY-MM-DD HH:MM |
+- [ ] `git push -u origin spec-{phaseN}-{seq}-{slug}`
+- [ ] PR 생성 (`gh pr create` 또는 `/hk-pr-gh`)
