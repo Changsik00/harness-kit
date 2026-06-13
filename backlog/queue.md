@@ -8,7 +8,7 @@
 ## 📦 진행 중 Phase
 
 <!-- sdd:active:start -->
-- **phase-21** — Turbo 모드 추가 — 실행 우선 + 사후 검증 — 4 spec — 다음: spec-21-04-governance-update
+- **phase-21** — Turbo 모드 추가 — 실행 우선 + 사후 검증 — 5 spec — 다음: spec-21-05-integration-test
 <!-- sdd:active:end -->
 
 ## 📥 spec-x 대기
