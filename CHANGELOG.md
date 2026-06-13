@@ -5,6 +5,25 @@ harness-kit의 주요 변경 사항을 버전별로 정리합니다.
 
 ---
 
+## [0.17.0] — 2026-06-13
+
+> Ceremony 경량화 — Turbo 모드(Plan Accept bypass + 자동 검증) + spec+plan 산출물 통합.
+
+### Added
+- **Turbo 모드 (phase-21)** — `sdd mode turbo`로 Plan Accept 게이트 없이 자유 편집. 커밋 후 `post-commit-verify` Stop hook이 자동 실행, 테스트 실패 시 `git revert` 자동 수행. `sdd mode governed`로 복귀. (#187)
+- **`sdd intent`** — Turbo 모드용 의도 선언 (`sdd intent "목표" --test "bash tests/run.sh"`). `.claude/state/intent.yaml` 기록, post-commit-verify가 이 명령을 실행. (#187)
+- **`/hk-turbo`** — Turbo ↔ Governed 모드 토글 슬래시 커맨드. (#187)
+- **`post-commit-verify.sh`** — Stop hook. Turbo 모드에서 precheck 또는 intent.test 실행, 실패 시 자동 revert + stderr 리포트. (#187)
+
+### Changed
+- **`spec.md` + `plan.md` → 단일 `spec.md`** — 항상 같은 세션에서 연속 작성되던 두 파일을 통합. `plan.md` 템플릿 삭제, `sdd spec new`가 spec.md + task.md 2파일만 생성. (#187)
+- **`check-scope.sh`** — 스코프 소스를 `plan.md` → `spec.md`의 Proposed Changes 섹션으로 변경. (#187)
+- **`task.md` 템플릿** — Pre-flight 섹션(메타 ceremony)·진행 요약 테이블 제거. (#187)
+- **`walkthrough.md` 템플릿** — 빈 placeholder 섹션(관련 문서·메타 테이블·ADR 승격 가이드 prose) 제거. (#187)
+- **거버넌스 문서** — constitution.md, agent.md의 plan.md 참조 → spec.md로 일괄 업데이트. (#187)
+
+---
+
 ## [0.16.0] — 2026-06-04
 
 > 디렉터 모드(Director Mode) — context-preserving orchestration. ADR-005 의 orchestrator–worker 전략을 사용자가 켜는 명시적 운영 모드로 구체화. + kit 버그 리포팅 명령.
