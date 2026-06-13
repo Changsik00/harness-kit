@@ -2688,17 +2688,37 @@ _intent_clear() {
   fi
 }
 
+# settings.json 의 permissions.ask 에서 git push 제거(turbo) / 복원(governed)
+_settings_mode_patch() {
+  local target_mode="$1"
+  local sf="$SDD_ROOT/.claude/settings.json"
+  [ -f "$sf" ] || return 0
+  local tmp
+  tmp="$(mktemp)"
+  if [ "$target_mode" = "turbo" ]; then
+    jq '.permissions.ask = [.permissions.ask[] | select(. != "Bash(git push)" and . != "Bash(git push:*)")]' "$sf" > "$tmp" \
+      && mv "$tmp" "$sf" \
+      && printf '  settings.json: git push → allow (자동 허용)\n'
+  else
+    jq '.permissions.ask = ((.permissions.ask + ["Bash(git push)", "Bash(git push:*)"]) | unique)' "$sf" > "$tmp" \
+      && mv "$tmp" "$sf" \
+      && printf '  settings.json: git push → ask 복원\n'
+  fi
+}
+
 cmd_mode() {
   local sub="${1:-status}"; shift || true
   case "$sub" in
     turbo)
       state_set mode "turbo"
+      _settings_mode_patch "turbo"
       printf '✓ 모드 전환: governed → turbo\n'
       printf '  Plan Accept 없이 코드 편집 가능\n'
       printf '  커밋 후 post-commit-verify 자동 실행\n'
       ;;
     governed)
       state_set mode "governed"
+      _settings_mode_patch "governed"
       printf '✓ 모드 전환: turbo → governed\n'
       printf '  Plan Accept 필요 — 전체 SDD ceremony\n'
       ;;
