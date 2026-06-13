@@ -28,14 +28,14 @@ SRC_CONSTITUTION="$ROOT/sources/governance/constitution.md"
 SRC_HK_TURBO_CMD="$ROOT/sources/commands/hk-turbo.md"
 
 # ─────────────────────────────────────────────────────────
-# T01: constitution.md 에 "2.5 Mode D" 포함 (Turbo 섹션)
+# T01: constitution.md 에 "2.4 Mode D" 포함 (Turbo 섹션)
 # ─────────────────────────────────────────────────────────
 echo ""
-echo "T01: constitution.md — 2.5 Mode D Turbo 섹션 포함"
-if [ -f "$CONSTITUTION" ] && grep -q "2.5 Mode D" "$CONSTITUTION"; then
-  ok "T01: constitution.md 에 '2.5 Mode D' 있음"
+echo "T01: constitution.md — 2.4 Mode D Turbo 섹션 포함"
+if [ -f "$CONSTITUTION" ] && grep -q "2.4 Mode D" "$CONSTITUTION"; then
+  ok "T01: constitution.md 에 '2.4 Mode D' 있음"
 else
-  fail "T01: constitution.md 에 '2.5 Mode D' 없음"
+  fail "T01: constitution.md 에 '2.4 Mode D' 없음"
 fi
 
 # ─────────────────────────────────────────────────────────
@@ -72,14 +72,14 @@ else
 fi
 
 # ─────────────────────────────────────────────────────────
-# T05: sources/governance/constitution.md 에 "2.5 Mode D" 포함
+# T05: sources/governance/constitution.md 에 "2.4 Mode D" 포함
 # ─────────────────────────────────────────────────────────
 echo ""
-echo "T05: sources/governance/constitution.md — 2.5 Mode D 미러링"
-if [ -f "$SRC_CONSTITUTION" ] && grep -q "2.5 Mode D" "$SRC_CONSTITUTION"; then
-  ok "T05: sources/governance/constitution.md 에 '2.5 Mode D' 있음"
+echo "T05: sources/governance/constitution.md — 2.4 Mode D 미러링"
+if [ -f "$SRC_CONSTITUTION" ] && grep -q "2.4 Mode D" "$SRC_CONSTITUTION"; then
+  ok "T05: sources/governance/constitution.md 에 '2.4 Mode D' 있음"
 else
-  fail "T05: sources/governance/constitution.md 에 '2.5 Mode D' 없음"
+  fail "T05: sources/governance/constitution.md 에 '2.4 Mode D' 없음"
 fi
 
 # ─────────────────────────────────────────────────────────

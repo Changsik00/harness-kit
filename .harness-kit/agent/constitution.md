@@ -33,7 +33,7 @@ The Constitution defines the invariant laws of this project. All Agents MUST com
 - LIMITED to: Inline fixes, minor wording, config tweaks that do not warrant a PR.
 - **State Rule**: FF work MUST NOT modify `state.json`'s active phase/spec.
 
-### 2.5 Mode D — Turbo
+### 2.4 Mode D — Turbo
 - Activated by: `sdd mode turbo`
 - No Plan Accept gate — edits proceed without ceremony.
 - `post-commit-verify` Stop hook automatically runs `intent.test` or precheck after each commit.
@@ -42,9 +42,9 @@ The Constitution defines the invariant laws of this project. All Agents MUST com
 - Exit with: `sdd mode governed`
 - **NOT for**: Architectural changes, cross-cutting refactors, anything requiring PR review.
 
-### 2.4 Work Mode Decision Tree
+### 2.5 Work Mode Decision Tree
 
-Use this check at the start of every Alignment Phase (→ agent.md §3):
+Use this check at the start of every Alignment Phase (→ agent.md §3). Replaces the prior two-step tree; Step 0 gates Turbo first:
 
 ```
 Step 0 — Is Turbo mode active? (`sdd mode status`)

@@ -2671,6 +2671,7 @@ _intent_write() {
   printf '✓ Intent 기록: %s\n' "$goal"
   [ -n "$test_cmd" ] && printf '  test: %s\n' "$test_cmd"
   [ -n "$files"    ] && printf '  files: %s\n' "$files"
+  return 0
 }
 
 _intent_show() {

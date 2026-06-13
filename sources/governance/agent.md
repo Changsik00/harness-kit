@@ -55,7 +55,7 @@ Before drafting any Spec or Plan, the Agent MUST enter the Alignment Phase.
 
 **Output Format**:
 - **[Intent Understanding]**: Summary of user goals.
-- **[Classification]**: Apply the two-step decision tree (→ constitution §2.4):
+- **[Classification]**: Apply the decision tree (→ constitution §2.5):
   - Step 1: Is a PR required? → FF or SDD family
   - Step 2 (if SDD): Is a Phase required? → SDD-P or SDD-x
   - State the reasoning for each step in one line.
