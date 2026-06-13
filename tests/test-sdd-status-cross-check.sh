@@ -194,45 +194,6 @@ else
 fi
 
 # ─────────────────────────────────────────────────────────
-# Check 4: planAccepted=true + plan.md 없음 → 경고
-# ─────────────────────────────────────────────────────────
-echo ""
-echo "Check 4: planAccepted=true + plan.md 없음 → 경고"
-
-F4="$(make_fixture)"
-trap "rm -rf '$F1' '$F2' '$F3' '$F4'" EXIT
-
-# state.json: phase=phase-1, spec=spec-1-001-test, planAccepted=true
-cat > "$F4/.claude/state/current.json" <<'EOF'
-{
-  "kitVersion": "0.3.0",
-  "stack": "generic",
-  "phase": "phase-1",
-  "spec": "spec-1-001-test",
-  "planAccepted": true,
-  "lastTestPass": null
-}
-EOF
-
-# spec 디렉토리는 있지만 plan.md 없음
-mkdir -p "$F4/specs/spec-1-001-test"
-cat > "$F4/specs/spec-1-001-test/spec.md" <<'EOF'
-# spec-1-001-test
-내용
-EOF
-
-git -C "$F4" add -A
-git -C "$F4" commit -m "setup" -q
-
-status_out4=$(cd "$F4" && bash .harness-kit/bin/sdd status 2>&1)
-
-if echo "$status_out4" | grep -qiE "⚠|경고|warn|plan.*없|plan.*miss|plan.*not found|plan.*누락"; then
-  ok "planAccepted=true + plan.md 없음 → plan 관련 경고 출력됨"
-else
-  fail "planAccepted=true + plan.md 없음 → 경고 없음 — 출력: $status_out4"
-fi
-
-# ─────────────────────────────────────────────────────────
 # 결과 요약
 # ─────────────────────────────────────────────────────────
 echo ""

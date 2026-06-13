@@ -183,14 +183,14 @@ fi
 # check-scope 차단: planAccepted=true + 스코프 이탈
 set_state_bool "$FX4" planAccepted true
 mkdir -p "$FX4/specs/spec-99-01-test"
-cat > "$FX4/specs/spec-99-01-test/plan.md" <<'PLAN'
-# Plan
+cat > "$FX4/specs/spec-99-01-test/spec.md" <<'SPEC'
+# spec
 
 ## Proposed Changes
 
 #### [MODIFY] `src/allowed.ts`
 test
-PLAN
+SPEC
 
 out4b=$(run_hook "$FX4" check-scope "TOOL_INPUT_file_path=other/not-in-plan.ts" 2>&1) || true
 if echo "$out4b" | grep -q "hook:warn\|hook:block"; then
