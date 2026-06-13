@@ -83,20 +83,20 @@ set_precheck() {
   mv "$tmp" "$inst"
 }
 
-# plan.md 생성 헬퍼 (scope 테스트용)
-make_plan_with_scope() {
+# spec.md 생성 헬퍼 (scope 테스트용 — plan.md 제거 후 spec.md 에서 스코프 읽음)
+make_spec_with_scope() {
   local fx="$1"
   local spec="$2"
   local scoped_file="$3"
   mkdir -p "$fx/specs/$spec"
-  cat > "$fx/specs/$spec/plan.md" <<PLAN
-# Implementation Plan
+  cat > "$fx/specs/$spec/spec.md" <<SPEC
+# spec
 
 ## Proposed Changes
 
 #### [MODIFY] \`$scoped_file\`
 test scope
-PLAN
+SPEC
 }
 
 # ─────────────────────────────────────────────────────────
@@ -151,7 +151,7 @@ FIXTURES_TO_CLEAN+=("$FX3")
 set_state "$FX3" mode "turbo"
 with_in_flight_phase "$FX3" "phase-99" "spec-99-01-test"
 set_state_bool "$FX3" planAccepted true
-make_plan_with_scope "$FX3" "spec-99-01-test" "src/allowed.ts"
+make_spec_with_scope "$FX3" "spec-99-01-test" "src/allowed.ts"
 
 out3=$(run_hook "$FX3" check-scope \
   "TOOL_INPUT_file_path=other/out-of-scope.ts" 2>&1) || true
@@ -172,7 +172,7 @@ FIXTURES_TO_CLEAN+=("$FX4")
 set_state "$FX4" mode "governed"
 with_in_flight_phase "$FX4" "phase-99" "spec-99-01-test"
 set_state_bool "$FX4" planAccepted true
-make_plan_with_scope "$FX4" "spec-99-01-test" "src/allowed.ts"
+make_spec_with_scope "$FX4" "spec-99-01-test" "src/allowed.ts"
 
 out4=$(run_hook "$FX4" check-scope \
   "TOOL_INPUT_file_path=other/out-of-scope.ts" 2>&1) || true

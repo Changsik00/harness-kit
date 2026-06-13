@@ -565,12 +565,6 @@ _status_diagnose() {
     fi
   fi
 
-  if [ "${plan_accepted:-}" = "true" ] && [ -n "${spec:-}" ] && [ "$spec" != "null" ]; then
-    local spec_dir="$SDD_SPECS/$spec"
-    if [ ! -f "$spec_dir/plan.md" ]; then
-      warnings="${warnings}  ⚠ planAccepted=true이지만 plan.md 없음\n"
-    fi
-  fi
 
   # 3. specs 디렉토리 수 검사
   local spec_dir_count
@@ -758,16 +752,14 @@ cmd_status() {
     sd="$SDD_SPECS/$spec"
     if [ -d "$sd" ]; then
       local art_line="" stage=""
-      local has_spec=0 has_plan=0 has_task=0 has_walk=0 has_pr=0
+      local has_spec=0 has_task=0 has_walk=0 has_pr=0
       [ -f "$sd/spec.md" ] && has_spec=1
-      [ -f "$sd/plan.md" ] && has_plan=1
       [ -f "$sd/task.md" ] && has_task=1
       [ -f "$sd/walkthrough.md" ] && has_walk=1
       [ -f "$sd/pr_description.md" ] && has_pr=1
 
-      local ck_spec ck_plan ck_task ck_walk ck_pr
+      local ck_spec ck_task ck_walk ck_pr
       ck_spec=$([ $has_spec -eq 1 ] && echo "${C_GRN}✓${C_RST}" || echo "${C_RED}✗${C_RST}")
-      ck_plan=$([ $has_plan -eq 1 ] && echo "${C_GRN}✓${C_RST}" || echo "${C_RED}✗${C_RST}")
       ck_task=$([ $has_task -eq 1 ] && echo "${C_GRN}✓${C_RST}" || echo "${C_RED}✗${C_RST}")
       ck_walk=$([ $has_walk -eq 1 ] && echo "${C_GRN}✓${C_RST}" || echo "${C_RED}✗${C_RST}")
       ck_pr=$([ $has_pr -eq 1 ] && echo "${C_GRN}✓${C_RST}" || echo "${C_RED}✗${C_RST}")
@@ -776,14 +768,14 @@ cmd_status() {
         stage="Ship-ready"
       elif [ $has_task -eq 1 ]; then
         stage="Executing"
-      elif [ $has_spec -eq 1 ] || [ $has_plan -eq 1 ]; then
+      elif [ $has_spec -eq 1 ]; then
         stage="Planning"
       else
         stage="Empty"
       fi
 
-      printf "  Artifacts:    %s spec %s plan %s task %s walkthrough %s pr_description (%s)\n" \
-        "$ck_spec" "$ck_plan" "$ck_task" "$ck_walk" "$ck_pr" "${C_CYN}${stage}${C_RST}"
+      printf "  Artifacts:    %s spec %s task %s walkthrough %s pr_description (%s)\n" \
+        "$ck_spec" "$ck_task" "$ck_walk" "$ck_pr" "${C_CYN}${stage}${C_RST}"
     fi
   fi
 
@@ -1354,7 +1346,7 @@ spec_new() {
   mkdir -p "$dir"
 
   # walkthrough, pr_description 은 Ship 시점에 생성 (Artifacts 단계 오판 방지)
-  for f in spec plan task; do
+  for f in spec task; do
     if [ -f "$SDD_TEMPLATES/$f.md" ]; then
       sed "s/{phaseN}/$phase_n/g; s/{seq}/$seq/g; s/{slug}/$slug/g" \
         "$SDD_TEMPLATES/$f.md" > "$dir/$f.md"
@@ -1386,11 +1378,10 @@ spec_new() {
   ok "phase 파일 spec 표 자동 갱신: ${phase_file#$SDD_ROOT/}"
   echo ""
   echo "다음 단계:"
-  echo "  1. ${C_CYN}${dir#$SDD_ROOT/}/spec.md${C_RST} — phase-${phase_n}.md 의 ${short_id} 항목을 구체화"
-  echo "  2. ${C_CYN}${dir#$SDD_ROOT/}/plan.md${C_RST} 작성"
-  echo "  3. ${C_CYN}${dir#$SDD_ROOT/}/task.md${C_RST} 작성"
-  echo "  4. 사용자 검토 후 ${C_CYN}sdd plan accept${C_RST}"
-  echo "  5. 첫 task: ${C_CYN}git checkout -b $id${C_RST}"
+  echo "  1. ${C_CYN}${dir#$SDD_ROOT/}/spec.md${C_RST} — 배경/요구사항/전략/Proposed Changes 작성"
+  echo "  2. ${C_CYN}${dir#$SDD_ROOT/}/task.md${C_RST} — task 목록 작성"
+  echo "  3. 사용자 검토 후 ${C_CYN}sdd plan accept${C_RST}"
+  echo "  4. 첫 task: ${C_CYN}git checkout -b $id${C_RST}"
 }
 
 spec_list() {
@@ -1482,7 +1473,7 @@ plan_accept() {
 
   # 빈 파일 검사 + placeholder 검사
   local f
-  for f in plan task; do
+  for f in spec task; do
     [ -s "$spec_dir/$f.md" ] || die "$f.md 가 비어있음: $spec_dir/$f.md"
     if grep -qE '<한글 제목>|<한 줄 설명>|<제목>' "$spec_dir/$f.md"; then
       die "$f.md 가 아직 템플릿 placeholder 상태입니다. 내용을 채운 후 다시 시도하세요."
@@ -2031,11 +2022,10 @@ specx_new() {
   ok "생성 완료: ${dir#$SDD_ROOT/}"
   echo ""
   echo "다음 단계:"
-  echo "  1. ${dir#$SDD_ROOT/}/spec.md — 요구사항 작성"
-  echo "  2. ${dir#$SDD_ROOT/}/plan.md — 실행 계획 작성"
-  echo "  3. ${dir#$SDD_ROOT/}/task.md — 태스크 작성"
-  echo "  4. sdd plan accept"
-  echo "  5. git checkout -b $id"
+  echo "  1. ${dir#$SDD_ROOT/}/spec.md — 배경/요구사항/전략/Proposed Changes 작성"
+  echo "  2. ${dir#$SDD_ROOT/}/task.md — 태스크 작성"
+  echo "  3. sdd plan accept"
+  echo "  4. git checkout -b $id"
 }
 
 specx_done() {

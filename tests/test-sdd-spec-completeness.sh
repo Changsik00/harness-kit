@@ -53,10 +53,10 @@ EOF
 }
 
 # ─────────────────────────────────────────────────────────
-# Check 1: Planning 단계 (spec.md + plan.md만 존재)
+# Check 1: Planning 단계 (spec.md만 존재, task.md 없음)
 # ─────────────────────────────────────────────────────────
 echo ""
-echo "Check 1: Planning 단계 — spec.md + plan.md 만 존재 → Planning 표시"
+echo "Check 1: Planning 단계 — spec.md 만 존재 (plan.md 없음) → Planning 표시"
 
 F1="$(make_fixture)"
 trap "rm -rf '$F1'" EXIT
@@ -74,7 +74,6 @@ EOF
 
 mkdir -p "$F1/specs/spec-1-001-test"
 echo "# spec-1-001-test" > "$F1/specs/spec-1-001-test/spec.md"
-echo "# plan"            > "$F1/specs/spec-1-001-test/plan.md"
 
 git -C "$F1" add -A
 git -C "$F1" commit -m "setup" -q
@@ -82,9 +81,9 @@ git -C "$F1" commit -m "setup" -q
 status_out1=$(cd "$F1" && bash .harness-kit/bin/sdd status 2>&1)
 
 if echo "$status_out1" | grep -q "Planning"; then
-  ok "spec.md + plan.md 존재 → Planning 단계 표시됨"
+  ok "spec.md 존재 (plan.md 없음) → Planning 단계 표시됨"
 else
-  fail "spec.md + plan.md 존재 → Planning 표시 없음 — 출력: $status_out1"
+  fail "spec.md 존재 (plan.md 없음) → Planning 표시 없음 — 출력: $status_out1"
 fi
 
 # ─────────────────────────────────────────────────────────
@@ -109,7 +108,6 @@ EOF
 
 mkdir -p "$F2/specs/spec-1-001-test"
 echo "# spec-1-001-test" > "$F2/specs/spec-1-001-test/spec.md"
-echo "# plan"            > "$F2/specs/spec-1-001-test/plan.md"
 echo "# task"            > "$F2/specs/spec-1-001-test/task.md"
 
 git -C "$F2" add -A
@@ -118,9 +116,9 @@ git -C "$F2" commit -m "setup" -q
 status_out2=$(cd "$F2" && bash .harness-kit/bin/sdd status 2>&1)
 
 if echo "$status_out2" | grep -q "Executing"; then
-  ok "spec.md + plan.md + task.md 존재 → Executing 단계 표시됨"
+  ok "spec.md + task.md 존재 → Executing 단계 표시됨"
 else
-  fail "spec.md + plan.md + task.md 존재 → Executing 표시 없음 — 출력: $status_out2"
+  fail "spec.md + task.md 존재 → Executing 표시 없음 — 출력: $status_out2"
 fi
 
 # ─────────────────────────────────────────────────────────
@@ -145,7 +143,6 @@ EOF
 
 mkdir -p "$F3/specs/spec-1-001-test"
 echo "# spec-1-001-test"  > "$F3/specs/spec-1-001-test/spec.md"
-echo "# plan"             > "$F3/specs/spec-1-001-test/plan.md"
 echo "# task"             > "$F3/specs/spec-1-001-test/task.md"
 echo "# walkthrough"      > "$F3/specs/spec-1-001-test/walkthrough.md"
 echo "# pr_description"   > "$F3/specs/spec-1-001-test/pr_description.md"
