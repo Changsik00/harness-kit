@@ -8,7 +8,7 @@
 ## 📦 진행 중 Phase
 
 <!-- sdd:active:start -->
-- **phase-21** — Ceremony 경량화 — Turbo 모드 + 문서 구조 개선 — 6 spec — 다음: spec-21-06-template-merge
+(active phase 없음. `bin/sdd phase new <slug>` 로 시작)
 <!-- sdd:active:end -->
 
 ## 📥 spec-x 대기
@@ -112,6 +112,7 @@
 - [x] spec-x-doctor-hookspath-lefthook (완료)
 - **phase-19** — 문서 지식 그래프 (Doc Knowledge Graph) — completed 2026-06-01
 - **phase-20** — 디렉터 모드 (Director Mode) — context-preserving orchestration — completed 2026-06-04
+- **phase-21** — Ceremony 경량화 — Turbo 모드 + 문서 구조 개선 — completed 2026-06-13
 <!-- sdd:done:end -->
 
 ---

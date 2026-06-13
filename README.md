@@ -29,7 +29,7 @@ harness-kit은 그 격차를 메꿉니다. **의도를 문서로 적는 것**에
 
 에이전트가 빠르게 코드를 뽑는 시대에 가장 비싼 비용은 **나중에 그 코드를 설명하지 못하는 것** (이해 부채, understanding debt) 입니다. 잘못된 가정 위에 PR 다섯 개가 쌓인 뒤에야 깨닫는 사고, "사흘 뒤 자기 코드 동작을 설명 못 하는" 상태가 그 결과입니다. harness-kit은 그 부채가 쌓이지 않도록 세 가지를 구조로 강제합니다.
 
-- **선언형 명세 우선** — `spec.md`가 *무엇·왜*, `plan.md` / `task.md`가 *어떻게*를 분리해 적고, 사람이 검토한 뒤에야 에이전트가 코드를 만집니다.
+- **선언형 명세 우선** — `spec.md`가 배경·요구사항·실행 계획을 한 문서에 담고, 사람이 검토한 뒤에야 에이전트가 코드를 만집니다.
 - **Plan Accept = 가정 검증 게이트** — 단순 "go" 신호가 아니라, 잘못된 전제 위에 코드가 쌓이는 것을 막는 마지막 검문소입니다.
 - **walkthrough.md** — 구현 내용 나열이 아니라 *예상 못한 발견·디버깅·결정 이유*만 기록해, 6개월 뒤에도 자기 코드를 설명할 수 있게 합니다.
 
@@ -44,7 +44,7 @@ harness-kit은 그 격차를 메꿉니다. **의도를 문서로 적는 것**에
 | 유형 | 역할 | PR? | 언제 쓰나 |
 |---|---|:---:|---|
 | 🏗 **Phase** | 연관 Spec 묶음 (Epic) | ✅ | 3개+ Spec이 묶이거나 통합 테스트가 필요할 때. `--base`로 Phase 전용 브랜치 생성 가능 |
-| 📝 **Spec** | Phase 내 단일 PR 단위 | ✅ | 1 Spec = 1 PR. `spec.md` → `plan.md` → `task.md` 작성 후 Plan Accept |
+| 📝 **Spec** | Phase 내 단일 PR 단위 | ✅ | 1 Spec = 1 PR. `spec.md` → `task.md` 작성 후 Plan Accept |
 | 🔧 **spec-x** | Phase 없이 독립 단발 PR | ✅ | 버그 수정, 문서 정리 등. `sdd specx done <slug>`으로 마무리 |
 | ⚡ **FF** | PR 없이 직접 커밋 | ❌ | 오탈자, 설정 변경 등 사소한 수정. state.json 변경 없음 |
 | 🧊 **Icebox** | 아이디어 보관소 | — | 실행 불가. `queue.md`에 기록 후 나중에 Phase나 spec-x로 승격 |
@@ -55,7 +55,7 @@ harness-kit은 그 격차를 메꿉니다. **의도를 문서로 적는 것**에
 |---|---|
 | `backlog/queue.md` | 📊 대시보드 — 진행 중/대기/완료 Phase + Icebox. `sdd`가 자동 갱신 |
 | `backlog/phase-{NN}.md` | 📋 Phase별 작업 지도 — Spec 표 + 통합 테스트 시나리오 |
-| `specs/spec-{NN}-{NN}-{slug}/` | 📁 작업 산출물 — spec.md, plan.md, task.md, walkthrough.md, pr_description.md |
+| `specs/spec-{NN}-{NN}-{slug}/` | 📁 작업 산출물 — spec.md, task.md, walkthrough.md, pr_description.md |
 | `archive/` | 🗄 완료 항목 보관 — `sdd archive`로 정리. 조회 시 `(archived)` 표시 |
 | `.claude/state/current.json` | ⚙️ 런타임 상태 — `phase`, `spec`, `planAccepted`, `lastTestPass` 등. hook이 읽어 Plan Accept·테스트 통과 여부를 판단. `.gitignore` 대상 |
 
