@@ -8,7 +8,7 @@
 ## 📦 진행 중 Phase
 
 <!-- sdd:active:start -->
-- **phase-21** — Turbo 모드 추가 — 실행 우선 + 사후 검증 — 5 spec — 다음: spec-21-05-integration-test
+- **phase-21** — Ceremony 경량화 — Turbo 모드 + 문서 구조 개선 — 6 spec — 다음: spec-21-06-template-merge
 <!-- sdd:active:end -->
 
 ## 📥 spec-x 대기

@@ -97,8 +97,7 @@ backlog/
 
 specs/                  # Actual work (flat layout)
 ├── spec-01-01-{slug}/
-│   ├── spec.md         # Detailed spec expanding phase-01.md's spec-01-01 entry
-│   ├── plan.md
+│   ├── spec.md         # Detailed spec expanding phase-01.md's spec-01-01 entry (includes plan)
 │   ├── task.md
 │   ├── walkthrough.md
 │   └── pr_description.md
@@ -122,7 +121,6 @@ The Agent MUST read templates from `.harness-kit/agent/templates/` before writin
 | Queue | `.harness-kit/agent/templates/queue.md` | `backlog/queue.md` (sdd auto-managed) |
 | Phase | `.harness-kit/agent/templates/phase.md` | `backlog/phase-{N}.md` |
 | Spec | `.harness-kit/agent/templates/spec.md` | `specs/spec-{N}-{seq}-{slug}/spec.md` |
-| Plan | `.harness-kit/agent/templates/plan.md` | `specs/spec-{N}-{seq}-{slug}/plan.md` |
 | Task | `.harness-kit/agent/templates/task.md` | `specs/spec-{N}-{seq}-{slug}/task.md` |
 | Walkthrough | `.harness-kit/agent/templates/walkthrough.md` | `specs/spec-{N}-{seq}-{slug}/walkthrough.md` |
 | PR Description | `.harness-kit/agent/templates/pr_description.md` | `specs/spec-{N}-{seq}-{slug}/pr_description.md` |
@@ -133,12 +131,12 @@ The following marker-delimited regions are auto-updated by `bin/sdd` — do NOT 
 - `backlog/phase-{N}.md`: `<!-- sdd:specs:start --> ~ <!-- sdd:specs:end -->` (spec table)
 
 ### 4.4 Hard Stop for Review
-After writing `spec.md`, `plan.md`, and `task.md`, the Agent MUST:
+After writing `spec.md` and `task.md`, the Agent MUST:
 1. Report completion to the User with paths.
 2. Present the following choice and wait for explicit selection:
 
    ```
-   spec/plan/task 작성 완료. 다음을 선택하세요:
+   spec/task 작성 완료. 다음을 선택하세요:
      1) Plan Accept (/hk-plan-accept) — 실행 단계 즉시 진입
      2) Critique (/hk-spec-critique) — 요구사항 비판 먼저 (sub-agent, 선택)
 
@@ -150,7 +148,7 @@ After writing `spec.md`, `plan.md`, and `task.md`, the Agent MUST:
 ### 4.5 Critique Step (Optional)
 Before Plan Accept, the User MAY invoke `/hk-spec-critique` to get an independent sub-agent critique of `spec.md`.
 
-- **When**: After spec.md/plan.md/task.md are written, before Plan Accept
+- **When**: After spec.md/task.md are written, before Plan Accept
 - **Purpose**: Research similar approaches + identify requirement gaps, contradictions, over-engineering + propose alternatives
 - **Output**: `specs/<spec-dir>/critique.md`
 - **Optional**: Not invoking it does not affect workflow progression
@@ -159,7 +157,7 @@ Before Plan Accept, the User MAY invoke `/hk-spec-critique` to get an independen
 
 ## 5. Plan & Task Strategy
 
-A Plan is a binding execution contract. It MUST follow the `plan.md` template exactly and include:
+The spec.md serves as the combined spec and plan. It MUST follow the `spec.md` template and include:
 - **Branch Strategy**: The first task MUST create a feature branch (→ constitution §6.5 for naming).
 - **Task Granularity**: Each Task MUST represent one logical unit of work (→ constitution §8).
 - **TDD Integration**: Each task MUST include specific test expectations using the project's stack-appropriate test command.
@@ -225,7 +223,7 @@ When passing a task with `[-]`, the Agent MUST:
     4. **Verify task.md**: Ensure zero `[ ]` checkboxes remain.
     5. **Push**: `git push -u origin spec-{phaseN}-{seq}-{slug}`.
     6. **Ship**: Push and create PR automatically. Report the PR URL to the User and wait for merge.
-    7. **Review pivots by scope**: `walkthrough.md` (default), `plan.md` (substantial change), ADR (architectural). Push before merge (→ §5.6, §6.3).
+    7. **Review pivots by scope**: `walkthrough.md` (default), `spec.md` (substantial change), ADR (architectural). Push before merge (→ §5.6, §6.3).
 
 ### 6.3.1 Post-Merge Protocol
 
@@ -355,14 +353,12 @@ When listing multiple spec artifact files, output each file as a standalone full
 - Correct:
   ```
   specs/spec-x-foo/spec.md
-  specs/spec-x-foo/plan.md
   specs/spec-x-foo/task.md
   ```
 - Wrong:
   ```
   specs/spec-x-foo/
       spec.md   ✓
-      plan.md   ✓
   ```
 
 ### 8.2 Emoji Usage
@@ -488,7 +484,7 @@ SDD ceremony has a fixed token + time cost. When the work itself is smaller than
 
 ### 11.1 SDD Ceremony Cost (Awareness)
 
-The full SDD ceremony — `spec.md` + `plan.md` + `task.md` + Plan Accept + `walkthrough.md` + `pr_description.md` + PR + review — costs roughly 6,000–8,000 tokens plus user review time, regardless of work size. Before invoking SDD, the Agent MUST estimate scope and recommend the appropriate work mode. Do not default to SDD for trivial work.
+The full SDD ceremony — `spec.md` + `task.md` + Plan Accept + `walkthrough.md` + `pr_description.md` + PR + review — costs roughly 6,000–8,000 tokens plus user review time, regardless of work size. Before invoking SDD, the Agent MUST estimate scope and recommend the appropriate work mode. Do not default to SDD for trivial work.
 
 ### 11.2 Scope Economy Thresholds
 

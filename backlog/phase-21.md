@@ -1,4 +1,4 @@
-# phase-21: Turbo 모드 추가 — 실행 우선 + 사후 검증
+# phase-21: Ceremony 경량화 — Turbo 모드 + 문서 구조 개선
 
 > 본 phase 의 모든 SPEC 을 한 파일에 요점/방향성으로 나열합니다.
 > *구체적* 작업 내용은 `specs/spec-21-{seq}-{slug}/spec.md` 에서 다룹니다.
@@ -20,22 +20,27 @@
 
 ### 현재 상황
 
-harness-kit 의 현행 Governed 모드는 `spec → plan → task → Plan Accept → Strict Loop → Ship` 의 전체 SDD ceremony 를 거친다. 안전성은 높지만 의도→실행 사이의 마찰이 크다. 특히 `check-plan-accept.sh` 가 Plan Accept 전 모든 코드 편집을 물리적으로 차단하고, 5개 산출물(spec/plan/task/walkthrough/pr_description)을 한국어로 작성해야 하는 ceremony 비용이 소규모 변경에도 동일하게 부과된다.
+harness-kit 의 현행 Governed 모드는 두 가지 ceremony 비용을 가진다.
 
-AI 에이전트의 수준이 높아지면서 "사전 승인 → 실행" 보다 "실행 → 사후 검증 → 필요시 revert" 패턴이 더 효율적인 국면이 됐다. oh-my-pi 같은 최신 에이전트들은 이 방향으로 설계되어 있으며, 사용자도 현행 harness-kit 이 추세에 맞지 않을 만큼 느리다고 인식한다.
+1. **프로세스 ceremony**: `spec → plan → task → Plan Accept → Strict Loop → Ship` 의 전체 절차. 특히 `check-plan-accept.sh` 가 Plan Accept 전 모든 코드 편집을 물리적으로 차단.
+2. **문서 ceremony**: spec.md + plan.md 로 분리된 두 파일이 항상 같은 세션에서 연속 작성됨에도 ADR 후보 · Mermaid 다이어그램 섹션이 두 파일에 중복 등장. task.md 는 spec/plan/task 작성 자체를 task 로 추적 (메타 ceremony). walkthrough.md 는 거의 항상 빈 placeholder 섹션들을 포함.
 
-기존 Governed 모드를 제거하거나 대체하는 것이 아니라, **Turbo 모드를 opt-in 추가**하는 방향으로 접근한다. 대형 아키텍처 변경에는 여전히 Governed 모드를 쓰고, 일상적 구현/수정에는 Turbo 모드를 선택할 수 있게 한다.
+AI 에이전트의 수준이 높아지면서 "사전 승인 → 실행" 보다 "실행 → 사후 검증 → 필요시 revert" 패턴이 더 효율적인 국면이 됐다.
 
 ### 목표 (Goal)
 
-`sdd mode turbo` 명령 하나로 Turbo 모드를 활성화할 수 있다. Turbo 모드에서는 Plan Accept 없이 코드 편집이 가능하고, 커밋 후 자동 검증(테스트 + scope + 포맷)이 실행된다. 검증 실패 시 자동 revert + 리포트. `sdd mode governed` 로 언제든 원래 모드로 복귀 가능.
+두 가지 방향으로 ceremony 를 낮춘다.
+
+- **프로세스**: `sdd mode turbo` 로 Plan Accept 게이트를 건너뛰고, 커밋 후 자동 검증 + 실패 시 자동 revert.
+- **문서**: `spec.md` + `plan.md` 를 단일 `spec.md` 로 통합. task.md · walkthrough.md 의 실질 가치 없는 섹션 제거.
 
 ### 성공 기준 (Success Criteria) — 정량 우선
 
 1. `sdd mode turbo` 활성화 후 Plan Accept 없이 production 코드 편집 가능 (check-plan-accept 통과)
-2. 커밋 후 `post-commit-verify.sh` 가 실행되어 테스트 실패 또는 scope 이탈 시 `git revert` 수행
-3. `sdd mode governed` 복귀 후 기존 훅 게이트 (check-plan-accept, check-scope) 정상 차단 확인
-4. 기존 Governed 모드 회귀 없음 — `tests/` 전체 통과
+2. 커밋 후 `post-commit-verify.sh` 가 실행되어 테스트 실패 시 `git revert` 수행
+3. `sdd mode governed` 복귀 후 기존 훅 게이트 정상 차단 확인
+4. `sdd spec new` 가 spec.md + task.md 2개만 생성 (plan.md 제거)
+5. 기존 Governed 모드 회귀 없음 — `tests/` 전체 통과
 
 ## 🧩 작업 단위 (SPEC + phase-FF)
 
@@ -50,6 +55,7 @@ AI 에이전트의 수준이 높아지면서 "사전 승인 → 실행" 보다 "
 | `spec-21-03` | intent-block | P? | Merged | `specs/spec-21-03-intent-block/` |
 | `spec-21-04` | governance-update | P? | Merged | `specs/spec-21-04-governance-update/` |
 | `spec-21-05` | integration-test | P? | Merged | `specs/spec-21-05-integration-test/` |
+| `spec-21-06` | template-merge | P? | Active | `specs/spec-21-06-template-merge/` |
 <!-- sdd:specs:end -->
 
 > 상태 허용값: `Backlog` / `In Progress` / `Merged`
