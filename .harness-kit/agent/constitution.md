@@ -33,11 +33,24 @@ The Constitution defines the invariant laws of this project. All Agents MUST com
 - LIMITED to: Inline fixes, minor wording, config tweaks that do not warrant a PR.
 - **State Rule**: FF work MUST NOT modify `state.json`'s active phase/spec.
 
+### 2.5 Mode D — Turbo
+- Activated by: `sdd mode turbo`
+- No Plan Accept gate — edits proceed without ceremony.
+- `post-commit-verify` Stop hook automatically runs `intent.test` or precheck after each commit.
+- Auto-reverts on test failure.
+- Use `sdd intent "<goal>" [--test <cmd>]` to declare session-local verification.
+- Exit with: `sdd mode governed`
+- **NOT for**: Architectural changes, cross-cutting refactors, anything requiring PR review.
+
 ### 2.4 Work Mode Decision Tree
 
-Use this two-step check at the start of every Alignment Phase (→ agent.md §3):
+Use this check at the start of every Alignment Phase (→ agent.md §3):
 
 ```
+Step 0 — Is Turbo mode active? (`sdd mode status`)
+  YES → Execute freely; post-commit-verify guards quality. Skip Steps 1–2.
+  NO  → Step 1
+
 Step 1 — Is a PR required?
   NO  → FF  (Mode C)
   YES → Step 2
