@@ -73,6 +73,7 @@ Before drafting any Spec or Plan, the Agent MUST enter the Alignment Phase.
 | **Spec** | `sdd spec new <slug>` → plan/task authoring | Strict Loop → ship → push → PR | PR merge → phase.md auto-Merged by `sdd ship` |
 | **spec-x (SDD-x)** | `sdd spec new <slug>` (no phase) | Same as Spec | `sdd specx done <slug>` → queue.md update |
 | **FF** | User approval only | Direct commit (no state.json change) | No `sdd` commands needed — state untouched |
+| **Turbo** | `sdd mode turbo` + optional `sdd intent "<goal>" --test <cmd>` | Free edits; `post-commit-verify` auto-runs on Stop | `sdd mode governed` to exit; verify no stray `intent.yaml` |
 | **Icebox** | Add to queue.md Icebox section | **NON-EXECUTABLE** — no code/commit | Promote to Phase or spec-x when ready |
 
 ## 4. SDD Mode Protocol
