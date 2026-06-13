@@ -5,6 +5,17 @@ harness-kit의 주요 변경 사항을 버전별로 정리합니다.
 
 ---
 
+## [0.17.1] — 2026-06-13
+
+### Fixed
+- **Turbo 모드 권한** — `sdd mode turbo` 전환 시 `settings.json`의 `git push`를 `ask` → `allow`로 자동 이동. `sdd mode governed` 복귀 시 원복.
+- **`hk-update` 에이전트 실행** — 에이전트 직접 실행 줄을 `bash <(curl ...)` 형태로 유지 (deny 룰 `curl * | bash:*` 충돌 방지).
+
+### Changed
+- **README** — 실행 모드(Governed / Turbo / FF) 비교 표·Mermaid 다이어그램 추가. 설치 명령을 `curl ... | bash -s -- --yes` 파이프 패턴으로 변경.
+
+---
+
 ## [0.17.0] — 2026-06-13
 
 > Ceremony 경량화 — Turbo 모드(Plan Accept bypass + 자동 검증) + spec+plan 산출물 통합.
