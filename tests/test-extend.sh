@@ -143,6 +143,39 @@ else
 fi
 
 # ─────────────────────────────────────────────────────────
+# T5: 멱등 — 재실행 시 "이미 설치됨" 안내 + 중복 등록 차단
+# ─────────────────────────────────────────────────────────
+echo ""
+echo "T5: 재실행 → 멱등(중복 등록 차단)"
+F5=$(make_fixture); CLEAN+=("$F5")
+S5=$(make_stub_bin true); CLEAN+=("$S5")
+run_extend "$F5" "$S5" serena --scope local >/dev/null   # 1차 설치
+OUT5=$(run_extend "$F5" "$S5" serena --scope local); RC5=$?   # 2차(멱등)
+ADDS5=0; [ -f "$S5/log" ] && ADDS5=$(grep -c "^add " "$S5/log" 2>/dev/null || echo 0)
+if [ "$RC5" -eq 0 ] && echo "$OUT5" | grep -qiE "이미|already" && [ "$ADDS5" -eq 1 ]; then
+  ok "재실행 시 안내 + add 1회 유지(중복 차단)"
+else
+  fail "멱등 실패 — rc=$RC5, adds=$ADDS5, 출력: $OUT5"
+fi
+
+# ─────────────────────────────────────────────────────────
+# T6: --remove → claude mcp remove + installed.json 흔적 제거
+# ─────────────────────────────────────────────────────────
+echo ""
+echo "T6: --remove → 등록 해제 + 기록 제거"
+F6=$(make_fixture); CLEAN+=("$F6")
+S6=$(make_stub_bin true); CLEAN+=("$S6")
+run_extend "$F6" "$S6" serena --scope local >/dev/null   # 설치
+OUT6=$(run_extend "$F6" "$S6" serena --remove); RC6=$?
+SCOPE6=$(get_ext_scope "$F6")
+STATE6_EXISTS="no"; [ -f "$S6/state" ] && STATE6_EXISTS="yes"
+if [ "$RC6" -eq 0 ] && [ "$STATE6_EXISTS" = "no" ] && [ -z "$SCOPE6" ]; then
+  ok "remove: 등록 해제(state 제거) + installed.json 흔적 제거"
+else
+  fail "remove 실패 — rc=$RC6, state존재=$STATE6_EXISTS, scope='$SCOPE6', 출력: $OUT6"
+fi
+
+# ─────────────────────────────────────────────────────────
 echo ""
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo "  결과: PASS=$PASS  FAIL=$FAIL"

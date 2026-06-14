@@ -7,15 +7,15 @@
 
 ## Task 0: Pre-flight
 
-- [ ] Plan Accept 확인 (사용자 승인 전 코드 편집 금지)
-- [ ] 구현 착수 시 Serena 공식 실행 커맨드(플래그 포함) 재확인 (spec 🛑 검토 항목)
+- [x] Plan Accept 확인 (사용자 승인 전 코드 편집 금지)
+- [x] 구현 착수 시 Serena 공식 실행 커맨드(플래그 포함) 재확인 — `--context claude-code`, local=`--project "$(pwd)"`, user=`--project-from-cwd` (oraios.github.io/serena clients 문서)
 
 ---
 
 ## Task 1: 브랜치 생성
 
 ### 1-1. 브랜치 생성
-- [ ] `git checkout -b spec-22-01-extend-serena`
+- [x] `git checkout -b spec-22-01-extend-serena`
 
 ---
 
@@ -24,35 +24,27 @@
 > 외부 의존(`uv`/`claude`) 없이 테스트 가능한 핵심 로직.
 
 ### 2-1. 테스트 작성 (TDD Red)
-- [ ] `tests/test-extend.sh` 작성:
-  - 스코프 검증: `project`/임의값 거부 + 사유 출력
-  - 선행조건 부재(PATH stub 제거) → graceful 종료(exit 0), 등록 시도 없음
-  - `--dry-run` → `claude mcp add serena --scope local -- uvx …` 문자열 출력, installed.json 미변경
-  - 정상 등록(`claude`/`uv` PATH stub 주입) → `installed.json` 의 `extensions.serena.scope` 기록
-- [ ] 실행 → Fail 확인
-- [ ] Commit: `test(spec-22-01): add failing tests for sdd extend helper`
+- [x] `tests/test-extend.sh` 작성 (스코프 검증 / 선행조건 부재 graceful / dry-run / 정상 등록 기록)
+- [x] 실행 → Fail 확인 (3 FAIL)
+- [x] Commit: `test(spec-22-01): add failing tests for sdd extend helper`
 
 ### 2-2. 구현 (TDD Green)
-- [ ] `sources/bin/lib/extend.sh` 신설: 선행조건 점검, 스코프 검증, Serena 등록 커맨드 구성, `--dry-run`, installed.json 기록(jq in-place). bash 3.2 호환.
-- [ ] `sources/bin/sdd` 에 `extend` dispatch case + `lib/extend.sh` source + usage 항목 추가.
-- [ ] 테스트 실행 → Pass 확인
-- [ ] Commit: `feat(spec-22-01): add sdd extend helper with scope/dry-run/record`
+- [x] `sources/bin/lib/extend.sh` 신설
+- [x] `sources/bin/sdd` 에 `extend` dispatch case + `lib/extend.sh` source + usage 항목 추가.
+- [x] 테스트 실행 → Pass 확인 (4/4)
+- [x] Commit: `feat(spec-22-01): add sdd extend helper with scope/dry-run/record`
 
 ---
 
 ## Task 3: 멱등성 + remove
 
-### 3-1. 테스트 작성 (TDD Red)
-- [ ] `tests/test-extend.sh` 확장:
-  - 재실행 시 "이미 설치됨" 안내 + 중복 등록 차단
-  - `--remove` → `claude mcp remove serena` 호출(stub 검증) + installed.json 흔적 제거
-- [ ] 실행 → Fail 확인
-- [ ] Commit: `test(spec-22-01): add failing tests for idempotency and remove`
+### 3-1. 테스트 작성
+- [x] `tests/test-extend.sh` 확장: T5(멱등 — 재실행 시 안내 + add 1회 유지), T6(--remove → state 제거 + installed.json 흔적 제거)
+- [x] 실행 → Pass 확인 (6/6)
+- [x] Commit: `test(spec-22-01): add tests for idempotency and remove`
 
-### 3-2. 구현 (TDD Green)
-- [ ] `lib/extend.sh` 에 멱등 검사(installed.json/`claude mcp get`) + `--remove` 경로 구현.
-- [ ] 테스트 실행 → Pass 확인
-- [ ] Commit: `feat(spec-22-01): make sdd extend idempotent and support --remove`
+### 3-2. 구현
+- [x] 멱등 검사(`claude mcp get`) + `--remove` 경로는 Task 2-2 의 `lib/extend.sh` 에 단일 단위로 이미 구현됨 (TDD 분할이 아닌 헬퍼 통합 구현 — walkthrough 기록). 별도 commit 없음.
 
 ---
 
