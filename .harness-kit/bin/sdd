@@ -12,6 +12,8 @@ SDD_BIN_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SDD_BIN_DIR/lib/common.sh"
 # shellcheck source=lib/state.sh
 source "$SDD_BIN_DIR/lib/state.sh"
+# shellcheck source=lib/extend.sh
+source "$SDD_BIN_DIR/lib/extend.sh"
 
 # ============================================================
 # help
@@ -97,6 +99,9 @@ sdd — harness-kit 메타 명령
   run-test <cmd...>             테스트 실행 + 통과 시 자동으로 sdd test passed 기록
   search <keyword> [--scope=<s>] [--ignore-case]
                                 마크다운 자산 통합 검색 (scope: all/active/archive/decisions/rca/backlog)
+
+  extend serena [--scope local|user] [--dry-run] | --remove
+                                외부 도구 opt-in 통합 (Serena/LSP). default-off — 켠 사람만 비용 부담
 
   help                          이 도움말
   version                       키트 버전
@@ -2757,6 +2762,7 @@ main() {
     pr-watch)  cmd_pr_watch "$@" ;;
     run-test)  cmd_run_test "$@" ;;
     search)   cmd_search "$@" ;;
+    extend)   cmd_extend "$@" ;;
     *)         err "알 수 없는 명령: $cmd"; cmd_help; exit 1 ;;
   esac
 }
