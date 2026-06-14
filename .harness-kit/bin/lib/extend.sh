@@ -76,11 +76,11 @@ _extend_serena() {
   local ADD
   if [ "$scope" = "user" ]; then
     ADD=(claude mcp add serena --scope user -- \
-         uvx --from "$SERENA_LAUNCH_FROM" serena start-mcp-server \
+         uvx --python 3.13 --from "$SERENA_LAUNCH_FROM" serena start-mcp-server \
          --context claude-code --project-from-cwd)
   else
     ADD=(claude mcp add serena --scope local -- \
-         uvx --from "$SERENA_LAUNCH_FROM" serena start-mcp-server \
+         uvx --python 3.13 --from "$SERENA_LAUNCH_FROM" serena start-mcp-server \
          --context claude-code --project "$SDD_ROOT")
   fi
 
@@ -112,8 +112,13 @@ _extend_serena() {
     return 1
   fi
   _extend_record "$installed_json" "$scope"
-  ok "serena 등록 완료 (scope=$scope). Claude Code 를 재시작/재연결하면 LSP 도구가 활성화됩니다."
-  echo "제거하려면: sdd extend serena --remove"
+  ok "serena 등록 완료 (scope=$scope)."
+  echo ""
+  echo "  ▶ 다음 단계 (필수): Claude Code 를 재시작하세요."
+  echo "    MCP 도구는 세션 시작 시 로드되므로, 재시작 전에는 serena 도구가 보이지 않습니다."
+  echo "    재시작 후 'serena 도구로 ...' 처럼 시켜 보면 됩니다."
+  echo ""
+  echo "  제거: sdd extend serena --remove"
 }
 
 # 선행조건: uv(uvx 제공) + claude CLI 존재
