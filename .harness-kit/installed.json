@@ -21,5 +21,11 @@
     "hk-wiki-ingest",
     "hk",
     "hk-report-issue"
-  ]
+  ],
+  "extensions": {
+    "serena": {
+      "scope": "local",
+      "installedAt": "2026-06-14T10:22:42Z"
+    }
+  }
 }
