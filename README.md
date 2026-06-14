@@ -82,6 +82,29 @@ harness-kit은 그 격차를 메꿉니다. **의도를 문서로 적는 것**에
 
 ---
 
+### 🧩 확장 (extend) — 외부 도구 opt-in
+
+"있으면 더 좋은" 외부 도구를 **opt-in(default-off)** 으로 붙입니다. `/hk-extend` 로 설치하며, 켠 사람만 비용을 부담합니다.
+
+| 확장 | 무엇 | 설치 |
+|---|---|---|
+| **Serena** (LSP) | 심볼 rename / find-references 를 grep 다단계 대신 단일 호출로 — 리팩토링 토큰/정확도 개선 | `/hk-extend` → 스코프 선택 |
+
+```bash
+# Claude Code 안에서
+/hk-extend                       # 확장 안내 + 스코프 질문 후 설치
+
+# 또는 직접
+sdd extend serena --scope local  # 이 프로젝트, 나만 (기본·권장)
+sdd extend serena --scope user   # 내 모든 프로젝트
+sdd extend serena --dry-run      # 실행될 커맨드 미리보기
+sdd extend serena --remove       # 제거
+```
+
+> ⚠️ 확장은 MCP 서버라 **상시 컨텍스트 비용**이 듭니다. 그래서 default-off 이고, 등록은 Claude Code 네이티브 `claude mcp add` 에 위임합니다(키트가 설정 파일을 직접 편집하지 않음). 선행조건: `uv`, `claude` CLI. 규약 → `docs/decisions/ADR-007-extend-opt-in.md`.
+
+---
+
 ## 🖥 대상 환경 및 의존성
 
 | 항목 | 지원 | 비고 |
@@ -392,6 +415,7 @@ sdd archive --keep=2
 | `/hk-cleanup` | 프로젝트 정리 — 동기화 불일치, 잔여 파일, stale 요소 감지 및 정리 |
 | `/hk-archive` | 완료된 phase의 spec/backlog를 `archive/`로 정리 |
 | `/hk-ask-mode` | AskUserQuestion UX 모드 토글 — `interactive` ↔ `text` |
+| `/hk-extend` | 외부 도구 opt-in 통합 — Serena(LSP) 설치/제거 (default-off) |
 
 ### sdd 서브커맨드 (에이전트 내부용)
 
