@@ -16,6 +16,7 @@
 <!-- sdd:specx:start -->
 없음
 - [ ] spec-x-sdd-bugfix — sdd-bugfix
+- [ ] spec-x-align-mode-salience — align-mode-salience
 <!-- sdd:specx:end -->
 
 ## 🧊 Icebox
