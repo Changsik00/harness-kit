@@ -8,7 +8,7 @@
 ## 📦 진행 중 Phase
 
 <!-- sdd:active:start -->
-- **phase-22** — extend — 외부 도구 opt-in 통합 — 1 spec — 다음: spec-22-01-extend-serena
+- **phase-22** — extend — 외부 도구 opt-in 통합 — 1 spec — 다음: (spec 없음)
 <!-- sdd:active:end -->
 
 ## 📥 spec-x 대기
