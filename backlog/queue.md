@@ -15,7 +15,6 @@
 
 <!-- sdd:specx:start -->
 없음
-- [ ] spec-x-sdd-bugfix — sdd-bugfix
 <!-- sdd:specx:end -->
 
 ## 🧊 Icebox
@@ -117,6 +116,7 @@
 - **phase-21** — Ceremony 경량화 — Turbo 모드 + 문서 구조 개선 — completed 2026-06-13
 - **phase-22** — extend — 외부 도구 opt-in 통합 — completed 2026-06-14
 - [x] spec-x-align-mode-salience (완료)
+- [x] spec-x-sdd-bugfix (완료)
 <!-- sdd:done:end -->
 
 ---
