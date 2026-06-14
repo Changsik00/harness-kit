@@ -30,6 +30,8 @@
 - `tests/test-uninstall-cmd-list.sh` Scenario 1 pre-existing FAIL — `find sources/commands -name 'hk-*.md'` 가 `hk.md` (no dash) 를 제외하는 반면 install.sh 는 `*.md` 로 모두 포함. 글롭 패턴 통일 필요 (phase-17 의 `hk.md` 도입 시점부터 노출됨)
 - 거버넌스 문서 단어 수 한계 초과 — `tests/test-governance-dedup.sh` 가 상한 6000w 인데 현재 6418w. 한계 재설정 또는 거버넌스 다이어트 검토
 - **root CLAUDE.md 슬림화** — 릴리스 전략 등 저빈도 내용을 `docs/release-strategy.md` 로 분리, root 는 포인터만. 항상-온 컨텍스트 토큰 절감 (Claude Code harness 기사 인사이트 #1) → phase-19 spec-19-03 에서 처리
+- **권한 프롬프트 줄이기 (settings)** — governed 모드에서 git/gh/jq 등 명령마다 권한 다이얼로그가 떠 불편. `/fewer-permission-prompts` 로 자주 쓰는 read-only/git 명령을 `.claude/settings.json` 허용목록에 추가. (2026-06-14 사용자 요청, 차후 진행)
+- **기존 테스트 5건 pre-existing FAIL** — `test-drift-stale-adr`(ADR-003 stale path), `test-pr-merge-detect`, `test-update-stateful`, `test-version-bump`, `test-wiki-structure`(missing spec-19-01 walkthrough 참조). main 에서도 동일 실패 — extend 무관. 묶어서 테스트 그린화 spec-x 로 정리 권장 (2026-06-14 phase-22 작업 중 확인)
 - **분기별 governance prune protocol** — 거버넌스 ratchet 누적 방지. `/hk-governance-refresh` 또는 sdd 진단에 "rule age > 6mo" 경고. 모델 진화에 맞춰 stale rule 제거 메커니즘 부재 (기사 인사이트 #2) → phase-19 spec-19-03 에서 처리
 - **하위 디렉토리 CLAUDE.md** — `sources/CLAUDE.md` (키트 원본 시점) / `specs/CLAUDE.md` (작업 로그 시점) 분리로 두 시점 혼동 방지 (기사 인사이트 #3)
 - **LSP/MCP 활용 가이드** — agent.md §6.5 (Static Analysis First) 확장. 적용 대상 프로젝트가 LSP 지원 언어일 때 grep 대신 심볼 기반 정의/참조 추적 권장 (기사 인사이트 #4)
