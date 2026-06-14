@@ -8,7 +8,7 @@
 ## 📦 진행 중 Phase
 
 <!-- sdd:active:start -->
-(active phase 없음. `bin/sdd phase new <slug>` 로 시작)
+- **phase-23** — extension-first — 1 spec — 다음: spec-23-01-prefer-extensions
 <!-- sdd:active:end -->
 
 ## 📥 spec-x 대기
@@ -27,7 +27,7 @@
 - **GitHub #167/#168** — stale ADR 오탐(npm/IAM) + docs integrity 도구군(ADR index 생성·integrity check·archive 잔여 감지). 둘 다 `sdd doctor`/stale 검사 영역 — 묶어서 doctor 강화 phase 로 승격 권장
 - (phase-16 W9) ADR 승격 가이드 ROI metric — *측정 누적 (3 개월+) 선행 필요*. phase-17 종료 후 spec 의 ADR 승격 ratio 데이터 보고 결정
 - `tests/test-uninstall-cmd-list.sh` Scenario 1 pre-existing FAIL — `find sources/commands -name 'hk-*.md'` 가 `hk.md` (no dash) 를 제외하는 반면 install.sh 는 `*.md` 로 모두 포함. 글롭 패턴 통일 필요 (phase-17 의 `hk.md` 도입 시점부터 노출됨)
-- 거버넌스 문서 단어 수 한계 초과 — `tests/test-governance-dedup.sh` 가 상한 6000w 인데 현재 6418w. 한계 재설정 또는 거버넌스 다이어트 검토
+- 거버넌스 문서 단어 수 한계 초과 — `sdd doctor` 7000w soft-warn 인데 현재 7786w (constitution+agent.md). 하드 한도 8000 은 미만이나 여유 적음. rule-prune(§13) 또는 상세의 ADR 이관 검토 (spec-23-01 에서 +106w 누적)
 - **root CLAUDE.md 슬림화** — 릴리스 전략 등 저빈도 내용을 `docs/release-strategy.md` 로 분리, root 는 포인터만. 항상-온 컨텍스트 토큰 절감 (Claude Code harness 기사 인사이트 #1) → phase-19 spec-19-03 에서 처리
 - **권한 프롬프트 줄이기 (settings)** — governed 모드에서 git/gh/jq 등 명령마다 권한 다이얼로그가 떠 불편. `/fewer-permission-prompts` 로 자주 쓰는 read-only/git 명령을 `.claude/settings.json` 허용목록에 추가. (2026-06-14 사용자 요청, 차후 진행)
 - **기존 테스트 5건 pre-existing FAIL** — `test-drift-stale-adr`(ADR-003 stale path), `test-pr-merge-detect`, `test-update-stateful`, `test-version-bump`, `test-wiki-structure`(missing spec-19-01 walkthrough 참조). main 에서도 동일 실패 — extend 무관. 묶어서 테스트 그린화 spec-x 로 정리 권장 (2026-06-14 phase-22 작업 중 확인)
