@@ -65,5 +65,5 @@
 - [ ] Commit: `docs(spec-23-01): ship walkthrough and pr description`
 
 ### 🚀 Push & PR
-- [ ] `git push -u origin spec-23-01-prefer-extensions`
-- [ ] PR 생성 (`gh pr create` 또는 `/hk-pr-gh`)
+- [x] `git push -u origin spec-23-01-prefer-extensions`
+- [x] PR 생성 → https://github.com/Changsik00/harness-kit/pull/195
