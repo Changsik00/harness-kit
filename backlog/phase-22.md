@@ -14,7 +14,7 @@
 | **시작일** | 2026-06-14 |
 | **목표 종료일** | 미정 |
 | **소유자** | dennis |
-| **Base Branch** | 없음 (각 spec → main 직접 머지) |
+| **Base Branch** | `phase-22-extend` (spec PR → phase 브랜치 → main, `/hk-phase-ship` 통합 게이트) |
 
 ## 🎯 배경 및 목표
 
@@ -111,7 +111,7 @@ bash test/extend.test.sh
 
 ## 🏁 Phase Done 조건
 
-- [ ] 모든 SPEC 이 main 에 merge
+- [ ] 모든 SPEC 이 `phase-22-extend` 에 merge → `/hk-phase-ship` go/no-go 후 `phase-22-extend` → main
 - [ ] 통합 테스트 전 시나리오 PASS
 - [ ] 성공 기준 정량 측정 결과 기록 (특히 #4 도그푸딩 토큰 실측)
 - [ ] 사용자 최종 승인
