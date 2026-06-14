@@ -117,6 +117,7 @@
 - **phase-22** — extend — 외부 도구 opt-in 통합 — completed 2026-06-14
 - [x] spec-x-align-mode-salience (완료)
 - [x] spec-x-sdd-bugfix (완료)
+- [x] spec-x-drift-stale-adr-glob (완료)
 <!-- sdd:done:end -->
 
 ---
