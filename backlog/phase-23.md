@@ -38,7 +38,7 @@
 <!-- sdd:specs:start -->
 | ID | 슬러그 | 우선순위 | 상태 | 디렉토리 |
 |---|---|:---:|---|---|
-| `spec-23-01` | prefer-extensions | P? | Active | `specs/spec-23-01-prefer-extensions/` |
+| `spec-23-01` | prefer-extensions | P? | Merged | `specs/spec-23-01-prefer-extensions/` |
 <!-- sdd:specs:end -->
 
 ### spec-23-01 — prefer-extensions

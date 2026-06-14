@@ -8,7 +8,7 @@
 ## 📦 진행 중 Phase
 
 <!-- sdd:active:start -->
-- **phase-23** — extension-first — 1 spec — 다음: spec-23-01-prefer-extensions
+(active phase 없음. `bin/sdd phase new <slug>` 로 시작)
 <!-- sdd:active:end -->
 
 ## 📥 spec-x 대기
@@ -118,6 +118,7 @@
 - [x] spec-x-align-mode-salience (완료)
 - [x] spec-x-sdd-bugfix (완료)
 - [x] spec-x-drift-stale-adr-glob (완료)
+- **phase-23** — extension-first — completed 2026-06-14
 <!-- sdd:done:end -->
 
 ---
