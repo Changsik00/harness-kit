@@ -16,7 +16,6 @@
 <!-- sdd:specx:start -->
 없음
 - [ ] spec-x-sdd-bugfix — sdd-bugfix
-- [ ] spec-x-align-mode-salience — align-mode-salience
 <!-- sdd:specx:end -->
 
 ## 🧊 Icebox
@@ -117,6 +116,7 @@
 - **phase-20** — 디렉터 모드 (Director Mode) — context-preserving orchestration — completed 2026-06-04
 - **phase-21** — Ceremony 경량화 — Turbo 모드 + 문서 구조 개선 — completed 2026-06-13
 - **phase-22** — extend — 외부 도구 opt-in 통합 — completed 2026-06-14
+- [x] spec-x-align-mode-salience (완료)
 <!-- sdd:done:end -->
 
 ---
