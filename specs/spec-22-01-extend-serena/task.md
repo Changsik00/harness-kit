@@ -51,9 +51,9 @@
 ## Task 4: `/hk-extend` 슬래시 커맨드 + install 정합
 
 ### 4-1. 커맨드 작성
-- [ ] `sources/commands/hk-extend.md` 신설: frontmatter `description` + 본문(확장 목록 안내 → 스코프 질문(uxMode 분기) → `sdd extend serena --scope <…>` 호출).
-- [ ] `tests/run.sh --fast` 실행 → `test-install-manifest-sync` 등 정합 테스트 PASS 확인. 깨지면 매니페스트 목록 갱신.
-- [ ] Commit: `feat(spec-22-01): add /hk-extend slash command`
+- [x] `sources/commands/hk-extend.md` 신설 (확장 안내 → uxMode 분기 스코프 질문 → `sdd extend serena --scope` 호출).
+- [x] `test-install-manifest-sync` PASS 확인 (fixture install 자동 동기화 — 매니페스트 수정 불필요).
+- [x] Commit: `feat(spec-22-01): add /hk-extend slash command`
 
 ---
 
