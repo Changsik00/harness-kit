@@ -401,6 +401,31 @@ _drift_kit_version() {
   return 0
 }
 
+# 확장(MCP) 권장: 코드 프로젝트인데 코드 인텔리전스 확장(serena) 미설치 시 1 줄 권장
+# - 코드 판정: git tracked 파일 중 LSP 지원 언어 확장자 존재
+# - 설치 판정: installed.json 의 .extensions.serena 존재
+# - 조건부 우선 사용 정책 (→ ADR-008, agent.md §6.5)
+_drift_extension_recommend() {
+  local installed_json="$SDD_ROOT/.harness-kit/installed.json"
+  [ -f "$installed_json" ] || return 1
+
+  # 이미 설치됨 → 권장 불필요
+  if jq -e '.extensions.serena' "$installed_json" >/dev/null 2>&1; then
+    return 1
+  fi
+
+  # 코드 프로젝트 판정 — LSP 지원 언어의 tracked 파일이 하나라도 있으면
+  local code
+  code=$(git -C "$SDD_ROOT" ls-files \
+    '*.ts' '*.tsx' '*.js' '*.jsx' '*.py' '*.go' '*.rs' \
+    '*.java' '*.rb' '*.php' '*.cs' '*.c' '*.cpp' '*.kt' \
+    2>/dev/null | head -1)
+  [ -n "$code" ] || return 1
+
+  printf "  ${C_YLW}확장 권장: 코드 프로젝트인데 Serena 미설치 — /hk-extend 권장 (조건부 우선 사용, ADR-008)${C_RST}\n"
+  return 0
+}
+
 # Stale ADR 탐지: 본문의 backtick-wrapped 경로 중 존재하지 않는 것 검사
 # - 검사 대상: docs/decisions/ADR-*.md (RCA 제외)
 # - 추출 규칙: backtick(`) 안 토큰 중 슬래시 포함 + URL 제외 + 확장자/끝슬래시
@@ -472,6 +497,7 @@ _status_drift() {
   _drift_consistency && has_drift=1
   _drift_install     && has_drift=1
   _drift_stale_adr   && has_drift=1
+  _drift_extension_recommend && has_drift=1
 
   if [ "$has_drift" -eq 0 ]; then
     echo "  ${C_DIM}깔끔${C_RST}"

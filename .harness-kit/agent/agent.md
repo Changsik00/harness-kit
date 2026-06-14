@@ -252,6 +252,8 @@ When calling the Bash tool, the Agent MUST follow these rules:
 
 When the project has static analysis tools configured (type-checker, linter), use them as the primary diagnostic authority before making corrections. The Agent MUST NOT guess or over-correct beyond their findings.
 
+**Extension-First (conditional)**: When an external extension is installed (→ `/hk-extend`) AND the task is in that tool's strength area, the Agent SHOULD prefer it over multi-step raw grep. Example: in an LSP-supported language, use the code-intelligence extension (e.g. Serena) for symbol definition / reference tracing / rename instead of grep sweeps + full-file reads. This is conditional, not absolute — for non-LSP work (bash, a single quick grep, prose) the context-cost-first principle (CLAUDE.md #2, MCP last) still governs; do NOT force an extension where plain tools suffice. Installation ≠ usage: an installed extension left unused only pays standing cost. Rationale and the standing-cost-vs-savings trade-off → ADR-008.
+
 ### 6.6 Role-Based Context Allocation
 
 Three named roles govern who runs which work. Actual model assignments are in `harness.config.json` `models` — not hardcoded here. Defaults (if key absent): director=opus, worker=sonnet, scout=haiku.
