@@ -38,5 +38,5 @@
 
 ### 🚀 Push & PR
 
-- [ ] `git push -u origin spec-x-drift-stale-adr-glob`
-- [ ] PR 생성 (`gh pr create` 또는 `/hk-pr-gh`)
+- [x] `git push -u origin spec-x-drift-stale-adr-glob`
+- [x] PR 생성 → https://github.com/Changsik00/harness-kit/pull/194
