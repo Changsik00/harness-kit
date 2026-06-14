@@ -70,12 +70,14 @@
 ## Task 6: Ship (필수)
 
 ### 🚦 Pre-Push Quality Gate
-- [ ] **전체 테스트 실행** (`bash tests/run.sh --fast`) → 모두 PASS
+- [x] **전체 테스트 실행** (`bash tests/run.sh --fast`) → test-extend 6/6 + 회귀. 도그푸딩 sync 누락으로 회귀했던 `test-hook-modes`/`test-test-auto-record` 는 설치본 미러링으로 해소.
+- [x] **설치본 sync** (`.harness-kit/bin/sdd`, `lib/extend.sh`, `.claude/commands/hk-extend.md`) — sources 와 byte-identical. Commit: `chore(spec-22-01): sync ...`
+- [-] 잔여 실패 5건(`test-drift-stale-adr`, `test-pr-merge-detect`, `test-update-stateful`, `test-version-bump`, `test-wiki-structure`)은 **main 에서도 동일 실패하는 기존 이슈** — 본 spec 무관 (Icebox 이관 제안).
 
 ### 📝 산출물 작성
-- [ ] **walkthrough.md 작성**
-- [ ] **pr_description.md 작성**
-- [ ] Commit: `docs(spec-22-01): ship walkthrough and pr description`
+- [x] **walkthrough.md 작성**
+- [x] **pr_description.md 작성**
+- [x] Commit: `docs(spec-22-01): ship walkthrough and pr description`
 
 ### 🚀 Push & PR
 - [ ] `git push -u origin spec-22-01-extend-serena`
