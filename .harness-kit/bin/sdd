@@ -424,6 +424,8 @@ _drift_stale_adr() {
       echo "$token" | grep -q '/' || continue
       # 2) URL/SSH 패턴 제외
       echo "$token" | grep -qE '^(https?:|git@)' && continue
+      # 2-1) glob 패턴(설명용 예시)은 리터럴 파일이 아님 → 제외
+      echo "$token" | grep -q '[*?]' && continue
       # 3) 확장자 또는 끝 슬래시 보유
       echo "$token" | grep -qE '\.[a-zA-Z0-9]+$|/$' || continue
       # 4) 존재하면 skip
