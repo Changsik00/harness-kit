@@ -16,11 +16,13 @@ cd "$SDD_ROOT"
 SDD_BIN=".harness-kit/bin/sdd"
 FIXTURE="docs/decisions/ADR-999-stale-fixture.md"
 VALID_FIXTURE="docs/decisions/ADR-998-valid-paths-fixture.md"
+GLOB_FIXTURE="docs/decisions/ADR-997-glob-fixture.md"
 
 # Ensure clean state on exit (even on test failure)
 cleanup() { rm -f "$FIXTURE"; }
 cleanup_valid() { rm -f "$VALID_FIXTURE"; }
-trap 'cleanup; cleanup_valid' EXIT
+cleanup_glob() { rm -f "$GLOB_FIXTURE"; }
+trap 'cleanup; cleanup_valid; cleanup_glob' EXIT
 
 pass() { printf "  ✓ %s\n" "$1"; }
 fail() { printf "  ✗ %s\n" "$1"; echo "    output: $2"; exit 1; }
@@ -86,6 +88,32 @@ if echo "$output" | grep -q "stale ADR"; then
   fail "regression: fixture with all-valid paths should produce no stale line" "$output"
 fi
 pass "regression: ADR-998 (all-valid-paths fixture) → no stale line"
+
+# ─── Step 4: glob patterns must not be treated as missing files ───
+# Illustrative glob tokens in ADR prose (e.g. `docs/wiki/*.md`) are patterns,
+# not literal files — they must NOT trip the stale detector.
+cat > "$GLOB_FIXTURE" <<'EOF'
+---
+id: ADR-997
+type: convention
+date: 2026-06-14
+status: accepted
+---
+# ADR-997: Fixture for glob false-positive regression
+
+## Context
+These are glob patterns, not literal files: `docs/wiki/*.md`, `docs/decisions/ADR-*.md`, `docs/rca/RCA-*.md`.
+
+## Decision
+This ADR exists only for the glob-exclusion unit test — no stale line expected.
+EOF
+
+output=$(HARNESS_DRIFT_FETCH=0 bash "$SDD_BIN" status 2>&1 || true)
+cleanup_glob
+if echo "$output" | grep -q "stale ADR"; then
+  fail "glob patterns should not be reported as stale" "$output"
+fi
+pass "glob fixture: ADR-997 (glob-only paths) → no stale line"
 
 echo ""
 echo "All tests passed."
