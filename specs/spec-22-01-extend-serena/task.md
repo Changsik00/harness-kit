@@ -60,10 +60,10 @@
 ## Task 5: ADR-007 + README extend 섹션
 
 ### 5-1. 문서 작성
-- [ ] `docs/decisions/ADR-007-extend-opt-in.md` 작성(template 따름, type: decision): default-off / 등록 위임 / 검증 3개 후 추출.
-- [ ] `README.md` 에 extend 섹션 추가 — Serena opt-in 설치법 + MCP 상시 컨텍스트 비용 명시.
-- [ ] `bash .harness-kit/bin/sdd status` 로 stale ADR 경고 없음 확인.
-- [ ] Commit: `docs(spec-22-01): add ADR-007 extend opt-in and README section`
+- [x] `docs/decisions/ADR-007-extend-opt-in.md` 작성(type: decision): default-off / 등록 위임 / 검증 3개 후 추출.
+- [x] `README.md` 에 extend 섹션 + 슬래시 커맨드 행 추가 (MCP 상시 비용 명시).
+- [x] stale ADR 신규 경고 없음 확인 (ADR-007 의 `~/.claude.json` 백틱 제거 — 홈 경로는 inline path 검사 오탐).
+- [x] Commit: `docs(spec-22-01): add ADR-007 extend opt-in and README section`
 
 ---
 
