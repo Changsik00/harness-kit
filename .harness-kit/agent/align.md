@@ -45,8 +45,10 @@
 - Active Spec: spec-{phaseN}-{seq}-{slug} (또는 없음)
 - Branch: <current branch>
 - Plan Accepted: yes / no
+- Active Mode: governed / turbo
 - Last Test: <timestamp> (PASS / FAIL / 없음)
 - Pending Tasks: <count>
+- Active Intent: <goal> (intent.yaml 존재 시에만 표시 — §5.2)
 
 🔄 동기화 상태  (drift 가 있을 때만 상세; 없으면 "깔끔")
 - 원격: behind N / ahead M
@@ -61,6 +63,19 @@
 ```
 
 drift 가 있으면 사용자에게 정리 옵션 (예: `git pull --ff-only`, `sdd phase done <N>`, untracked 검증) 을 제안한다. **자동 정리는 금지** — 사용자 명시 결정 후에만 실행.
+
+### 5.1 모드 부각 (Mode Salience)
+
+- 상태 보고에 `Active Mode` 를 **항상** 포함한다 (governed / turbo).
+- `Active Mode: governed` 이고 곧 기능 / 아키텍처 / PR 작업을 시작한다면, spec 작성 *전에* 한 줄로 고지한다:
+  > "governed 라 Plan Accept 게이트가 1회 걸립니다. 이 작업이 기능 / 아키텍처 / PR 대상이면 turbo 는 부적합(constitution §2.4)입니다."
+- 목적: 사용자가 모드를 *알고* 진행 또는 전환(`sdd mode turbo`)을 선택하게 한다. 모드를 모른 채 Plan Accept 요청을 받아 혼란이 생기는 일을 방지한다.
+
+### 5.2 Intent 잔재 점검 (Stale Intent)
+
+- `sdd status` 에 `Active Intent` 가 표시되면 상태 보고에 포함한다.
+- 특히 `Active Mode: governed` 인데 `Active Intent` 가 남아있으면, 이전 turbo 세션이 깨끗이 종료되지 않은 **잔재**일 수 있다 (intent 는 turbo 개념).
+- 정리를 제안한다: `sdd intent clear`. **자동 정리는 금지** — 아카이브 제안(§4) · drift 정리와 동일하게 사용자 명시 결정 후에만 실행한다.
 
 ## 6. 단 하나의 질문 (One Question)
 
