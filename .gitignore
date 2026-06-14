@@ -30,3 +30,6 @@ tests/fixtures/_target/
 .harness-kit/cache.json
 .env.telegram
 .env.discord
+
+# extend(Serena 등 MCP)가 만드는 프로젝트 로컬 메모리/캐시 — 추적 대상 아님
+.serena/
