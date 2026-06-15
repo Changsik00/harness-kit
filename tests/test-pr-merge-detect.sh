@@ -52,14 +52,23 @@ fi
 # ──────────────────────────────────────────────
 echo ""
 echo "▶ Check 3: gh 미설치 환경에서 graceful 안내 + exit 0"
-# gh 없는 환경 시뮬레이션: fake_bin 에 gh 없이 PATH 재구성
-# bash/sh 는 절대 경로로 호출하므로 PATH 는 gh 탐색에만 영향
-BASH_PATH="$(command -v bash)"
-BASH_DIR="$(dirname "$BASH_PATH")"
+# gh 없는 환경 시뮬레이션 (hermetic): PATH 의 모든 실행파일을 fake_bin 에 심볼릭하되 gh 만 제외.
+# 이전 방식($BASH_DIR 추가)은 homebrew 처럼 bash 와 gh 가 같은 디렉토리(/opt/homebrew/bin)에
+# 있으면 gh 가 함께 노출돼 시뮬레이션이 깨졌다. 도구별 심볼릭으로 gh 만 정확히 배제한다.
 fake_bin=$(mktemp -d)
 trap 'rm -rf "$fake_bin"' EXIT
-# bash 디렉토리 + 기타 필수 도구 포함, gh 만 제외
-no_gh_path="$fake_bin:$BASH_DIR:/usr/bin:/bin"
+_old_ifs="$IFS"; IFS=:
+for _d in $PATH; do
+  [ -d "$_d" ] || continue
+  for _exe in "$_d"/*; do
+    [ -x "$_exe" ] || continue
+    _base="$(basename "$_exe")"
+    [ "$_base" = "gh" ] && continue
+    [ -e "$fake_bin/$_base" ] || ln -s "$_exe" "$fake_bin/$_base" 2>/dev/null || true
+  done
+done
+IFS="$_old_ifs"
+no_gh_path="$fake_bin"
 
 check
 if PATH="$no_gh_path" bash "$SDD" pr-watch 123 > /dev/null 2>&1; then
