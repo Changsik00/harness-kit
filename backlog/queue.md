@@ -15,7 +15,6 @@
 
 <!-- sdd:specx:start -->
 없음
-- [ ] spec-x-fix-failing-tests — fix-failing-tests
 <!-- sdd:specx:end -->
 
 ## 🧊 Icebox
@@ -120,6 +119,7 @@
 - [x] spec-x-sdd-bugfix (완료)
 - [x] spec-x-drift-stale-adr-glob (완료)
 - **phase-23** — extension-first — completed 2026-06-14
+- [x] spec-x-fix-failing-tests (완료)
 <!-- sdd:done:end -->
 
 ---
