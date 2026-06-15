@@ -62,5 +62,5 @@
 - [x] Commit: `docs(spec-x-fix-failing-tests): ship walkthrough and pr description`
 
 ### 🚀 Push & PR
-- [ ] `git push -u origin spec-x-fix-failing-tests`
-- [ ] PR 생성 (`gh pr create` 또는 `/hk-pr-gh`)
+- [x] `git push -u origin spec-x-fix-failing-tests`
+- [x] PR 생성 → https://github.com/Changsik00/harness-kit/pull/196
