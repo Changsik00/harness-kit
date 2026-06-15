@@ -159,14 +159,15 @@ bash "$ROOT/install.sh" --yes "$F5" >/dev/null 2>&1
 # F7 검증 (a) — 8 템플릿 모두 존재 (#83)
 s5_templates_ok=1
 s5_missing=""
-for t in queue phase phase-ship spec plan task walkthrough pr_description; do
+# plan 은 폐기 산출물 — spec.md 가 spec+plan 통합 (agent.md §4.2 템플릿 표·§5)
+for t in queue phase phase-ship spec task walkthrough pr_description; do
   if [ ! -f "$F5/.harness-kit/agent/templates/${t}.md" ]; then
     s5_templates_ok=0
     s5_missing="${s5_missing} ${t}"
   fi
 done
 if [ $s5_templates_ok -eq 1 ]; then
-  ok "S5: 8 템플릿 모두 존재 (#83)"
+  ok "S5: 7 템플릿 모두 존재 (#83, plan 폐기)"
 else
   fail "S5: 템플릿 누락 —$s5_missing"
 fi
