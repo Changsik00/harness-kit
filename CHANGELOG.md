@@ -5,6 +5,25 @@ harness-kit의 주요 변경 사항을 버전별로 정리합니다.
 
 ---
 
+## [0.18.0] — 2026-06-15
+
+> 외부 확장(Serena/LSP) opt-in 통합 + "확장 우선 사용" 거버넌스 + 진단/테스트 정합성 정리.
+
+### Added
+- **`/hk-extend` + Serena 통합 (phase-22)** — LSP 코드 인텔리전스 MCP(Serena)를 opt-in(local/user 스코프)으로 설치/제거. 심볼 rename·find-references 를 grep 다단계 대신 단일 호출로. python 3.13 pin, 설치 후 재시작 안내. (#192)
+- **확장 우선 사용 거버넌스 (phase-23)** — agent.md §6.5 "Extension-First (conditional)": 확장이 설치돼 있고 그 도구의 강점 영역(LSP 심볼 작업 등)이면 raw grep 보다 우선 사용. ADR-008(tradeoff)로 MCP 상시비용 vs 컨텍스트 절감 근거 기록. (#195)
+- **`sdd status` 확장 권장** — 코드 프로젝트(LSP 언어 tracked 파일)인데 확장 미설치 시 drift 섹션에 `/hk-extend` 권장 1줄 출력. (#195)
+
+### Changed
+- **`hk-extend` 권장 톤** — opt-in 유지하되 LSP 코드 프로젝트엔 설치 권장 톤으로 전환(상시비용 경고 보존). (#195)
+- **`/hk-align` 모드 부각 + intent 잔재 정리** — 상태 보고에 Active Mode 항상 표기, governed 인데 stale intent 남으면 정리 제안. (#193)
+
+### Fixed
+- **stale ADR 오탐** — `sdd status` 의 stale ADR 검사가 ADR 본문의 glob 패턴(`docs/wiki/*.md` 등 설명용 예시)을 실파일로 오인하던 문제. glob 메타문자(`*`,`?`) 토큰 제외. (#194)
+- **사전 실패 테스트 5건 정리** — version-bump(README dynamic badge 검증 + 메타-러너 제거), update-stateful(폐기 `plan` 템플릿 잔재 제거), wiki-structure(archive 된 `sources:` 경로 archive-aware fallback), pr-merge-detect(gh 부재 시뮬레이션 hermetic 화), phase17-integration(CHANGELOG 룰 이동 경로 반영). full 스위트 65 PASS / 0 FAIL. (#196)
+
+---
+
 ## [0.17.1] — 2026-06-13
 
 ### Fixed
