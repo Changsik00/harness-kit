@@ -35,12 +35,14 @@ else
   fail "CHANGELOG.md 없음 또는 $TARGET 미포함"
 fi
 
-# Check 4: README.md 버전 배지 0.6.0 반영
+# Check 4: README.md 가 dynamic version badge(version.json 참조)를 사용 — 리터럴 버전 하드코딩 불필요
+# README 는 version.json 을 읽는 shields.io dynamic badge 로 버전을 자동 반영한다.
+# 따라서 릴리스마다 README 를 수동 sync 할 필요가 없어야 하며, 검사는 badge 의 version.json 참조 존재를 확인한다.
 readme="$REPO_ROOT/README.md"
-if grep -qF "$TARGET" "$readme" 2>/dev/null; then
-  ok "README.md에 $TARGET 포함"
+if grep -q "version.json" "$readme" 2>/dev/null; then
+  ok "README.md 가 version.json 기반 dynamic version badge 사용"
 else
-  fail "README.md에 $TARGET 없음"
+  fail "README.md 에 version.json dynamic badge 참조 없음"
 fi
 
 # Check 5: .harness-kit/installed.json kitVersion → 0.6.0
@@ -51,26 +53,9 @@ else
   fail "installed.json kitVersion ≠ $TARGET"
 fi
 
-# Check 6: 전체 테스트 스위트 FAIL=0
-printf "\n--- 전체 테스트 스위트 실행 (자기 자신 제외) ---\n"
-suite_fail=0
-for t in "$REPO_ROOT/tests"/test-*.sh; do
-  [[ "$t" == *"test-version-bump.sh" ]] && continue
-  output=$(bash "$t" 2>&1)
-  exit_code=$?
-  if [ "$exit_code" -eq 0 ]; then
-    : # pass
-  else
-    summary=$(printf '%s' "$output" | grep -E '(FAIL|PASS|ALL.*PASS|결과)' | tail -1)
-    printf "  ⚠️  %s → %s\n" "$(basename "$t")" "${summary:-exit=$exit_code}"
-    suite_fail=$(( suite_fail + 1 ))
-  fi
-done
-if [ "$suite_fail" -eq 0 ]; then
-  ok "전체 테스트 스위트 FAIL=0"
-else
-  fail "전체 테스트 스위트 ${suite_fail}개 실패"
-fi
+# 주: 이전엔 여기서 전체 테스트 스위트를 재실행하는 메타-러너(Check 6)가 있었으나 제거함.
+# 스위트 오케스트레이션은 tests/run.sh 의 책임이며, version-bump 은 버전 일관성만 검증한다.
+# (메타-러너는 run.sh 역할 중복 + set -e 하 첫 실패 시 침묵 종료 + 재귀의 취약 구조였음)
 
 printf "\n=== 결과: PASS=%d FAIL=%d ===\n" "$PASS" "$FAIL"
 [ "$FAIL" -eq 0 ]

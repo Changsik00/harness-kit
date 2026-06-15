@@ -2031,8 +2031,8 @@ specx_new() {
   log "spec-x 생성: $id"
   mkdir -p "$dir"
 
-  # 템플릿 복사 (spec, plan, task, walkthrough)
-  for f in spec plan task walkthrough; do
+  # 템플릿 복사 (spec, task, walkthrough) — plan 은 폐기 산출물(spec.md 가 spec+plan 통합, agent.md §4.2·§5)
+  for f in spec task walkthrough; do
     if [ -f "$SDD_TEMPLATES/$f.md" ]; then
       sed "s/{phaseN}/x/g; s/{seq}-{slug}/${slug}/g; s/{seq}/${slug}/g; s/{slug}/${slug}/g" \
         "$SDD_TEMPLATES/$f.md" > "$dir/$f.md"

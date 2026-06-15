@@ -156,8 +156,12 @@ check_sources_paths() {
         src="$(printf '%s\n' "$line" | sed 's/^[[:space:]]*-[[:space:]]*//')"
         [ -z "$src" ] && continue
         check
+        # archive-aware: spec 이 archive 되면 walkthrough 가 archive/specs/ 로 이동한다.
+        # 경로는 깨진 게 아니라 이동된 것이므로 archive/ fallback 을 정당한 실존으로 인정한다.
         if [ -f "$ROOT/$src" ]; then
           pass "$name sources: $src"
+        elif [ -f "$ROOT/archive/$src" ]; then
+          pass "$name sources: $src (archived)"
         else
           fail "$name sources: $src — 파일 없음"
         fi
