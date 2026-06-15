@@ -35,12 +35,14 @@ else
   fail "CHANGELOG.md 없음 또는 $TARGET 미포함"
 fi
 
-# Check 4: README.md 버전 배지 0.6.0 반영
+# Check 4: README.md 가 dynamic version badge(version.json 참조)를 사용 — 리터럴 버전 하드코딩 불필요
+# README 는 version.json 을 읽는 shields.io dynamic badge 로 버전을 자동 반영한다.
+# 따라서 릴리스마다 README 를 수동 sync 할 필요가 없어야 하며, 검사는 badge 의 version.json 참조 존재를 확인한다.
 readme="$REPO_ROOT/README.md"
-if grep -qF "$TARGET" "$readme" 2>/dev/null; then
-  ok "README.md에 $TARGET 포함"
+if grep -q "version.json" "$readme" 2>/dev/null; then
+  ok "README.md 가 version.json 기반 dynamic version badge 사용"
 else
-  fail "README.md에 $TARGET 없음"
+  fail "README.md 에 version.json dynamic badge 참조 없음"
 fi
 
 # Check 5: .harness-kit/installed.json kitVersion → 0.6.0
