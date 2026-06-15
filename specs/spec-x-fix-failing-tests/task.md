@@ -52,14 +52,14 @@
 ## Task 5: Ship (필수)
 
 ### 🚦 Pre-Push Quality Gate
-- [ ] `bash tests/run.sh --fast` → 4건 해소 + 신규 FAIL 없음
-- [ ] `diff -q .harness-kit/bin/sdd sources/bin/sdd` 동일
+- [x] `bash tests/run.sh` (full) → **PASS 65 / FAIL 0 / SKIP 0** (5건 전부 해소, 회귀 없음)
+- [x] `diff -q .harness-kit/bin/sdd sources/bin/sdd` 동일
 
 ### 📝 산출물 작성
 - [x] **walkthrough.md 작성**
 - [x] **pr_description.md 작성**
 - [x] 빈 scaffold `plan.md` 제거 확인
-- [ ] Commit: `docs(spec-x-fix-failing-tests): ship walkthrough and pr description`
+- [x] Commit: `docs(spec-x-fix-failing-tests): ship walkthrough and pr description`
 
 ### 🚀 Push & PR
 - [ ] `git push -u origin spec-x-fix-failing-tests`

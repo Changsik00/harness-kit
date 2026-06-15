@@ -15,6 +15,7 @@
 
 <!-- sdd:specx:start -->
 없음
+- [ ] spec-x-fix-failing-tests — fix-failing-tests
 <!-- sdd:specx:end -->
 
 ## 🧊 Icebox
