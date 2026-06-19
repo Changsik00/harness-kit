@@ -30,11 +30,11 @@
 ## Task 3: Ship
 
 ### 🚦 Pre-Push Quality Gate
-- [ ] 전체 테스트 PASS
+- [x] 전체 테스트 PASS (68/68)
 
 ### 📝 산출물
-- [ ] walkthrough.md / pr_description.md
-- [ ] Commit: `docs(spec-24-02): ship walkthrough and pr description`
+- [x] walkthrough.md / pr_description.md
+- [x] Commit: `docs(spec-24-02): ship walkthrough and pr description`
 
 ### 🚀 Push & PR
-- [ ] push + `gh pr create`
+- [x] push + `gh pr create`
