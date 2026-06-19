@@ -31,13 +31,13 @@
 ## Task 3: Ship (필수)
 
 ### 🚦 Pre-Push Quality Gate
-- [ ] **전체 테스트 실행** → 모두 PASS
+- [x] **전체 테스트 실행** → 모두 PASS (67/67)
 
 ### 📝 산출물 작성
-- [ ] **walkthrough.md 작성**
-- [ ] **pr_description.md 작성**
-- [ ] Commit: `docs(spec-24-01): ship walkthrough and pr description`
+- [x] **walkthrough.md 작성**
+- [x] **pr_description.md 작성**
+- [x] Commit: `docs(spec-24-01): ship walkthrough and pr description`
 
 ### 🚀 Push & PR
-- [ ] `git push -u origin spec-24-01-auto-mode-base`
-- [ ] PR 생성 (`gh pr create`)
+- [x] `git push -u origin spec-24-01-auto-mode-base`
+- [x] PR 생성 (`gh pr create`)
