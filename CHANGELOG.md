@@ -5,6 +5,22 @@ harness-kit의 주요 변경 사항을 버전별로 정리합니다.
 
 ---
 
+## [0.19.0] — 2026-06-19
+
+> 확장(Serena) 사용성 개선 — 설치 시 사용 규칙 자동 노출 + plan→spec 통합 드리프트 정리 + 풀 라이프사이클 e2e.
+
+### Added
+- **`/hk-extend serena` 설치 시 사용 규칙 자동 주입** — 설치본 `CLAUDE.fragment.md` 에 "확장 우선" 마커 블록을 주입해, `/hk-align` 없이도 매 세션 serena 사용 규칙이 컨텍스트에 노출. 켠 프로젝트만 비용 부담(원본 fragment 불변), `--remove` 시 함께 제거. (#198)
+- **SDD 풀 라이프사이클 e2e 테스트** — 격리 디렉토리 install → phase → spec → plan-accept 게이트 → ship 검증을 실제 구동(`tests/test-e2e-lifecycle.sh`, 22 assertion). 기존 fixture 단위 테스트가 못 잡던 풀 파이프라인 회귀를 커버. (#201)
+
+### Changed
+- **README** — 확장 섹션에 fragment 자동 주입 동작 명시, 실행 모드에 `auto`(자율·unattended) 모드 예고(proposed), 커맨드 표 plan→spec 통합 잔재 정리. (#202)
+
+### Fixed
+- **plan.md→spec.md 통합 드리프트 정리** — 통합이 템플릿/`sdd`/`agent.md §4.2` 에만 반영되고 커맨드·가이드·훅 메시지엔 미전파된 stale 참조 정리(`hk-plan-accept`·`hk`·`hk-spec-critique`·`specs/CLAUDE.md`·`agent.md` 4곳·`check-plan-accept.sh` 위반 메시지·ADR-002). 사용자에게 더 이상 존재하지 않는 `plan.md` 작성/승인을 안내하던 오안내 제거. spec.md 템플릿에 통합 시 누락됐던 '롤백 계획'·'Base 브랜치' 섹션 복원. (#199)
+
+---
+
 ## [0.18.0] — 2026-06-15
 
 > 외부 확장(Serena/LSP) opt-in 통합 + "확장 우선 사용" 거버넌스 + 진단/테스트 정합성 정리.
