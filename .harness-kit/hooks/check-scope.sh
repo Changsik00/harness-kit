@@ -1,64 +1,87 @@
 #!/usr/bin/env bash
-# PreToolUse hook (matcher: Edit|Write|MultiEdit)
-# 목적: 변경 파일이 spec.md 의 Proposed Changes 에 명시된 범위 안인지 검증 (constitution §6.2)
+# PreToolUse hook (matcher: Edit|Write|MultiEdit) + git pre-commit (HARNESS_GIT_HOOK_MODE=1)
+# 목적: 변경 파일이 spec.md 의 Proposed Changes 범위 안인지 검증 (constitution §6.2)
 #
-# spec.md 에서 [MODIFY], [NEW], [DELETE] 뒤의 경로 패턴을 추출하고,
-# 편집 대상 파일이 그 범위에 포함되는지 확인.
-# spec.md 가 없거나 active spec 이 없으면 통과.
+# 두 모드:
+#   - edit 모드(기본): Edit/Write 대상 1개 파일 검사. turbo/auto bypass, 차단형(mode 따름).
+#   - commit 모드(HARNESS_GIT_HOOK_MODE=1): staged diff 전체 검사. mode 무관(blast-radius
+#     가드 — MCP/Serena 편집도 커밋 시점에 포착), 경고만(exit 0). (spec-24-02 / ADR-009)
 
 HOOK_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$HOOK_DIR/_lib.sh"
 hook_resolve_mode "SCOPE" "warn"
 
+# ── 공유 헬퍼 ──
+# 안전 경로(거버넌스/산출물/설정/*.md)면 0
+_scope_is_safe() {
+  case "$1" in
+    .harness-kit/*|docs/*|backlog/*|specs/*|.claude/*|\
+    .gitignore|README.md|CLAUDE.md|version.json|\
+    *.md) return 0 ;;
+  esac
+  return 1
+}
+# spec.md 에서 [MODIFY|NEW|DELETE] `path` 경로 추출
+_scope_paths() {
+  grep -oE '\[(MODIFY|NEW|DELETE)\][[:space:]]+`[^`]+`' "$1" | sed -E 's/.*`([^`]+)`.*/\1/'
+}
+# rel 이 scope_paths(개행 구분)에 포함(정확/디렉토리 prefix)되면 0
+_scope_in() {
+  local rel="$1" sp="$2" pattern dir_pattern
+  while IFS= read -r pattern; do
+    [ -z "$pattern" ] && continue
+    [ "$rel" = "$pattern" ] && return 0
+    dir_pattern="${pattern%/*}/"
+    case "$rel" in "$dir_pattern"*) return 0 ;; esac
+  done <<< "$sp"
+  return 1
+}
+# 공통 전제(plan-accepted + active spec + spec.md + scope 정의) → scope_paths 를 stdout.
+# 전제 미충족이면 비-0 반환(검사 스킵).
+_scope_prereq() {
+  [ "$(hook_state planAccepted)" = "true" ] || return 1
+  local spec; spec="$(hook_state spec)"
+  [ -z "$spec" ] && return 1
+  local pf="$HARNESS_ROOT/specs/$spec/spec.md"
+  [ -f "$pf" ] || return 1
+  local sp; sp="$(_scope_paths "$pf")"
+  [ -z "$sp" ] && return 1
+  printf '%s' "$sp"
+}
+
+# ── commit 모드: staged diff 전체, mode 무관, 경고만(exit 0) ──
+if [ "${HARNESS_GIT_HOOK_MODE:-0}" = "1" ]; then
+  scope_paths="$(_scope_prereq)" || exit 0
+  spec="$(hook_state spec)"
+  out=""
+  while IFS= read -r f; do
+    [ -z "$f" ] && continue
+    _scope_is_safe "$f" && continue
+    _scope_in "$f" "$scope_paths" && continue
+    out="$out $f"
+  done < <(git -C "$HARNESS_ROOT" diff --cached --name-only 2>/dev/null)
+  if [ -n "$out" ]; then
+    echo "⚠ [scope:warn] Spec 범위 밖 파일이 staged 됨 (경고 — 커밋 진행, phase-ship 에서 검토):" >&2
+    for f in $out; do echo "   $f" >&2; done
+    echo "   active spec: $spec — spec.md Proposed Changes 외. 의도면 spec.md 갱신, 아니면 unstage." >&2
+  fi
+  exit 0
+fi
+
+# ── edit 모드 (기존): turbo/auto bypass, 단일 파일, 차단형 ──
 _hk_mode="$(hook_state mode)"; { [ "$_hk_mode" = "turbo" ] || [ "$_hk_mode" = "auto" ]; } && exit 0
 
 target="$(hook_tool_input file_path)"
 [ -z "$target" ] && exit 0
-
-# 절대경로 → 상대경로
 case "$target" in
   /*) rel="${target#$HARNESS_ROOT/}" ;;
   *)  rel="$target" ;;
 esac
+_scope_is_safe "$rel" && exit 0
 
-# 안전 경로는 항상 허용 (거버넌스, 산출물, 설정 등)
-case "$rel" in
-  .harness-kit/*|docs/*|backlog/*|specs/*|.claude/*|\
-  .gitignore|README.md|CLAUDE.md|version.json|\
-  *.md)
-    exit 0 ;;
-esac
-
-# Plan Accept 상태가 아니면 검사 불필요 (check-plan-accept 가 담당)
-plan_accepted="$(hook_state planAccepted)"
-[ "$plan_accepted" != "true" ] && exit 0
-
-# active spec 확인
+scope_paths="$(_scope_prereq)" || exit 0
 spec="$(hook_state spec)"
-[ -z "$spec" ] && exit 0
-
-plan_file="$HARNESS_ROOT/specs/$spec/spec.md"
-[ ! -f "$plan_file" ] && exit 0
-
-# spec.md 에서 파일 경로 추출: [MODIFY] `path`, [NEW] `path`, [DELETE] `path`
-# 백틱 안의 경로를 추출
-scope_paths="$(grep -oE '\[(MODIFY|NEW|DELETE)\][[:space:]]+`[^`]+`' "$plan_file" | sed -E 's/.*`([^`]+)`.*/\1/')"
-
-[ -z "$scope_paths" ] && exit 0
-
-# 대상 파일이 scope 에 포함되는지 확인
-while IFS= read -r pattern; do
-  [ -z "$pattern" ] && continue
-  # 정확히 일치하거나 디렉토리 prefix 일치
-  if [ "$rel" = "$pattern" ]; then
-    exit 0
-  fi
-  # 와일드카드 디렉토리 매칭 (path/to/dir/ 로 시작하면 통과)
-  dir_pattern="${pattern%/*}/"
-  case "$rel" in
-    "$dir_pattern"*) exit 0 ;;
-  esac
-done <<< "$scope_paths"
+_scope_in "$rel" "$scope_paths" && exit 0
 
 hook_violation \
   "Spec 범위 밖 파일 편집 (constitution §6.2)" \

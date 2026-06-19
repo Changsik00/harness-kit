@@ -24,6 +24,12 @@ if [ -f "$HARNESS_HOOKS/check-secrets.sh" ]; then
   HARNESS_GIT_HOOK_MODE=1 bash "$HARNESS_HOOKS/check-secrets.sh" || exit 1
 fi
 
+# scope 검사 (경고 모드 — staged diff 가 spec 범위 밖이면 stderr 경고, 커밋은 진행).
+# 도구 무관(MCP/Serena 편집 포착) blast-radius 노출. mode 무관. (spec-24-02)
+if [ -f "$HARNESS_HOOKS/check-scope.sh" ]; then
+  HARNESS_GIT_HOOK_MODE=1 bash "$HARNESS_HOOKS/check-scope.sh" || true
+fi
+
 # Plan Accept 검사
 STATE_FILE="$HARNESS_ROOT/.claude/state/current.json"
 [ -f "$STATE_FILE" ] || exit 0

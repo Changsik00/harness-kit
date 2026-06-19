@@ -26,7 +26,7 @@ run_scope() { ( cd "$F" && HARNESS_GIT_HOOK_MODE=1 bash "$HOOK" 2>&1 ); }
 
 # active spec + scope 정의 (spec.md Proposed Changes)
 SPEC="spec-99-01-demo"
-mkdir -p "$F/specs/$SPEC" "$F/src"
+mkdir -p "$F/specs/$SPEC" "$F/src" "$F/lib"
 cat > "$F/specs/$SPEC/spec.md" <<'EOF'
 # demo
 ## Proposed Changes
@@ -35,9 +35,9 @@ EOF
 set_state '.spec="spec-99-01-demo" | .planAccepted=true | .mode="governed"'
 
 # T1: 범위 밖 staged → 경고 + exit 0 (비차단)
-echo "x" > "$F/src/out.sh"; git -C "$F" add src/out.sh
+echo "x" > "$F/lib/out.sh"; git -C "$F" add lib/out.sh
 OUT=$(run_scope); RC=$?
-if [ "$RC" -eq 0 ] && echo "$OUT" | grep -q "src/out.sh"; then ok "범위 밖 staged → 경고 + exit 0 (비차단)"; else fail "rc=$RC out='$OUT'"; fi
+if [ "$RC" -eq 0 ] && echo "$OUT" | grep -q "lib/out.sh"; then ok "범위 밖 staged → 경고 + exit 0 (비차단)"; else fail "rc=$RC out='$OUT'"; fi
 git -C "$F" reset -q
 
 # T2: 범위 안만 staged → 경고 없음
@@ -48,9 +48,9 @@ git -C "$F" reset -q
 
 # T3: mode=auto 에서도 범위 밖 경고 (mode 무관 — blast-radius 가드)
 set_state '.mode="auto"'
-git -C "$F" add src/out.sh
+git -C "$F" add lib/out.sh
 OUT=$(run_scope)
-echo "$OUT" | grep -q "src/out.sh" && ok "auto 에서도 scope 경고 (mode 무관)" || fail "auto 무경고: $OUT"
+echo "$OUT" | grep -q "lib/out.sh" && ok "auto 에서도 scope 경고 (mode 무관)" || fail "auto 무경고: $OUT"
 git -C "$F" reset -q
 set_state '.mode="governed"'
 
