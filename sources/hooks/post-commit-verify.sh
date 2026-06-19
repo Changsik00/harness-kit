@@ -14,9 +14,9 @@ HOOK_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=_lib.sh
 source "$HOOK_DIR/_lib.sh"
 
-# Guard 1: turbo 모드가 아니면 no-op
+# Guard 1: turbo/auto 모드가 아니면 no-op
 mode="$(hook_state mode)"
-[ "$mode" != "turbo" ] && exit 0
+[ "$mode" != "turbo" ] && [ "$mode" != "auto" ] && exit 0
 
 # Guard 2: intent.test 또는 precheck 중 하나라도 있어야 실행
 intent_file="$HARNESS_ROOT/.claude/state/intent.yaml"

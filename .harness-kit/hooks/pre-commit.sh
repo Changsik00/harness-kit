@@ -28,6 +28,11 @@ fi
 STATE_FILE="$HARNESS_ROOT/.claude/state/current.json"
 [ -f "$STATE_FILE" ] || exit 0
 
+# turbo/auto: Plan Accept 게이트 면제 (위 lint/secret 검사는 유지).
+# check-plan-accept.sh(Edit/Write 매처)와 일관 — 편집은 통과시키면서 커밋만 막던 불일치 해소.
+mode="$(jq -r '.mode // "governed"' "$STATE_FILE" 2>/dev/null || echo "governed")"
+{ [ "$mode" = "turbo" ] || [ "$mode" = "auto" ]; } && exit 0
+
 plan_accepted="$(jq -r '.planAccepted // false' "$STATE_FILE" 2>/dev/null || echo "false")"
 [ "$plan_accepted" = "true" ] && exit 0
 
