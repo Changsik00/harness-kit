@@ -176,6 +176,27 @@ else
 fi
 
 # ─────────────────────────────────────────────────────────
+# T7: 설치 → CLAUDE.fragment.md 에 마커 블록 주입, --remove → 제거(멱등)
+# ─────────────────────────────────────────────────────────
+echo ""
+echo "T7: fragment 주입/제거 + 멱등"
+F7=$(make_fixture); CLEAN+=("$F7")
+S7=$(make_stub_bin true); CLEAN+=("$S7")
+FRAG7="$F7/.harness-kit/CLAUDE.fragment.md"
+run_extend "$F7" "$S7" serena --scope local >/dev/null   # 설치 → 주입
+INJECTED7=0; grep -q 'hk-extend:serena BEGIN' "$FRAG7" 2>/dev/null && INJECTED7=1
+# 멱등: 재주입해도 블록 1개만
+run_extend "$F7" "$S7" serena --scope local >/dev/null
+COUNT7=$(grep -c 'hk-extend:serena BEGIN' "$FRAG7" 2>/dev/null || echo 0)
+run_extend "$F7" "$S7" serena --remove >/dev/null         # 제거 → strip
+STRIPPED7=1; grep -q 'hk-extend:serena BEGIN' "$FRAG7" 2>/dev/null && STRIPPED7=0
+if [ "$INJECTED7" -eq 1 ] && [ "$COUNT7" -eq 1 ] && [ "$STRIPPED7" -eq 1 ]; then
+  ok "fragment: 설치 시 주입(1개) + 멱등 + remove 시 strip"
+else
+  fail "fragment 주입/제거 실패 — injected=$INJECTED7, count=$COUNT7, stripped=$STRIPPED7"
+fi
+
+# ─────────────────────────────────────────────────────────
 echo ""
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo "  결과: PASS=$PASS  FAIL=$FAIL"

@@ -101,6 +101,7 @@ _extend_serena() {
   if claude mcp get serena >/dev/null 2>&1; then
     warn "serena 가 이미 등록되어 있습니다 — 중복 설치를 건너뜁니다."
     _extend_record "$installed_json" "$scope"
+    _extend_fragment_inject
     echo "제거하려면: sdd extend serena --remove"
     return 0
   fi
@@ -112,6 +113,7 @@ _extend_serena() {
     return 1
   fi
   _extend_record "$installed_json" "$scope"
+  _extend_fragment_inject
   ok "serena 등록 완료 (scope=$scope)."
   echo ""
   echo "  ▶ 다음 단계 (필수): Claude Code 를 재시작하세요."
@@ -135,6 +137,49 @@ _extend_check_prereq() {
     return 1
   fi
   return 0
+}
+
+# ─────────────────────────────────────────────────────────
+# CLAUDE.fragment.md 주입 — 확장 사용 규칙을 상시 컨텍스트에 노출.
+#
+# 평소 serena 사용 규칙은 agent.md(=`/hk-align` 시에만 로드)에 있어 align 없이
+# 작업을 시작하면 보이지 않는다 (ADR-008 의 standing-cost 회피 설계). 확장을
+# opt-in 한 프로젝트에 한해서만, 설치본 fragment(매 세션 @import) 에 마커 블록을
+# 주입해 align 없이도 노출한다. 비용은 켠 사람만 부담 — fragment 직접 수정 대신
+# 설치 시점 주입이라 일반화 원칙(over-fit 회피)에 부합한다.
+# ─────────────────────────────────────────────────────────
+_extend_fragment_path() { printf '%s/.harness-kit/CLAUDE.fragment.md' "$SDD_ROOT"; }
+
+_extend_fragment_inject() {
+  local frag; frag="$(_extend_fragment_path)"
+  [ -f "$frag" ] || return 0
+  grep -q 'hk-extend:serena BEGIN' "$frag" 2>/dev/null && return 0
+  cat >> "$frag" <<'EOF'
+
+<!-- hk-extend:serena BEGIN -->
+## 확장 우선 — serena (LSP 코드 인텔리전스, opt-in)
+
+LSP 지원 언어에서 심볼 정의·참조·구현·rename 은 grep 스윕 대신 serena MCP 도구를 우선 사용한다. 조건부 — bash·단발 grep·산문은 기존 도구 (context-cost-first). 상세 → `.harness-kit/agent/agent.md` Extension-First.
+<!-- hk-extend:serena END -->
+EOF
+}
+
+# 마커 블록(및 바로 앞 빈 줄 1개) 제거. 멱등 — 블록 없으면 no-op.
+_extend_fragment_strip() {
+  local frag; frag="$(_extend_fragment_path)"
+  [ -f "$frag" ] || return 0
+  grep -q 'hk-extend:serena BEGIN' "$frag" 2>/dev/null || return 0
+  local tmp; tmp=$(mktemp) || return 0
+  awk '
+    { buf[NR] = $0 }
+    /hk-extend:serena BEGIN/ { s = NR }
+    /hk-extend:serena END/   { e = NR }
+    END {
+      lo = s
+      if (s > 1 && buf[s-1] == "") lo = s - 1
+      for (i = 1; i <= NR; i++) if (i < lo || i > e) print buf[i]
+    }
+  ' "$frag" > "$tmp" && mv "$tmp" "$frag" || rm -f "$tmp"
 }
 
 # installed.json 에 설치 흔적 기록 (진짜 등록 SSOT 는 `claude mcp list`)
@@ -161,5 +206,6 @@ _extend_serena_remove() {
           "$installed_json" 2>/dev/null) || tmp=""
     [ -n "$tmp" ] && echo "$tmp" > "$installed_json"
   fi
+  _extend_fragment_strip
   ok "serena 제거 완료."
 }

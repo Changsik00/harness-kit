@@ -16,3 +16,9 @@
 - **phase-FF (1급)**: 활성 phase(base 브랜치) 작은 항목 → spec 없이 직접 커밋, phase-ship PR 에서 리뷰.
 - **bundle**: 같은 테마 소규모 3개+ 는 한 spec 으로 — 단 FF 회피용 억지 묶기 금지.
 - **drift 재검증**: phase plan 은 draft — 다음 spec 전 직전 변경 영향 검토 (ADR-002).
+
+<!-- hk-extend:serena BEGIN -->
+## 확장 우선 — serena (LSP 코드 인텔리전스, opt-in)
+
+LSP 지원 언어에서 심볼 정의·참조·구현·rename 은 grep 스윕 대신 serena MCP 도구를 우선 사용한다. 조건부 — bash·단발 grep·산문은 기존 도구 (context-cost-first). 상세 → `.harness-kit/agent/agent.md` Extension-First.
+<!-- hk-extend:serena END -->
