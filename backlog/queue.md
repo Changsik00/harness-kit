@@ -8,7 +8,7 @@
 ## 📦 진행 중 Phase
 
 <!-- sdd:active:start -->
-- **phase-24** — auto-mode — 0/0 spec — (다음: 첫 spec 생성 대기)
+- **phase-24** — auto-mode — 1 spec — 다음: spec-24-01-auto-mode-base
 <!-- sdd:active:end -->
 
 ## 📥 spec-x 대기
