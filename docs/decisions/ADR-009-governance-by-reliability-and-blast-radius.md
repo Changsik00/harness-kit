@@ -1,8 +1,8 @@
 ---
 id: ADR-009
-type: decision    # decision | invariant | convention | tradeoff
+type: decision
 date: 2026-06-19
-status: accepted  # proposed | accepted | superseded | deprecated
+status: accepted
 ---
 
 # ADR-009: 거버넌스를 신뢰도·blast-radius 기준으로 재배분 + 자율(auto) 모드

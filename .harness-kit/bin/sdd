@@ -56,8 +56,9 @@ sdd — harness-kit 메타 명령
 
   plan accept                   현재 spec 의 plan 을 승인 (planAccepted=true)
 
-  mode [turbo|governed|status]  실행 모드 전환 (생략 시 현재 모드 출력)
-                                turbo: Plan Accept 없이 실행, 커밋 후 자동 검증
+  mode [turbo|auto|governed|status]  실행 모드 전환 (생략 시 현재 모드 출력)
+                                turbo: Plan Accept 없이 실행, 커밋 후 자동 검증 (attended)
+                                auto:  unattended 자율 — 정지규칙에서만 정지 (→ ADR-009)
                                 governed: 전체 SDD ceremony (기본)
 
   intent "<goal>" [--test <cmd>] [--files <list>]
@@ -741,8 +742,8 @@ cmd_status() {
   local active_mode
   active_mode="$(state_get mode)"
   [ -z "$active_mode" ] || [ "$active_mode" = "null" ] && active_mode="governed"
-  if [ "$active_mode" = "turbo" ]; then
-    printf "  Active Mode:   %s\n" "${C_CYN}turbo${C_RST}"
+  if [ "$active_mode" = "turbo" ] || [ "$active_mode" = "auto" ]; then
+    printf "  Active Mode:   %s\n" "${C_CYN}${active_mode}${C_RST}"
   else
     printf "  Active Mode:   %s\n" "${C_DIM}governed${C_RST}"
   fi
@@ -2728,7 +2729,7 @@ _settings_mode_patch() {
   [ -f "$sf" ] || return 0
   local tmp
   tmp="$(mktemp)"
-  if [ "$target_mode" = "turbo" ]; then
+  if [ "$target_mode" = "turbo" ] || [ "$target_mode" = "auto" ]; then
     jq '.permissions.ask = [.permissions.ask[] | select(. != "Bash(git push)" and . != "Bash(git push:*)")]' "$sf" > "$tmp" \
       && mv "$tmp" "$sf" \
       && printf '  settings.json: git push → allow (자동 허용)\n'
@@ -2749,6 +2750,13 @@ cmd_mode() {
       printf '  Plan Accept 없이 코드 편집 가능\n'
       printf '  커밋 후 post-commit-verify 자동 실행\n'
       ;;
+    auto)
+      state_set mode "auto"
+      _settings_mode_patch "auto"
+      printf '✓ 모드 전환: → auto (자율·unattended)\n'
+      printf '  Plan Accept·차단형 질문 없이 자율 진행 — 정지규칙(ADR-009)에서만 정지\n'
+      printf '  사후 검증(post-commit-verify) 작동. 24-03/24-04 전까지 행동은 turbo 와 동일\n'
+      ;;
     governed)
       state_set mode "governed"
       _settings_mode_patch "governed"
@@ -2762,7 +2770,7 @@ cmd_mode() {
       printf '현재 모드: %s\n' "$current"
       ;;
     *)
-      die "알 수 없는 모드: $sub (허용: turbo | governed | status)" ;;
+      die "알 수 없는 모드: $sub (허용: turbo | auto | governed | status)" ;;
   esac
 }
 

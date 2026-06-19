@@ -8,7 +8,7 @@
 ## 📦 진행 중 Phase
 
 <!-- sdd:active:start -->
-- **phase-24** — auto-mode — 0/0 spec — (다음: 첫 spec 생성 대기)
+- **phase-24** — auto-mode — 1 spec — 다음: spec-24-01-auto-mode-base
 <!-- sdd:active:end -->
 
 ## 📥 spec-x 대기
@@ -22,6 +22,7 @@
 > 아이디어·보류 항목 보관소. 실행 불가. 관련 항목이 쌓이면 Phase로, 단발이면 spec-x로 승격.
 
 - kit 새 버전 알림이 `sdd status` drift 섹션 한 줄에 그쳐 사용자 도달이 약함 — SessionStart 시 자동 노출 또는 알림 시각 강화 필요
+- **ADR 템플릿 footgun** — `adr.md` 템플릿이 `type:`/`status:` frontmatter 줄에 인라인 주석(`# decision | invariant | ...`)으로 허용값 안내 → 저자가 안 지우면 phase16 integration 의 type-closure 검사가 주석째 읽어 'out-of-closure' 적발(ADR-009 에서 실제 발생, spec-24-01 에서 수습). 허용값 힌트를 frontmatter 줄 밖으로 이동 검토
 - **`sdd phase done` (및 state_set 호출부 전반) state 파일 부재 시 exit 1** — `.claude/state/current.json` 없으면 queue 갱신만 되고 state 리셋에서 죽는 부분 실패. graceful 처리(파일 없으면 자동 생성 또는 skip) 필요. 2026-06-01 도그푸딩 중 발견
 - **릴리스 절차에 self `update.sh` re-sync 단계 검토** — version 만 올리고 자기 자신에 install 재실행을 안 하면 도그푸딩 `.harness-kit/`·`.claude/` 설치본이 `sources/` 원본보다 drift (0.15.x 에서 실제 발생, update.sh 로 수습). `docs/release-strategy.md` 에 self re-sync 또는 drift 검사 게이트 추가 검토
 - **GitHub #167/#168** — stale ADR 오탐(npm/IAM) + docs integrity 도구군(ADR index 생성·integrity check·archive 잔여 감지). 둘 다 `sdd doctor`/stale 검사 영역 — 묶어서 doctor 강화 phase 로 승격 권장

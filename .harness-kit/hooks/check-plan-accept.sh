@@ -16,7 +16,7 @@ HOOK_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$HOOK_DIR/_lib.sh"
 hook_resolve_mode "PLAN_ACCEPT" "warn"
 
-[ "$(hook_state mode)" = "turbo" ] && exit 0
+_hk_mode="$(hook_state mode)"; { [ "$_hk_mode" = "turbo" ] || [ "$_hk_mode" = "auto" ]; } && exit 0
 
 target="$(hook_tool_input file_path)"
 [ -z "$target" ] && exit 0
