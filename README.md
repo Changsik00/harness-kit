@@ -79,6 +79,8 @@ harness-kit은 그 격차를 메꿉니다. **의도를 문서로 적는 것**에
 | 🏃 **FF** (Fast-Forward) | 수동 | — | spec/PR 없이 main 직접 커밋. 오탈자·설정 변경 등 극소 수정에만 사용 |
 
 > Turbo 모드 전환: `/hk-turbo` 슬래시 커맨드 또는 `sdd mode turbo`. 복귀: `sdd mode governed`.
+>
+> 🤖 **Auto 모드** (자율·unattended) 는 ADR-009 로 *제안된* 다음 단계입니다 — phase 전체를 fire-and-forget 으로 수행하고 `phase-ship` PR 에서만 일괄 검토(결정은 기본값+로그, 정지규칙만 hard stop). *아직 구현 전 (proposed)*. 원칙: 거버넌스를 agent 신뢰도에 반비례·blast-radius 에 비례해 적용, 예산을 사전 게이트 → 사후 검증으로 이동.
 
 ---
 
@@ -100,6 +102,8 @@ sdd extend serena --scope user   # 내 모든 프로젝트
 sdd extend serena --dry-run      # 실행될 커맨드 미리보기
 sdd extend serena --remove       # 제거
 ```
+
+> 🆕 설치 시 "확장 우선" 사용 규칙이 설치본 `CLAUDE.fragment.md` 에 자동 주입됩니다 — `/hk-align` 없이도 매 세션 컨텍스트에 노출되어, LSP 언어에서 심볼 작업 시 grep 대신 serena 를 우선 쓰도록 유도합니다. 켠 프로젝트만 비용을 부담하며(원본 fragment 는 불변), `--remove` 시 함께 제거됩니다.
 
 > ⚠️ 확장은 MCP 서버라 **상시 컨텍스트 비용**이 듭니다. 그래서 default-off 이고, 등록은 Claude Code 네이티브 `claude mcp add` 에 위임합니다(키트가 설정 파일을 직접 편집하지 않음). 선행조건: `uv`, `claude` CLI. 규약 → `docs/decisions/ADR-007-extend-opt-in.md`.
 
@@ -433,7 +437,7 @@ sdd archive --keep=2
 | `sdd spec new <slug>` | active Phase 안에 새 Spec 생성 |
 | `sdd spec list [--phase=N]` | Spec 목록 |
 | `sdd spec show [spec-NN-NN-slug]` | Spec 상세 (생략 시 active) |
-| `sdd plan accept` | 현재 Spec의 plan을 승인 |
+| `sdd plan accept` | 현재 Spec의 실행 계획(spec.md) 승인 → Strict Loop 진입 |
 | `sdd config ux-mode [interactive\|text\|toggle]` | AskUserQuestion 모드 설정 |
 | `sdd config precheck list` | 등록된 precheck 명령 목록 출력 |
 | `sdd config precheck add <command>` | precheck 명령 추가 (중복 시 warn + skip). 활성 spec task.md 마커 자동 동기화 |
@@ -444,7 +448,7 @@ sdd archive --keep=2
 | `sdd archive [--keep=N] [--dry-run]` | 완료 Phase의 파일을 `archive/`로 이동 |
 | `sdd pr-watch <pr-number>` | PR merge 자동 감지 (30초 폴링, 60분 타임아웃) — merge 시 post-merge 절차 출력 |
 | `sdd run-test <cmd...>` | 테스트 결과 자동 기록 wrapper — exit 0 시 `sdd test passed` 자동 호출 |
-| `sdd search <keyword> [--scope=<s>] [--ignore-case]` | 마크다운 자산 통합 검색 (spec/plan/walkthrough 등) |
+| `sdd search <keyword> [--scope=<s>] [--ignore-case]` | 마크다운 자산 통합 검색 (spec/task/walkthrough 등) |
 | `sdd specx new <slug>` | spec-x-{slug} 디렉토리 생성 + 템플릿 복사 |
 | `sdd specx done <slug>` | spec-x 작업을 queue.md done으로 이동 |
 | `sdd phase activate <phase-NN> [--base]` | 비활성 Phase를 active로 전환 |
