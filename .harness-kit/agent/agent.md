@@ -180,9 +180,9 @@ For **EVERY** Task in the approved Plan, the Agent MUST:
 When the Strict Loop runs under director mode, the director MUST delegate
 task execution to a worker sub-agent via a scoped brief (target files,
 expected behaviour, test command, commit format). The worker's commit scope
-MUST include planning artifact files (spec/plan/task). Three invariants apply:
+MUST include planning artifact files (spec/task). Three invariants apply:
 ① Plan Accept and Ship gates are NOT delegated — held by director + user.
-② Worker commit scope MUST include spec/plan/task artifact files.
+② Worker commit scope MUST include spec/task artifact files.
 ③ Verification follows §6.8 rule 4 — action/distillation only, no transcript re-ingestion.
 
 ### 6.2 Task Status Management
@@ -348,7 +348,7 @@ All file and directory paths in Agent output MUST use paths relative to `$HARNES
 - Correct: `specs/spec-x-foo/spec.md`, `backlog/phase-01.md`
 - Wrong: `/Users/alice/projects/myapp/specs/spec-x-foo/spec.md`
 
-This applies to: spec/plan/task references, `sdd` command output, `doctor.sh` output, and any inline path mentions in chat.
+This applies to: spec/task references, `sdd` command output, `doctor.sh` output, and any inline path mentions in chat.
 
 When listing multiple spec artifact files, output each file as a standalone full relative path on its own line — never as indented filenames under a directory heading. This makes paths clickable in Claude Code.
 
@@ -418,7 +418,7 @@ Whenever the Agent presents multiple options to the User and requests a decision
 
 **Applies to**:
 - Alignment Phase work mode selection (§3).
-- Hard Stop for Review after spec/plan/task (§4.4).
+- Hard Stop for Review after spec/task (§4.4).
 - Task decomposition proposals mid-loop.
 - Implementation strategy A/B/C choices.
 - Unexpected edge case handling decisions.

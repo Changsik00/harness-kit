@@ -25,7 +25,7 @@ Agent tool (`subagent_type: general-purpose`, `model: "opus"`)을 사용하여 *
 >
 > **입력 자료**:
 > - spec 문서: `specs/<spec-dir>/spec.md`를 읽어서 요구사항을 파악하세요.
-> - 필요시 `specs/<spec-dir>/plan.md`도 참조하세요.
+> - spec.md 에 핵심 전략·변경 목록·검증 계획이 모두 통합돼 있습니다 (별도 plan.md 없음).
 >
 > 다음 4가지 관점에서 검토하세요:
 >

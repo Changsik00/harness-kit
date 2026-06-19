@@ -7,6 +7,7 @@
 | **Spec ID** | `spec-{phaseN}-{seq}` |
 | **Phase** | `phase-{phaseN}` |
 | **Branch** | `spec-{phaseN}-{seq}-{slug}` |
+| **Base 브랜치** | `phase-{phaseN}` (phase 내) 또는 `main` (spec-x) — 분기 시작 지점 |
 | **상태** | Planning |
 | **타입** | Feature / Fix / Refactor / Research |
 | **작성일** | YYYY-MM-DD |
@@ -65,6 +66,11 @@
 
 수동 검증 시나리오:
 1. <단계 1> — 기대 결과: ...
+
+## 롤백 계획
+
+<!-- 문제 발생 시 되돌리는 방법. 대부분 `git revert`. state/마이그레이션/외부 부수효과(파일 생성·MCP 등록 등)가 있으면 절차를 명시. -->
+- <롤백 방법 — 예: `git revert`, state 영향 없음>
 
 ## ADR 후보
 

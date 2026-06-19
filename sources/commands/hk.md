@@ -18,7 +18,7 @@ bash .harness-kit/bin/sdd status
 - **Active Spec** (spec ID 또는 "없음")
 - **NEXT** (다음 spec ID 또는 "없음")
 - **Plan Accept** (yes / no)
-- **Artifacts** (`✓ spec ✓ plan ✓ task ✓ walkthrough ✓ pr_description` 같은 라인 — `(Ship-ready)` / `(Executing)` 마커 포함 여부)
+- **Artifacts** (`✓ spec ✓ task ✓ walkthrough ✓ pr_description` 같은 라인 — `(Ship-ready)` / `(Executing)` 마커 포함 여부)
 
 ## 2. 상태 매핑 (8 가지 분기)
 
@@ -29,8 +29,8 @@ bash .harness-kit/bin/sdd status
 | 1 | Active Phase 없음 | 📍 Active phase 없음<br>→ 새 phase 시작: `/hk-align` 또는 `sdd phase new <slug>` |
 | 2 | Phase 있음 / Spec 없음 / NEXT 있음 (다음 Backlog spec 존재) | 📍 phase-N 진행 중, spec 대기<br>→ 다음 spec 시작: `sdd spec new <slug>` (NEXT: `<id>`) |
 | 3 | Phase 있음 / Spec 없음 / NEXT 없음 (전 spec Merged) | 📍 phase-N 의 전 spec Merged<br>→ Phase ship: `/hk-phase-ship` |
-| 4 | Phase 있음 / Spec 있음 / planAccepted=no / artifacts 미완 (spec/plan/task 중 ✗) | 📍 spec 작성 중 (`<spec-id>`)<br>→ spec/plan/task 작성 필요 — task.md 의 Pre-flight 항목 확인 |
-| 5 | Phase 있음 / Spec 있음 / planAccepted=no / artifacts ✓ spec ✓ plan ✓ task | 📍 spec 작성 완료, Plan Accept 대기<br>→ `/hk-plan-accept` (또는 비판 원하면 `/hk-spec-critique`) |
+| 4 | Phase 있음 / Spec 있음 / planAccepted=no / artifacts 미완 (spec/task 중 ✗) | 📍 spec 작성 중 (`<spec-id>`)<br>→ spec/task 작성 필요 — task.md 의 Pre-flight 항목 확인 |
+| 5 | Phase 있음 / Spec 있음 / planAccepted=no / artifacts ✓ spec ✓ task | 📍 spec 작성 완료, Plan Accept 대기<br>→ `/hk-plan-accept` (또는 비판 원하면 `/hk-spec-critique`) |
 | 6 | Phase 있음 / Spec 있음 / planAccepted=yes / `(Executing)` 또는 walkthrough/pr_description 중 ✗ | 📍 Strict Loop 진행 중 (`<spec-id>`)<br>→ task.md 의 다음 task 실행. 모든 task 완료 시 walkthrough/pr_description 작성 |
 | 7 | Phase 있음 / Spec 있음 / planAccepted=yes / `(Ship-ready)` 또는 전 artifacts ✓ | 📍 Ship 준비 완료 (`<spec-id>`)<br>→ Ship: `/hk-ship` |
 | 8 | (fallback) sdd 출력 없음 / 파싱 실패 / 매핑 불가 | 📍 상태 확인 불가<br>→ `bash .harness-kit/bin/sdd status` 수동 확인 후 적절한 슬래시 커맨드 호출 |
@@ -47,7 +47,7 @@ bash .harness-kit/bin/sdd status
 
 ```
 📍 spec 작성 중 (spec-17-02-accessibility-install-and-entry)
-→ spec/plan/task 작성 필요 — task.md 의 Pre-flight 항목 확인
+→ spec/task 작성 필요 — task.md 의 Pre-flight 항목 확인
 ```
 
 예시 출력 (상태 7 — Ship 준비):

@@ -59,4 +59,4 @@ hook_violation \
   "Plan Accept 전 production 코드 편집 금지 (constitution §4.3)" \
   "대상 파일: $rel" \
   "현재 plan-accepted: ${plan_accepted:-false}" \
-  "해결: spec.md / plan.md / task.md 작성 → 사용자에게 검토 요청 → /plan-accept 호출"
+  "해결: spec.md / task.md 작성 → 사용자에게 검토 요청 → /plan-accept 호출"
