@@ -20,6 +20,8 @@ updated: 2026-05-27
 
 ## 📚 Context
 
+> **2026-06 업데이트**: `plan.md` 는 이후 `spec.md` 로 통합됨 (핵심 전략·변경 목록·검증·롤백이 spec.md 섹션으로 흡수). 현재 산출물은 `spec.md` + `task.md` + `walkthrough.md` + `pr_description.md`. 아래 비용 논지·우편향은 불변 — 산출물이 하나 줄어 고정비가 오히려 더 작아졌을 뿐.
+
 SDD ceremony (`spec.md` + `plan.md` + `task.md` + Plan Accept + `walkthrough.md` + `pr_description.md` + PR + review) 는 토큰 + 시간 *고정비* — 작업 규모와 무관하게 약 6,000-8,000 토큰 + 사용자 검토 시간 소비. 작업이 1-2 commit (오탈자 / 매니페스트 sync / 안내 1 줄) 이면 ceremony 가 작업보다 크고 ROI 음수.
 
 또한 phase.md 의 spec 표 (예: backlog/phase-17.md) 는 *작성 시점* 의 *예상* 인데, 다음 spec 시작 시 *직전 spec 의 실제 변경* 으로 가정이 깨졌는지 검증 부재. 결과: 옛 plan 으로 진행, 누락 발견 → 뒤늦은 sweep spec.

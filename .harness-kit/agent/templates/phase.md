@@ -32,7 +32,7 @@
 ## 🧩 작업 단위 (SPEC + phase-FF)
 
 > 본 절은 phase 의 *작업 지도* 입니다. phase 설계 시 각 작업을 크기에 맞게 미리 배치합니다 — 실질적/불확실 → **SPEC**(아래 표), 작고 가역적인 1–2 commit → **phase-FF**(맨 아래 목록, spec 산출물 없음, → ADR-004).
-> SPEC 은 *요점 + 방향성 + 참조* 까지만 적습니다. 자세한 spec/plan/task 는 `specs/spec-{N}-{seq}-{slug}/` 에서 작성합니다.
+> SPEC 은 *요점 + 방향성 + 참조* 까지만 적습니다. 자세한 spec/task 는 `specs/spec-{N}-{seq}-{slug}/` 에서 작성합니다.
 > sdd 가 `<!-- sdd:specs:start --> ~ <!-- sdd:specs:end -->` 사이를 자동 갱신하므로 마커는 그대로 두세요.
 
 <!-- sdd:specs:start -->

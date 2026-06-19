@@ -13,7 +13,7 @@
 | 경로 | install 대상 | 역할 |
 |---|---|---|
 | `governance/` | `.harness-kit/agent/` | constitution / agent.md / align.md (행동 규약) |
-| `templates/` | `.harness-kit/agent/templates/` | spec/plan/task 등 산출물 양식 |
+| `templates/` | `.harness-kit/agent/templates/` | spec/task 등 산출물 양식 |
 | `commands/` | `.claude/commands/` | 슬래시 커맨드 (`/hk-*`) |
 | `hooks/` | `.claude/scripts/harness/hooks/` | 후크 스크립트 |
 | `bin/` | `.harness-kit/bin/` | `sdd` 메타 명령 |

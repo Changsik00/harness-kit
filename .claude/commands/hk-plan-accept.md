@@ -1,14 +1,14 @@
 ---
-description: 현재 SPEC 의 plan.md 를 명시적으로 승인 — Strict Loop 모드 진입
+description: 현재 SPEC 의 실행 계획(spec.md)을 명시적으로 승인 — Strict Loop 모드 진입
 ---
 
-사용자가 plan.md 를 승인했음을 시스템에 명시적으로 기록합니다. **이 명령은 신중하게 사용하세요** — 이후로는 Strict Loop 로 코드 편집이 시작됩니다.
+사용자가 spec.md 의 실행 계획(핵심 전략·변경 목록·검증)을 승인했음을 시스템에 명시적으로 기록합니다. **이 명령은 신중하게 사용하세요** — 이후로는 Strict Loop 로 코드 편집이 시작됩니다.
 
 > 허용 응답 목록 및 목록 외 응답 처리 규칙 → constitution §5.2 참조
 
 ## 1. 사전 검증
 
-현재 활성 SPEC 이 있는지, plan.md 가 작성되어 있는지 확인:
+현재 활성 SPEC 이 있는지, spec.md / task.md 가 작성되어 있는지 확인:
 
 ```bash
 ./.harness-kit/bin/sdd status --json
@@ -17,7 +17,7 @@ description: 현재 SPEC 의 plan.md 를 명시적으로 승인 — Strict Loop 
 다음 조건 모두 만족해야 합니다:
 - `phase` ≠ null
 - `spec` ≠ null
-- `<spec-dir>/plan.md` 존재 + 비어있지 않음
+- `<spec-dir>/spec.md` 존재 + 비어있지 않음 (핵심 전략·변경·검증 포함 — 구 plan.md 통합)
 - `<spec-dir>/task.md` 존재 + 비어있지 않음
 
 하나라도 빠지면 사용자에게 무엇이 부족한지 보고하고 멈춥니다.
