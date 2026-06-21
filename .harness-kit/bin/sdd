@@ -2792,8 +2792,9 @@ cmd_decision() {
   local sub="${1:-list}"; shift || true
   case "$sub" in
     add)  _decision_add "$@" ;;
-    list) _decision_list ;;
-    *)    die "사용법: sdd decision add \"<이슈>\" \"<선택>\" \"<근거>\" | sdd decision list" ;;
+    list)
+      if [ "${1:-}" = "--phase" ]; then _decision_list_phase; else _decision_list; fi ;;
+    *)    die "사용법: sdd decision add \"<이슈>\" \"<선택>\" \"<근거>\" | sdd decision list [--phase]" ;;
   esac
 }
 
@@ -2827,6 +2828,35 @@ _decision_list() {
   else
     echo "(결정 로그 없음)"
   fi
+}
+
+# active phase 의 전 spec walkthrough 에서 결정 로그(auto) 행을 spec 라벨과 함께 rollup.
+# auto 모드가 phase 전체를 자율 수행하며 여러 spec 에 흩뿌린 결정을 phase-ship 한 곳에서 일괄 노출 (ADR-009 규약 4).
+_decision_list_phase() {
+  local phase pn
+  phase="$(state_get phase)"
+  { [ -z "$phase" ] || [ "$phase" = "null" ]; } && { echo "(활성 phase 없음)"; return 0; }
+  pn="${phase#phase-}"
+  local header_printed=0 wt spec rows r
+  for wt in "$SDD_ROOT"/specs/spec-"$pn"-*/walkthrough.md; do
+    [ -f "$wt" ] || continue
+    grep -q '## 📌 결정 기록 (auto)' "$wt" || continue
+    spec="$(basename "$(dirname "$wt")")"
+    # 결정 표의 데이터 행만 (헤더 '| 이슈' · 구분선 '|---' 제외)
+    rows="$(sed -n '/## 📌 결정 기록 (auto)/,$p' "$wt" | grep -E '^\|' | grep -vE '^\|[[:space:]]*(이슈|-|:)')"
+    [ -z "$rows" ] && continue
+    if [ "$header_printed" -eq 0 ]; then
+      printf '## 📌 결정 로그 rollup — %s\n\n| spec | 이슈 | 결정 | 근거 |\n|---|---|---|---|\n' "$phase"
+      header_printed=1
+    fi
+    while IFS= read -r r; do
+      [ -z "$r" ] && continue
+      printf '| %s %s\n' "$spec" "$r"
+    done <<EOF
+$rows
+EOF
+  done
+  [ "$header_printed" -eq 0 ] && echo "(결정 로그 없음)"
 }
 
 # ============================================================

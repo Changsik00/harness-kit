@@ -8,7 +8,7 @@
 ## 📦 진행 중 Phase
 
 <!-- sdd:active:start -->
-- **phase-24** — auto-mode — 4 spec — 다음: spec-24-04-nonblocking-decision
+- **phase-24** — auto-mode — 5 spec — 다음: spec-24-05-phase-ship-checkpoint
 <!-- sdd:active:end -->
 
 ## 📥 spec-x 대기

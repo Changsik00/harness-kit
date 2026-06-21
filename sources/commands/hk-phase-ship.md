@@ -63,9 +63,22 @@ bash tests/test-phase{N}-integration.sh
   시나리오 2: ✅ PASS — <결과 요약>
 ```
 
-## 4. Go/No-Go Report (사용자 승인)
+## 4. 자율 결정 로그 rollup (auto 검토)
 
-Step 2, 3의 결과를 종합하여 사용자에게 보고합니다:
+auto 모드(ADR-009)는 결정을 *멈추지 않고* 기본값+로그로 진행하므로, 그 결정들을 phase-ship 한 곳에서 일괄 검토합니다. phase 전체 spec 의 결정 로그를 모읍니다:
+
+```bash
+./.harness-kit/bin/sdd decision list --phase
+```
+
+- 출력된 각 결정(이슈·결정·근거 + 출처 spec)을 검토 — auto 가 내린 기본값 중 **재검토/되돌릴 것이 없는지** 확인.
+- 되돌릴 결정이 있으면 Go/No-Go 전에 사용자에게 보고.
+- `(결정 로그 없음)` 이면 auto 자율 결정이 없었다는 뜻 — 그대로 진행.
+- **이 rollup 출력은 아래 Phase PR 본문의 "자율 결정 로그" 섹션에 그대로 포함**합니다 (Step 5a).
+
+## 5. Go/No-Go Report (사용자 승인)
+
+Step 2, 3, 4의 결과를 종합하여 사용자에게 보고합니다:
 
 ```
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -75,6 +88,7 @@ Step 2, 3의 결과를 종합하여 사용자에게 보고합니다:
 📋 성공 기준: N/M PASS
 🧪 통합 테스트: N/M PASS
 📦 Spec 완료: N/N Merged
+🤖 자율 결정: K건 (rollup 검토 완료 — 되돌릴 항목 없음 / [있으면 표시])
 
 [FAIL 항목이 있으면 여기에 상세 표시]
 
@@ -85,7 +99,7 @@ main 으로 merge 해도 될까요? [Y/n]
 
 **에이전트는 반드시 사용자의 명시적 승인을 대기합니다.** 자동 진행 금지.
 
-## 5. Phase 마무리 (승인 후) — mode 분기
+## 6. Phase 마무리 (승인 후) — mode 분기
 
 `state.json` 의 `baseBranch` 필드로 mode 를 판별합니다.
 
@@ -97,7 +111,7 @@ main 으로 merge 해도 될까요? [Y/n]
 
 Phase PR (phase-N-{slug} → main) 을 생성하고 **state 는 활성 상태로 유지**합니다. PR 머지 후 사용자 신호 시 `agent.md §6.3.2` 의 Post-Merge Protocol 에서 `sdd phase done` 이 실행됩니다.
 
-1. **PR 본문 작성**: `.harness-kit/agent/templates/phase-ship.md` 템플릿을 읽고 Phase PR 본문을 작성합니다.
+1. **PR 본문 작성**: `.harness-kit/agent/templates/phase-ship.md` 템플릿을 읽고 Phase PR 본문을 작성합니다. Step 4 의 `sdd decision list --phase` 출력을 **"🤖 자율 결정 로그"** 섹션으로 본문에 포함합니다 (리뷰어가 auto 결정을 한눈에 보도록).
 
 2. **PR 생성**:
 ```bash
