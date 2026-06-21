@@ -10,9 +10,23 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 HOOK="$ROOT/sources/hooks/check-irreversible.sh"
 
+# ③ 테스트용 fixture (post-commit-verify 를 설치된 환경에서 검증)
+source "$SCRIPT_DIR/lib/fixture.sh"
+FIXTURES_TO_CLEAN=()
+trap 'for d in "${FIXTURES_TO_CLEAN[@]:-}"; do [ -n "$d" ] && [ -d "$d" ] && rm -rf "$d"; done' EXIT
+
 PASS=0; FAIL=0
 ok()   { echo "  ✅ PASS: $*"; PASS=$(( PASS + 1 )); }
 fail() { echo "  ❌ FAIL: $*"; FAIL=$(( FAIL + 1 )); }
+
+# fixture state/precheck 헬퍼
+_set_mode()    { local t; t=$(mktemp); jq --arg v "$2" '.mode=$v' "$1/.claude/state/current.json" > "$t" && mv "$t" "$1/.claude/state/current.json"; }
+_set_count()   { local t; t=$(mktemp); jq --argjson v "$2" '.autoFailCount=$v' "$1/.claude/state/current.json" > "$t" && mv "$t" "$1/.claude/state/current.json"; }
+_get_count()   { jq -r '.autoFailCount // 0' "$1/.claude/state/current.json"; }
+_set_precheck(){ local t; t=$(mktemp); jq --arg c "$2" '.precheck=[$c]' "$1/.harness-kit/installed.json" > "$t" && mv "$t" "$1/.harness-kit/installed.json"; }
+_commit_count(){ git -C "$1" log --oneline | wc -l | tr -d ' '; }
+_fresh_commit(){ echo "x$RANDOM" > "$1/f.txt"; git -C "$1" add f.txt; git -C "$1" commit -q -m "feat: change"; }
+_run_verify()  { ( cd "$1" && bash "$1/.harness-kit/hooks/post-commit-verify.sh" 2>&1 ); }
 
 echo "═══════════════════════════════════════════════════════"
 echo " test-stop-rules (spec-24-03)"
@@ -75,6 +89,47 @@ if [ "$_rc" -eq 2 ] && echo "$_out" | grep -q "hook:block"; then
   ok "T10: block 모드 → exit 2"
 else
   fail "T10: block 모드 exit 2 기대 (rc=$_rc)"
+fi
+
+# ─────────────────────────────────────────────────────────
+echo ""
+echo "▶ ③ 반복 테스트 실패 카운터 (post-commit-verify, auto)"
+
+# T11: auto + 실패(count 0→1) → revert + 카운터 증가, hard-stop 아님
+FX11="$(make_fixture)"; FIXTURES_TO_CLEAN+=("$FX11")
+_set_mode "$FX11" auto; _set_precheck "$FX11" "false"; _set_count "$FX11" 0
+_fresh_commit "$FX11"
+before11="$(_commit_count "$FX11")"
+out11="$(_run_verify "$FX11")"
+after11="$(_commit_count "$FX11")"; cnt11="$(_get_count "$FX11")"
+if [ "$cnt11" = "1" ] && [ "$after11" -gt "$before11" ] && ! echo "$out11" | grep -q "hard-stop"; then
+  ok "T11: 실패 1회 → count=1 + auto-revert (hard-stop 아님)"
+else
+  fail "T11: count=$cnt11 revert=${before11}-${after11} out=$out11"
+fi
+
+# T12: auto + 실패(count 2→3=MAX) → hard-stop, revert 안 함
+FX12="$(make_fixture)"; FIXTURES_TO_CLEAN+=("$FX12")
+_set_mode "$FX12" auto; _set_precheck "$FX12" "false"; _set_count "$FX12" 2
+_fresh_commit "$FX12"
+before12="$(_commit_count "$FX12")"
+out12="$(_run_verify "$FX12")"
+after12="$(_commit_count "$FX12")"; cnt12="$(_get_count "$FX12")"
+if [ "$cnt12" = "3" ] && [ "$after12" -eq "$before12" ] && echo "$out12" | grep -q "hard-stop"; then
+  ok "T12: 3회(MAX) 연속 실패 → hard-stop + revert 보류"
+else
+  fail "T12: count=$cnt12 revert=${before12}-${after12} out=$out12"
+fi
+
+# T13: auto + 통과 → 카운터 0 리셋
+FX13="$(make_fixture)"; FIXTURES_TO_CLEAN+=("$FX13")
+_set_mode "$FX13" auto; _set_precheck "$FX13" "true"; _set_count "$FX13" 2
+_fresh_commit "$FX13"
+out13="$(_run_verify "$FX13")"; cnt13="$(_get_count "$FX13")"
+if [ "$cnt13" = "0" ] && echo "$out13" | grep -q "검증 통과"; then
+  ok "T13: 통과 → 카운터 0 리셋"
+else
+  fail "T13: count=$cnt13 (기대 0) out=$out13"
 fi
 
 # ─────────────────────────────────────────────────────────
