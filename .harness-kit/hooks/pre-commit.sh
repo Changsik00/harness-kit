@@ -24,8 +24,30 @@ if [ -f "$HARNESS_HOOKS/check-secrets.sh" ]; then
   HARNESS_GIT_HOOK_MODE=1 bash "$HARNESS_HOOKS/check-secrets.sh" || exit 1
 fi
 
-# Plan Accept 검사
 STATE_FILE="$HARNESS_ROOT/.claude/state/current.json"
+
+# blast-radius scope 검사 (커밋 시점 — 도구 무관, MCP/Serena 편집 우회 차단)
+# 경고 모드: 위반 시 stderr 만 출력하고 통과 (hook 단계론 — 1주 후 차단 승격).
+# planAccepted/mode 와 무관하게 '활성 spec + spec.md scope 패턴' 만으로 동작
+# → turbo/auto 의 편집 우회(Edit/Write 매처 밖)를 잡는 것이 목적 (ADR-009).
+if [ -f "$STATE_FILE" ] && [ -f "$HARNESS_HOOKS/_scope.sh" ] && command -v jq >/dev/null 2>&1; then
+  source "$HARNESS_HOOKS/_scope.sh"
+  scope_spec="$(jq -r '.spec // empty' "$STATE_FILE" 2>/dev/null || echo "")"
+  [ "$scope_spec" = "null" ] && scope_spec=""
+  scope_plan="$HARNESS_ROOT/specs/$scope_spec/spec.md"
+  if [ -n "$scope_spec" ] && [ -f "$scope_plan" ]; then
+    while IFS= read -r f; do
+      [ -z "$f" ] && continue
+      if ! scope_path_in_scope "$f" "$scope_plan"; then
+        echo "⚠ [scope:warn] spec 범위 밖 파일 커밋: $f" >&2
+        echo "   active spec: $scope_spec — spec.md Proposed Changes 외 (constitution §6.2)" >&2
+        echo "   (경고 모드 — 커밋은 통과. 범위면 spec.md 에 추가하거나 사용자와 재정렬)" >&2
+      fi
+    done < <(git -C "$HARNESS_ROOT" diff --cached --name-only 2>/dev/null)
+  fi
+fi
+
+# Plan Accept 검사
 [ -f "$STATE_FILE" ] || exit 0
 
 # turbo/auto: Plan Accept 게이트 면제 (위 lint/secret 검사는 유지).
