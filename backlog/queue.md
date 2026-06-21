@@ -8,7 +8,7 @@
 ## 📦 진행 중 Phase
 
 <!-- sdd:active:start -->
-- **phase-24** — auto-mode — 1 spec — 다음: spec-24-01-auto-mode-base
+- **phase-24** — auto-mode — 2 spec — 다음: spec-24-02-scope-commit-time
 <!-- sdd:active:end -->
 
 ## 📥 spec-x 대기

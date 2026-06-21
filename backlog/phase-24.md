@@ -45,6 +45,7 @@ phase 전체를 fire-and-forget 으로 수행하는 `auto` 모드 구현 — 논
 | ID | 슬러그 | 우선순위 | 상태 | 디렉토리 |
 |---|---|:---:|---|---|
 | `spec-24-01` | auto-mode-base | P? | Active | `specs/spec-24-01-auto-mode-base/` |
+| `spec-24-02` | scope-commit-time | P? | Active | `specs/spec-24-02-scope-commit-time/` |
 <!-- sdd:specs:end -->
 
 > 상태 허용값: `Backlog` / `In Progress` / `Merged`
