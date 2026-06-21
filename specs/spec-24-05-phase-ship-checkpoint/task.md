@@ -25,20 +25,20 @@
 - [x] Commit: `feat(spec-24-05): sdd decision list --phase (rollup)`
 
 ### 2-2. hk-phase-ship 연동
-- [ ] `sources/commands/hk-phase-ship.md`: go/no-go 에 결정 로그 rollup 노출 단계 + PR 본문 포함 지시
-- [ ] `.claude/commands/hk-phase-ship.md` 미러
-- [ ] Commit: `docs(spec-24-05): hk-phase-ship 에 결정 로그 rollup 단계`
+- [x] `sources/commands/hk-phase-ship.md`: go/no-go 에 결정 로그 rollup 노출 단계 + PR 본문 포함 지시
+- [x] `.claude/commands/hk-phase-ship.md` 미러
+- [x] Commit: `docs(spec-24-05): hk-phase-ship 에 결정 로그 rollup 단계`
 
 ---
 
 ## Task 3: Ship
 
 ### 🚦 Pre-Push Quality Gate
-- [ ] 전체 테스트 PASS
+- [x] 전체 테스트 PASS (72/72)
 
 ### 📝 산출물
-- [ ] walkthrough.md / pr_description.md
-- [ ] Commit: `docs(spec-24-05): ship walkthrough and pr description`
+- [x] walkthrough.md / pr_description.md
+- [x] Commit: `docs(spec-24-05): ship walkthrough and pr description`
 
 ### 🚀 Push & PR
-- [ ] push + `gh pr create`
+- [x] push + `gh pr create`
