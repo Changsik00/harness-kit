@@ -175,6 +175,10 @@
           {
             "type": "command",
             "command": ".harness-kit/hooks/check-task-checkbox.sh"
+          },
+          {
+            "type": "command",
+            "command": ".harness-kit/hooks/check-irreversible.sh"
           }
         ]
       },
