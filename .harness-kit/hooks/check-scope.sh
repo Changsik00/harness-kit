@@ -8,6 +8,7 @@
 
 HOOK_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$HOOK_DIR/_lib.sh"
+source "$HOOK_DIR/_scope.sh"
 hook_resolve_mode "SCOPE" "warn"
 
 _hk_mode="$(hook_state mode)"; { [ "$_hk_mode" = "turbo" ] || [ "$_hk_mode" = "auto" ]; } && exit 0
@@ -21,13 +22,8 @@ case "$target" in
   *)  rel="$target" ;;
 esac
 
-# 안전 경로는 항상 허용 (거버넌스, 산출물, 설정 등)
-case "$rel" in
-  .harness-kit/*|docs/*|backlog/*|specs/*|.claude/*|\
-  .gitignore|README.md|CLAUDE.md|version.json|\
-  *.md)
-    exit 0 ;;
-esac
+# 안전 경로는 항상 허용 (거버넌스, 산출물, 설정 등 — _scope.sh 가 판정)
+scope_is_safe_path "$rel" && exit 0
 
 # Plan Accept 상태가 아니면 검사 불필요 (check-plan-accept 가 담당)
 plan_accepted="$(hook_state planAccepted)"
@@ -40,25 +36,8 @@ spec="$(hook_state spec)"
 plan_file="$HARNESS_ROOT/specs/$spec/spec.md"
 [ ! -f "$plan_file" ] && exit 0
 
-# spec.md 에서 파일 경로 추출: [MODIFY] `path`, [NEW] `path`, [DELETE] `path`
-# 백틱 안의 경로를 추출
-scope_paths="$(grep -oE '\[(MODIFY|NEW|DELETE)\][[:space:]]+`[^`]+`' "$plan_file" | sed -E 's/.*`([^`]+)`.*/\1/')"
-
-[ -z "$scope_paths" ] && exit 0
-
-# 대상 파일이 scope 에 포함되는지 확인
-while IFS= read -r pattern; do
-  [ -z "$pattern" ] && continue
-  # 정확히 일치하거나 디렉토리 prefix 일치
-  if [ "$rel" = "$pattern" ]; then
-    exit 0
-  fi
-  # 와일드카드 디렉토리 매칭 (path/to/dir/ 로 시작하면 통과)
-  dir_pattern="${pattern%/*}/"
-  case "$rel" in
-    "$dir_pattern"*) exit 0 ;;
-  esac
-done <<< "$scope_paths"
+# 대상 파일이 spec.md Proposed Changes scope 에 포함되는지 확인 (_scope.sh 위임)
+scope_path_in_scope "$rel" "$plan_file" && exit 0
 
 hook_violation \
   "Spec 범위 밖 파일 편집 (constitution §6.2)" \
