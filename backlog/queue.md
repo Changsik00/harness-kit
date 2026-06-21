@@ -8,7 +8,7 @@
 ## 📦 진행 중 Phase
 
 <!-- sdd:active:start -->
-- **phase-24** — auto-mode — 3 spec — 다음: spec-24-03-stop-rules
+- **phase-24** — auto-mode — 4 spec — 다음: spec-24-04-nonblocking-decision
 <!-- sdd:active:end -->
 
 ## 📥 spec-x 대기
@@ -21,6 +21,7 @@
 
 > 아이디어·보류 항목 보관소. 실행 불가. 관련 항목이 쌓이면 Phase로, 단발이면 spec-x로 승격.
 
+- **PR 을 `sdd ship` 없이 머지하면 phase.md spec 이 `Active` 로 stale 잔존** — gh pr create 로 직접 머지 시 spec 표가 Merged 로 안 바뀌고, 비활성 spec 은 `sdd ship`(active spec 대상)으로도 못 고쳐 수동 보정 필요(phase-24 24-01·24-02 에서 2회 발생, 2026-06-21). `sdd status` 가 git↔phase.md 불일치는 감지하나 *자동 보정 명령*(예: `sdd reconcile` 또는 `sdd ship <spec-id>`)이 없음. 검토 권장
 - kit 새 버전 알림이 `sdd status` drift 섹션 한 줄에 그쳐 사용자 도달이 약함 — SessionStart 시 자동 노출 또는 알림 시각 강화 필요
 - **ADR 템플릿 footgun** — `adr.md` 템플릿이 `type:`/`status:` frontmatter 줄에 인라인 주석(`# decision | invariant | ...`)으로 허용값 안내 → 저자가 안 지우면 phase16 integration 의 type-closure 검사가 주석째 읽어 'out-of-closure' 적발(ADR-009 에서 실제 발생, spec-24-01 에서 수습). 허용값 힌트를 frontmatter 줄 밖으로 이동 검토
 - **`sdd phase done` (및 state_set 호출부 전반) state 파일 부재 시 exit 1** — `.claude/state/current.json` 없으면 queue 갱신만 되고 state 리셋에서 죽는 부분 실패. graceful 처리(파일 없으면 자동 생성 또는 skip) 필요. 2026-06-01 도그푸딩 중 발견
