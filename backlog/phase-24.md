@@ -48,6 +48,7 @@ phase 전체를 fire-and-forget 으로 수행하는 `auto` 모드 구현 — 논
 | `spec-24-02` | auto-scope-commit | P? | Merged | `specs/spec-24-02-auto-scope-commit/` |
 | `spec-24-03` | stop-rules | P? | Merged | `specs/spec-24-03-stop-rules/` |
 | `spec-24-04` | nonblocking-decision | P? | Active | `specs/spec-24-04-nonblocking-decision/` |
+| `spec-24-05` | phase-ship-checkpoint | P? | Active | `specs/spec-24-05-phase-ship-checkpoint/` |
 <!-- sdd:specs:end -->
 
 > 상태 허용값: `Backlog` / `In Progress` / `Merged`
