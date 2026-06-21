@@ -73,12 +73,51 @@ else
   rm -f "$tmp_cmds"
 fi
 
+# state.autoFailCount 설정 (정지규칙 ③ — auto 모드 연속 실패 추적)
+_set_autofail() {
+  [ -f "$HARNESS_STATE_FILE" ] || return 0
+  command -v jq >/dev/null 2>&1 || return 0
+  local t; t="$(mktemp)"
+  if jq --argjson n "$1" '.autoFailCount = $n' "$HARNESS_STATE_FILE" > "$t" 2>/dev/null; then
+    mv "$t" "$HARNESS_STATE_FILE"
+  else
+    rm -f "$t"
+  fi
+}
+
 if [ "$pass" = "true" ]; then
+  # auto: 연속 실패 카운터 리셋
+  if [ "$mode" = "auto" ]; then
+    cur="$(hook_state autoFailCount)"; [ -z "$cur" ] && cur=0
+    [ "$cur" != "0" ] && _set_autofail 0
+  fi
   echo "✓ [turbo:verify] 검증 통과" >&2
   exit 0
 fi
 
-# 실패 시 auto-revert
+# ── 실패 처리 ──
+# auto: 연속 실패를 카운트, N(기본 3)회 시 hard-stop(정지규칙 ③, ADR-009) — revert 보류
+if [ "$mode" = "auto" ]; then
+  max="${HARNESS_AUTO_FAIL_MAX:-3}"
+  cur="$(hook_state autoFailCount)"; [ -z "$cur" ] && cur=0
+  cur=$(( cur + 1 ))
+  _set_autofail "$cur"
+  if [ "$cur" -ge "$max" ]; then
+    echo "✗ [auto:stop-rule③] ${cur}회 연속 검증 실패 — hard-stop (사람 개입 필요)" >&2
+    echo "  실패 커맨드: $fail_cmd" >&2
+    [ -n "$fail_out" ] && echo "  출력: $fail_out" >&2
+    echo "  auto-revert 보류 — 실패 커밋 보존. 원인 수정 후 재개하세요." >&2
+    exit 0
+  fi
+  echo "✗ [turbo:verify] 검증 실패 — auto-revert 실행 (${cur}/${max})" >&2
+  echo "  실패 커맨드: $fail_cmd" >&2
+  [ -n "$fail_out" ] && echo "  출력: $fail_out" >&2
+  git -C "$HARNESS_ROOT" revert HEAD --no-edit >/dev/null 2>&1 || true
+  echo "  커밋 revert 완료. 코드 수정 후 재커밋 하세요." >&2
+  exit 0
+fi
+
+# turbo (attended) — 기존 동작 보존: 실패 시 즉시 auto-revert
 echo "✗ [turbo:verify] 검증 실패 — auto-revert 실행" >&2
 echo "  실패 커맨드: $fail_cmd" >&2
 [ -n "$fail_out" ] && echo "  출력: $fail_out" >&2
