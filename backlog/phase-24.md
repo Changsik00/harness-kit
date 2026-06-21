@@ -46,6 +46,7 @@ phase 전체를 fire-and-forget 으로 수행하는 `auto` 모드 구현 — 논
 |---|---|:---:|---|---|
 | `spec-24-01` | auto-mode-base | P? | Active | `specs/spec-24-01-auto-mode-base/` |
 | `spec-24-02` | auto-scope-commit | P? | Active | `specs/spec-24-02-auto-scope-commit/` |
+| `spec-24-03` | stop-rules | P? | Active | `specs/spec-24-03-stop-rules/` |
 <!-- sdd:specs:end -->
 
 > 상태 허용값: `Backlog` / `In Progress` / `Merged`

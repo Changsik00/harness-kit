@@ -2774,6 +2774,47 @@ cmd_mode() {
   esac
 }
 
+cmd_decision() {
+  local sub="${1:-list}"; shift || true
+  case "$sub" in
+    add)  _decision_add "$@" ;;
+    list) _decision_list ;;
+    *)    die "사용법: sdd decision add \"<이슈>\" \"<선택>\" \"<근거>\" | sdd decision list" ;;
+  esac
+}
+
+# active spec 의 walkthrough.md 경로 (활성 spec 없으면 실패)
+_decision_wt() {
+  local dir
+  dir="$(state_spec_dir)" || return 1
+  echo "$dir/walkthrough.md"
+}
+
+# 결정·근거를 active spec walkthrough 의 결정 로그(auto)에 append.
+# auto 모드의 논블로킹 결정(ADR-009 규약 2)을 phase-ship(규약 4)에서 일괄 검토할 토대.
+_decision_add() {
+  local issue="${1:-}" choice="${2:-}" reason="${3:-}"
+  { [ -z "$issue" ] || [ -z "$choice" ]; } && die "사용법: sdd decision add \"<이슈>\" \"<선택>\" \"<근거>\""
+  local wt
+  wt="$(_decision_wt)" || die "활성 spec 없음 — 결정 로그를 기록할 대상이 없습니다"
+  mkdir -p "$(dirname "$wt")"
+  if [ ! -f "$wt" ] || ! grep -q '## 📌 결정 기록 (auto)' "$wt"; then
+    printf '\n## 📌 결정 기록 (auto)\n\n| 이슈 | 결정 | 근거 |\n|---|---|---|\n' >> "$wt"
+  fi
+  printf '| %s | %s | %s |\n' "$issue" "$choice" "$reason" >> "$wt"
+  ok "결정 기록: $issue → $choice"
+}
+
+_decision_list() {
+  local wt
+  wt="$(_decision_wt)" || die "활성 spec 없음"
+  if [ -f "$wt" ] && grep -q '## 📌 결정 기록 (auto)' "$wt"; then
+    sed -n '/## 📌 결정 기록 (auto)/,$p' "$wt"
+  else
+    echo "(결정 로그 없음)"
+  fi
+}
+
 # ============================================================
 main() {
   local cmd="${1:-help}"; shift || true
@@ -2795,6 +2836,7 @@ main() {
     doctor)   cmd_doctor "$@" ;;
     mode)    cmd_mode "$@" ;;
     intent)  cmd_intent "$@" ;;
+    decision) cmd_decision "$@" ;;
     pr-watch)  cmd_pr_watch "$@" ;;
     run-test)  cmd_run_test "$@" ;;
     search)   cmd_search "$@" ;;
