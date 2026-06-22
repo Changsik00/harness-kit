@@ -52,33 +52,33 @@
 ## Task 4: settings 등록 + 도그푸딩 미러
 
 ### 4-1. settings fragment + 설치본
-- [ ] `sources/claude-fragments/settings.json.fragment` PreToolUse 에 `AskUserQuestion` matcher 블록 추가
-- [ ] `.harness-kit/hooks/check-askquestion-auto.sh` 미러 (sources 와 byte-identical)
-- [ ] `.claude/settings.json` PreToolUse 에 동일 matcher 블록 추가
-- [ ] sync 테스트 + 전체 회귀 실행 → PASS
-- [ ] Commit: `chore(spec-25-01): register AskUserQuestion matcher + mirror 설치본`
+- [x] `sources/claude-fragments/settings.json.fragment` PreToolUse 에 `AskUserQuestion` matcher 블록 추가
+- [x] `.harness-kit/hooks/check-askquestion-auto.sh` 미러 (sources 와 byte-identical)
+- [x] `.claude/settings.json` PreToolUse 에 동일 matcher 블록 추가
+- [x] sync 테스트 + 전체 회귀 실행 → PASS
+- [x] Commit: `chore(spec-25-01): register AskUserQuestion matcher + mirror 설치본`
 
 ---
 
 ## Task 5: agent.md 포인터 (최소)
 
 ### 5-1. §8.4 1줄 포인터
-- [ ] `sources/governance/agent.md` §8.4 auto 서술에 "기계적으로 `check-askquestion-auto.sh` 강제(spec-25-01)" 1줄 추가
-- [ ] `.harness-kit/agent/agent.md` 미러
-- [ ] 단어 예산 확인 (`sdd doctor` ≤8000) + 전체 회귀
-- [ ] Commit: `docs(spec-25-01): agent.md §8.4 기계적 백스톱 포인터`
+- [x] `sources/governance/agent.md` §8.4 auto 서술에 "기계적으로 `check-askquestion-auto.sh` 강제(spec-25-01)" 1줄 추가
+- [x] `.harness-kit/agent/agent.md` 미러
+- [x] 단어 예산 확인 (`sdd doctor` ≤8000) + 전체 회귀
+- [x] Commit: `docs(spec-25-01): agent.md §8.4 기계적 백스톱 포인터`
 
 ---
 
 ## Task 6: Ship (필수)
 
 ### 🚦 Pre-Push Quality Gate
-- [ ] **전체 테스트 실행** (`bash tests/run.sh`) → 모두 PASS
-- [ ] 수동 검증 시나리오 1·2 (auto 차단 / governed 통과) 1회 실행
+- [x] **전체 테스트 실행** (`bash tests/run.sh`) → 모두 PASS
+- [x] 수동 검증 시나리오 1·2 (auto 차단 / governed 통과) 1회 실행
 
 ### 📝 산출물 작성
-- [ ] **walkthrough.md 작성** (spike 결과 · 차단방식 결정 · 발견 사항)
-- [ ] **pr_description.md 작성**
+- [x] **walkthrough.md 작성** (spike 결과 · 차단방식 결정 · 발견 사항)
+- [x] **pr_description.md 작성**
 - [ ] Commit: `docs(spec-25-01): ship walkthrough and pr description`
 
 ### 🚀 Push & PR
