@@ -8,7 +8,7 @@
 ## 📦 진행 중 Phase
 
 <!-- sdd:active:start -->
-(active phase 없음. `bin/sdd phase new <slug>` 로 시작)
+- **phase-25** — auto-reliability (auto 신뢰성) — 1 spec — 다음: spec-25-01-askquestion-redirect-hook
 <!-- sdd:active:end -->
 
 ## 📥 spec-x 대기
