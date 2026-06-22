@@ -8,7 +8,7 @@
 ## 📦 진행 중 Phase
 
 <!-- sdd:active:start -->
-- **phase-25** — auto-reliability (auto 신뢰성) — 1 spec — 다음: spec-25-01-askquestion-redirect-hook
+- **phase-25** — auto-reliability (auto 신뢰성) — 1 spec — 다음: (spec 없음)
 <!-- sdd:active:end -->
 
 ## 📥 spec-x 대기
