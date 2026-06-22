@@ -84,6 +84,8 @@ if [ -f "$HOOK" ]; then ok "T1: check-irreversible.sh 존재"; else fail "T1: ch
 # T2~T6: 비가역 명령 → 경고
 run_hook warn "git push --force origin main"; assert_warn "T2: git push --force"
 run_hook warn "git push -f"; assert_warn "T3: git push -f"
+run_hook warn "git push origin +main"; assert_warn "T3b: git push +refspec (force)"
+run_hook warn "git push origin main"; assert_quiet "T3c: git push 정상 (무경고)"
 run_hook warn "rm -rf /"; assert_warn "T4: rm -rf /"
 run_hook warn "git clean -fdx"; assert_warn "T5: git clean -fdx"
 run_hook warn "npm publish"; assert_warn "T6: npm publish"
