@@ -8,7 +8,7 @@
 ## 📦 진행 중 Phase
 
 <!-- sdd:active:start -->
-- **phase-25** — auto-reliability (auto 신뢰성) — 2 spec — 다음: (spec 없음)
+- **phase-25** — auto-reliability (auto 신뢰성) — 3 spec — 다음: spec-25-03-auto-e2e
 <!-- sdd:active:end -->
 
 ## 📥 spec-x 대기
