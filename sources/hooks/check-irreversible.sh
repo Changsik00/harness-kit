@@ -13,12 +13,13 @@
 #     공유 히스토리 force push. 프롬프트 없는 영구 완전 차단.
 #   • 본 hook ② = context-dependent(복구 등에서 정당할 수 있음): git reset --hard·
 #     rebase --onto·clean -fd. "멈추고 사람 확인" 이 맞는 부류.
-#   reset --hard·rebase --onto 는 deny 도 함께 막아 이중 방어(auto 에선 hook block 이 정지+notify).
+#   reset --hard·rebase --onto 는 settings deny 에서 제거됨 → 본 hook 이 단독 authority.
+#   (deny 가 hook 보다 먼저 silent 선점하면 auto 에서 정지+notify 가 도달 못 하는 데드락 → 이관, W3 실해소.)
 #   ▶ 왜 1주 단계론이 아니라 모드 차등인가: 본 hook 은 결정론적·테스트 고정이라 관찰로 더 알 게
 #     적고, auto 에선 block 이 fail-safe(과정지=멈추고 사람 대기)·warn 이 fail-dangerous(미정지=
 #     파괴 명령 그대로 실행)라 방향이 반대다. 그래서 auto 는 즉시 block, attended 는 warn 유지
 #     (사람이 의도적으로 실행하는 reset --hard 등을 막지 않음). (CLAUDE.md #5 정제)
-#   deny→hook 이관(reset/rebase 를 deny 에서 제거)은 후속 정리 — 선택(이중 방어라 급하지 않음).
+#   deny 에 남는 것 = never-justify (force push·rm -rf /·sudo·curl|bash). clean -f* 는 후속 검토.
 
 HOOK_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$HOOK_DIR/_lib.sh"
