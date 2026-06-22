@@ -44,8 +44,8 @@
 ### 📝 산출물 작성
 - [ ] **walkthrough.md 작성** (2층 모델 결정 · 플립 미룬 이유 · ADR 판단)
 - [ ] **pr_description.md 작성**
-- [ ] Commit: `docs(spec-25-04): ship walkthrough and pr description`
+- [x] Commit: `docs(spec-25-04): ship walkthrough and pr description`
 
 ### 🚀 Push & PR
-- [ ] `git push -u origin spec-25-04-stop-rule-layering` (base: phase-25-auto-reliability)
-- [ ] PR 생성 (base=phase-25-auto-reliability)
+- [x] `git push -u origin spec-25-04-stop-rule-layering` (base: phase-25-auto-reliability)
+- [x] PR 생성 → #218 (base=phase-25-auto-reliability)
