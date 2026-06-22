@@ -21,6 +21,9 @@
 
 > 아이디어·보류 항목 보관소. 실행 불가. 관련 항목이 쌓이면 Phase로, 단발이면 spec-x로 승격.
 
+- **check-irreversible fail-open 일관성 (phase-25 W2)** — state/jq 부재 시 mode 빈 문자열 → `_sr_default=warn` → auto 인데 비가역 명령 통과(정지망 off). hook 별 fail-safe 방향 제각각. auto 면 state 불명 시 block 으로 통일 검토. (2026-06-22 phase-25 회고)
+- **settings permissions 미러 잔재 (phase-25 W3)** — `.claude/settings.json` allow/ask 의 `git push:*` 가 `settings.json.fragment` 엔 없음(SSOT 깨짐, mode-toggle round-trip 잔재). fragment 기준 정리 또는 sync 테스트로 고정. (phase-25 이전부터 존재)
+- **hook 우회 변형 명시 테스트 (phase-25 W1 잔여)** — `git -C /x reset --hard`·`git rebase -i`·`rm -rf ./dir` 등 narrow 밖 변형은 의도적 미감지 → 테스트로 명시 고정해 경계 가시화. (refspec `+` 는 phase-25 에서 차단)
 - **GitHub #212 칸1 — 뮤테이션 테스트** — 비용 사다리의 중간 칸. "심은 버그를 테스트가 잡나"의 *수치* 답("테스트가 올바른가"의 정량 지표). 컴퓨트 비싸고 **중요 모듈 한정**이라 phase-25(칸0 상시 + 칸2 위험비례) 에 안 넣고 보류. **phase-26(테스트 신뢰 심화) 후보** — 칸0/칸2 운영 데이터가 쌓인 뒤 ROI 판단. (출처 #212 비용 사다리, 2026-06-22 phase-25 착수 시 분리)
 - **PR 을 `sdd ship` 없이 머지하면 phase.md spec 이 `Active` 로 stale 잔존** — gh pr create 로 직접 머지 시 spec 표가 Merged 로 안 바뀌고, 비활성 spec 은 `sdd ship`(active spec 대상)으로도 못 고쳐 수동 보정 필요(phase-24 24-01·24-02 에서 2회 발생, 2026-06-21). `sdd status` 가 git↔phase.md 불일치는 감지하나 *자동 보정 명령*(예: `sdd reconcile` 또는 `sdd ship <spec-id>`)이 없음. 검토 권장
 - kit 새 버전 알림이 `sdd status` drift 섹션 한 줄에 그쳐 사용자 도달이 약함 — SessionStart 시 자동 노출 또는 알림 시각 강화 필요
