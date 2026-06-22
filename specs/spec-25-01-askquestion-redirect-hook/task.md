@@ -79,8 +79,8 @@
 ### 📝 산출물 작성
 - [x] **walkthrough.md 작성** (spike 결과 · 차단방식 결정 · 발견 사항)
 - [x] **pr_description.md 작성**
-- [ ] Commit: `docs(spec-25-01): ship walkthrough and pr description`
+- [x] Commit: `docs(spec-25-01): ship walkthrough and pr description`
 
 ### 🚀 Push & PR
-- [ ] `git push -u origin spec-25-01-askquestion-redirect-hook`
-- [ ] PR 생성 (`/hk-pr-gh`)
+- [x] `git push -u origin spec-25-01-askquestion-redirect-hook` (base: phase-25-auto-reliability)
+- [x] PR 생성 → #215
