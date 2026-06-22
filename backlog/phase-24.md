@@ -10,7 +10,7 @@
 | 항목 | 값 |
 |---|---|
 | **Phase ID** | `phase-24` |
-| **상태** | In Progress |
+| **상태** | Done |
 | **시작일** | 2026-06-19 |
 | **목표 종료일** | 2026-06-30 |
 | **소유자** | dennis |
@@ -47,8 +47,8 @@ phase 전체를 fire-and-forget 으로 수행하는 `auto` 모드 구현 — 논
 | `spec-24-01` | auto-mode-base | P? | Merged | `specs/spec-24-01-auto-mode-base/` |
 | `spec-24-02` | auto-scope-commit | P? | Merged | `specs/spec-24-02-auto-scope-commit/` |
 | `spec-24-03` | stop-rules | P? | Merged | `specs/spec-24-03-stop-rules/` |
-| `spec-24-04` | nonblocking-decision | P? | Active | `specs/spec-24-04-nonblocking-decision/` |
-| `spec-24-05` | phase-ship-checkpoint | P? | Active | `specs/spec-24-05-phase-ship-checkpoint/` |
+| `spec-24-04` | nonblocking-decision | P? | Merged | `specs/spec-24-04-nonblocking-decision/` |
+| `spec-24-05` | phase-ship-checkpoint | P? | Merged | `specs/spec-24-05-phase-ship-checkpoint/` |
 <!-- sdd:specs:end -->
 
 > 상태 허용값: `Backlog` / `In Progress` / `Merged`
@@ -149,6 +149,23 @@ bash tests/test-e2e-auto-mode.sh   # 24-04/24-05 에서 추가 예정
 - [ ] 성공 기준 정량 측정 결과 (본 문서 하단 "검증 결과" 섹션에 기록)
 - [ ] 사용자 최종 승인
 
-## 📊 검증 결과 (phase 완료 시 작성)
+## 📊 검증 결과 (2026-06-22 phase-ship)
 
-<!-- 통합 테스트 로그, 성공 기준 측정값, 회귀 점검 결과 등을 여기 첨부 -->
+### 성공 기준
+| # | 기준 | 결과 | 증거 |
+|---|---|:---:|---|
+| 1 | `sdd mode auto` + status + 3모드 전환 | ✅ | `test-mode-auto` 6/6, `cmd_mode` auto case |
+| 2 | auto 결정 기본값+로그 논블로킹 | ✅ | `test-ask-mode-auto` (24-04), effective ux-mode |
+| 3 | 정지규칙 ②(비가역) hard stop | ✅ | `check-irreversible.sh` + `test-stop-rules` |
+| 4 | scope 커밋시점 검사(MCP 무관, 경고) | ✅ | `check-scope.sh` dual-mode + `test-scope-commit` |
+| 5 | 전체 PASS + 신규 e2e/테스트 | ✅ | 전체 72/72 PASS |
+
+### 통합 시나리오
+- 시나리오 1(auto unattended 결정): ✅ 24-04 ask-mode 기본값+로그
+- 시나리오 2(정지규칙 hard stop): ✅ 24-03 check-irreversible + 연속실패 카운터
+
+### 자율 결정 로그 rollup
+- `sdd decision list --phase` → `(결정 로그 없음)`. phase-24 는 attended(turbo)로 구축돼 auto 결정 0건 — rollup 실효는 phase-25+ auto 도그푸딩에서.
+
+### 회귀
+- 전체 스위트 72/72 PASS (synced main 기준). 병렬 세션(24-03/04)과 충돌 없이 통합.
