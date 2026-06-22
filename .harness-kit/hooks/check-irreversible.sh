@@ -32,10 +32,12 @@ cmd="$(hook_tool_input command)"
 
 reason=""
 
-# ① force push (--force / -f / forced refspec) — --force-with-lease 는 narrow 하게 제외
+# ① force push (--force / -f / refspec '+' 강제) — --force-with-lease 는 narrow 하게 제외
 if echo "$cmd" | grep -qE 'git[[:space:]].*\bpush\b'; then
   if echo "$cmd" | grep -qE '(\-\-force([[:space:]]|$)|[[:space:]]\-f([[:space:]]|$))'; then
     reason="force push (히스토리 비가역 덮어쓰기)"
+  elif echo "$cmd" | grep -qE '[[:space:]]\+[A-Za-z0-9_./-]+(:[A-Za-z0-9_./-]+)?([[:space:]]|$)'; then
+    reason="force push (refspec '+' 강제 갱신)"
   fi
 fi
 
