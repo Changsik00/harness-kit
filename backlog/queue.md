@@ -8,7 +8,7 @@
 ## 📦 진행 중 Phase
 
 <!-- sdd:active:start -->
-- **phase-25** — auto-reliability (auto 신뢰성) — 4 spec — 다음: (spec 없음)
+(active phase 없음. `bin/sdd phase new <slug>` 로 시작)
 <!-- sdd:active:end -->
 
 ## 📥 spec-x 대기
@@ -127,6 +127,7 @@
 - **phase-23** — extension-first — completed 2026-06-14
 - [x] spec-x-fix-failing-tests (완료)
 - **phase-24** — auto-mode — completed 2026-06-22
+- **phase-25** — auto-reliability (auto 신뢰성) — completed 2026-06-22
 <!-- sdd:done:end -->
 
 ---
