@@ -82,7 +82,7 @@ echo "[3/7] 거버넌스 + 템플릿"
 for f in .harness-kit/agent/constitution.md .harness-kit/agent/agent.md .harness-kit/agent/align.md; do
   [ -f "$TARGET/$f" ] && check_pass "$f" || check_fail "$f 없음"
 done
-for f in queue.md phase.md spec.md plan.md task.md walkthrough.md pr_description.md rca.md adr.md; do
+for f in queue.md phase.md spec.md task.md walkthrough.md pr_description.md phase-ship.md rca.md adr.md; do
   [ -f "$TARGET/.harness-kit/agent/templates/$f" ] && check_pass ".harness-kit/agent/templates/$f" || check_fail ".harness-kit/agent/templates/$f 없음"
 done
 echo ""
