@@ -3,7 +3,8 @@
 # 목적: 비가역/파괴 행동(정지규칙 ②, ADR-009)을 실행 *전* 에 감지. auto 의 사전 안전판.
 #   사후 검증으로도 못 되돌리는 행동(force push·history rewrite·광범위 삭제·외부 발행)을 대상으로 함.
 #
-# 훅 단계론: 경고 모드로 시작 (HARNESS_HOOK_MODE_STOP_RULES=block 으로 차단 승격).
+# 모드 차등 기본값: auto(unattended) → block(exit 2, 실제 정지) / attended(governed·turbo) → warn.
+# env override(HARNESS_HOOK_MODE_STOP_RULES=block|warn|off) 가 있으면 그게 우선.
 # 감지는 narrow — false-positive 최소화. 경계(`--force-with-lease`·`reset --soft` 등 제외)는
 # tests/test-stop-rules.sh 가 고정한다.
 #
@@ -12,14 +13,19 @@
 #     공유 히스토리 force push. 프롬프트 없는 영구 완전 차단.
 #   • 본 hook ② = context-dependent(복구 등에서 정당할 수 있음): git reset --hard·
 #     rebase --onto·clean -fd. "멈추고 사람 확인" 이 맞는 부류.
-#   현재 reset --hard·rebase --onto 는 deny 도 함께 막아 이중 방어(보호 공백 0).
-#   ▶ 차단 승격 적격일: 2026-06-26 (check-irreversible 1주 운영 경과 후). 그때 phase-FF 로
-#     기본값을 block 으로 + deny 에서 reset --hard·rebase --onto 를 제거해 본 hook 이 단독
-#     "stop+confirm" 층을 떠맡는다. 적격일 전 플립 금지(CLAUDE.md #5).
+#   reset --hard·rebase --onto 는 deny 도 함께 막아 이중 방어(auto 에선 hook block 이 정지+notify).
+#   ▶ 왜 1주 단계론이 아니라 모드 차등인가: 본 hook 은 결정론적·테스트 고정이라 관찰로 더 알 게
+#     적고, auto 에선 block 이 fail-safe(과정지=멈추고 사람 대기)·warn 이 fail-dangerous(미정지=
+#     파괴 명령 그대로 실행)라 방향이 반대다. 그래서 auto 는 즉시 block, attended 는 warn 유지
+#     (사람이 의도적으로 실행하는 reset --hard 등을 막지 않음). (CLAUDE.md #5 정제)
+#   deny→hook 이관(reset/rebase 를 deny 에서 제거)은 후속 정리 — 선택(이중 방어라 급하지 않음).
 
 HOOK_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$HOOK_DIR/_lib.sh"
-hook_resolve_mode "STOP_RULES" "warn"
+# 모드 차등 기본값: auto → block(fail-safe), 그 외 → warn. env override 가 우선.
+_sr_default="warn"
+[ "$(hook_state mode)" = "auto" ] && _sr_default="block"
+hook_resolve_mode "STOP_RULES" "$_sr_default"
 
 cmd="$(hook_tool_input command)"
 [ -z "$cmd" ] && exit 0
