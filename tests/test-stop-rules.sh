@@ -81,7 +81,12 @@ run_hook warn "npm publish"; assert_warn "T6: npm publish"
 # T7~T9: 정상/경계 명령 → 무경고 (false-positive 없음)
 run_hook warn "git status"; assert_quiet "T7: git status"
 run_hook warn "git commit -m 'feat: x'"; assert_quiet "T8: git commit"
-run_hook warn "git reset --hard HEAD~1"; assert_quiet "T9: git reset --hard (경계 제외)"
+# context-dependent(복구에서 정당할 수 있음) → 이제 감지(spec-25-04 2층 모델). 플립 전이라 warn.
+run_hook warn "git reset --hard HEAD~1"; assert_warn "T9: git reset --hard (context-dependent 감지)"
+run_hook warn "git rebase --onto main featA featB"; assert_warn "T9b: git rebase --onto (context-dependent 감지)"
+# 경계: 정상 reset(--soft)·rebase 는 무경고 (false-positive 없음)
+run_hook warn "git reset --soft HEAD~1"; assert_quiet "T9c: git reset --soft (무경고)"
+run_hook warn "git rebase main"; assert_quiet "T9d: git rebase main (무경고)"
 
 # T10: block 모드 → exit 2
 run_hook block "git push --force"
@@ -89,6 +94,14 @@ if [ "$_rc" -eq 2 ] && echo "$_out" | grep -q "hook:block"; then
   ok "T10: block 모드 → exit 2"
 else
   fail "T10: block 모드 exit 2 기대 (rc=$_rc)"
+fi
+
+# T10b: block 모드 reset --hard → exit 2 (승격 준비 — 6/26 플립 시 mechanical)
+run_hook block "git reset --hard HEAD~1"
+if [ "$_rc" -eq 2 ] && echo "$_out" | grep -q "hook:block"; then
+  ok "T10b: block 모드 reset --hard → exit 2 (승격 준비)"
+else
+  fail "T10b: block reset --hard exit 2 기대 (rc=$_rc)"
 fi
 
 # ─────────────────────────────────────────────────────────
