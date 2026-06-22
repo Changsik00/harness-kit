@@ -51,7 +51,7 @@ auto 모드를 **"걸어두고 딴 일"이 실제로 안전한 수준**으로 �
 | `spec-25-01` | askquestion-redirect-hook | P? | Merged | `specs/spec-25-01-askquestion-redirect-hook/` |
 | `spec-25-02` | test-trust | P? | Merged | `specs/spec-25-02-test-trust/` |
 | `spec-25-03` | auto-e2e | P? | Merged | `specs/spec-25-03-auto-e2e/` |
-| `spec-25-04` | stop-rule-layering | P? | Active | `specs/spec-25-04-stop-rule-layering/` |
+| `spec-25-04` | stop-rule-layering | P? | Merged | `specs/spec-25-04-stop-rule-layering/` |
 <!-- sdd:specs:end -->
 
 > 상태 허용값: `Backlog` / `In Progress` / `Merged`
