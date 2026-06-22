@@ -34,8 +34,8 @@
   - mode=governed → exit 0
   - mode=turbo → exit 0
   - `HARNESS_HOOK_MODE_ASKQUESTION=warn` → exit 0(경고)
-- [ ] 테스트 실행 → Fail 확인 (hook 미존재)
-- [ ] Commit: `test(spec-25-01): add failing tests for askquestion auto-block hook`
+- [x] 테스트 실행 → Fail 확인 (hook 미존재, rc=127)
+- [x] Commit: `test(spec-25-01): add failing tests for askquestion auto-block hook`
 
 ---
 
@@ -43,9 +43,9 @@
 
 ### 3-1. hook 작성
 - [ ] `sources/hooks/check-askquestion-auto.sh` 작성 (`_lib.sh` source, `hook_resolve_mode "ASKQUESTION" "block"`, `hook_state mode` 분기, `hook_violation` 리다이렉트 메시지)
-- [ ] 실행 권한 `chmod +x`
-- [ ] `tests/test-askquestion-auto.sh` 실행 → Pass 확인
-- [ ] Commit: `feat(spec-25-01): add check-askquestion-auto.sh (auto 논블로킹 백스톱)`
+- [x] 실행 권한 `chmod +x`
+- [x] `tests/test-askquestion-auto.sh` 실행 → Pass 확인 (6/6)
+- [x] Commit: `feat(spec-25-01): add check-askquestion-auto.sh (auto 논블로킹 백스톱)`
 
 ---
 
