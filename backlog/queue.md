@@ -58,7 +58,7 @@
 > 다음에 진행할 phase 를 자유롭게 메모합니다 (사람이 직접 편집).
 > 자동 갱신되지 않습니다 — Icebox 와 동일한 정책.
 
-- **phase-25 (auto 신뢰성)** — draft `backlog/phase-25.md`. phase-24 가 auto *배관* 만 완성했고, auto 가 안전하게 자율하려면 ① `AskUserQuestion` 리다이렉트 hook(논블로킹 기계적 백스톱, 24-04 "hook 불가" 전제 정정), ② #212 칸0 사후 테스트 신뢰, ③ auto e2e(측정), ④ check-irreversible 차단 승격 이 선행돼야 함(→ ADR-009 Addendum). **phase-24 merge 후 `sdd phase activate phase-25` 로 시작.** auto 도그푸딩은 이 phase 종료 후.
+없음 (phase-25 완료 — 0.20.0 릴리스. 다음 후보는 Icebox 참조: #212 칸1·turbo deprecate·W1/W2 등)
 
 ## ✅ 완료
 
