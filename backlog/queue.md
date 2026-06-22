@@ -21,6 +21,7 @@
 
 > 아이디어·보류 항목 보관소. 실행 불가. 관련 항목이 쌓이면 Phase로, 단발이면 spec-x로 승격.
 
+- **turbo 모드 deprecate 검토** — auto 도입 후 turbo 와 메커니즘이 겹침(둘 다 Plan Accept 생략 + post-commit-verify). 차이는 attended/unattended 단 하나라 `auto ≈ turbo + 무인 안전망`. turbo 의 고유 니치(사람 옆 + 질문받기 + 비가역 경고)가 *별도 모드*까지 가치 있는지 재검토. ADR-009 는 "attended vs unattended 는 질적으로 다른 축"이라 남겼으나 거버넌스 단순화 방향과 충돌. deprecate 시 ADR-009 갱신 + `sdd mode` 정리 필요. (2026-06-22 0.20.0 릴리스 중 사용자 제기)
 - **check-irreversible fail-open 일관성 (phase-25 W2)** — state/jq 부재 시 mode 빈 문자열 → `_sr_default=warn` → auto 인데 비가역 명령 통과(정지망 off). hook 별 fail-safe 방향 제각각. auto 면 state 불명 시 block 으로 통일 검토. (2026-06-22 phase-25 회고)
 - **settings permissions 미러 잔재 (phase-25 W3)** — `.claude/settings.json` allow/ask 의 `git push:*` 가 `settings.json.fragment` 엔 없음(SSOT 깨짐, mode-toggle round-trip 잔재). fragment 기준 정리 또는 sync 테스트로 고정. (phase-25 이전부터 존재)
 - **hook 우회 변형 명시 테스트 (phase-25 W1 잔여)** — `git -C /x reset --hard`·`git rebase -i`·`rm -rf ./dir` 등 narrow 밖 변형은 의도적 미감지 → 테스트로 명시 고정해 경계 가시화. (refspec `+` 는 phase-25 에서 차단)

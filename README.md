@@ -35,101 +35,6 @@ harness-kit은 그 격차를 메꿉니다. **의도를 문서로 적는 것**에
 
 ---
 
-## 📖 핵심 개념
-
-**SDD (Spec-Driven Development)** — 코드를 작성하기 전에 Spec(명세)과 Plan(실행 계획)을 문서로 먼저 작성하고, 사람이 검토·승인한 뒤에만 구현에 들어가는 개발 방식입니다. 에이전트의 "먼저 짜고 나중에 생각하는" 충동을 구조적으로 막습니다.
-
-### 작업 유형
-
-| 유형 | 역할 | PR? | 언제 쓰나 |
-|---|---|:---:|---|
-| 🏗 **Phase** | 연관 Spec 묶음 (Epic) | ✅ | 3개+ Spec이 묶이거나 통합 테스트가 필요할 때. `--base`로 Phase 전용 브랜치 생성 가능 |
-| 📝 **Spec** | Phase 내 단일 PR 단위 | ✅ | 1 Spec = 1 PR. `spec.md` → `task.md` 작성 후 Plan Accept |
-| 🔧 **spec-x** | Phase 없이 독립 단발 PR | ✅ | 버그 수정, 문서 정리 등. `sdd specx done <slug>`으로 마무리 |
-| ⚡ **FF** | PR 없이 직접 커밋 | ❌ | 오탈자, 설정 변경 등 사소한 수정. state.json 변경 없음 |
-| 🧊 **Icebox** | 아이디어 보관소 | — | 실행 불가. `queue.md`에 기록 후 나중에 Phase나 spec-x로 승격 |
-
-### 프로젝트 구조와 상태 관리
-
-| 경로 | 역할 |
-|---|---|
-| `backlog/queue.md` | 📊 대시보드 — 진행 중/대기/완료 Phase + Icebox. `sdd`가 자동 갱신 |
-| `backlog/phase-{NN}.md` | 📋 Phase별 작업 지도 — Spec 표 + 통합 테스트 시나리오 |
-| `specs/spec-{NN}-{NN}-{slug}/` | 📁 작업 산출물 — spec.md, task.md, walkthrough.md, pr_description.md |
-| `archive/` | 🗄 완료 항목 보관 — `sdd archive`로 정리. 조회 시 `(archived)` 표시 |
-| `.claude/state/current.json` | ⚙️ 런타임 상태 — `phase`, `spec`, `planAccepted`, `lastTestPass` 등. hook이 읽어 Plan Accept·테스트 통과 여부를 판단. `.gitignore` 대상 |
-
-### 🔒 핵심 규칙
-
-| | 규칙 | 강제 수단 |
-|---|---|---|
-| 🛑 | **Plan Accept 전 코드 편집 금지** | `check-plan-accept.sh` hook |
-| 1️⃣ | **One Task = One Commit** | task.md 체크박스 |
-| 🚫 | **main 브랜치 직접 작업 금지** | `check-branch.sh` hook |
-| 🧪 | **TDD: 테스트 → 구현 → 커밋** | `check-test-passed.sh` hook |
-| 🤖 | **Auto 정지규칙 — 비가역 행동에서 멈춤** | `check-irreversible.sh` hook (auto=차단/attended=경고) |
-| ✅ | **사후 검증 — 가짜 green·테스트 실패 방어** | `check-test-trust.sh`·`post-commit-verify.sh` hook |
-
-### ⚡ 실행 모드
-
-"사람이 얼마나 붙어 있는가"에 따라 **네 가지** 모드를 선택합니다. 핵심 원칙(ADR-009): 거버넌스를 *agent 신뢰도에 반비례·blast-radius 에 비례* 해 적용하고, 예산을 **사전 게이트 → 사후 검증** 으로 이동한다.
-
-| 모드 | 사람 | 전환 | Plan Accept | 동작 |
-|---|---|---|:---:|---|
-| 🔵 **Governed** (기본) | 붙어 있음 | `sdd mode governed` | ✅ 필수 | 완전한 SDD 절차. spec.md → task.md → Plan Accept → Strict Loop |
-| ⚡ **Turbo** | 붙어 있음 | `sdd mode turbo` | ⬜ 생략 | Plan Accept 없이 즉시 편집. 커밋 후 `post-commit-verify` 자동 — 테스트 실패 시 `git revert` 자동 |
-| 🤖 **Auto** (자율·unattended) | **없음** | `sdd mode auto` | ⬜ 생략 | phase 전체를 fire-and-forget. 결정은 기본값+로그(논블로킹), `phase-ship` PR 1회 검토. 안전은 **정지규칙 + 사후 검증** 이 담당 (↓ Auto 모드) |
-| 🏃 **FF** (Fast-Forward) | 붙어 있음 | 수동 | — | spec/PR 없이 직접 커밋. 오탈자·설정 등 극소 수정에만 |
-
-> 전환: `/hk-turbo` (governed↔turbo 토글), `sdd mode auto|turbo|governed`. 현재 모드는 `sdd status` 에 항상 표시됩니다.
-
-#### 🤖 Auto 모드 — "걸어두고 딴 일"
-
-`sdd mode auto` 는 phase 전체를 **사람 없이** 자율 수행하기 위한 모드입니다 (ADR-009 구현). turbo 가 *attended 빠른 모드* 라면 auto 는 *unattended* — 결정 지점에서 멈추지 않고, 안전은 사전 질문이 아니라 **사후 검증·정지규칙** 으로 지킵니다.
-
-**동작 방식**
-- **논블로킹 결정**: 결정이 필요한 순간(통상 `AskUserQuestion`) 합리적 기본값을 채택하고 그 근거를 결정 로그(`sdd decision add`)에 남긴 뒤 진행합니다. `AskUserQuestion` 호출은 PreToolUse hook(`check-askquestion-auto`)이 auto 에서 **기계적으로 차단**해, 습관적 질문으로 세션이 멈추는 일을 막습니다.
-- **정지규칙 (hard stop)** — 이 세 가지에서만 멈추고 사람을 기다립니다:
-  - ① 기본값을 정당화할 수 없는 **진짜 방향 모호** → `decision add "미해결"` + 턴 종료(알림 발송)
-  - ② **비가역·파괴 행동** (force push·대량 삭제·외부 발행·`reset --hard` 등) → `check-irreversible` 가 정지. auto 에선 **실제 차단(block)**, attended 에선 경고만 (모드 차등)
-  - ③ **스스로 못 푸는 반복 테스트 실패** (N회 후) → `post-commit-verify` 가 hard-stop
-- **사후 검증이 안전망**: spec 사이 테스트 게이트 + `post-commit-verify`(실패 시 자동 revert) + 가짜 green 휴리스틱(`check-test-trust`, #212 칸0)이 항상 작동. 누적된 결정 로그는 `phase-ship` PR 에 일괄 노출되어 사람이 한 번에 검토합니다(`sdd decision list --phase`).
-
-```bash
-sdd mode auto            # 자율 모드 진입
-sdd decision list --phase  # auto 가 내린 결정 일괄 검토 (phase-ship 시 자동 노출)
-sdd mode governed        # 복귀
-```
-
-> ⚠️ auto 는 unattended 라 *잘못된 기본값으로 멀리 진행* 할 위험이 있습니다. 안전이 정지규칙·사후 테스트 품질에 전적으로 의존하므로, **고위험·비가역 변경** 에는 `/hk-refute`(의도에 앵커한 적대적 반증, #212 칸2)를 함께 권장합니다. 자세한 거버닝 원칙 → `docs/decisions/ADR-009-governance-by-reliability-and-blast-radius.md`.
-
----
-
-### 🧩 확장 (extend) — 외부 도구 opt-in
-
-"있으면 더 좋은" 외부 도구를 **opt-in(default-off)** 으로 붙입니다. `/hk-extend` 로 설치하며, 켠 사람만 비용을 부담합니다.
-
-| 확장 | 무엇 | 설치 |
-|---|---|---|
-| **Serena** (LSP) | 심볼 rename / find-references 를 grep 다단계 대신 단일 호출로 — 리팩토링 토큰/정확도 개선 | `/hk-extend` → 스코프 선택 |
-
-```bash
-# Claude Code 안에서
-/hk-extend                       # 확장 안내 + 스코프 질문 후 설치
-
-# 또는 직접
-sdd extend serena --scope local  # 이 프로젝트, 나만 (기본·권장)
-sdd extend serena --scope user   # 내 모든 프로젝트
-sdd extend serena --dry-run      # 실행될 커맨드 미리보기
-sdd extend serena --remove       # 제거
-```
-
-> 🆕 설치 시 "확장 우선" 사용 규칙이 설치본 `CLAUDE.fragment.md` 에 자동 주입됩니다 — `/hk-align` 없이도 매 세션 컨텍스트에 노출되어, LSP 언어에서 심볼 작업 시 grep 대신 serena 를 우선 쓰도록 유도합니다. 켠 프로젝트만 비용을 부담하며(원본 fragment 는 불변), `--remove` 시 함께 제거됩니다.
-
-> ⚠️ 확장은 MCP 서버라 **상시 컨텍스트 비용**이 듭니다. 그래서 default-off 이고, 등록은 Claude Code 네이티브 `claude mcp add` 에 위임합니다(키트가 설정 파일을 직접 편집하지 않음). 선행조건: `uv`, `claude` CLI. 규약 → `docs/decisions/ADR-007-extend-opt-in.md`.
-
----
-
 ## 🖥 대상 환경 및 의존성
 
 | 항목 | 지원 | 비고 |
@@ -178,6 +83,103 @@ bash install.sh --export-format=copilot ~/Project/my-app
 # 미리 보기 (변경 없음)
 bash install.sh --dry-run ~/Project/my-app
 ```
+
+---
+
+## 📖 핵심 개념
+
+**SDD (Spec-Driven Development)** — 코드를 작성하기 전에 Spec(명세)과 Plan(실행 계획)을 문서로 먼저 작성하고, 사람이 검토·승인한 뒤에만 구현에 들어가는 개발 방식입니다. 에이전트의 "먼저 짜고 나중에 생각하는" 충동을 구조적으로 막습니다.
+
+### 작업 유형
+
+| 유형 | 역할 | PR? | 언제 쓰나 |
+|---|---|:---:|---|
+| 🏗 **Phase** | 연관 Spec 묶음 (Epic) | ✅ | 3개+ Spec이 묶이거나 통합 테스트가 필요할 때. `--base`로 Phase 전용 브랜치 생성 가능 |
+| 📝 **Spec** | Phase 내 단일 PR 단위 | ✅ | 1 Spec = 1 PR. `spec.md` → `task.md` 작성 후 Plan Accept |
+| 🔧 **spec-x** | Phase 없이 독립 단발 PR | ✅ | 버그 수정, 문서 정리 등. `sdd specx done <slug>`으로 마무리 |
+| ⚡ **FF** | PR 없이 직접 커밋 | ❌ | 오탈자, 설정 변경 등 사소한 수정. state.json 변경 없음 |
+| 🧊 **Icebox** | 아이디어 보관소 | — | 실행 불가. `queue.md`에 기록 후 나중에 Phase나 spec-x로 승격 |
+
+### 프로젝트 구조와 상태 관리
+
+| 경로 | 역할 |
+|---|---|
+| `backlog/queue.md` | 📊 대시보드 — 진행 중/대기/완료 Phase + Icebox. `sdd`가 자동 갱신 |
+| `backlog/phase-{NN}.md` | 📋 Phase별 작업 지도 — Spec 표 + 통합 테스트 시나리오 |
+| `specs/spec-{NN}-{NN}-{slug}/` | 📁 작업 산출물 — spec.md, task.md, walkthrough.md, pr_description.md |
+| `archive/` | 🗄 완료 항목 보관 — `sdd archive`로 정리. 조회 시 `(archived)` 표시 |
+| `.claude/state/current.json` | ⚙️ 런타임 상태 — `phase`, `spec`, `planAccepted`, `lastTestPass` 등. hook이 읽어 Plan Accept·테스트 통과 여부를 판단. `.gitignore` 대상 |
+
+### 🔒 핵심 규칙
+
+| | 규칙 | 강제 수단 |
+|---|---|---|
+| 🛑 | **Plan Accept 전 코드 편집 금지** | `check-plan-accept.sh` hook |
+| 1️⃣ | **One Task = One Commit** | task.md 체크박스 |
+| 🚫 | **main 브랜치 직접 작업 금지** | `check-branch.sh` hook |
+| 🧪 | **TDD: 테스트 → 구현 → 커밋** | `check-test-passed.sh` hook |
+| 🤖 | **Auto 정지규칙 — 비가역 행동에서 멈춤** | `check-irreversible.sh` hook (auto=차단/attended=경고) |
+| ✅ | **사후 검증 — 가짜 green·테스트 실패 방어** | `check-test-trust.sh`·`post-commit-verify.sh` hook |
+
+### ⚡ 실행 모드
+
+"사람이 얼마나 붙어 있는가"에 따라 **네 가지** 모드를 선택합니다. 핵심 원칙(ADR-009): 거버넌스를 *agent 신뢰도에 반비례·blast-radius 에 비례* 해 적용하고, 예산을 **사전 게이트 → 사후 검증** 으로 이동한다.
+
+| 모드 | 사람 | 전환 | Plan Accept | 동작 |
+|---|---|---|:---:|---|
+| 🔵 **Governed** (기본) | 붙어 있음 | `sdd mode governed` | ✅ 필수 | 완전한 SDD 절차. spec.md → task.md → Plan Accept → Strict Loop |
+| ⚡ **Turbo** | 붙어 있음 | `sdd mode turbo` | ⬜ 생략 | Plan Accept 없이 즉시 편집. 커밋 후 `post-commit-verify` 자동 — 테스트 실패 시 `git revert` 자동 |
+| 🤖 **Auto** (자율·unattended) | **없음** | `sdd mode auto` | ⬜ 생략 | phase 전체를 fire-and-forget. 결정은 기본값+로그(논블로킹), `phase-ship` PR 1회 검토. 안전은 **정지규칙 + 사후 검증** 이 담당 (↓ Auto 모드) |
+| 🏃 **FF** (Fast-Forward) | 붙어 있음 | 수동 | — | spec/PR 없이 직접 커밋. 오탈자·설정 등 극소 수정에만 |
+
+> 전환: `/hk-turbo` (governed↔turbo 토글), `sdd mode auto|turbo|governed`. 현재 모드는 `sdd status` 에 항상 표시됩니다.
+>
+> **turbo vs auto** — 둘 다 Plan Accept 를 생략하고 `post-commit-verify` 로 사후 검증한다(공유 엔진). 차이는 *사람이 붙어 있는가* 단 하나: **turbo = attended** (결정 때 질문하면 사람이 답하고, 비가역 행동은 경고), **auto = unattended** (그 위에 질문 차단·정지규칙 실제 block·결정 로그를 얹음). 즉 `auto ≈ turbo + 무인 안전망`. 사람이 붙어 빠르게 가려면 turbo, 걸어두고 떠나려면 auto.
+
+#### 🤖 Auto 모드 — "걸어두고 딴 일"
+
+`sdd mode auto` 는 phase 전체를 **사람 없이** 자율 수행하기 위한 모드입니다 (ADR-009 구현). turbo 가 *attended 빠른 모드* 라면 auto 는 *unattended* — 결정 지점에서 멈추지 않고, 안전은 사전 질문이 아니라 **사후 검증·정지규칙** 으로 지킵니다.
+
+**동작 방식**
+- **논블로킹 결정**: 결정이 필요한 순간(통상 `AskUserQuestion`) 합리적 기본값을 채택하고 그 근거를 결정 로그(`sdd decision add`)에 남긴 뒤 진행합니다. `AskUserQuestion` 호출은 PreToolUse hook(`check-askquestion-auto`)이 auto 에서 **기계적으로 차단**해, 습관적 질문으로 세션이 멈추는 일을 막습니다.
+- **정지규칙 (hard stop)** — 이 세 가지에서만 멈추고 사람을 기다립니다:
+  - ① 기본값을 정당화할 수 없는 **진짜 방향 모호** → `decision add "미해결"` + 턴 종료(알림 발송)
+  - ② **비가역·파괴 행동** (force push·대량 삭제·외부 발행·`reset --hard` 등) → `check-irreversible` 가 정지. auto 에선 **실제 차단(block)**, attended 에선 경고만 (모드 차등)
+  - ③ **스스로 못 푸는 반복 테스트 실패** (N회 후) → `post-commit-verify` 가 hard-stop
+- **사후 검증이 안전망**: spec 사이 테스트 게이트 + `post-commit-verify`(실패 시 자동 revert) + 가짜 green 휴리스틱(`check-test-trust`, #212 칸0)이 항상 작동. 누적된 결정 로그는 `phase-ship` PR 에 일괄 노출되어 사람이 한 번에 검토합니다(`sdd decision list --phase`).
+
+```bash
+sdd mode auto            # 자율 모드 진입
+sdd decision list --phase  # auto 가 내린 결정 일괄 검토 (phase-ship 시 자동 노출)
+sdd mode governed        # 복귀
+```
+
+> ⚠️ auto 는 unattended 라 *잘못된 기본값으로 멀리 진행* 할 위험이 있습니다. 안전이 정지규칙·사후 테스트 품질에 전적으로 의존하므로, **고위험·비가역 변경** 에는 `/hk-refute`(의도에 앵커한 적대적 반증, #212 칸2)를 함께 권장합니다. 자세한 거버닝 원칙 → `docs/decisions/ADR-009-governance-by-reliability-and-blast-radius.md`.
+
+---
+
+### 🧩 확장 (extend) — 외부 도구 opt-in
+
+"있으면 더 좋은" 외부 도구를 **opt-in(default-off)** 으로 붙입니다. `/hk-extend` 로 설치하며, 켠 사람만 비용을 부담합니다.
+
+| 확장 | 무엇 | 설치 |
+|---|---|---|
+| **Serena** (LSP) | 심볼 rename / find-references 를 grep 다단계 대신 단일 호출로 — 리팩토링 토큰/정확도 개선 | `/hk-extend` → 스코프 선택 |
+
+```bash
+# Claude Code 안에서
+/hk-extend                       # 확장 안내 + 스코프 질문 후 설치
+
+# 또는 직접
+sdd extend serena --scope local  # 이 프로젝트, 나만 (기본·권장)
+sdd extend serena --scope user   # 내 모든 프로젝트
+sdd extend serena --dry-run      # 실행될 커맨드 미리보기
+sdd extend serena --remove       # 제거
+```
+
+> 🆕 설치 시 "확장 우선" 사용 규칙이 설치본 `CLAUDE.fragment.md` 에 자동 주입됩니다 — `/hk-align` 없이도 매 세션 컨텍스트에 노출되어, LSP 언어에서 심볼 작업 시 grep 대신 serena 를 우선 쓰도록 유도합니다. 켠 프로젝트만 비용을 부담하며(원본 fragment 는 불변), `--remove` 시 함께 제거됩니다.
+
+> ⚠️ 확장은 MCP 서버라 **상시 컨텍스트 비용**이 듭니다. 그래서 default-off 이고, 등록은 Claude Code 네이티브 `claude mcp add` 에 위임합니다(키트가 설정 파일을 직접 편집하지 않음). 선행조건: `uv`, `claude` CLI. 규약 → `docs/decisions/ADR-007-extend-opt-in.md`.
 
 ---
 
