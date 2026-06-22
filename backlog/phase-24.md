@@ -152,20 +152,28 @@ bash tests/test-e2e-auto-mode.sh   # 24-04/24-05 에서 추가 예정
 ## 📊 검증 결과 (2026-06-22 phase-ship)
 
 ### 성공 기준
+> ⚠️ 2026-06-22 phase-review 정정: 초기 ✅ 3건(#2·#3·#5)을 *단위 테스트 합산*으로 ✅ 처리했으나, 기준 문언("e2e 로 증명", "hard stop", "신규 e2e")에 비추면 **부분 충족**이다. 정직하게 ⚠️ 로 낮춘다. 후속 → phase-25.
+
 | # | 기준 | 결과 | 증거 |
 |---|---|:---:|---|
 | 1 | `sdd mode auto` + status + 3모드 전환 | ✅ | `test-mode-auto` 6/6, `cmd_mode` auto case |
-| 2 | auto 결정 기본값+로그 논블로킹 | ✅ | `test-ask-mode-auto` (24-04), effective ux-mode |
-| 3 | 정지규칙 ②(비가역) hard stop | ✅ | `check-irreversible.sh` + `test-stop-rules` |
+| 2 | auto 결정 기본값+로그 논블로킹 | ⚠️ 부분 | 단위(`test-ask-mode-auto` 5/5)·effective ux-mode resolver 검증됨. 그러나 **"멈추지 않음"을 unattended e2e 로 증명한 적 없음**(decision log 0건). 논블로킹이 산문 규약(§8.4)에만 의존하고 기계적 백스톱이 없음 → phase-25 spec-25-01 |
+| 3 | 정지규칙 ②(비가역) hard stop | ⚠️ 부분 | block 모드 exit 2 경로 테스트(`test-stop-rules` T10)는 있으나 **운영 기본값은 경고(exit 0)** — 실제 hard stop 미작동. 차단 승격 → phase-25 spec-25-04 |
 | 4 | scope 커밋시점 검사(MCP 무관, 경고) | ✅ | `check-scope.sh` dual-mode + `test-scope-commit` |
-| 5 | 전체 PASS + 신규 e2e/테스트 | ✅ | 전체 72/72 PASS |
+| 5 | 전체 PASS + 신규 e2e/테스트 | ⚠️ 부분 | 단위 72/72 PASS는 사실. 단 성공기준이 명시한 `test-e2e-auto-mode.sh` **미작성**(통합 e2e 미달) → phase-25 spec-25-03 |
 
 ### 통합 시나리오
-- 시나리오 1(auto unattended 결정): ✅ 24-04 ask-mode 기본값+로그
-- 시나리오 2(정지규칙 hard stop): ✅ 24-03 check-irreversible + 연속실패 카운터
+- 시나리오 1(auto unattended 결정): ⚠️ **미실행** — auto 로 한 번도 안 돌려 "멈추지 않음"이 미증명(decision log 0건). 산문 규약만 존재.
+- 시나리오 2(정지규칙 hard stop): ⚠️ **부분** — 차단 경로 테스트는 있으나 운영 기본값이 경고(exit 0)라 실제 정지 미작동.
 
 ### 자율 결정 로그 rollup
 - `sdd decision list --phase` → `(결정 로그 없음)`. phase-24 는 attended(turbo)로 구축돼 auto 결정 0건 — rollup 실효는 phase-25+ auto 도그푸딩에서.
 
 ### 회귀
 - 전체 스위트 72/72 PASS (synced main 기준). 병렬 세션(24-03/04)과 충돌 없이 통합.
+
+### 📎 phase-review 핵심 발견 (2026-06-22)
+- phase-24 는 auto 의 **배관(모드 전환·resolver·정지규칙 엔진·결정 로그·phase-ship rollup)** 을 완성했다. 단 auto 가 *실제로 안전하게 자율*하려면 필요한 두 기둥이 미구현이다:
+  - **논블로킹의 기계적 백스톱** — `AskUserQuestion` 차단을 24-04 가 "agent 행동이라 hook 으로 못 막는다"로 닫았으나, 이는 절반만 맞다. `PreToolUse` matcher 는 도구명 임의 매칭이라 호출을 가로채 리다이렉트할 수 있다(전제 정정 → ADR-009 Addendum, GitHub #181). → phase-25 spec-25-01.
+  - **사후 테스트의 신뢰** — ADR-009 가 "안전이 사후 테스트 품질에 전적으로 의존"이라 못 박았으나 그 품질 보강(GitHub #212 칸0 revert/over-mock)은 0건. unattended 라 가짜 green 의 폭발 반경이 커짐. → phase-25 spec-25-02.
+- 결론: phase-24 ship 은 **"배관 완성"** 으로 정직하게 닫고, auto 도그푸딩은 phase-25(auto 신뢰성) 이후로 미룬다.
