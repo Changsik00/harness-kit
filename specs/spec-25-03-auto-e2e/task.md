@@ -44,8 +44,8 @@
 ### 📝 산출물 작성
 - [ ] **walkthrough.md 작성** (e2e 가 측정한 것 / 못 한 것 — 행동은 #181)
 - [ ] **pr_description.md 작성**
-- [ ] Commit: `docs(spec-25-03): ship walkthrough and pr description`
+- [x] Commit: `docs(spec-25-03): ship walkthrough and pr description`
 
 ### 🚀 Push & PR
-- [ ] `git push -u origin spec-25-03-auto-e2e` (base: phase-25-auto-reliability)
-- [ ] PR 생성 (base=phase-25-auto-reliability)
+- [x] `git push -u origin spec-25-03-auto-e2e` (base: phase-25-auto-reliability)
+- [x] PR 생성 → #217 (base=phase-25-auto-reliability)
