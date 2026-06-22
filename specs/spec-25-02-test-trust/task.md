@@ -7,8 +7,8 @@
 
 ## Task 0: Pre-flight
 
-- [ ] Plan Accept (또는 critique 먼저)
-- [ ] `git checkout -b spec-25-02-test-trust`
+- [x] Plan Accept (또는 critique 먼저)
+- [x] `git checkout -b spec-25-02-test-trust`
 
 ---
 
@@ -43,25 +43,25 @@
 ## Task 3: 칸2 골격 (커맨드 + 트리거 + 절차)
 
 ### 3-1. hk-refute 커맨드 + 거버넌스
-- [ ] `sources/commands/hk-refute.md` — spec.md 의도 앵커 적대적 반증 서브에이전트 디스패치 절차
-- [ ] `sources/governance/agent.md` §6.7 에 위험비례 refute 렌즈 1줄 (≤8000)
-- [ ] `.claude/commands/hk-refute.md` + `.harness-kit/agent/agent.md` 미러
-- [ ] 단어 예산 확인 + 전체 회귀
-- [ ] Commit: `feat(spec-25-02): add hk-refute 커맨드 + agent.md 칸2 렌즈 (골격)`
+- [x] `sources/commands/hk-refute.md` — spec.md 의도 앵커 적대적 반증 서브에이전트 디스패치 절차
+- [x] `sources/governance/agent.md` §6.7 에 위험비례 refute 렌즈 1줄 (≤8000)
+- [x] `.claude/commands/hk-refute.md` + `.harness-kit/agent/agent.md` 미러
+- [x] 단어 예산 확인 + 전체 회귀
+- [x] Commit: `feat(spec-25-02): add hk-refute 커맨드 + agent.md 칸2 렌즈 (골격)`
 
 ---
 
 ## Task 4: Ship (필수)
 
 ### 🚦 Pre-Push Quality Gate
-- [ ] **전체 테스트 실행** (`bash tests/run.sh`) → 모두 PASS
-- [ ] 수동 검증 1·2 (칸0 경고 / 칸2 권고 노출) 1회
+- [x] **전체 테스트 실행** (`bash tests/run.sh`) → 모두 PASS
+- [x] 수동 검증 1·2 (칸0 경고 / 칸2 권고 노출) 1회
 
 ### 📝 산출물 작성
 - [ ] **walkthrough.md 작성** (칸0 휴리스틱 결정 · 칸2 골격 범위 · 분할 판단)
 - [ ] **pr_description.md 작성**
-- [ ] Commit: `docs(spec-25-02): ship walkthrough and pr description`
+- [x] Commit: `docs(spec-25-02): ship walkthrough and pr description`
 
 ### 🚀 Push & PR
-- [ ] `git push -u origin spec-25-02-test-trust` (base: phase-25-auto-reliability)
-- [ ] PR 생성 (`/hk-pr-gh`, base=phase-25-auto-reliability)
+- [x] `git push -u origin spec-25-02-test-trust` (base: phase-25-auto-reliability)
+- [x] PR 생성 → #216 (base=phase-25-auto-reliability)
