@@ -76,13 +76,14 @@ else
 fi
 git -C "$F" reset -q
 
-# ⑤ 정지규칙 ②: 비가역 명령 감지 --------------------------------------------
+# ⑤ 정지규칙 ②: auto 에서 비가역 명령 *실제 정지*(block, exit 2) — 모드 차등 -------
 IR="$F/.harness-kit/hooks/check-irreversible.sh"
-irout=$( cd "$F" && CLAUDE_TOOL_INPUT_command="git push --force origin main" bash "$IR" 2>&1 1>/dev/null )
-if echo "$irout" | grep -qE "hook:(warn|block)" && echo "$irout" | grep -q "force push"; then
-  ok "⑤ 정지규칙 ②: 비가역(force push) 감지"
+set_state '.mode="auto"'
+irout=$( cd "$F" && CLAUDE_TOOL_INPUT_command="git push --force origin main" bash "$IR" 2>&1 1>/dev/null ); irrc=$?
+if [ "$irrc" -eq 2 ] && echo "$irout" | grep -q "hook:block" && echo "$irout" | grep -q "force push"; then
+  ok "⑤ 정지규칙 ②: auto 에서 block(exit 2)로 실제 정지"
 else
-  fail "⑤ check-irreversible 미감지: $irout"
+  fail "⑤ auto block 정지 실패 (rc=$irrc): $irout"
 fi
 
 echo ""
