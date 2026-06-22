@@ -5,6 +5,29 @@ harness-kit의 주요 변경 사항을 버전별로 정리합니다.
 
 ---
 
+## [0.20.0] — 2026-06-22
+
+> **Auto 모드 구현** — phase 전체를 사람 없이(unattended) 자율 수행하는 3번째 실행 모드 + 안전장치(논블로킹 백스톱·정지규칙·사후 테스트 신뢰·모드 차등 정지). 0.19.0 에서 *proposed* 였던 ADR-009 를 phase-24·25 로 구현하고 phase-review 로 검증.
+
+### Added
+- **Auto 모드 (phase-24)** — `sdd mode auto`: governed/turbo 위 3번째 모드. phase 전체를 fire-and-forget 으로 수행, 결정은 기본값+로그(논블로킹), `phase-ship` PR 1회 검토. `sdd status` 에 모드 표시. (#207)
+- **정지규칙 엔진 + 결정 로그** — 비가역 행동 감지(`check-irreversible` ②) + 반복 테스트 실패 카운터(③, N회 후 hard-stop) + `sdd decision add`/`list --phase` rollup(phase-ship 일괄 노출). (#210, #213)
+- **commit-time scope check** — MCP/Serena 편집이 `Edit|Write` 매처를 우회해도 *커밋 시점* 에 blast-radius 검사(`check-scope` dual-mode, 경고). (#208)
+- **AskUserQuestion 기계적 백스톱 (phase-25)** — auto 에서 `AskUserQuestion` 호출을 PreToolUse hook(`check-askquestion-auto`)으로 차단+리다이렉트. 논블로킹을 산문이 아닌 코드로 강제. 24-04 의 "hook 으로 못 막음" 전제를 공식문서+라이브 spike 로 반증. (#215)
+- **사후 테스트 신뢰 (#212 비용 사다리)** — 칸0 commit-time 가짜 green 휴리스틱(`check-test-trust`: 구현 변경에 테스트 동반했나/단언 있나) + 칸2 의도-앵커 적대적 반증 골격(`/hk-refute`). (#216)
+- **auto 통합 e2e** — 실제 install fixture 에서 auto 사이클 기계적 안전장치 구동, 결정 로그 누적 실증(phase-24 의 0건이 *미사용* 이었음). (#217)
+
+### Changed
+- **비가역 행동 2층 모델 + 모드 차등 정지 (phase-25)** — `deny`=never-justify(force push·rm -rf /·sudo) / `check-irreversible`=context-dependent(reset --hard·rebase --onto). auto 에선 **block(fail-safe·실제 정지)**, attended 에선 warn. Hook 단계론(CLAUDE.md #5)을 "결정론적·fail-safe hook 은 즉시/모드 차등" 으로 정제. deny→hook 이관으로 데드락(W3) 실해소. (#218, #219)
+- **README 개편** — auto 모드를 실제 구현 상태로(사용법·안전모델·4모드 표·정지규칙·결정 로그), 거버넌스 변경 반영. (this PR)
+- **거버넌스 — ADR-009 + Addendum** — 거버넌스를 agent 신뢰도 반비례·blast-radius 비례로 재배분, 예산을 사전 게이트→사후 검증으로 이동. auto 의 멈춤을 routine(기본값+로그)과 정지규칙 ①(decision+턴종료)로 분리. (#200, #205, #219)
+
+### Fixed
+- **refspec `+` force push 우회 차단** — `git push origin +main`(deny·hook 양층 우회)을 감지. (#219)
+- **pre-commit turbo 버그 / scope 정합** — phase-24 착수 시 수정(turbo 에서 편집은 통과시키며 커밋만 막던 불일치 해소). (#207)
+
+---
+
 ## [0.19.0] — 2026-06-19
 
 > 확장(Serena) 사용성 개선 — 설치 시 사용 규칙 자동 노출 + plan→spec 통합 드리프트 정리 + 풀 라이프사이클 e2e.
