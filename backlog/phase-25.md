@@ -11,11 +11,11 @@
 | 항목 | 값 |
 |---|---|
 | **Phase ID** | `phase-25` |
-| **상태** | Planning |
-| **시작일** | (phase-24 merge 후) |
+| **상태** | In Progress |
+| **시작일** | 2026-06-22 |
 | **목표 종료일** | TBD |
 | **소유자** | dennis |
-| **Base Branch** | `phase-25` (opt-in 권장 — auto 첫 도그푸딩 대상이라 누적 검토가 유리) |
+| **Base Branch** | phase-25-auto-reliability |
 
 ## 🎯 배경 및 목표
 
