@@ -22,7 +22,7 @@
 2. **컨텍스트 비용 0 우선**: bash 스크립트 > Slash 커맨드 > Skill > MCP
 3. **bash 3.2+ 호환**: 모든 스크립트는 `#!/usr/bin/env bash` (이식성 우선) + `set -euo pipefail` 필수. bash 4+ 전용 기능 (`declare -A`, `mapfile`/`readarray`, `**` globstar, `${var,,}`/`${var^^}`, `coproc` 등) 사용 금지.
 4. **한국어 산출물**: 사용자 검토 가능성 우선
-5. **Hook 단계론**: 새 hook 은 항상 *경고 모드(exit 0 + stderr)* 로 시작. 1주 운영 후 차단 모드(exit 2) 로 승격
+5. **Hook 단계론 (정제)**: *휴리스틱* hook(오탐 예측이 어려운 것 — 예: test-trust 칸0)은 경고 모드로 시작해 1주 운영 후 차단 승격. 단 **결정론적·테스트 고정** hook 은 즉시 차단 가능하며, 특히 **모드별로 fail-safe 방향이 다르면 모드 차등**을 적용한다 — 예: check-irreversible 는 auto(unattended)에선 block 이 fail-safe(멈추고 대기)·warn 이 fail-dangerous(파괴 명령 실행)라 auto=block, attended=warn (spec-25-04 후속, 2026-06-22). 즉 "1주 경고"는 절대 규칙이 아니라 *오탐 비용이 차단 이득보다 클 때*의 기본값이다.
 6. **No Over-engineering**: NestJS 1차 타깃
 
 ## 릴리스 전략 (이 프로젝트 전용)
