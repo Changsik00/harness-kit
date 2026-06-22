@@ -410,7 +410,7 @@ At key decision points requiring user input, the Agent SHOULD use the `AskUserQu
 
 To change: `sdd config ux-mode [interactive|text|toggle]` (or run `/hk-ask-mode` — toggles the current value).
 
-**Auto mode (non-blocking decisions)**: In `auto` mode the Agent MUST NOT block on `AskUserQuestion`. Resolve ask-mode via `sdd config ux-mode effective` (auto → `text`): adopt a reasonable default, log it with `sdd decision add "<issue>" "<choice>" "<reason>"`, and proceed without waiting. STOP only on stop-rule ① — genuine ambiguity where no default is defensible (→ ADR-009 auto rule 2/3; ②③ are mechanical, → spec-24-03).
+**Auto mode (non-blocking decisions)**: In `auto` mode the Agent MUST NOT block on `AskUserQuestion`. Resolve ask-mode via `sdd config ux-mode effective` (auto → `text`): adopt a reasonable default, log it with `sdd decision add "<issue>" "<choice>" "<reason>"`, and proceed without waiting. STOP only on stop-rule ① — genuine ambiguity where no default is defensible (→ ADR-009 auto rule 2/3; ②③ are mechanical, → spec-24-03). Mechanically backstopped: `check-askquestion-auto.sh` (PreToolUse) blocks `AskUserQuestion` in auto and redirects here (spec-25-01).
 
 **Usage notes**: `AskUserQuestion` is Claude Code-specific. Keep options to 2–4, use concise labels, and put trade-offs in the description field.
 
