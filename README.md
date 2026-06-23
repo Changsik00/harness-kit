@@ -132,7 +132,7 @@ bash install.sh --dry-run ~/Project/my-app
 | 🤖 **Auto** (자율·unattended) | **없음** | `sdd mode auto` | ⬜ 생략 | phase 전체를 fire-and-forget. 결정은 기본값+로그(논블로킹), `phase-ship` PR 1회 검토. 안전은 **정지규칙 + 사후 검증** 이 담당 (↓ Auto 모드) |
 | 🏃 **FF** (Fast-Forward) | 붙어 있음 | 수동 | — | spec/PR 없이 직접 커밋. 오탈자·설정 등 극소 수정에만 |
 
-> 전환: `/hk-turbo` (governed↔turbo 토글), `sdd mode auto|turbo|governed`. 현재 모드는 `sdd status` 에 항상 표시됩니다.
+> 전환: `/hk-turbo` (governed↔turbo 토글), `/hk-auto` (governed↔auto 토글), `sdd mode auto|turbo|governed`. 현재 모드는 `sdd status` 에 항상 표시됩니다.
 >
 > **turbo vs auto** — 둘 다 Plan Accept 를 생략하고 `post-commit-verify` 로 사후 검증한다(공유 엔진). 차이는 *사람이 붙어 있는가* 단 하나: **turbo = attended** (결정 때 질문하면 사람이 답하고, 비가역 행동은 경고), **auto = unattended** (그 위에 질문 차단·정지규칙 실제 block·결정 로그를 얹음). 즉 `auto ≈ turbo + 무인 안전망`. 사람이 붙어 빠르게 가려면 turbo, 걸어두고 떠나려면 auto.
 
@@ -437,7 +437,8 @@ sdd archive --keep=2
 | `/hk-report-issue` | 키트 자체 버그를 kit GitHub 저장소에 이슈로 리포팅 (gh CLI, 컨텍스트 수집 + 사용자 확인 후 게시) |
 | `/hk-doctor` | 설치 환경 점검 — 필수 도구, 파일 구조, hook 상태 PASS/FAIL 출력 |
 | `/hk-plan-accept` | spec.md 승인 → Strict Loop 시작 (Governed 모드) |
-| `/hk-turbo` | Turbo ↔ Governed 모드 토글 |
+| `/hk-turbo` | Turbo ↔ Governed 모드 토글 (attended 빠른 모드) |
+| `/hk-auto` | Auto ↔ Governed 모드 토글 (unattended 자율 — 정지규칙·사후검증이 안전 담당) |
 | `/hk-ship` | Spec 완료 — walkthrough/pr_description 검증 후 ship + push + PR 생성 |
 | `/hk-phase-ship` | Phase 완료 — 성공 기준 검증 + 통합 테스트 + go/no-go + main PR |
 | `/hk-phase-review` | Phase 회고 — 독립 Opus sub-agent로 비판적 검증 (목표 달성도, 테스트 품질, 잔재 탐지) |
