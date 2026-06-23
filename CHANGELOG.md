@@ -5,6 +5,21 @@ harness-kit의 주요 변경 사항을 버전별로 정리합니다.
 
 ---
 
+## [0.20.1] — 2026-06-23
+
+> 0.20.0 후속 — install/update doctor 오탐 수정 + auto UX(`/hk-auto`) + "검증 단계" 용어 정리.
+
+### Fixed
+- **doctor.sh plan.md 오탐 (#204)** — 루트 `doctor.sh` 가 폐기된 `plan.md` 를 필수 템플릿으로 체크해 install/update 말미 `✗ plan.md 없음` FAIL 1건. 목록을 실제 `sources/templates/*.md` 와 동기화(plan.md 제거 + phase-ship.md 추가) + 목록 정합 회귀 테스트로 재드리프트 봉인. (#222)
+
+### Added
+- **`/hk-auto` 커맨드** — governed↔auto 모드 토글 + unattended 안전 안내(정지규칙·사후검증·`/hk-refute`). `/hk-turbo`(attended)와 대칭이던 비대칭 해소. (#223)
+
+### Changed
+- **"칸N → 검증 N단계" 용어 개명** — #212 "비용 사다리/칸" 비유가 직관과 어긋나(원어민도 "space 2?" 오해) **"위험 비례 검증 단계 / 검증 0·1·2단계"** 로 정리(번호↑ = 검증 강도·비용↑). 운영/정규 문서(README·`hk-refute`·hook 경고·agent.md·ADR-009·CHANGELOG) 일괄. (#223)
+
+---
+
 ## [0.20.0] — 2026-06-22
 
 > **Auto 모드 구현** — phase 전체를 사람 없이(unattended) 자율 수행하는 3번째 실행 모드 + 안전장치(논블로킹 백스톱·정지규칙·사후 테스트 신뢰·모드 차등 정지). 0.19.0 에서 *proposed* 였던 ADR-009 를 phase-24·25 로 구현하고 phase-review 로 검증.
