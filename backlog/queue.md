@@ -14,8 +14,6 @@
 ## 📥 spec-x 대기
 
 <!-- sdd:specx:start -->
-- [ ] spec-x-doctor-template-sync — doctor-template-sync
-- [ ] spec-x-auto-mode-ux — auto-mode-ux
 <!-- sdd:specx:end -->
 
 ## 🧊 Icebox
@@ -130,6 +128,8 @@
 - [x] spec-x-fix-failing-tests (완료)
 - **phase-24** — auto-mode — completed 2026-06-22
 - **phase-25** — auto-reliability (auto 신뢰성) — completed 2026-06-22
+- [x] spec-x-doctor-template-sync (완료)
+- [x] spec-x-auto-mode-ux (완료)
 <!-- sdd:done:end -->
 
 ---
