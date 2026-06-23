@@ -14,8 +14,8 @@
 ## 📥 spec-x 대기
 
 <!-- sdd:specx:start -->
-없음
 - [ ] spec-x-doctor-template-sync — doctor-template-sync
+- [ ] spec-x-auto-mode-ux — auto-mode-ux
 <!-- sdd:specx:end -->
 
 ## 🧊 Icebox

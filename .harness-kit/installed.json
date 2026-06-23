@@ -4,9 +4,11 @@
   "installedAt": "2026-06-22T00:00:00Z",
   "uxMode": "interactive",
   "installedCommands": [
+    "hk",
     "hk-align",
     "hk-archive",
     "hk-ask-mode",
+    "hk-auto",
     "hk-cleanup",
     "hk-code-review",
     "hk-doctor",
@@ -15,12 +17,11 @@
     "hk-plan-accept",
     "hk-pr-bb",
     "hk-pr-gh",
+    "hk-report-issue",
     "hk-ship",
     "hk-spec-critique",
     "hk-update",
-    "hk-wiki-ingest",
-    "hk",
-    "hk-report-issue"
+    "hk-wiki-ingest"
   ],
   "extensions": {
     "serena": {
