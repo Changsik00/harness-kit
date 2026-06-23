@@ -290,7 +290,7 @@ Generic agent behavior patterns that improve UX, latency, and cost without per-t
 
 **Version + CHANGELOG paired update**: When `version.json` changes, `CHANGELOG.md` MUST gain a corresponding entry in the same commit. Conversely, never bump version without summarizing changes since the last release.
 
-**Review orchestration**: Under director mode, review commands (`/hk-code-review`, `/hk-spec-critique`, `/hk-phase-review`) support an optional persona panel — parallel worker sub-agents with distinct lenses (correctness / security / perf / test-coverage) whose findings the director consolidates. For small diffs, a single reviewer is sufficient. See each command for activation criteria. **Risk-proportional refute (`/hk-refute`, 칸2)**: for high-risk/irreversible changes, run an adversarial pass anchored to `spec.md` *intent* (not code) — "find cases where all tests pass yet the agreed intent breaks" — to catch direction errors test-coverage misses (GitHub #212, spec-25-02).
+**Review orchestration**: Under director mode, review commands (`/hk-code-review`, `/hk-spec-critique`, `/hk-phase-review`) support an optional persona panel — parallel worker sub-agents with distinct lenses (correctness / security / perf / test-coverage) whose findings the director consolidates. For small diffs, a single reviewer is sufficient. See each command for activation criteria. **Risk-proportional refute (`/hk-refute`, 검증 2단계)**: for high-risk/irreversible changes, run an adversarial pass anchored to `spec.md` *intent* (not code) — "find cases where all tests pass yet the agreed intent breaks" — to catch direction errors test-coverage misses (GitHub #212, spec-25-02).
 
 ### 6.8 Director Mode Protocol
 

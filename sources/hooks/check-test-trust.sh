@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# check-test-trust.sh — 칸0 사후 테스트 신뢰 휴리스틱 (spec-25-02, GitHub #212 비용 사다리)
+# check-test-trust.sh — 검증 0단계 사후 테스트 신뢰 휴리스틱 (spec-25-02, GitHub #212 위험 비례 검증 단계)
 # commit-time(HARNESS_GIT_HOOK_MODE=1) staged diff 검사. 경고만(exit 0), mode 무관(blast-radius 가드처럼 항상).
 #   (a) 구현 파일 변경 ∧ 테스트 무변경        → "구현 망가뜨리면 빨개지나?"의 정적 프록시
 #   (b) 단언 없는 테스트 추가/변경            → 동어반복(가짜 green) 의심
@@ -8,7 +8,7 @@
 HOOK_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$HOOK_DIR/_lib.sh"
 
-# 칸0 는 커밋 시점 전용 — edit/기타 호출엔 무간섭.
+# 검증 0단계 는 커밋 시점 전용 — edit/기타 호출엔 무간섭.
 [ "${HARNESS_GIT_HOOK_MODE:-0}" = "1" ] || exit 0
 
 # 안전 경로: 산출물·문서·설정 — 테스트 동반 의무 없음.
@@ -58,13 +58,13 @@ done < <(git -C "$HARNESS_ROOT" diff --cached --name-only 2>/dev/null)
 
 # (a) 구현 변경 + 테스트 무변경
 if [ -n "$code_files" ] && [ "$test_count" -eq 0 ]; then
-  echo "⚠ [test-trust:warn] 구현이 바뀌었는데 동반 테스트가 없습니다 (가짜 green 위험 — #212 칸0):" >&2
+  echo "⚠ [test-trust:warn] 구현이 바뀌었는데 동반 테스트가 없습니다 (가짜 green 위험 — #212 검증 0단계):" >&2
   for f in $code_files; do echo "   $f" >&2; done
   echo "   '구현을 망가뜨리면 테스트가 빨개지나?' 를 이 커밋은 보장하지 않습니다. 의도면 무시, 아니면 테스트 추가." >&2
 fi
 # (b) 단언 없는 테스트
 if [ -n "$assertionless" ]; then
-  echo "⚠ [test-trust:warn] 단언이 보이지 않는 테스트 (동어반복 위험 — #212 칸0):" >&2
+  echo "⚠ [test-trust:warn] 단언이 보이지 않는 테스트 (동어반복 위험 — #212 검증 0단계):" >&2
   for f in $assertionless; do echo "   $f" >&2; done
 fi
 

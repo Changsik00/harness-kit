@@ -30,8 +30,8 @@ if [ -f "$HARNESS_HOOKS/check-scope.sh" ]; then
   HARNESS_GIT_HOOK_MODE=1 bash "$HARNESS_HOOKS/check-scope.sh" || true
 fi
 
-# test-trust 칸0 검사 (경고 모드 — 가짜 green 휴리스틱: 구현 변경에 테스트 동반했나 /
-# 단언 없는 테스트인가). mode 무관. (spec-25-02, GitHub #212 비용 사다리 칸0)
+# test-trust 검증 0단계 검사 (경고 모드 — 가짜 green 휴리스틱: 구현 변경에 테스트 동반했나 /
+# 단언 없는 테스트인가). mode 무관. (spec-25-02, GitHub #212 검증 0단계)
 if [ -f "$HARNESS_HOOKS/check-test-trust.sh" ]; then
   HARNESS_GIT_HOOK_MODE=1 bash "$HARNESS_HOOKS/check-test-trust.sh" || true
 fi

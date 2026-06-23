@@ -14,7 +14,7 @@ harness-kit의 주요 변경 사항을 버전별로 정리합니다.
 - **정지규칙 엔진 + 결정 로그** — 비가역 행동 감지(`check-irreversible` ②) + 반복 테스트 실패 카운터(③, N회 후 hard-stop) + `sdd decision add`/`list --phase` rollup(phase-ship 일괄 노출). (#210, #213)
 - **commit-time scope check** — MCP/Serena 편집이 `Edit|Write` 매처를 우회해도 *커밋 시점* 에 blast-radius 검사(`check-scope` dual-mode, 경고). (#208)
 - **AskUserQuestion 기계적 백스톱 (phase-25)** — auto 에서 `AskUserQuestion` 호출을 PreToolUse hook(`check-askquestion-auto`)으로 차단+리다이렉트. 논블로킹을 산문이 아닌 코드로 강제. 24-04 의 "hook 으로 못 막음" 전제를 공식문서+라이브 spike 로 반증. (#215)
-- **사후 테스트 신뢰 (#212 비용 사다리)** — 칸0 commit-time 가짜 green 휴리스틱(`check-test-trust`: 구현 변경에 테스트 동반했나/단언 있나) + 칸2 의도-앵커 적대적 반증 골격(`/hk-refute`). (#216)
+- **사후 테스트 신뢰 (#212 위험 비례 검증 단계)** — 검증 0단계 commit-time 가짜 green 휴리스틱(`check-test-trust`: 구현 변경에 테스트 동반했나/단언 있나) + 검증 2단계 의도-앵커 적대적 반증 골격(`/hk-refute`). (#216)
 - **auto 통합 e2e** — 실제 install fixture 에서 auto 사이클 기계적 안전장치 구동, 결정 로그 누적 실증(phase-24 의 0건이 *미사용* 이었음). (#217)
 
 ### Changed
