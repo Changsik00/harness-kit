@@ -15,6 +15,7 @@
 
 <!-- sdd:specx:start -->
 없음
+- [ ] spec-x-doctor-template-sync — doctor-template-sync
 <!-- sdd:specx:end -->
 
 ## 🧊 Icebox
