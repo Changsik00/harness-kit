@@ -100,6 +100,14 @@ run_hook warn "git rebase --onto main featA featB"; assert_warn "T9b: git rebase
 run_hook warn "git reset --soft HEAD~1"; assert_quiet "T9c: git reset --soft (무경고)"
 run_hook warn "git rebase main"; assert_quiet "T9d: git rebase main (무경고)"
 
+# ── W1: narrow 경계 박제 — 의도적 미감지 변형 (phase-26 FF1) ──
+# 감지 regex 가 narrow(false-positive 최소화)라 아래 변형은 *의도적으로* 미감지다.
+# 후속 변경이 경계를 소리 없이 옮기면 본 테스트가 깨져 의식적 결정을 강제한다(경계 가시화).
+# 경계를 넓히려면 본 테스트를 함께 갱신해야 한다 — 그것이 박제의 목적.
+run_hook warn "git -C /tmp/x reset --hard HEAD~1"; assert_quiet "W1-a: git -C <path> reset --hard (reset 앞 -C 로 'git reset' 인접 미스 — 미감지)"
+run_hook warn "git rebase -i HEAD~3"; assert_quiet "W1-b: git rebase -i (대화형 rebase — --onto 만 감지하므로 미감지)"
+run_hook warn "rm -rf ./build"; assert_quiet "W1-c: rm -rf ./상대경로 (root/home/glob 타깃 아니라 미감지)"
+
 # T10: block 모드 → exit 2
 run_hook block "git push --force"
 if [ "$_rc" -eq 2 ] && echo "$_out" | grep -q "hook:block"; then
