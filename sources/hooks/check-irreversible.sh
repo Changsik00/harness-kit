@@ -23,9 +23,16 @@
 
 HOOK_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$HOOK_DIR/_lib.sh"
-# 모드 차등 기본값: auto → block(fail-safe), 그 외 → warn. env override 가 우선.
-_sr_default="warn"
-[ "$(hook_state mode)" = "auto" ] && _sr_default="block"
+# 모드 차등 기본값(env override 가 우선):
+#   • governed / turbo (attended 명시) → warn — 사람 옆이라 의도적 명령 차단 안 함.
+#   • auto OR 불명(state/jq 부재로 빈 값) → block(fail-safe) — 모드 확인 불가 시
+#     "멈추고 사람 대기"가 fail-safe. warn(통과)은 auto 세션에서 fail-dangerous. (CLAUDE.md #5, W2)
+_sr_mode="$(hook_state mode)"
+if [ "$_sr_mode" = "governed" ] || [ "$_sr_mode" = "turbo" ]; then
+  _sr_default="warn"
+else
+  _sr_default="block"
+fi
 hook_resolve_mode "STOP_RULES" "$_sr_default"
 
 cmd="$(hook_tool_input command)"
