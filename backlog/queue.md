@@ -8,7 +8,7 @@
 ## 📦 진행 중 Phase
 
 <!-- sdd:active:start -->
-- **phase-26** — auto-safety-residue — 0/0 spec — (다음: 첫 spec 생성 대기)
+- **phase-26** — auto-safety-residue (auto 안전망 잔여) — 1 spec — 다음: spec-26-01-guard-boundary-failsafe
 <!-- sdd:active:end -->
 
 ## 📥 spec-x 대기
@@ -130,7 +130,6 @@
 - **phase-25** — auto-reliability (auto 신뢰성) — completed 2026-06-22
 - [x] spec-x-doctor-template-sync (완료)
 - [x] spec-x-auto-mode-ux (완료)
-- **phase-24** — auto-mode — completed 2026-06-28
 <!-- sdd:done:end -->
 
 ---
