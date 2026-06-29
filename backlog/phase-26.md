@@ -44,7 +44,7 @@ auto 안전망의 세 잔여 구멍을 닫는다 — 비가역 가드의 *경계
 <!-- sdd:specs:start -->
 | ID | 슬러그 | 우선순위 | 상태 | 디렉토리 |
 |---|---|:---:|---|---|
-| `spec-26-01` | settings-push-ssot | P? | Active | `specs/spec-26-01-settings-push-ssot/` |
+| `spec-26-01` | settings-push-ssot | P? | Merged | `specs/spec-26-01-settings-push-ssot/` |
 <!-- sdd:specs:end -->
 
 > SPEC: `spec-26-01-settings-push-ssot` (W3). 나머지는 phase-FF.
