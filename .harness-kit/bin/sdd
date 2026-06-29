@@ -2736,44 +2736,28 @@ _intent_clear() {
   fi
 }
 
-# settings.json 의 permissions.ask 에서 git push 제거(turbo) / 복원(governed)
-_settings_mode_patch() {
-  local target_mode="$1"
-  local sf="$SDD_ROOT/.claude/settings.json"
-  [ -f "$sf" ] || return 0
-  local tmp
-  tmp="$(mktemp)"
-  if [ "$target_mode" = "turbo" ] || [ "$target_mode" = "auto" ]; then
-    jq '.permissions.ask = [.permissions.ask[] | select(. != "Bash(git push)" and . != "Bash(git push:*)")]' "$sf" > "$tmp" \
-      && mv "$tmp" "$sf" \
-      && printf '  settings.json: git push → allow (자동 허용)\n'
-  else
-    jq '.permissions.ask = ((.permissions.ask + ["Bash(git push)", "Bash(git push:*)"]) | unique)' "$sf" > "$tmp" \
-      && mv "$tmp" "$sf" \
-      && printf '  settings.json: git push → ask 복원\n'
-  fi
-}
+# 참고: push 게이팅은 settings `ask` 가 아니라 constitution §5.7(Plan Accept 후 push 자동)
+#       + deny/check-irreversible(force-push 차단)이 담당한다. 모드 전환은 settings 를 건드리지
+#       않는다 (구 _settings_mode_patch 는 governed 에서 push 를 ask 로 올려 §5.7 과 충돌·drift
+#       원천이라 제거 — spec-26-01/W3). 불변식은 tests/test-settings-ssot.sh 가 고정.
 
 cmd_mode() {
   local sub="${1:-status}"; shift || true
   case "$sub" in
     turbo)
       state_set mode "turbo"
-      _settings_mode_patch "turbo"
       printf '✓ 모드 전환: governed → turbo\n'
       printf '  Plan Accept 없이 코드 편집 가능\n'
       printf '  커밋 후 post-commit-verify 자동 실행\n'
       ;;
     auto)
       state_set mode "auto"
-      _settings_mode_patch "auto"
       printf '✓ 모드 전환: → auto (자율·unattended)\n'
       printf '  Plan Accept·차단형 질문 없이 자율 진행 — 정지규칙(ADR-009)에서만 정지\n'
       printf '  사후 검증(post-commit-verify) 작동. 24-03/24-04 전까지 행동은 turbo 와 동일\n'
       ;;
     governed)
       state_set mode "governed"
-      _settings_mode_patch "governed"
       printf '✓ 모드 전환: turbo → governed\n'
       printf '  Plan Accept 필요 — 전체 SDD ceremony\n'
       ;;
