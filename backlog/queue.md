@@ -8,7 +8,7 @@
 ## 📦 진행 중 Phase
 
 <!-- sdd:active:start -->
-- **phase-26** — auto-safety-residue (auto 안전망 잔여) — 1 spec — 다음: spec-26-01-guard-boundary-failsafe
+- **phase-26** — auto-safety-residue (auto 안전망 잔여) — 1 spec — 다음: spec-26-01-settings-push-ssot
 <!-- sdd:active:end -->
 
 ## 📥 spec-x 대기
