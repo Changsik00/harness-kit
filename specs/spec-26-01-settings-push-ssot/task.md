@@ -8,41 +8,52 @@
 
 ## Task 0: 선행 영향 점검 (read-only)
 
-- [ ] `test-turbo-mode.sh` 등이 git push ask 토글 동작에 의존하는지 grep (의존 시 함께 갱신 필요 판단)
+- [x] `test-turbo-mode.sh` 등이 git push ask 토글 동작에 의존하는지 grep
+  - 결과: test-install-settings-hook T5·test-e2e-auto-mode ① 은 "ask 에 push 없음"을 단언 → 방향2 와 정합(깨지지 않음). governed 가 push 를 ask 에 *추가*함을 단언하는 테스트는 없음 → 제거 안전.
 
 ---
 
 ## Task 1: SSOT 테스트 + _settings_mode_patch 제거
 
 ### 1-1. 테스트 작성 (TDD)
-- [ ] `tests/test-settings-ssot.sh` 신규: T1(fragment ask 무 git push)·T2(deny force 3변형)·T3(sdd 가 ask git push 미조작)
-- [ ] 실행 → T3 Fail 확인 (현재 `_settings_mode_patch` 존재)
+- [x] `tests/test-settings-ssot.sh` 신규: T1·T2·T3
+- [x] 실행 → T3 Fail 확인 (RED)
 
 ### 1-2. 구현
-- [ ] `sources/bin/sdd`: `_settings_mode_patch()` + turbo/auto/governed 호출 3곳 제거
-- [ ] `tests/test-settings-ssot.sh` 실행 → 전부 Pass
-- [ ] `tests/test-turbo-mode.sh` 실행 → Pass (회귀 없음, Task 0 결과 반영)
-- [ ] Commit: `refactor(spec-26-01): remove git-push ask 토글 (§5.7 push 자동 정합) + SSOT 테스트`
+- [x] `sources/bin/sdd`: `_settings_mode_patch()` + 호출 3곳 제거
+- [x] `tests/test-settings-ssot.sh` → 3/3 Pass
+- [x] `tests/test-turbo-mode.sh`(5/5) · `test-e2e-auto-mode.sh`(8/8) Pass (회귀 없음)
+- [x] Commit `8cb3332`: `refactor(spec-26-01): git-push ask 토글 제거 (§5.7 정합) + SSOT 테스트`
 
 ---
 
 ## Task 2: .claude/settings.json 명시 잔재 정리
 
-- [ ] `permissions.allow` 의 stray `Bash(git push:*)` 제거 (`git:*` 로 redundant). `ask` 는 git push 없는 현 상태 유지
-- [ ] `jq . .claude/settings.json` 로 유효 JSON 확인
-- [ ] Commit: `chore(spec-26-01): .claude/settings.json git push 잔재 정리`
+- [x] `permissions.allow` 의 stray `Bash(git push:*)` 제거. `ask` 는 git push 없는 현 상태 유지
+- [x] `jq` 로 유효 JSON + git push 부재 확인
+- [x] Commit `f999bb8`: `chore(spec-26-01): .claude/settings.json git push 잔재 정리`
+
+---
+
+## Task 2.5: 도그푸딩 설치본 동기화 (emergent)
+
+> Pre-push 회귀에서 test-hook-modes 등 3건이 sources↔.harness-kit 불일치로 FAIL → 설치본 전파 필요.
+
+- [x] `cp sources/bin/sdd .harness-kit/bin/sdd` + `check-irreversible.sh` 동기화
+- [x] 3건 재실행 PASS
+- [x] Commit `337362d`: `chore(spec-26-01): 도그푸딩 설치본 동기화`
 
 ---
 
 ## Task 3: Ship (spec walkthrough)
 
 ### 🚦 Pre-Push Quality Gate
-- [ ] `bash tests/run.sh` → 전체 PASS
+- [x] `bash tests/run.sh` → 전체 PASS
 
 ### 📝 산출물
-- [ ] `walkthrough.md` 작성 (결정·검증·발견)
-- [ ] `pr_description.md` 작성 (phase-ship PR 본문에 반영될 spec 요약)
-- [ ] phase-26 결정 기록에 W3 방향2 + §5.7 발견 반영
-- [ ] Commit: `docs(spec-26-01): ship walkthrough + pr description`
+- [x] `walkthrough.md` 작성
+- [x] `pr_description.md` 작성
+- [x] phase-26 결정 기록에 W3 방향2 + §5.7 발견 반영 (commit `7732d3d`)
+- [x] Commit: `docs(spec-26-01): ship walkthrough + pr description`
 
 > push / PR 은 phase-ship(`/hk-phase-ship`)에서 phase-26 → main 단일 PR 로 진행. 별도 spec PR 없음.
