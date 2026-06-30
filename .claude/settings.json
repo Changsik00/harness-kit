@@ -27,7 +27,6 @@
       "Bash(file:*)",
       "Bash(find:*)",
       "Bash(gh:*)",
-      "Bash(git push:*)",
       "Bash(git:*)",
       "Bash(grep:*)",
       "Bash(head:*)",
@@ -74,9 +73,7 @@
       "Bash(gh pr merge)",
       "Bash(gh pr merge:*)",
       "Bash(git merge)",
-      "Bash(git merge:*)",
-      "Bash(git push)",
-      "Bash(git push:*)"
+      "Bash(git merge:*)"
     ],
     "deny": [
       "Bash(curl * | bash:*)",

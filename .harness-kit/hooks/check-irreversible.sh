@@ -23,9 +23,20 @@
 
 HOOK_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$HOOK_DIR/_lib.sh"
-# 모드 차등 기본값: auto → block(fail-safe), 그 외 → warn. env override 가 우선.
-_sr_default="warn"
-[ "$(hook_state mode)" = "auto" ] && _sr_default="block"
+# 모드 차등 기본값(env override 가 우선):
+#   • governed / turbo (attended 명시) → warn — 사람 옆이라 의도적 명령 차단 안 함.
+#   • auto OR 불명(state/jq 부재로 빈 값) → block(fail-safe) — 모드 확인 불가 시
+#     "멈추고 사람 대기"가 fail-safe. warn(통과)은 auto 세션에서 fail-dangerous. (CLAUDE.md #5, W2)
+#     ▶ install.sh 가 초기 state 에 mode:governed 를 시드하므로(phase-26 C1), 정상 설치는
+#       빈 값이 아니라 명시 governed → warn. 빈 값은 legacy(시드 이전)·손상·jq 부재 등 *rare*
+#       경로 한정이며, 그 경우만 block. (CLI sdd status 는 빈 값을 표시상 governed 로 보여주나,
+#       이건 *display* 기본값이고 본 hook 의 빈→block 은 *safety* 기본값 — 목적이 달라 의도적 차등.)
+_sr_mode="$(hook_state mode)"
+if [ "$_sr_mode" = "governed" ] || [ "$_sr_mode" = "turbo" ]; then
+  _sr_default="warn"
+else
+  _sr_default="block"
+fi
 hook_resolve_mode "STOP_RULES" "$_sr_default"
 
 cmd="$(hook_tool_input command)"

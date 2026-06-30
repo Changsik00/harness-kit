@@ -31,14 +31,15 @@ SETTINGS="$F/.claude/settings.json"
 run() { ( cd "$F" && HARNESS_DRIFT_FETCH=0 "$SDD" "$@" 2>&1 ); }
 set_state() { local t; t=$(mktemp); jq "$1" "$STATE" > "$t" && mv "$t" "$STATE"; }
 
-# ① mode=auto 설정 + settings 패치 -------------------------------------------
+# ① mode=auto 설정 -----------------------------------------------------------
 run mode auto >/dev/null 2>&1
 if [ "$(jq -r '.mode' "$STATE")" = "auto" ]; then ok "① mode=auto 설정됨"; else fail "① mode 미설정"; fi
-# settings ask 에서 git push 제거됨
-if ! jq -e '.permissions.ask // [] | index("Bash(git push)")' "$SETTINGS" >/dev/null 2>&1; then
-  ok "① settings 패치 — git push ask 제거 (auto 무인 push)"
+# settings ask 에 git push 계열(plain + :* 변형) 없음 (baseline 불변식 — push 자동, §5.7)
+ask_push_n="$(jq '[.permissions.ask[]? | select(test("git push"))] | length' "$SETTINGS" 2>/dev/null || echo "-1")"
+if [ "$ask_push_n" = "0" ]; then
+  ok "① settings ask 에 git push 계열 없음 (push 자동, §5.7)"
 else
-  fail "① settings ask 에 git push 잔존"
+  fail "① settings ask 에 git push 계열 ${ask_push_n}개 잔존"
 fi
 
 # ② askquestion hook: auto 차단 / governed 통과 ------------------------------

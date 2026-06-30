@@ -588,6 +588,7 @@ else
   "spec": null,
   "branch": null,
   "baseBranch": null,
+  "mode": "governed",
   "planAccepted": false,
   "lastTestPass": null,
   "installedAt": "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
