@@ -71,7 +71,8 @@ auto 안전망의 세 잔여 구멍을 닫는다 — 비가역 가드의 *경계
 | 이슈 | 선택지 | 결정 | 이유 |
 |---|---|---|---|
 | C(W1/W2/W3) 작업 단위 | A: 2~3 spec / B: 전부 phase-FF(spec 없음) / C: 단일 spec-x 번들 | **B (phase-FF)** | W1/W2/W3 각각 1–2 commit 의 작고 가역적 항목 → §11.4 가 phase-FF(spec 산출물 없이 phase 브랜치 직접 커밋, phase-ship 일괄 검토) 를 명시. spec 3종세트는 과한 ceremony(§11.1). 최초 spec-26-01 생성했다가 phase-FF 로 정정 |
-| W2 모드 불명 시 기본값 | warn(현행, fail-dangerous) / block(fail-safe) | **block** | 비가역 가드는 모드 확인 불가 시 "멈추고 사람 대기"가 fail-safe. CLAUDE.md #5 정합. env override·rare-empty-state 로 attended 비용 낮음 |
+| W2 모드 불명 시 기본값 | warn(현행, fail-dangerous) / block(fail-safe) | **block** | 비가역 가드는 모드 확인 불가 시 "멈추고 사람 대기"가 fail-safe. CLAUDE.md #5 정합. env override 로 escape 가능 |
+| C1 (phase-review): "empty 는 rare" 전제 결함 | install 미시드 → 빈 mode 가 *모든 fresh install* 의 기본 → block 과차단 회귀 | **install.sh 에 mode:governed 시드** | 감사자가 적발: 빈 mode 가 흔한데 block 이면 attended 과차단 + hook(block)/CLI(governed) 상반 분류. 시드로 "empty=rare" 를 *참으로* 만들어 회귀 해소, hook 빈→block 은 legacy/손상 한정 fail-safe 로 유지. hook(safety)/CLI(display) 차등은 의도적 |
 | auto 모드로 본 phase 진행 | governed / auto | **auto** | 사용자 명시 지시("C 를 auto 모드로"). auto 의 phase-level fire-and-forget 도그푸딩 겸함. W2 결정이 선결돼 새 아키텍처 결정 없음 → auto 적합(§2.4) |
 | W3 settings push 게이팅 방향 | 방향1(fragment ask 에 push 추가=governed 게이트) / 방향2(toggle 제거=push 항상 자동) | **방향2** (사용자 승인 2026-06-29) | 조사 중 발견: mode-toggle governed 분기가 git push 를 `ask` 로 올려 **constitution §5.7("push 자동, NO user response")과 충돌**. 방향1 은 §5.7 위반 지속. 방향2 는 drift 원천 제거 + §5.7 정합, force-push 는 deny+hook 이 이미 차단. W3 을 spec-26-01 로 승격 |
 | W3 작업 단위 (phase-FF vs spec) | phase-FF / spec 승격 | **spec-26-01** | §5.7 규약·sdd 동작 변경이라 설계 근거를 spec.md 로 남길 가치(§11.3). 방향 결정 후에도 구현 회귀(모드 전환 테스트 영향) 점검 필요 |
@@ -89,8 +90,8 @@ auto 안전망의 세 잔여 구멍을 닫는다 — 비가역 가드의 *경계
 ### 시나리오 2: settings baseline SSOT
 - **Given**: 신규 settings sync 테스트
 - **When**: 해당 테스트 실행
-- **Then**: `.claude/settings.json` baseline(mode-managed 제외) == fragment, PASS
-- **연관 항목**: FF3
+- **Then**: 모드 전환이 ask 의 git push 를 조작하지 않음(§5.7), fragment 불변식 PASS
+- **연관 항목**: spec-26-01 (W3)
 
 ### 통합 테스트 실행
 ```bash
@@ -115,11 +116,28 @@ bash tests/run-all.sh   # 전체 회귀
 
 ## 🏁 Phase Done 조건
 
-- [ ] 모든 SPEC 이 merge (base branch 모드: `phase-26-auto-safety-residue` → main)
-- [ ] 통합 테스트 전 시나리오 PASS
-- [ ] 성공 기준 정량 측정 결과 (본 문서 하단 "검증 결과" 섹션에 기록)
-- [ ] 사용자 최종 승인
+- [ ] 모든 SPEC 이 merge (base branch 모드: `phase-26-auto-safety-residue` → main) — PR #225 머지 대기
+- [x] 통합 테스트 전 시나리오 PASS
+- [x] 성공 기준 정량 측정 결과 (아래 "검증 결과" 섹션 기록)
+- [ ] 사용자 최종 승인 — PR #225 review 중
 
-## 📊 검증 결과 (phase 완료 시 작성)
+## 📊 검증 결과
 
-<!-- 통합 테스트 로그, 성공 기준 측정값, 회귀 점검 결과 등을 여기 첨부 -->
+### 성공 기준 (4/4 PASS)
+1. ✅ W1: `test-stop-rules.sh` W1-a/b/c (assert_quiet 3건, 미감지 경계 박제)
+2. ✅ W2: `test-stop-rules.sh` W2-a/b (state 부재→block) + T20~T22 모드 차등. C1 보강: `test-settings-ssot.sh` T4 (install mode 시드)
+3. ✅ W3: `_settings_mode_patch()` grep 0건 + `test-settings-ssot.sh` T1~T5 (정적 + 행동 round-trip)
+4. ✅ 전체 회귀 `tests/run.sh` PASS, `sources/governance/` 변경 0 (단어예산 불변)
+
+### 통합 테스트 (2/2 PASS)
+- 시나리오 1 (비가역 가드 경계·fail-safe): `test-stop-rules.sh` 27/27
+- 시나리오 2 (settings SSOT): `test-settings-ssot.sh` 5/5
+
+### phase-review (독립 감사) 반영
+- 🔴 C1 (W2 "empty rare" 전제 결함) → install.sh mode 시드 + T4/T5 추가로 해소
+- 🟡 W-1 (행동 테스트 부재) → T5 round-trip 추가
+- 🟡 W-2 (e2e 부분검사) → ① 두 변형 검사로 확장
+- 🟡 W-3/4/5 (문서 drift) → spec.md status / FF 참조 / 본 섹션 정합
+
+### 회귀
+- 전체 스위트 재실행 결과는 PR #225 갱신 후 본 섹션에 최종 기록.
