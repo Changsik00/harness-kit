@@ -50,6 +50,7 @@ harness-kit 이 정의한 문서 규약(ADR 번호/frontmatter, backlog 레이�
 <!-- sdd:specs:start -->
 | ID | 슬러그 | 우선순위 | 상태 | 디렉토리 |
 |---|---|:---:|---|---|
+| `spec-27-01` | adr-index-gen | P? | In Progress | `specs/spec-27-01-adr-index-gen/` |
 <!-- sdd:specs:end -->
 
 > 상태 허용값: `Backlog` / `In Progress` / `Merged`
