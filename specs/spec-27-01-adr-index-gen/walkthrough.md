@@ -10,6 +10,7 @@
 | 명령 위치 | 신규 bin 스크립트 / `sdd` 서브커맨드 | **`sdd adr-index [--check]`** | 기존 단일 진입점 설계(context-cost-first) 유지 |
 | 마커 치환 방식 | 기존 `sdd_marker_replace`(awk `-v content`) 재사용 / 신규 bash 라인 루프 | **신규 bash 라인 루프** | `awk -v var="multi\nline"` 가 이 macOS(BWK awk)에서 "newline in string" 으로 즉시 실패함을 실측 확인(GitHub #168 이 지적한 함정과 동일). 기존 헬퍼 수정은 범위 밖 |
 | `--check` 마커 탐지 방식 | 정규식 substring 매치(`/pattern/`) / 정확한 라인 일치(`$0 == "..."`) | **정확한 라인 일치** | 최초 구현에서 substring 매치를 썼다가 README 안내 문구 자체가 마커 문법(`` `<!-- adr-index:start -->` ``)을 인용하는 바람에 그 프로즈 줄이 마커로 오인되는 버그를 실제로 겪음 — 재현·수정 후 회귀 없음 확인 |
+| `sdd ship` 이 base 모드에서 spec 을 즉시 `Merged` 표시 | 그대로 둠 / `In Progress` 로 수동 보정 | **수동 보정** | 알려진 base-mode 갭(`backlog/queue.md` Icebox — "`sdd ship` base-mode 갭", spec-20-01 부터 추적 중). PR 이 phase 브랜치에 실제 머지되기 전까지는 `In Progress` 가 맞음 — 도구 버그를 이 spec 범위에서 고치지 않고 산출물만 수동 정정 |
 
 <!-- ADR 승격: 다른 spec 에 의존되거나 6개월 이상 유지될 결정 → docs/decisions/ADR-NNN-slug.md (constitution §6.3) -->
 - 본 spec 의 결정 3건 모두 단일 spec 범위 내 구현 세부사항 — ADR 승격 대상 아님.
