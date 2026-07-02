@@ -29,14 +29,14 @@
 ## Task 3: 구현 (TDD Green)
 
 ### 3-1. `cmd_doctor()` 확장
-- [ ] `sources/bin/sdd` 의 `cmd_doctor()` 에 "docs 무결성" 섹션 추가:
+- [x] `sources/bin/sdd` 의 `cmd_doctor()` 에 "docs 무결성" 섹션 추가:
   - `_check_adr_id_uniqueness` (fail-level)
   - `_check_adr_frontmatter` (fail-level)
   - `_check_adr_index_drift` — `( cmd_adr_index --check )` 서브셸 호출 (warn-level)
   - `_backlog_completed_residue` 헬퍼 + doctor wrapper (warn-level)
-- [ ] `.harness-kit/bin/sdd` 에 동일 변경 미러
-- [ ] 테스트 실행 → Pass 확인 (`bash tests/test-doctor-docs-integrity.sh`)
-- [ ] Commit: `feat(spec-27-02): add docs integrity checks to sdd doctor`
+- [x] `.harness-kit/bin/sdd` 에 동일 변경 미러
+- [x] 테스트 실행 → Pass 확인 (`bash tests/test-doctor-docs-integrity.sh` 5/5, `bash tests/run.sh` 80/80)
+- [x] Commit: `feat(spec-27-02): add docs integrity checks to sdd doctor`
 
 ---
 
