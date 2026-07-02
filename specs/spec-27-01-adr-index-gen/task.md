@@ -29,11 +29,11 @@
 ## Task 3: 구현 (TDD Green)
 
 ### 3-1. `cmd_adr_index` 구현
-- [ ] `sources/bin/sdd` 에 `cmd_adr_index()` 추가 (frontmatter 파싱 + 제목행 추출 + 정렬 + bash 라인 루프 기반 마커 치환 + `--check` 모드)
-- [ ] `case "$cmd"` 디스패치에 `adr-index) cmd_adr_index "$@" ;;` 등록
-- [ ] `.harness-kit/bin/sdd` 에 동일 변경 미러 (도그푸딩 설치본)
-- [ ] 테스트 실행 → Pass 확인 (`bash tests/test-adr-index.sh`)
-- [ ] Commit: `feat(spec-27-01): implement sdd adr-index generator`
+- [x] `sources/bin/sdd` 에 `cmd_adr_index()` 추가 (frontmatter 파싱 + 제목행 추출 + 정렬 + bash 라인 루프 기반 마커 치환 + `--check` 모드)
+- [x] `case "$cmd"` 디스패치에 `adr-index) cmd_adr_index "$@" ;;` 등록
+- [x] `.harness-kit/bin/sdd` 에 동일 변경 미러 (도그푸딩 설치본)
+- [x] 테스트 실행 → Pass 확인 (`bash tests/test-adr-index.sh`, `bash tests/run.sh` 79/79)
+- [x] Commit: `feat(spec-27-01): implement sdd adr-index generator`
 
 ---
 

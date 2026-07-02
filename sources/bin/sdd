@@ -97,6 +97,8 @@ sdd — harness-kit 메타 명령
   hooks block|warn|off <name>  특정 hook 모드 전환 안내
 
   doctor                        환경 진단 — 필수 도구/설치 파일/훅 권한 체크리스트 출력
+  adr-index [--check]           docs/decisions/README.md ADR 인덱스 (재)생성
+                                --check: drift 시 exit 1 (CI/doctor 게이트용, 변경 없음)
   pr-watch <pr-number>          PR merge 감지 — merge 확인 시 post-merge 안내 자동 출력
   run-test <cmd...>             테스트 실행 + 통과 시 자동으로 sdd test passed 기록
   search <keyword> [--scope=<s>] [--ignore-case]
@@ -2304,6 +2306,116 @@ cmd_archive() {
   printf "  → wiki 갱신: /hk-wiki-ingest\n"
 }
 
+# ADR frontmatter 필드 하나를 추출 (예: id, type, date, status)
+_adr_field() {
+  local file="$1" field="$2"
+  grep -m1 "^${field}:" "$file" 2>/dev/null | sed -E "s/^${field}:[[:space:]]*//"
+}
+
+# ADR 제목 추출 ("# ADR-NNN: <title>" 첫 매치)
+_adr_title() {
+  local file="$1"
+  grep -m1 -E '^# ADR-[0-9]+:' "$file" 2>/dev/null | sed -E 's/^# ADR-[0-9]+:[[:space:]]*//'
+}
+
+# docs/decisions/ADR-*.md 전수를 스캔해 인덱스 표 행을 ADR 번호순으로 stdout 에 출력
+_adr_index_rows() {
+  local adr_dir="$SDD_ROOT/docs/decisions"
+  local adr id type status date title
+  for adr in "$adr_dir"/ADR-*.md; do
+    [ -f "$adr" ] || continue
+    id=$(_adr_field "$adr" "id")
+    [ -z "$id" ] && id="$(basename "$adr" .md)"
+    type=$(_adr_field "$adr" "type")
+    status=$(_adr_field "$adr" "status")
+    date=$(_adr_field "$adr" "date")
+    title=$(_adr_title "$adr")
+    printf '| %s | %s | %s | %s | %s |\n' "$id" "$title" "$type" "$status" "$date"
+  done | sort
+}
+
+# 마커 구간(adr-index:start~end)을 rows_file 내용으로 치환.
+# macOS awk(BWK awk) 는 -v 로 넘긴 값에 개행이 있으면 "newline in string" 으로 실패하므로
+# (GitHub #168 이 지적한 함정, 실측 확인) 멀티라인 콘텐츠는 -v 대신 bash 라인 루프로 삽입한다.
+_adr_index_splice() {
+  local file="$1" rows_file="$2"
+  local start='<!-- adr-index:start -->'
+  local end='<!-- adr-index:end -->'
+  local tmp line in_section=0
+  tmp="$(mktemp)"
+  while IFS= read -r line || [ -n "$line" ]; do
+    if [ "$line" = "$start" ]; then
+      printf '%s\n' "$line" >>"$tmp"
+      printf '| # | title | type | status | date |\n' >>"$tmp"
+      printf '|---|---|---|---|---|\n' >>"$tmp"
+      cat "$rows_file" >>"$tmp"
+      in_section=1
+      continue
+    fi
+    if [ "$line" = "$end" ]; then
+      printf '%s\n' "$line" >>"$tmp"
+      in_section=0
+      continue
+    fi
+    [ "$in_section" -eq 1 ] && continue
+    printf '%s\n' "$line" >>"$tmp"
+  done <"$file"
+  mv "$tmp" "$file"
+}
+
+cmd_adr_index() {
+  local check_mode=0 a
+  for a in "$@"; do
+    case "$a" in
+      --check) check_mode=1 ;;
+    esac
+  done
+
+  local adr_dir="$SDD_ROOT/docs/decisions"
+  local readme="$adr_dir/README.md"
+  local rows_file
+  rows_file="$(mktemp)"
+  _adr_index_rows >"$rows_file"
+
+  if [ "$check_mode" -eq 1 ]; then
+    if [ ! -f "$readme" ]; then
+      rm -f "$rows_file"
+      err "ADR 인덱스 없음: docs/decisions/README.md (sdd adr-index 로 생성)"
+      exit 1
+    fi
+    local expected actual
+    expected="$(cat "$rows_file")"
+    actual="$(awk '
+      $0 == "<!-- adr-index:start -->" { in_s=1; next }
+      $0 == "<!-- adr-index:end -->" { in_s=0; next }
+      in_s && $0 != "| # | title | type | status | date |" && $0 != "|---|---|---|---|---|" { print }
+    ' "$readme")"
+    rm -f "$rows_file"
+    if [ "$expected" != "$actual" ]; then
+      err "ADR 인덱스 drift: docs/decisions/README.md 가 frontmatter 와 어긋남 (sdd adr-index 로 재생성)"
+      exit 1
+    fi
+    ok "ADR 인덱스 정합"
+    return 0
+  fi
+
+  if [ ! -f "$readme" ]; then
+    mkdir -p "$adr_dir"
+    cat >"$readme" <<'HEADER'
+# ADR 인덱스
+
+> 본 표는 `sdd adr-index` 가 ADR frontmatter 로부터 자동 생성합니다. 마커 구간(`<!-- adr-index:start -->`~`<!-- adr-index:end -->`) 안은 수동 편집 금지.
+
+<!-- adr-index:start -->
+<!-- adr-index:end -->
+HEADER
+  fi
+
+  _adr_index_splice "$readme" "$rows_file"
+  rm -f "$rows_file"
+  ok "ADR 인덱스 갱신: docs/decisions/README.md"
+}
+
 cmd_doctor() {
   local fail=0 warn=0
 
@@ -2864,6 +2976,7 @@ main() {
     hooks)   cmd_hooks "$@" ;;
     specx)   cmd_specx "$@" ;;
     doctor)   cmd_doctor "$@" ;;
+    adr-index) cmd_adr_index "$@" ;;
     mode)    cmd_mode "$@" ;;
     intent)  cmd_intent "$@" ;;
     decision) cmd_decision "$@" ;;
