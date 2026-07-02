@@ -40,9 +40,9 @@
 ## Task 4: 실 데이터 적용
 
 ### 4-1. `docs/decisions/README.md` 최초 생성
-- [ ] `bash .harness-kit/bin/sdd adr-index` 실행
-- [ ] 생성된 `docs/decisions/README.md` 수동 확인 — 기존 9개 ADR 전부 번호순 등장
-- [ ] Commit: `docs(spec-27-01): generate docs/decisions/README.md ADR index`
+- [x] `bash .harness-kit/bin/sdd adr-index` 실행
+- [x] 생성된 `docs/decisions/README.md` 수동 확인 — 기존 9개 ADR 전부 번호순 등장
+- [x] Commit: `docs(spec-27-01): generate docs/decisions/README.md ADR index`
 
 ---
 
