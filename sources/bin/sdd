@@ -2416,6 +2416,23 @@ HEADER
   ok "ADR 인덱스 갱신: docs/decisions/README.md"
 }
 
+# backlog/queue.md 의 완료(done) 구간에 등장하는 phase 중 backlog/phase-NN.md 가
+# 여전히 존재하는(미아카이브) id 를 한 줄씩 stdout 에 출력한다.
+# 공유 헬퍼 — cmd_doctor 와 (spec-27-03 예정) cmd_archive 가 함께 사용한다.
+_backlog_completed_residue() {
+  local queue="$SDD_BACKLOG/queue.md"
+  [ -f "$queue" ] || return 0
+  local ids id
+  ids=$(awk '
+    /<!-- sdd:done:start -->/ { in_d=1; next }
+    /<!-- sdd:done:end -->/ { in_d=0; next }
+    in_d { print }
+  ' "$queue" | grep -oE 'phase-[0-9]+' | sort -u)
+  for id in $ids; do
+    [ -f "$SDD_BACKLOG/${id}.md" ] && echo "$id"
+  done
+}
+
 cmd_doctor() {
   local fail=0 warn=0
 
@@ -2616,6 +2633,76 @@ cmd_doctor() {
   printf "\nwiki layer\n"
   _check_wiki_layer
   _check_gov_size
+
+  # ── docs 무결성 (GitHub #168 제안 2, spec-27-02) ───────────────
+  _check_adr_id_uniqueness() {
+    local adr_dir="$SDD_ROOT/docs/decisions"
+    [ -d "$adr_dir" ] || return 0
+    local dup_ids adr id
+    dup_ids=$(
+      for adr in "$adr_dir"/ADR-*.md; do
+        [ -f "$adr" ] || continue
+        _adr_field "$adr" "id"
+      done | sort | uniq -d
+    )
+    if [ -n "$dup_ids" ]; then
+      for id in $dup_ids; do
+        _doc_fail "ADR id 중복: ${id}" "docs/decisions/ 에서 ${id} 를 가진 ADR 을 하나로 정리하세요"
+      done
+    else
+      _doc_pass "ADR id 중복 없음"
+    fi
+  }
+
+  _check_adr_frontmatter() {
+    local adr_dir="$SDD_ROOT/docs/decisions"
+    [ -d "$adr_dir" ] || return 0
+    local bad=0 bad_list="" adr first_line
+    for adr in "$adr_dir"/ADR-*.md; do
+      [ -f "$adr" ] || continue
+      first_line=$(head -n1 "$adr")
+      if [ "$first_line" != "---" ]; then
+        bad=$((bad + 1))
+        bad_list="${bad_list}${bad_list:+, }$(basename "$adr")"
+      fi
+    done
+    if [ "$bad" -gt 0 ]; then
+      _doc_fail "ADR frontmatter 없음: ${bad}개" "$bad_list"
+    else
+      _doc_pass "ADR frontmatter 전부 존재"
+    fi
+  }
+
+  # cmd_adr_index --check 는 drift 시 exit 1 하므로 서브셸로 격리해 doctor 를
+  # 통째로 종료시키지 않는다 (spec-27-01 재사용).
+  _check_adr_index_drift() {
+    local adr_dir="$SDD_ROOT/docs/decisions"
+    [ -d "$adr_dir" ] || return 0
+    if ( cmd_adr_index --check >/dev/null 2>&1 ); then
+      _doc_pass "ADR 인덱스 정합"
+    else
+      _doc_warn "ADR 인덱스 drift — sdd adr-index 로 재생성 권장"
+    fi
+  }
+
+  _check_backlog_residue() {
+    local residue
+    residue=$(_backlog_completed_residue)
+    if [ -n "$residue" ]; then
+      local count list
+      count=$(echo "$residue" | wc -l | tr -d ' ')
+      list=$(echo "$residue" | tr '\n' ',' | sed 's/,$//' | sed 's/,/, /g')
+      _doc_warn "완료 phase ${count}개가 backlog/*.md 로 잔존 (${list}) — sdd archive 로 정리 권장"
+    else
+      _doc_pass "backlog/ 완료 phase 잔존 없음"
+    fi
+  }
+
+  printf "\ndocs 무결성\n"
+  _check_adr_id_uniqueness
+  _check_adr_frontmatter
+  _check_adr_index_drift
+  _check_backlog_residue
 
   printf "\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
   if [ "$fail" -eq 0 ] && [ "$warn" -eq 0 ]; then
