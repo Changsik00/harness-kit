@@ -8,7 +8,7 @@
 ## 📦 진행 중 Phase
 
 <!-- sdd:active:start -->
-- **phase-27** — docs-integrity — 2/3 spec Merged — 다음: spec-27-03
+- **phase-27** — docs-integrity — 2/3 spec Merged (PR 대기: spec-27-03) — 다음: /hk-phase-ship
 <!-- sdd:active:end -->
 
 ## 📥 spec-x 대기
