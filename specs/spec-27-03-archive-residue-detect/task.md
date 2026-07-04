@@ -26,10 +26,10 @@
 ## Task 3: 구현 (TDD Green)
 
 ### 3-1. `_status_diagnose()` 확장
-- [ ] `sources/bin/sdd` 의 `_status_diagnose()` 에 `_backlog_completed_residue`(spec-27-02 공유 헬퍼) 호출 + 진단 라인 추가
-- [ ] `.harness-kit/bin/sdd` 에 동일 변경 미러
-- [ ] 테스트 실행 → Pass 확인 (`bash tests/test-status-backlog-residue.sh`)
-- [ ] Commit: `feat(spec-27-03): surface backlog phase residue in sdd status diagnosis`
+- [x] `sources/bin/sdd` 의 `_status_diagnose()` 에 `_backlog_completed_residue`(spec-27-02 공유 헬퍼) 호출 + 진단 라인 추가
+- [x] `.harness-kit/bin/sdd` 에 동일 변경 미러
+- [x] 테스트 실행 → Pass 확인 (`bash tests/test-status-backlog-residue.sh` 2/2, `bash tests/run.sh` 81/81)
+- [x] Commit: `feat(spec-27-03): surface backlog phase residue in sdd status diagnosis`
 
 ---
 

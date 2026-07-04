@@ -612,6 +612,16 @@ _status_diagnose() {
     warnings="${warnings}  💡 specs/ 에 ${spec_dir_count}개 디렉토리 — sdd archive 로 정리 가능\n"
   fi
 
+  # 3.5 완료 phase 의 backlog 잔존 (GitHub #168 제안 3, spec-27-03 — spec-27-02 헬퍼 재사용)
+  local backlog_residue
+  backlog_residue=$(_backlog_completed_residue)
+  if [ -n "$backlog_residue" ]; then
+    local residue_count residue_list
+    residue_count=$(echo "$backlog_residue" | wc -l | tr -d ' ')
+    residue_list=$(echo "$backlog_residue" | tr '\n' ',' | sed 's/,$//' | sed 's/,/, /g')
+    warnings="${warnings}  💡 완료 phase ${residue_count}개가 backlog/*.md 로 잔존 (${residue_list}) — sdd archive 로 정리 가능\n"
+  fi
+
   # archive 항목 수 표시
   local archive_spec_count=0
   if [ -d "$SDD_ROOT/archive/specs" ]; then
