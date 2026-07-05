@@ -8,7 +8,7 @@
 ## 📦 진행 중 Phase
 
 <!-- sdd:active:start -->
-- **phase-27** — docs-integrity — 3/3 spec Merged — 다음: /hk-phase-ship
+(active phase 없음. `bin/sdd phase new <slug>` 로 시작)
 <!-- sdd:active:end -->
 
 ## 📥 spec-x 대기
@@ -134,6 +134,7 @@
 - [x] spec-x-doctor-template-sync (완료)
 - [x] spec-x-auto-mode-ux (완료)
 - **phase-26** — auto-safety-residue (auto 안전망 잔여) — completed 2026-06-30
+- **phase-27** — docs-integrity — completed 2026-07-05
 <!-- sdd:done:end -->
 
 ---
