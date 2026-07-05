@@ -27,6 +27,9 @@
 - **GitHub #212 칸1 — 뮤테이션 테스트** — 비용 사다리의 중간 칸. "심은 버그를 테스트가 잡나"의 *수치* 답("테스트가 올바른가"의 정량 지표). 컴퓨트 비싸고 **중요 모듈 한정**이라 phase-25(칸0 상시 + 칸2 위험비례) 에 안 넣고 보류. **phase-26(테스트 신뢰 심화) 후보** — 칸0/칸2 운영 데이터가 쌓인 뒤 ROI 판단. (출처 #212 비용 사다리, 2026-06-22 phase-25 착수 시 분리)
 - **PR 을 `sdd ship` 없이 머지하면 phase.md spec 이 `Active` 로 stale 잔존** — gh pr create 로 직접 머지 시 spec 표가 Merged 로 안 바뀌고, 비활성 spec 은 `sdd ship`(active spec 대상)으로도 못 고쳐 수동 보정 필요(phase-24 24-01·24-02 에서 2회 발생, 2026-06-21). `sdd status` 가 git↔phase.md 불일치는 감지하나 *자동 보정 명령*(예: `sdd reconcile` 또는 `sdd ship <spec-id>`)이 없음. 검토 권장
 - kit 새 버전 알림이 `sdd status` drift 섹션 한 줄에 그쳐 사용자 도달이 약함 — SessionStart 시 자동 노출 또는 알림 시각 강화 필요
+- **ADR frontmatter `type:` 값 유효성 미검증 (phase-27 회고 W3)** — `sdd doctor` 의 `_check_adr_frontmatter` 는 frontmatter "존재"만 확인하고 `type:` 값이 constitution §6.4 폐쇄 어휘(`decision`/`invariant`/`convention`/`tradeoff`) 범위 내인지는 검증하지 않음. docs integrity check 목적을 부분적으로만 달성. (spec-27-02 회고, 2026-07-05)
+- **`_adr_field` frontmatter 경계 미인식 (phase-27 회고 W4)** — `grep -m1 "^${field}:" "$file"` 가 파일 전체에서 첫 매치를 찾을 뿐 `---`~`---` 블록 경계를 인식하지 않아, frontmatter 없는 ADR 이라도 본문에 우연히 `id: XXX` 같은 줄이 있으면 인덱스/중복판정에 오염된 값으로 사용될 수 있음. 엣지 케이스지만 회귀 테스트 없음. (spec-27-01/02 회고, 2026-07-05)
+- **stale-ADR 오탐 제외 패턴 `^@` 과광범위 가능성 (phase-27 회고 W5)** — `_drift_stale_adr` 의 `^@` 조건이 npm 스코프 패키지(`@scope/pkg@ver`)보다 넓은 클래스(예: 모노레포 path alias `@app/foo/bar.ts`)까지 제외해, 그런 alias 를 쓰는 다운스트림 프로젝트에서 진짜 깨진 경로를 stale 미검출할 위험. 회귀 테스트 없음. (phase-FF stale-adr-fp-fix 회고, 2026-07-05)
 - **ADR 템플릿 footgun** — `adr.md` 템플릿이 `type:`/`status:` frontmatter 줄에 인라인 주석(`# decision | invariant | ...`)으로 허용값 안내 → 저자가 안 지우면 phase16 integration 의 type-closure 검사가 주석째 읽어 'out-of-closure' 적발(ADR-009 에서 실제 발생, spec-24-01 에서 수습). 허용값 힌트를 frontmatter 줄 밖으로 이동 검토
 - **`sdd phase done` (및 state_set 호출부 전반) state 파일 부재 시 exit 1** — `.claude/state/current.json` 없으면 queue 갱신만 되고 state 리셋에서 죽는 부분 실패. graceful 처리(파일 없으면 자동 생성 또는 skip) 필요. 2026-06-01 도그푸딩 중 발견
 - **릴리스 절차에 self `update.sh` re-sync 단계 검토** — version 만 올리고 자기 자신에 install 재실행을 안 하면 도그푸딩 `.harness-kit/`·`.claude/` 설치본이 `sources/` 원본보다 drift (0.15.x 에서 실제 발생, update.sh 로 수습). `docs/release-strategy.md` 에 self re-sync 또는 drift 검사 게이트 추가 검토
@@ -43,7 +46,7 @@
 - **queue.md 파생 파일 전환** — 다중 사용자/디바이스 환경에서 queue.md merge conflict 를 줄이기 위해 active/done 등을 파생 파일로 분리하는 리팩터링 아이디어 (2026-05-28 드래프트 미착수, 통합 테스트 필요)
 - **lefthook 네이티브 hook 통합** — install 시 `.git/hooks/pre-commit` append 대신 `lefthook.yml` 에 harness 검사를 등록하는 방식. lefthook install 이 디스패처를 재생성하면 append 블록이 덮이는 fragility 해소 (issue #161 제안 #2). bash YAML 편집 비용·사용자 파일 침습으로 보류 — lefthook 타깃 수요 누적 시 승격
 - ~~모델 오케스트레이션 3-tier + 디렉터 모드~~ → **phase-20** (director-mode) 승격 — 설계 문서 `backlog/phase-20.md` + [[ADR-006]] 초안. 2026-06-03
-- **`sdd ship` base-mode 갭** — base 브랜치 모드인데 `sdd ship` 이 spec 을 PR *전에* 즉시 `Merged` 표시 + state 리셋(non-base 동작). base 모드에선 spec PR 이 base 에 머지된 *후* Merged 가 맞음. spec-20-01 도그푸딩 중 발견(2026-06-03). `sdd ship` 에 base 모드 분기 필요(PR 까지만, Merged 는 base 머지 신호 후). systemic: phase done/specx done 등 다른 state 전이도 base 모드 정합성 점검 권장
+- **`sdd ship` base-mode 갭 (우선순위 상향)** — base 브랜치 모드인데 `sdd ship` 이 spec 을 PR *전에* 즉시 `Merged` 표시 + state 리셋(non-base 동작). base 모드에선 spec PR 이 base 에 머지된 *후* Merged 가 맞음. spec-20-01 도그푸딩 중 발견(2026-06-03). `sdd ship` 에 base 모드 분기 필요(PR 까지만, Merged 는 base 머지 신호 후). systemic: phase done/specx done 등 다른 state 전이도 base 모드 정합성 점검 권장. **phase-27 한 phase 안에서만 3회(spec-27-01/02/03) 반복 발생, 매번 별도 수동 보정 커밋 필요** — "1-2회 toil"에서 "구조적 방치"로 넘어간 신호 (phase-27 회고, 2026-07-05). 기존 git-merge 교차확인 로직(`_status_diagnose`) 재사용 가능해 phase-FF 급 크기로 추정 — 다음 phase 최우선 후보
 
 **[phase-17 으로 promote 된 항목 — 처리 진행 중]**:
 - ~~접근성 개선~~ → phase-17 **spec-17-02** (accessibility-install-and-entry)

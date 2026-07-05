@@ -10,7 +10,7 @@
 | 항목 | 값 |
 |---|---|
 | **Phase ID** | `phase-27` |
-| **상태** | Planning |
+| **상태** | In Progress (Phase PR #229 리뷰 대기) |
 | **시작일** | 2026-07-02 |
 | **목표 종료일** | - |
 | **소유자** | changsik |
@@ -39,7 +39,7 @@ harness-kit 이 정의한 문서 규약(ADR 번호/frontmatter, backlog 레이�
 1. `sdd status` 가 npm 스코프 패키지 / IAM role 토큰에 대해 stale ADR 오탐을 0건 보고한다 (회귀 테스트로 고정).
 2. `gen-adr-index` 로 `docs/decisions/README.md` (또는 동등 인덱스 파일) 를 마커 구간 재생성할 수 있고, `--check` 모드가 drift 시 non-zero exit 한다.
 3. docs integrity check 가 ADR 번호 중복 / frontmatter 누락 / 인덱스 drift / backlog 레이아웃 위반 4항목을 각각 탐지하는 테스트를 갖는다.
-4. `sdd archive` 가 `queue.md` 완료 표시 phase 인데 `backlog/phase-N.md` 가 잔존하면 경고를 출력한다.
+4. 완료 phase 인데 `backlog/phase-N.md` 가 잔존하면 경고를 출력한다. (spec-27-03 착수 중 `cmd_archive()` 코드 확인 결과 이미 정확히 동작함이 밝혀져, 경고 위치를 `sdd archive` 대신 `sdd status`/`sdd doctor` 로 재정의 — 아래 결정 기록 참조)
 
 ## 🧩 작업 단위 (SPEC + phase-FF)
 
@@ -102,6 +102,7 @@ harness-kit 이 정의한 문서 규약(ADR 번호/frontmatter, backlog 레이�
 |---|---|---|---|
 | #167 을 spec vs phase-FF | 단독 spec-x / phase-FF | **phase-FF** | 예외 패턴 1줄 + 테스트 1건 수준(1-2 commit) — Icebox 권장대로 #168 과 한 phase 로 묶되, ceremony 는 크기에 맞게 최소화 (agent.md §11.4) |
 | #168 세 제안 spec 분리 여부 | 1 spec 통합 / 3 spec 분리 | **3 spec 분리** | index 생성·integrity check·archive 잔여 감지가 각각 독립 테스트 가능한 단위이고 spec-27-02 가 spec-27-01 산출물에 의존하므로 순서 있는 분리가 명확함 |
+| 성공 기준 4 ("`sdd archive` 가 경고") 구현 위치 | `cmd_archive()` 수정 / `sdd status`·`sdd doctor` 로 재정의 | **`sdd status`·`sdd doctor`** | spec-27-03 착수 중 `cmd_archive()` 코드를 직접 읽어보니 `--keep=0` 기본값으로 완료 phase(활성 제외)를 이미 정확히 아카이브 대상에 포함시키고 있어 버그가 없었음 — 실제 갭은 가시성이라 성공 기준 문구 자체를 위와 같이 수정 (phase-review 감사에서 phase.md 미반영 지적을 받아 사후 반영, 2026-07-05) |
 
 ## 🧪 통합 테스트 시나리오 (간결)
 
@@ -141,11 +142,24 @@ bash tests/run.sh
 
 ## 🏁 Phase Done 조건
 
-- [ ] 모든 SPEC 이 merge (`phase-27-docs-integrity` → main) + phase-FF 항목 커밋 완료
-- [ ] 통합 테스트 전 시나리오 PASS
-- [ ] 성공 기준 정량 측정 결과 (본 문서 하단 "검증 결과" 섹션에 기록)
-- [ ] 사용자 최종 승인
+- [x] 모든 SPEC 이 merge (`phase-27-docs-integrity` 내 3/3 spec Merged) + phase-FF 항목 커밋 완료 — Phase PR #229 (`phase-27-docs-integrity` → `main`) 리뷰 대기 중
+- [x] 통합 테스트 전 시나리오 PASS
+- [x] 성공 기준 정량 측정 결과 (아래 "검증 결과" 섹션에 기록)
+- [x] 사용자 최종 승인 (`/hk-phase-ship` go/no-go에서 승인, 2026-07-05)
 
-## 📊 검증 결과 (phase 완료 시 작성)
+## 📊 검증 결과
 
-<!-- 통합 테스트 로그, 성공 기준 측정값, 회귀 점검 결과 등을 여기 첨부 -->
+### 성공 기준
+1. ✅ PASS — `tests/test-drift-stale-adr.sh` 5/5 (npm 스코프 패키지 `@scope/pkg@6.7.1`, IAM role `roles/speech.editor` fixture 포함, 오탐 0건)
+2. ✅ PASS — `sdd adr-index --check` 실행 결과 `✓ ADR 인덱스 정합`, `tests/test-adr-index.sh` 6/6
+3. ✅ PASS — `tests/test-doctor-docs-integrity.sh` 5/5 (ADR 번호 중복/frontmatter 누락/인덱스 drift/backlog 잔존 4항목 개별 fixture 검증)
+4. ✅ PASS (스코프 재정의, 위 결정 기록 참조) — `sdd status`/`sdd doctor` 실행 결과 phase-23~26 잔존 4건 정확히 검출. `sdd archive` 자체는 수정하지 않음(버그 없음 확인)
+
+### 통합 테스트
+- 시나리오 1 (stale ADR 오탐 제거 + 인덱스 drift 검출 공존): ✅ PASS
+- 시나리오 2 (docs integrity check 4항목 탐지): ✅ PASS
+- 전체 회귀 스위트: ✅ `bash tests/run.sh` 81/81 PASS, FAIL 0
+
+### 회귀 점검 (독립 서브에이전트 `/hk-phase-review`, 2026-07-05)
+- Critical 2건 모두 문서 정합성 이슈(코드 결함 아님) — 본 갱신으로 해소.
+- Warning 4건은 `backlog/queue.md` Icebox 로 이관 (다음 phase 후보): `sdd ship` base-mode 갭 우선순위 재조정(3회 반복 관찰), ADR frontmatter `type:` 값 유효성 미검증, `_adr_field` frontmatter 경계 미인식, stale-adr `^@` 제외 패턴 과광범위 가능성.
