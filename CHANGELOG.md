@@ -5,6 +5,25 @@ harness-kit의 주요 변경 사항을 버전별로 정리합니다.
 
 ---
 
+## [0.21.0] — 2026-07-05
+
+> **docs-integrity (phase-27)** — ADR/backlog 문서 무결성 도구 3종(인덱스 생성·doctor 검사·status 가시성) + auto 안전망 잔여 마감(phase-26).
+
+### Added
+- **`sdd adr-index [--check]` (phase-27)** — ADR frontmatter 로부터 `docs/decisions/README.md` 마커 구간을 (재)생성. `--check`: drift 시 exit 1, CI/doctor 게이트용. macOS awk `-v` 멀티라인 버그를 피해 bash 라인 루프로 마커 치환. (GitHub #168, #226)
+- **`sdd doctor` docs 무결성 검사 (phase-27)** — ADR id 중복·frontmatter 누락(FAIL) + ADR 인덱스 drift·완료 phase 의 backlog 잔존(WARN) 4항목 추가. (GitHub #168, #227)
+- **`sdd status` 완료 phase 잔존 진단 (phase-27)** — 완료 phase 인데 `backlog/phase-N.md` 가 아직 아카이브되지 않았으면 `/hk-align` 마다 노출. (GitHub #168, #228)
+
+### Fixed
+- **stale ADR 오탐 — npm 스코프 패키지 / IAM role (phase-27)** — `_drift_stale_adr` 가 `@scope/pkg@ver`, `roles/x.y` 같은 비-경로 토큰을 파일 경로로 오인해 stale 로 잘못 보고하던 문제 수정. (GitHub #167)
+- **git push 게이팅 SSOT 위반 (phase-26, spec-26-01)** — mode-toggle 이 git push 를 `permissions.ask` 로 올려 constitution §5.7("Plan Accept 후 push 완전 자동")과 충돌하던 `_settings_mode_patch` 토글 제거. force-push 차단은 기존 deny/hook 이 계속 담당. (#225)
+
+### Changed
+- **비가역 가드 fail-safe 강화 (phase-26 W1/W2)** — narrow 경계 밖 변형(`git -C <path> reset --hard` 등)을 회귀 테스트로 명시 고정, 모드 불명 시 block(fail-safe) 로 통일. (#225)
+- **README/project-guide 문서 동기화** — `sdd adr-index` 반영, install 경로 설명의 stale 경로(`scripts/harness/*`) 를 실제 경로(`.harness-kit/bin`, `.claude/scripts/harness/hooks`)로 수정.
+
+---
+
 ## [0.20.1] — 2026-06-23
 
 > 0.20.0 후속 — install/update doctor 오탐 수정 + auto UX(`/hk-auto`) + "검증 단계" 용어 정리.
