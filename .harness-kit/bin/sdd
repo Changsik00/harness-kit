@@ -97,6 +97,8 @@ sdd — harness-kit 메타 명령
   hooks block|warn|off <name>  특정 hook 모드 전환 안내
 
   doctor                        환경 진단 — 필수 도구/설치 파일/훅 권한 체크리스트 출력
+  adr-index [--check]           docs/decisions/README.md ADR 인덱스 (재)생성
+                                --check: drift 시 exit 1 (CI/doctor 게이트용, 변경 없음)
   pr-watch <pr-number>          PR merge 감지 — merge 확인 시 post-merge 안내 자동 출력
   run-test <cmd...>             테스트 실행 + 통과 시 자동으로 sdd test passed 기록
   search <keyword> [--scope=<s>] [--ignore-case]
@@ -453,6 +455,8 @@ _drift_stale_adr() {
       echo "$token" | grep -qE '^(https?:|git@)' && continue
       # 2-1) glob 패턴(설명용 예시)은 리터럴 파일이 아님 → 제외
       echo "$token" | grep -q '[*?]' && continue
+      # 2-2) npm 스코프 패키지(@scope/pkg@ver) / IAM role(roles/x.y) 는 파일 경로가 아님 → 제외 (GitHub #167)
+      echo "$token" | grep -qE '^@|@[0-9]|^roles/' && continue
       # 3) 확장자 또는 끝 슬래시 보유
       echo "$token" | grep -qE '\.[a-zA-Z0-9]+$|/$' || continue
       # 4) 존재하면 skip
@@ -606,6 +610,16 @@ _status_diagnose() {
   spec_dir_count=$(find "$SDD_SPECS" -maxdepth 1 -type d -name "spec-*" 2>/dev/null | wc -l | tr -d ' ')
   if [ "$spec_dir_count" -ge 20 ]; then
     warnings="${warnings}  💡 specs/ 에 ${spec_dir_count}개 디렉토리 — sdd archive 로 정리 가능\n"
+  fi
+
+  # 3.5 완료 phase 의 backlog 잔존 (GitHub #168 제안 3, spec-27-03 — spec-27-02 헬퍼 재사용)
+  local backlog_residue
+  backlog_residue=$(_backlog_completed_residue)
+  if [ -n "$backlog_residue" ]; then
+    local residue_count residue_list
+    residue_count=$(echo "$backlog_residue" | wc -l | tr -d ' ')
+    residue_list=$(echo "$backlog_residue" | tr '\n' ',' | sed 's/,$//' | sed 's/,/, /g')
+    warnings="${warnings}  💡 완료 phase ${residue_count}개가 backlog/*.md 로 잔존 (${residue_list}) — sdd archive 로 정리 가능\n"
   fi
 
   # archive 항목 수 표시
@@ -2302,6 +2316,133 @@ cmd_archive() {
   printf "  → wiki 갱신: /hk-wiki-ingest\n"
 }
 
+# ADR frontmatter 필드 하나를 추출 (예: id, type, date, status)
+_adr_field() {
+  local file="$1" field="$2"
+  grep -m1 "^${field}:" "$file" 2>/dev/null | sed -E "s/^${field}:[[:space:]]*//"
+}
+
+# ADR 제목 추출 ("# ADR-NNN: <title>" 첫 매치)
+_adr_title() {
+  local file="$1"
+  grep -m1 -E '^# ADR-[0-9]+:' "$file" 2>/dev/null | sed -E 's/^# ADR-[0-9]+:[[:space:]]*//'
+}
+
+# docs/decisions/ADR-*.md 전수를 스캔해 인덱스 표 행을 ADR 번호순으로 stdout 에 출력
+_adr_index_rows() {
+  local adr_dir="$SDD_ROOT/docs/decisions"
+  local adr id type status date title
+  for adr in "$adr_dir"/ADR-*.md; do
+    [ -f "$adr" ] || continue
+    id=$(_adr_field "$adr" "id")
+    [ -z "$id" ] && id="$(basename "$adr" .md)"
+    type=$(_adr_field "$adr" "type")
+    status=$(_adr_field "$adr" "status")
+    date=$(_adr_field "$adr" "date")
+    title=$(_adr_title "$adr")
+    printf '| %s | %s | %s | %s | %s |\n' "$id" "$title" "$type" "$status" "$date"
+  done | sort
+}
+
+# 마커 구간(adr-index:start~end)을 rows_file 내용으로 치환.
+# macOS awk(BWK awk) 는 -v 로 넘긴 값에 개행이 있으면 "newline in string" 으로 실패하므로
+# (GitHub #168 이 지적한 함정, 실측 확인) 멀티라인 콘텐츠는 -v 대신 bash 라인 루프로 삽입한다.
+_adr_index_splice() {
+  local file="$1" rows_file="$2"
+  local start='<!-- adr-index:start -->'
+  local end='<!-- adr-index:end -->'
+  local tmp line in_section=0
+  tmp="$(mktemp)"
+  while IFS= read -r line || [ -n "$line" ]; do
+    if [ "$line" = "$start" ]; then
+      printf '%s\n' "$line" >>"$tmp"
+      printf '| # | title | type | status | date |\n' >>"$tmp"
+      printf '|---|---|---|---|---|\n' >>"$tmp"
+      cat "$rows_file" >>"$tmp"
+      in_section=1
+      continue
+    fi
+    if [ "$line" = "$end" ]; then
+      printf '%s\n' "$line" >>"$tmp"
+      in_section=0
+      continue
+    fi
+    [ "$in_section" -eq 1 ] && continue
+    printf '%s\n' "$line" >>"$tmp"
+  done <"$file"
+  mv "$tmp" "$file"
+}
+
+cmd_adr_index() {
+  local check_mode=0 a
+  for a in "$@"; do
+    case "$a" in
+      --check) check_mode=1 ;;
+    esac
+  done
+
+  local adr_dir="$SDD_ROOT/docs/decisions"
+  local readme="$adr_dir/README.md"
+  local rows_file
+  rows_file="$(mktemp)"
+  _adr_index_rows >"$rows_file"
+
+  if [ "$check_mode" -eq 1 ]; then
+    if [ ! -f "$readme" ]; then
+      rm -f "$rows_file"
+      err "ADR 인덱스 없음: docs/decisions/README.md (sdd adr-index 로 생성)"
+      exit 1
+    fi
+    local expected actual
+    expected="$(cat "$rows_file")"
+    actual="$(awk '
+      $0 == "<!-- adr-index:start -->" { in_s=1; next }
+      $0 == "<!-- adr-index:end -->" { in_s=0; next }
+      in_s && $0 != "| # | title | type | status | date |" && $0 != "|---|---|---|---|---|" { print }
+    ' "$readme")"
+    rm -f "$rows_file"
+    if [ "$expected" != "$actual" ]; then
+      err "ADR 인덱스 drift: docs/decisions/README.md 가 frontmatter 와 어긋남 (sdd adr-index 로 재생성)"
+      exit 1
+    fi
+    ok "ADR 인덱스 정합"
+    return 0
+  fi
+
+  if [ ! -f "$readme" ]; then
+    mkdir -p "$adr_dir"
+    cat >"$readme" <<'HEADER'
+# ADR 인덱스
+
+> 본 표는 `sdd adr-index` 가 ADR frontmatter 로부터 자동 생성합니다. 마커 구간(`<!-- adr-index:start -->`~`<!-- adr-index:end -->`) 안은 수동 편집 금지.
+
+<!-- adr-index:start -->
+<!-- adr-index:end -->
+HEADER
+  fi
+
+  _adr_index_splice "$readme" "$rows_file"
+  rm -f "$rows_file"
+  ok "ADR 인덱스 갱신: docs/decisions/README.md"
+}
+
+# backlog/queue.md 의 완료(done) 구간에 등장하는 phase 중 backlog/phase-NN.md 가
+# 여전히 존재하는(미아카이브) id 를 한 줄씩 stdout 에 출력한다.
+# 공유 헬퍼 — cmd_doctor 와 (spec-27-03 예정) cmd_archive 가 함께 사용한다.
+_backlog_completed_residue() {
+  local queue="$SDD_BACKLOG/queue.md"
+  [ -f "$queue" ] || return 0
+  local ids id
+  ids=$(awk '
+    /<!-- sdd:done:start -->/ { in_d=1; next }
+    /<!-- sdd:done:end -->/ { in_d=0; next }
+    in_d { print }
+  ' "$queue" | grep -oE 'phase-[0-9]+' | sort -u)
+  for id in $ids; do
+    [ -f "$SDD_BACKLOG/${id}.md" ] && echo "$id"
+  done
+}
+
 cmd_doctor() {
   local fail=0 warn=0
 
@@ -2502,6 +2643,76 @@ cmd_doctor() {
   printf "\nwiki layer\n"
   _check_wiki_layer
   _check_gov_size
+
+  # ── docs 무결성 (GitHub #168 제안 2, spec-27-02) ───────────────
+  _check_adr_id_uniqueness() {
+    local adr_dir="$SDD_ROOT/docs/decisions"
+    [ -d "$adr_dir" ] || return 0
+    local dup_ids adr id
+    dup_ids=$(
+      for adr in "$adr_dir"/ADR-*.md; do
+        [ -f "$adr" ] || continue
+        _adr_field "$adr" "id"
+      done | sort | uniq -d
+    )
+    if [ -n "$dup_ids" ]; then
+      for id in $dup_ids; do
+        _doc_fail "ADR id 중복: ${id}" "docs/decisions/ 에서 ${id} 를 가진 ADR 을 하나로 정리하세요"
+      done
+    else
+      _doc_pass "ADR id 중복 없음"
+    fi
+  }
+
+  _check_adr_frontmatter() {
+    local adr_dir="$SDD_ROOT/docs/decisions"
+    [ -d "$adr_dir" ] || return 0
+    local bad=0 bad_list="" adr first_line
+    for adr in "$adr_dir"/ADR-*.md; do
+      [ -f "$adr" ] || continue
+      first_line=$(head -n1 "$adr")
+      if [ "$first_line" != "---" ]; then
+        bad=$((bad + 1))
+        bad_list="${bad_list}${bad_list:+, }$(basename "$adr")"
+      fi
+    done
+    if [ "$bad" -gt 0 ]; then
+      _doc_fail "ADR frontmatter 없음: ${bad}개" "$bad_list"
+    else
+      _doc_pass "ADR frontmatter 전부 존재"
+    fi
+  }
+
+  # cmd_adr_index --check 는 drift 시 exit 1 하므로 서브셸로 격리해 doctor 를
+  # 통째로 종료시키지 않는다 (spec-27-01 재사용).
+  _check_adr_index_drift() {
+    local adr_dir="$SDD_ROOT/docs/decisions"
+    [ -d "$adr_dir" ] || return 0
+    if ( cmd_adr_index --check >/dev/null 2>&1 ); then
+      _doc_pass "ADR 인덱스 정합"
+    else
+      _doc_warn "ADR 인덱스 drift — sdd adr-index 로 재생성 권장"
+    fi
+  }
+
+  _check_backlog_residue() {
+    local residue
+    residue=$(_backlog_completed_residue)
+    if [ -n "$residue" ]; then
+      local count list
+      count=$(echo "$residue" | wc -l | tr -d ' ')
+      list=$(echo "$residue" | tr '\n' ',' | sed 's/,$//' | sed 's/,/, /g')
+      _doc_warn "완료 phase ${count}개가 backlog/*.md 로 잔존 (${list}) — sdd archive 로 정리 권장"
+    else
+      _doc_pass "backlog/ 완료 phase 잔존 없음"
+    fi
+  }
+
+  printf "\ndocs 무결성\n"
+  _check_adr_id_uniqueness
+  _check_adr_frontmatter
+  _check_adr_index_drift
+  _check_backlog_residue
 
   printf "\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
   if [ "$fail" -eq 0 ] && [ "$warn" -eq 0 ]; then
@@ -2862,6 +3073,7 @@ main() {
     hooks)   cmd_hooks "$@" ;;
     specx)   cmd_specx "$@" ;;
     doctor)   cmd_doctor "$@" ;;
+    adr-index) cmd_adr_index "$@" ;;
     mode)    cmd_mode "$@" ;;
     intent)  cmd_intent "$@" ;;
     decision) cmd_decision "$@" ;;

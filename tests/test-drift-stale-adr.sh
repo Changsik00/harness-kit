@@ -17,12 +17,14 @@ SDD_BIN=".harness-kit/bin/sdd"
 FIXTURE="docs/decisions/ADR-999-stale-fixture.md"
 VALID_FIXTURE="docs/decisions/ADR-998-valid-paths-fixture.md"
 GLOB_FIXTURE="docs/decisions/ADR-997-glob-fixture.md"
+NPM_IAM_FIXTURE="docs/decisions/ADR-996-npm-iam-fixture.md"
 
 # Ensure clean state on exit (even on test failure)
 cleanup() { rm -f "$FIXTURE"; }
 cleanup_valid() { rm -f "$VALID_FIXTURE"; }
 cleanup_glob() { rm -f "$GLOB_FIXTURE"; }
-trap 'cleanup; cleanup_valid; cleanup_glob' EXIT
+cleanup_npm_iam() { rm -f "$NPM_IAM_FIXTURE"; }
+trap 'cleanup; cleanup_valid; cleanup_glob; cleanup_npm_iam' EXIT
 
 pass() { printf "  ✓ %s\n" "$1"; }
 fail() { printf "  ✗ %s\n" "$1"; echo "    output: $2"; exit 1; }
@@ -114,6 +116,32 @@ if echo "$output" | grep -q "stale ADR"; then
   fail "glob patterns should not be reported as stale" "$output"
 fi
 pass "glob fixture: ADR-997 (glob-only paths) → no stale line"
+
+# ─── Step 5: npm scoped packages / IAM roles must not be treated as paths ──
+# `@scope/pkg@ver` and `roles/x.y` contain a slash and an extension-like
+# suffix but are not file paths (GitHub #167).
+cat > "$NPM_IAM_FIXTURE" <<'EOF'
+---
+id: ADR-996
+type: decision
+date: 2026-07-02
+status: accepted
+---
+# ADR-996: Fixture for npm/IAM false-positive regression
+
+## Context
+Not file paths: `@google-cloud/speech@6.7.1`, `@scope/pkg`, `roles/speech.editor`.
+
+## Decision
+This ADR exists only for the npm/IAM-exclusion unit test — no stale line expected.
+EOF
+
+output=$(HARNESS_DRIFT_FETCH=0 bash "$SDD_BIN" status 2>&1 || true)
+cleanup_npm_iam
+if echo "$output" | grep -q "stale ADR"; then
+  fail "npm/IAM tokens should not be reported as stale" "$output"
+fi
+pass "npm/IAM fixture: ADR-996 (npm package / IAM role tokens) → no stale line"
 
 echo ""
 echo "All tests passed."
