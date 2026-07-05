@@ -52,7 +52,7 @@ harness-kit 이 정의한 문서 규약(ADR 번호/frontmatter, backlog 레이�
 |---|---|:---:|---|---|
 | `spec-27-01` | adr-index-gen | P? | Merged | `specs/spec-27-01-adr-index-gen/` |
 | `spec-27-02` | docs-integrity-check | P? | Merged | `specs/spec-27-02-docs-integrity-check/` |
-| `spec-27-03` | archive-residue-detect | P? | In Progress | `specs/spec-27-03-archive-residue-detect/` |
+| `spec-27-03` | archive-residue-detect | P? | Merged | `specs/spec-27-03-archive-residue-detect/` |
 <!-- sdd:specs:end -->
 
 > 상태 허용값: `Backlog` / `In Progress` / `Merged`
