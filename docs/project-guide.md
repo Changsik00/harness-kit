@@ -19,9 +19,11 @@
 - `sources/governance/` — constitution, agent.md, align.md (행동 규약)
 - `sources/templates/` — Spec/Plan/Task 등 산출물 양식
 - `sources/commands/` — 대상의 `.claude/commands/` 로 복사될 슬래시 커맨드
-- `sources/hooks/` — 대상의 `scripts/harness/hooks/` 로 복사될 후크 스크립트
-- `sources/bin/` — 대상의 `scripts/harness/bin/` 로 복사될 메타 명령
+- `sources/hooks/` — 대상의 `.claude/scripts/harness/hooks/` 로 복사될 후크 스크립트
+- `sources/bin/` — 대상의 `.harness-kit/bin/` 로 복사될 메타 명령
 - `sources/claude-fragments/` — 대상의 `.claude/settings.json` / `CLAUDE.md` 에 머지될 조각
 - `tests/fixtures/` — 키트 자체 검증용 임시 디렉토리
 - `docs/design/` — 설계 근거 (Harness Engineering Review 등)
-- `docs/decisions/` — ADR
+- `docs/decisions/` — ADR (`README.md` 는 `sdd adr-index` 가 frontmatter 로부터 자동 생성)
+- `docs/rca/` — RCA (반복 실패 패턴 기록, agent.md §10)
+- `docs/wiki/` — 아카이브된 spec walkthrough 를 증류한 synthesis 페이지 (`/hk-wiki-ingest`)

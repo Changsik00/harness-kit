@@ -460,7 +460,8 @@ sdd archive --keep=2
 | 명령 | 설명 |
 |---|---|
 | `sdd status [--brief\|--verbose\|--json]` | 현재 상태 출력 |
-| `sdd doctor` | 설치 환경 진단 — 필수 도구, 파일 구조, hook 실행 권한 PASS/FAIL 출력 |
+| `sdd doctor` | 설치 환경 진단 — 필수 도구, 파일 구조, hook 실행 권한 + docs 무결성(ADR 번호 중복·frontmatter·인덱스 drift·backlog 잔존) PASS/FAIL 출력 |
+| `sdd adr-index [--check]` | `docs/decisions/README.md` ADR 인덱스를 frontmatter 로부터 (재)생성. `--check`: drift 시 exit 1 (변경 없음, CI/doctor 게이트용) |
 | `sdd queue` | `backlog/queue.md` 대시보드 출력 |
 | `sdd phase new <slug> [--base]` | 새 Phase 생성 |
 | `sdd phase list` | 모든 Phase와 Spec 카운트 |
