@@ -11,6 +11,7 @@
    - `version.json` — `{"version": "X.Y.Z"}` 로 갱신
    - `CHANGELOG.md` — 최상단에 `## [X.Y.Z] — YYYY-MM-DD` 섹션 추가. `Added` / `Fixed` / `Changed` 소제목으로 정리, 각 항목 끝에 `(#PR번호)` 인용
    - `.harness-kit/installed.json` — `kitVersion`, `installedAt` 갱신 (도그푸딩 동기화)
+   - (모델 매핑·세대 변경이 포함된 릴리스라면) [`assumption-registry.md`](assumption-registry.md) 재검토 여부 확인
 3. push: `git push -u origin release-X.Y.Z`
 4. PR 생성:
    - 제목: `chore: release X.Y.Z`
