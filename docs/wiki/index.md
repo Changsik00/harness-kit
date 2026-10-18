@@ -5,7 +5,7 @@ linked:
   - "[[wiki/purpose]]"
   - "[[wiki/decisions]]"
   - "[[wiki/patterns]]"
-updated: 2026-05-27
+updated: 2026-10-19
 ---
 
 # Wiki Index
@@ -28,6 +28,13 @@ updated: 2026-05-27
 |---|---|---|---|---|
 | [[ADR-001]] | Knowledge Type Vocabulary (5어휘 closure) | decision | 2026-05-16 | accepted |
 | [[ADR-002]] | Planning Economy & Inter-Spec Re-Validation | invariant | 2026-05-17 | accepted |
+| [[ADR-003]] | Wiki Frontmatter — `kind:` vs `type:` 네임스페이스 분리 | convention | 2026-05-27 | accepted |
+| [[ADR-004]] | phase-FF 를 phase 내 1급 작업 모드로 | decision | 2026-06-01 | accepted |
+| [[ADR-005]] | 메인 에이전트 = context orchestrator | decision | 2026-06-01 | accepted |
+| [[ADR-006]] | 디렉터 모드 — context-orchestration 의 사용자 호출형 운영 프로토콜 | decision | 2026-06-03 | accepted |
+| [[ADR-007]] | extend — 외부 도구 opt-in 통합 규약 | decision | 2026-06-14 | accepted |
+| [[ADR-008]] | 외부 확장(MCP) 조건부 우선 사용 | tradeoff | 2026-06-14 | accepted |
+| [[ADR-009]] | 거버넌스를 신뢰도·blast-radius 기준으로 재배분 + 자율(auto) 모드 | decision | 2026-06-19 | accepted |
 
 ## RCA 인벤토리
 

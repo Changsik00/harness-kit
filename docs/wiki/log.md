@@ -3,7 +3,7 @@ kind: catalog
 sources: []
 linked:
   - "[[wiki/index]]"
-updated: 2026-06-03
+updated: 2026-10-19
 ---
 
 # Wiki Ingest Log
@@ -18,6 +18,18 @@ updated: 2026-06-03
 - **갱신된 wiki 페이지**: decisions.md, patterns.md, ...
 - **추가된 내용 요약**: <1~3줄>
 ```
+
+---
+
+### 2026-10-19 — phase 20~27 아카이브 인제스트 (25 walkthrough)
+
+- **대상**: archive/specs/spec-20-01~04, spec-21-01~06, spec-22-01, spec-23-01, spec-24-01~05, spec-25-01~04, spec-26-01, spec-27-01~03
+- **갱신된 wiki 페이지**: decisions.md, patterns.md, index.md
+- **추가된 내용 요약**:
+  - decisions.md: 신규 결정 12건 — ADR-005~009 요약 + spec-20-04·24-03·25-01·25-02·26-01·27-01
+  - patterns.md good 6건, anti 2건 — `worker-brief-includes-planning-artifacts`, `exact-match-over-substring-for-markers`, `dogfood-copy-sync-guard`, `gate-consistency-across-modes`, `premise-from-prose-not-verified` 등
+  - index.md: ADR-003~009 인벤토리 보강
+  - spec-x 약 30개는 2026-05-28 일괄 인제스트와 이름이 다르게 인용됐을 가능성이 있어 이번 범위에서 제외 (중복 검증 후 별도 처리)
 
 ---
 

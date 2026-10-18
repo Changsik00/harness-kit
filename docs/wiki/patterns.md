@@ -23,7 +23,7 @@ linked:
   - "[[wiki/decisions]]"
   - "[[ADR-002]]"
   - "[[RCA-001]]"
-updated: 2026-06-03
+updated: 2026-10-19
 ---
 
 # 반복 패턴 증류
@@ -164,6 +164,44 @@ front↔back 도메인 에이전트 설계 협상에 디렉터가 개입하여 �
 
 ---
 
+### worker-brief-includes-planning-artifacts
+위임 브리핑과 ship 체크에 spec/plan/task 같은 기획 산출물의 커밋 범위를 명시한다.
+
+- **왜**: spec-20-01 에서 worker 가, spec-20-04 에서 디렉터 본인이 기획 산출물을 미커밋으로 남겼다. 작성 주체와 무관하게 발생한다.
+- **출처**: spec-20-01 / spec-20-03 / spec-20-04 walkthrough §발견 사항
+
+### exact-match-over-substring-for-markers
+마커·섹션 경계를 탐지할 때 regex substring 대신 정확한 라인 일치(`$0 == "..."`)를 기본으로 한다.
+
+- **왜**: 안내 문구가 마커 문법을 인용하면 substring 매치가 그 줄을 마커로 오인한다(spec-27-01). 비슷하게 테스트 패턴도 특이성이 중요하다 — `"Mode D"` 가 `"Work Mode Decision Tree"` 에 걸렸다(spec-21-04).
+- **출처**: spec-27-01 / spec-21-04 walkthrough §발견 사항
+
+### test-fixture-out-of-scope-different-dir
+scope 가드를 테스트할 때 out-of-scope fixture 는 in-scope 와 다른 디렉토리에 둔다.
+
+- **왜**: `check-scope.sh` 는 디렉토리 단위로 매칭해 같은 디렉토리의 파일이 통과한다. 같은 디렉토리에 두면 spurious pass 가 되어 Red 를 못 잡는다.
+- **출처**: spec-21-02 / spec-24-02 walkthrough §발견 사항
+
+### independent-audit-catches-unverified-premise
+메인 세션이 코드 검증 없이 단정한 전제는 독립 감사(phase-review)로 재검증한다.
+
+- **왜**: spec-26-01 에서 "빈 mode 는 rare" 라는 전제가 거짓이었다(install 이 mode 를 시드하지 않아 모든 fresh install 이 빈 mode) — 독립 감사가 attended 과차단 회귀를 적발했다. 전제를 참으로 만드는 수정(시드)과 round-trip 테스트로 해소.
+- **출처**: spec-26-01 walkthrough §발견 사항 (phase-review C1)
+
+### mechanical-e2e-states-its-measurement-limit
+bash e2e 가 증명하는 범위(기계적 보장)와 증명하지 못하는 범위(에이전트의 행동)를 문서에 명시한다.
+
+- **왜**: "e2e 가 다 증명한다"는 가짜 안심을 막는다. 행동 측정은 별도 평가(#181)나 운영 데이터가 필요하다.
+- **출처**: spec-25-03 walkthrough §결정 기록
+
+### dogfood-copy-sync-guard
+`sources/` 원본과 도그푸딩 설치본(`.harness-kit/`)의 불일치를 테스트가 강제하게 한다.
+
+- **왜**: 원본만 고치면 3개 테스트가 FAIL 로 잡았다(spec-26-01). 이 안전망이 회귀를 막는다. 원본 수정 후 사본 sync 를 습관화한다.
+- **출처**: spec-26-01 walkthrough §발견 사항
+
+---
+
 ## ❌ Anti-Patterns
 
 ### ceremony-over-work
@@ -262,3 +300,17 @@ CLAUDE.md 처럼 매 세션 자동 로드되는 컨텍스트에 "현재 단계/P
 - **왜 위험**: 매번 수동 갱신을 강제하고, 갱신을 빠뜨리면 자동 로드 컨텍스트가 거짓을 사실인 양 주입한다. 항상-온 채널일수록 오염 비용이 크다.
 - **출처**: spec-x-claude-md-slim walkthrough §결정 기록
 - **대안**: 상태는 `sdd status` 를 단일 진실원으로 두고 always-on 컨텍스트에서 제거. root 는 포인터, 상세는 별도 문서(예: release-strategy.md)로 분리.
+
+### gate-consistency-across-modes
+한 모드 전환을 게이트 일부(Edit 훅)에만 반영하고 다른 게이트(pre-commit)에는 반영하지 않는다.
+
+- **왜 위험**: spec-24-01 에서 turbo 가 Edit 은 통과시키는데 pre-commit 은 막아 "편집은 되고 커밋만 막히는" 불일치가 생겼고, turbo 수정 자체를 커밋하지 못하는 순환 부트스트랩이 발생했다.
+- **출처**: spec-24-01 walkthrough §발견 사항
+- **대안**: 모드를 모든 게이트가 일관되게 인식하게 하고, 면제는 plan-accept 게이트에 한정한다(lint·secret 은 유지).
+
+### premise-from-prose-not-verified
+"~는 hook 으로 못 막는다" 같은 능력 한계 주장을 문서나 spike 로 검증하지 않고 규약으로 박는다.
+
+- **왜 위험**: spec-24-04 의 전제가 틀려 논블로킹을 산문 한 줄에만 의존하게 됐다. 이후 spec-25-01 이 정정했다.
+- **출처**: spec-25-01 walkthrough §발견 사항
+- **대안**: 공식 문서와 라이브 spike 로 먼저 반증을 시도한다(settings.json hook 은 hot-reload 되어 spike 가 싸다).
