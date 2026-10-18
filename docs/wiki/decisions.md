@@ -15,13 +15,26 @@ sources:
   - archive/specs/spec-x-kit-update-notify/walkthrough.md
   - archive/specs/spec-x-doctor-hookspath-lefthook/walkthrough.md
   - archive/specs/spec-x-harness-footguns/walkthrough.md
+  - docs/decisions/ADR-005-context-orchestration.md
+  - docs/decisions/ADR-006-director-mode.md
+  - docs/decisions/ADR-007-extend-opt-in.md
+  - docs/decisions/ADR-008-extension-preferential-use.md
+  - docs/decisions/ADR-009-governance-by-reliability-and-blast-radius.md
+  - archive/specs/spec-20-04-model-config-and-review/walkthrough.md
+  - archive/specs/spec-22-01-extend-serena/walkthrough.md
+  - archive/specs/spec-24-03-stop-rules/walkthrough.md
+  - archive/specs/spec-25-01-askquestion-redirect-hook/walkthrough.md
+  - archive/specs/spec-25-02-test-trust/walkthrough.md
+  - archive/specs/spec-26-01-settings-push-ssot/walkthrough.md
+  - archive/specs/spec-27-01-adr-index-gen/walkthrough.md
+  - archive/specs/spec-27-02-docs-integrity-check/walkthrough.md
 linked:
   - "[[wiki/patterns]]"
   - "[[ADR-001]]"
   - "[[ADR-002]]"
   - "[[ADR-003]]"
   - "[[RCA-001]]"
-updated: 2026-06-03
+updated: 2026-10-19
 ---
 
 # 핵심 결정 증류
@@ -181,3 +194,113 @@ spec-x demote는 phase가 끝난 후 잔재일 때만.
 **왜**: 충돌 원인이 사용자의 hooksPath 설정이라 harness 가 직접 고칠 수 없다. 자동 수정/네이티브 통합은 사용자 환경을 침범한다. 소음 방지를 위해 두 조건이 동시 성립할 때만 경고한다 ([[spec-13-02]] graceful degradation 결).
 
 출처: spec-x-doctor-hookspath-lefthook walkthrough §결정 기록
+
+---
+
+## [[ADR-005]] — 메인 에이전트는 context orchestrator (2026-06-01)
+
+**결정**: 메인 세션을 orchestrator 로 명시하고 sub-agent 위임을 규약화한다. ① 토큰 무거운 노동만 위임 ② scoped slice 만 주입 ③ distilled result 만 반환 ④ 검증은 orchestrator 보유 ⑤ 독립 job 은 fan-out.
+
+**왜**: 가장 비싼 자원은 메인 context 창이다. raw 산출물이 유입되면 의도의 흐름을 잃고 잘못된 가정 위에 작업이 쌓인다(understanding debt).
+
+출처: ADR-005 · agent.md §6.6
+
+---
+
+## [[ADR-006]] — 디렉터 모드는 "지시 주입"으로 구현 (2026-06-03)
+
+**결정**: `/hk-director` 로 켜는 운영 프로토콜. 디렉터(opus)는 의도 합의 후 worker(sonnet)에 작성·실행을 위임하고 증류 계약만 받는다. 검증은 transcript 재흡수가 아니라 **테스트 재실행 + 행동 검증**. Plan Accept·Ship 게이트는 위임하지 않는다. 모드 강제는 런타임 커널이 아니라 지시 주입(hk-align 과 같은 규약 강도).
+
+**왜**: Claude Code 에 모드 커널이 없다. 실측(spec-20-01)에서 worker 가 각자 55k/100k 토큰을 격리 context 에서 소모하고 증류만 반납해 메인 오염을 막았다. 절감은 authoring 보다 **implementation 위임**에서 크다.
+
+출처: ADR-006 · spec-20-01/02/03 walkthrough §결정 기록
+
+---
+
+## [[spec-20-04-model-config-and-review]] — 모델 이름은 config, 거버넌스는 역할만 (2026-06)
+
+**결정**: 모델 매핑은 `harness.config.json` 의 `models`(후에 `.harness-kit/harness.config.json` 으로 SSOT 통일), 거버넌스 본문은 director/worker/scout 역할만 기술한다. review 패널은 전면 교체가 아니라 옵션이며 소규모는 단일 fallback.
+
+**왜**: 모델 이름은 churn 이 잦다. 단일 Opus 깊이 손실·over-kill 도 피한다. 같은 파일(agent.md) 반복 편집 6건은 full spec 6개가 아니라 **번들 1개**가 맞다는 사용자 지적을 반영했다.
+
+출처: spec-20-04 walkthrough §결정 기록
+
+---
+
+## [[ADR-007]] — extend 는 opt-in, 등록은 위임, 검증 후 추출 (2026-06-14)
+
+**결정**: ① 확장은 default-off ② MCP 등록은 설정 파일 직접 편집이 아니라 `claude mcp add --scope` 에 위임(local 기본·user 옵션, 커밋되는 project 스코프 제외) ③ 검증된 확장 **3개 누적 후에만** 레지스트리로 추출. 첫 확장은 Serena(uvx 실행).
+
+**왜**: project 스코프는 팀 전원에게 상시 컨텍스트 비용을 강요한다. Claude Code 네이티브 스코프가 합의 모델과 일치해 위임이 소유권 충돌을 피한다. 선프레임워크는 첫 사용자 검증 전의 추상화다.
+
+출처: ADR-007 · spec-22-01 walkthrough §결정 기록
+
+---
+
+## [[ADR-008]] — 외부 확장은 조건부 우선 사용 (2026-06-14)
+
+**결정**: 확장이 설치돼 있고 작업이 그 도구의 강점 영역일 때만 raw grep 보다 우선한다. bash·단순 grep 에는 원칙 #2(MCP 최후)가 유지된다. 권장 노출은 `sdd status` drift 1곳으로 단일화한다.
+
+**왜**: 설치만 하고 안 쓰면 상시 비용만 낸다. 강제는 원칙 #2 와 충돌한다.
+
+출처: ADR-008 · spec-23-01 walkthrough §결정 기록
+
+---
+
+## [[ADR-009]] — 거버넌스를 신뢰도·blast-radius 로 재배분, auto 모드 (2026-06-19)
+
+**결정**: 모델이 안정화돼 "못 미덥다"는 가정의 사전 ceremony(Plan Accept·작은 변경 spec 강제·결정 시 차단형 질문)는 세금이 됐다. 안전을 **사후 검증 + 정지규칙 + 결정 로그 + blast-radius 가드**로 옮기고 unattended `auto` 모드를 둔다. attended(turbo) 와 unattended(auto)는 질적으로 다른 축이다.
+
+**왜**: ceremony 고정비가 작업 크기와 무관하다(ADR-002). 단 안전이 **사후 테스트 품질에 전적으로 의존**하게 되므로 테스트 신뢰 보강(#212)이 선결 조건이다(Addendum).
+
+출처: ADR-009 · spec-24-01~05 walkthrough
+
+---
+
+## [[spec-24-03-stop-rules]] — 정지규칙: 좁게, 경고로 시작, 실패 커밋은 보존 (2026-06-21)
+
+**결정**: ② 비가역 감지는 실행 *전* PreToolUse Bash 매처로, narrow 범위(`reset --hard`·`--force-with-lease` 제외)·경고 모드로 시작한다. ③ 반복 실패의 hard-stop 은 revert 하지 않고 **커밋을 보존**한다. 결정 로그는 별도 파일이 아니라 walkthrough 의 auto 섹션에 누적한다.
+
+**왜**: 감지가 넓으면 자율성이 깎이고 좁으면 사고가 난다 — FP 최소화가 우선이며 경계는 테스트로 고정한다. N회 실패는 사람 개입 신호라 실패 상태를 사람이 보게 둔다. `settings.json` deny 와 부분 중복은 의도적이다(deny 는 정적 all-or-nothing, hook 은 mode-aware).
+
+출처: spec-24-03 walkthrough §결정 기록
+
+---
+
+## [[spec-25-01-askquestion-redirect-hook]] — "hook 으로 못 막음" 전제를 정정 (2026-06-22)
+
+**결정**: `AskUserQuestion` 은 PreToolUse 매처 대상이므로 auto 에서 호출되는 순간 exit 2 로 차단하고 stderr 로 `decision add`+턴 종료 채널로 안내한다. 이 hook 만 기본 block 이다(CLAUDE.md #5 의 의도적 예외).
+
+**왜**: spec-24-04 는 "agent 행동이라 hook 으로 못 막는다"고 했으나 절반만 맞았다 — *호출 안 함*은 선제할 수 없지만 *호출되는 순간*은 가로챌 수 있다. 이 hook 은 차단이 곧 기능이라 warn 은 무의미하고, auto 한정이라 위험이 격리된다. 공식 문서와 라이브 spike 로 검증했다.
+
+출처: spec-25-01 walkthrough §결정 기록 · ADR-009 Addendum
+
+---
+
+## [[spec-25-02-test-trust]] — 테스트 신뢰는 비용 사다리, 칸 0 은 정적 프록시 (2026-06-22)
+
+**결정**: 칸 0(`check-test-trust.sh`)은 "구현 변경에 테스트 동반했나 / 단언 있나"의 정적 휴리스틱 경고, 칸 2(`/hk-refute`)는 코드가 아니라 spec 의도에 앵커한 적대적 반증 커맨드다. 칸 1(뮤테이션)은 컴퓨트 비용 때문에 Icebox.
+
+**왜**: 자동 revert 는 컴퓨트(칸 1 영역)다. 적대적 반증은 LLM 구동이라 hook 이 될 수 없다. 칸 0 은 실제 sabotage→red 를 실행하지 않으므로 조건부 PASS 로만 평가한다.
+
+출처: spec-25-02 walkthrough §결정 기록 · phase-25 phase-review 정정
+
+---
+
+## [[spec-26-01-settings-push-ssot]] — push 게이팅은 mode 토글에서 제거 (2026-06-30)
+
+**결정**: mode-toggle 의 governed 분기가 `git push` 를 `ask` 로 올리는 로직을 제거한다. fragment baseline(ask 에 push 없음, force 는 deny)이 SSOT 이다.
+
+**왜**: 토글이 constitution §5.7("Plan Accept 후 push 자동")을 위반하고 있었다. "SSOT sync 테스트"로 보였던 W3 가 실은 토글 로직 문제였고, drift 의 원천이 토글이었다. 도그푸딩 사본 sync 는 테스트가 강제한다.
+
+출처: spec-26-01 walkthrough §결정 기록
+
+---
+
+## [[spec-27-01-adr-index-gen]] — 마커 기반 인덱스 생성·검사 (2026-07-02)
+
+**결정**: `sdd adr-index [--check]` 로 ADR 인덱스를 마커 구간에 생성하고, doctor 는 이를 서브셸로 격리 호출한다(`exit 1` 이 doctor 전체를 죽이지 않도록). 마커 탐지는 regex substring 이 아니라 **정확한 라인 일치**다. 잔존 phase 탐지(`_backlog_completed_residue`)는 `sdd archive` 와 공유한다.
+
+**왜**: 안내 문구가 마커 문법을 인용하면 substring 매치가 그 줄을 마커로 오인한다. macOS(BWK awk)는 `awk -v` 멀티라인에서 실패한다. doctor 는 순수 진단이라 exit code 를 바꾸지 않는다.
+
+출처: spec-27-01/02 walkthrough §결정 기록
