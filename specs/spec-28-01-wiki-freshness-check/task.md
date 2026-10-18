@@ -42,10 +42,10 @@
 
 ## Task 4: 도그푸딩 사본 동기화
 
-- [ ] `cp sources/bin/sdd .harness-kit/bin/sdd`
-- [ ] sync 불일치를 보는 테스트 PASS 확인
-- [ ] 본 저장소에서 `sdd doctor` 실행 → wiki 최신 판정 확인
-- [ ] Commit: `chore(spec-28-01): sync dogfood copy of sdd`
+- [x] `cp sources/bin/sdd .harness-kit/bin/sdd`
+- [x] sync 불일치를 보는 테스트 PASS 확인
+- [x] 본 저장소에서 `sdd doctor` 실행 → wiki 최신 판정 확인
+- [x] Commit: `chore(spec-28-01): sync dogfood copy of sdd`
 
 ---
 
