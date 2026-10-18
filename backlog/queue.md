@@ -8,7 +8,7 @@
 ## 📦 진행 중 Phase
 
 <!-- sdd:active:start -->
-- **phase-28** — docs-freshness — 0/0 spec — (다음: 첫 spec 생성 대기)
+- **phase-28** — docs-freshness — 1 spec — 다음: spec-28-01-wiki-freshness-check
 <!-- sdd:active:end -->
 
 ## 📥 spec-x 대기
