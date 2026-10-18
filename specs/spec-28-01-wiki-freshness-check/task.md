@@ -25,10 +25,10 @@
 
 ## Task 2: 헬퍼 구현 + doctor 통합 (TDD Green)
 
-- [ ] `sources/bin/sdd` 에 `_wiki_freshness_report` 구현
-- [ ] `_check_wiki_layer` 에 W-4 로 연결
-- [ ] 케이스 1~5 Pass 확인, `tests/test-doctor-wiki.sh` 회귀 없음
-- [ ] Commit: `feat(spec-28-01): add wiki freshness check to doctor`
+- [x] `sources/bin/sdd` 에 `_wiki_freshness_report` 구현
+- [x] `_check_wiki_layer` 에 W-4 로 연결
+- [x] 케이스 1~5 Pass 확인, `tests/test-doctor-wiki.sh` 회귀 없음
+- [x] Commit: `feat(spec-28-01): add wiki freshness check to doctor`
 
 ---
 

@@ -2445,6 +2445,52 @@ _backlog_completed_residue() {
   done
 }
 
+# wiki 신선도 (spec-28-01) — 낡았을 때만 한 줄 출력, 최신이거나 전제(wiki/decisions/archive/git) 부재면 침묵.
+#   A: docs/decisions 의 ADR-NNN 이 wiki decisions.md / patterns.md 어디에도 없음 (index.md 는 인벤토리라 제외)
+#   B: log.md 마지막 인제스트 날짜 이후(당일 제외) archive/specs/*/walkthrough.md 가 git 에 추가/이동된 spec 수 >= 5
+_wiki_freshness_report() {
+  local wiki_dir="$SDD_ROOT/docs/wiki" dec_dir="$SDD_ROOT/docs/decisions"
+  [ -d "$wiki_dir" ] || return 0
+  local parts=""
+
+  # 신호 A
+  if [ -d "$dec_dir" ]; then
+    local f id missing="" n_missing=0 shown=0
+    for f in "$dec_dir"/ADR-*.md; do
+      [ -f "$f" ] || continue
+      id=$(basename "$f" | grep -oE '^ADR-[0-9]+' || true)
+      [ -n "$id" ] || continue
+      if ! grep -qE "${id}([^0-9]|$)" "$wiki_dir/decisions.md" "$wiki_dir/patterns.md" 2>/dev/null; then
+        n_missing=$((n_missing + 1))
+        if [ "$shown" -lt 5 ]; then
+          missing="${missing:+$missing, }$id"
+          shown=$((shown + 1))
+        fi
+      fi
+    done
+    if [ "$n_missing" -gt 0 ]; then
+      parts="미반영 ADR ${n_missing}개 (${missing})"
+    fi
+  fi
+
+  # 신호 B
+  local log="$wiki_dir/log.md" last="" n_arch=0
+  if [ -f "$log" ] && [ -d "$SDD_ROOT/archive/specs" ]; then
+    last=$(grep -oE '^### [0-9]{4}-[0-9]{2}-[0-9]{2}' "$log" 2>/dev/null | sed 's/^### //' | sort | tail -1 || true)
+    if [ -n "$last" ]; then
+      n_arch=$(git -C "$SDD_ROOT" log --after="${last} 23:59:59" --name-only --diff-filter=AR --format= -- archive/specs 2>/dev/null \
+        | grep -E '/walkthrough\.md$' | awk -F/ '{print $3}' | sort -u | wc -l | tr -d ' ' || true)
+      n_arch="${n_arch:-0}"
+      if [ "$n_arch" -ge 5 ]; then
+        parts="${parts:+$parts, }인제스트(${last}) 이후 archive spec ${n_arch}개"
+      fi
+    fi
+  fi
+
+  [ -n "$parts" ] && echo "wiki 낡음: ${parts} — /hk-wiki-ingest 로 갱신"
+  return 0
+}
+
 cmd_doctor() {
   local fail=0 warn=0
 
@@ -2621,6 +2667,15 @@ cmd_doctor() {
       _doc_warn "${stale}개 stale 문서 (90일+ 미참조) — docs/decisions/ docs/rca/"
     else
       _doc_pass "decisions/rca 문서 최근 참조 OK"
+    fi
+
+    # W-4: wiki 신선도 (spec-28-01)
+    local fresh
+    fresh=$(_wiki_freshness_report)
+    if [ -n "$fresh" ]; then
+      _doc_warn "$fresh"
+    else
+      _doc_pass "wiki 최신 (미반영 ADR 없음, 인제스트 이후 archive 5개 미만)"
     fi
   }
 
