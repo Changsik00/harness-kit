@@ -622,6 +622,13 @@ _status_diagnose() {
     warnings="${warnings}  💡 완료 phase ${residue_count}개가 backlog/*.md 로 잔존 (${residue_list}) — sdd archive 로 정리 가능\n"
   fi
 
+  # 3.6 wiki 신선도 (spec-28-01 — doctor 와 헬퍼 공유)
+  local wiki_fresh
+  wiki_fresh=$(_wiki_freshness_report)
+  if [ -n "$wiki_fresh" ]; then
+    warnings="${warnings}  💡 ${wiki_fresh}\n"
+  fi
+
   # archive 항목 수 표시
   local archive_spec_count=0
   if [ -d "$SDD_ROOT/archive/specs" ]; then

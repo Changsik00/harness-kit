@@ -34,9 +34,9 @@
 
 ## Task 3: status 진단 통합
 
-- [ ] `_status_diagnose` 에 한 줄 연결
-- [ ] 케이스 6 Pass 확인, `tests/test-status-backlog-residue.sh` 회귀 없음
-- [ ] Commit: `feat(spec-28-01): surface wiki freshness in sdd status`
+- [x] `_status_diagnose` 에 한 줄 연결
+- [x] 케이스 6 Pass 확인, `tests/test-status-backlog-residue.sh` 회귀 없음
+- [x] Commit: `feat(spec-28-01): surface wiki freshness in sdd status`
 
 ---
 
