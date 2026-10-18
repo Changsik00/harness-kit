@@ -250,6 +250,22 @@ for ROLE in director worker scout; do
   fi
 done
 
+# T12b: models 값은 .harness-kit/harness.config.json (SSOT) 에서 읽는다
+echo ""
+echo "T12b: config models 는 .harness-kit/harness.config.json 의 models 를 읽는다"
+F12B=$(make_fixture)
+FIXTURES_TO_CLEAN+=("$F12B")
+printf '{"gitignore":true,"models":{"director":"dir-x","worker":"wrk-y","scout":"sct-z"}}\n' \
+  > "$F12B/.harness-kit/harness.config.json"
+OUT12B=$(run_sdd "$F12B" config models 2>&1)
+for V in dir-x wrk-y sct-z; do
+  if echo "$OUT12B" | grep -q "$V"; then
+    ok "config models 가 .harness-kit config 값 반영: $V"
+  else
+    fail "config models 가 .harness-kit config 무시: $V — 실제: $OUT12B"
+  fi
+done
+
 # ─────────────────────────────────────────────────────────
 # T13: review 커맨드에 "페르소나 패널" 문구 포함
 # ─────────────────────────────────────────────────────────

@@ -4,7 +4,7 @@
 
 ## 재검토 트리거
 
-- `harness.config.json` 의 모델 매핑(director / worker / scout) 변경
+- `.harness-kit/harness.config.json` 의 모델 매핑(director / worker / scout) 변경
 - 새 모델 세대 출시 후 릴리스 시점 ([`release-strategy.md`](release-strategy.md) 절차에 체크 1줄)
 
 ## 재검토 방법
