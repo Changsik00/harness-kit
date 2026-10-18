@@ -8,18 +8,18 @@
 ## Task 1: 브랜치 + 실패 테스트 (TDD Red)
 
 ### 1-1. 브랜치 생성
-- [ ] `git checkout -b spec-28-01-wiki-freshness-check`
+- [x] `git checkout -b spec-28-01-wiki-freshness-check`
 
 ### 1-2. 테스트 작성
-- [ ] `tests/test-wiki-freshness.sh` 작성 (임시 git 저장소 fixture)
+- [x] `tests/test-wiki-freshness.sh` 작성 (임시 git 저장소 fixture)
   - 케이스 1: 미반영 ADR 이 있으면 doctor 가 경고하고 ADR id 를 보여준다
   - 케이스 2: 모든 ADR 이 반영됐고 인제스트 이후 archive 가 5개 미만이면 침묵한다
   - 케이스 3: 인제스트 이후 archive 된 walkthrough 가 5개 이상이면 경고한다
   - 케이스 4: 인제스트 당일에 archive 된 spec 은 세지 않는다
   - 케이스 5: wiki / archive / decisions 가 없으면 침묵하고 doctor 가 비정상 종료하지 않는다
   - 케이스 6: `sdd status` 진단에 낡음 한 줄이 나온다
-- [ ] 테스트 실행 → Fail 확인
-- [ ] Commit: `test(spec-28-01): add failing test for wiki freshness check`
+- [x] 테스트 실행 → Fail 확인
+- [x] Commit: `test(spec-28-01): add failing test for wiki freshness check`
 
 ---
 
