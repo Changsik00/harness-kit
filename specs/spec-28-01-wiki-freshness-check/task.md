@@ -53,12 +53,12 @@
 
 ### 🚦 Pre-Push Quality Gate
 
-- [ ] **전체 테스트 실행** (`bash tests/run.sh`) → 신규 회귀 0 (기존 pre-existing FAIL 은 구분해 기록)
+- [x] **전체 테스트 실행** (`bash tests/run.sh`) → PASS 82 / FAIL 0
 
 ### 📝 산출물 작성
 
-- [ ] **walkthrough.md 작성**
-- [ ] **pr_description.md 작성**
+- [x] **walkthrough.md 작성**
+- [x] **pr_description.md 작성**
 - [ ] Commit: `docs(spec-28-01): ship walkthrough and pr description`
 
 ### 🚀 Push & PR
