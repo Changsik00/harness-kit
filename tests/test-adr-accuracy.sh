@@ -4,6 +4,8 @@
 # phase-29 doctor-accuracy: ADR 검사기 정확도 회귀 테스트 (throwaway fixture).
 #   1. frontmatter 없는 ADR 본문의 `id:`/`type:` 줄은 인덱스에 쓰이지 않는다 (_adr_field 경계)
 #   2. frontmatter 값의 인라인 주석(`type: decision   # ...`)은 값에서 제외된다
+#   3. doctor: type 이 폐쇄 어휘 밖이면 경고
+#   4. doctor: 어휘 안(주석 포함 템플릿 형태 포함)이면 침묵
 #
 # bash 3.2+ compatible.
 
@@ -48,5 +50,22 @@ row=$(grep "ADR-001" "$F2/docs/decisions/README.md" | head -1)
 echo "$row" | grep -q "#" && fail "inline comment must be stripped from index row" "$row"
 echo "$row" | grep -q "| decision | proposed |" || fail "row should carry clean type/status" "$row"
 pass "case 2: inline comments stripped from field values"
+
+# ─── Case 3: out-of-closure type warns ────────────────────────────
+F3="$(new_fixture c3)"
+printf -- '---\nid: ADR-001\ntype: weird\ndate: 2026-01-01\nstatus: accepted\n---\n# ADR-001: t\n' > "$F3/docs/decisions/ADR-001-t.md"
+out=$(run_sdd "$F3" doctor)
+echo "$out" | grep -q "type 어휘 밖" || fail "out-of-closure type should warn" "$out"
+echo "$out" | grep -q "ADR-001" || fail "warning should name the ADR" "$out"
+pass "case 3: out-of-closure type warns"
+
+# ─── Case 4: valid type (incl. template comment form) is silent ───
+F4="$(new_fixture c4)"
+printf -- '---\nid: ADR-001\ntype: decision    # decision | invariant | convention | tradeoff\ndate: 2026-01-01\nstatus: proposed  # proposed | accepted\n---\n# ADR-001: t\n' > "$F4/docs/decisions/ADR-001-t.md"
+printf -- '---\nid: ADR-002\ntype: tradeoff\ndate: 2026-01-01\nstatus: accepted\n---\n# ADR-002: u\n' > "$F4/docs/decisions/ADR-002-u.md"
+out=$(run_sdd "$F4" doctor)
+echo "$out" | grep -q "type 어휘 밖" && fail "valid types must be silent" "$out"
+echo "$out" | grep -q "ADR type 어휘 정상" || fail "should report closure OK" "$out"
+pass "case 4: valid type silent"
 
 echo "PASS"
