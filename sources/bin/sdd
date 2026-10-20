@@ -545,11 +545,12 @@ _status_diagnose() {
 
       # 각 non-Merged spec에 대해 git 머지 커밋 확인
       local git_log_cache
-      git_log_cache="$(git -C "$SDD_ROOT" log --oneline "$base_branch" 2>/dev/null || true)"
+      # PR 머지 표식((#N) squash / Merge 커밋)이 있는 줄만 — spec/task 작성 커밋의 spec ID 언급은 머지가 아님
+      git_log_cache="$(git -C "$SDD_ROOT" log --oneline "$base_branch" 2>/dev/null | grep -E '\(#[0-9]+\)|^[0-9a-f]+ Merge' || true)"
       while IFS='|' read -r sid sstatus; do
         [ -z "$sid" ] && continue
         if echo "$git_log_cache" | grep -q "$sid"; then
-          warnings="${warnings}  ⚠ ${sid}: phase.md(${sstatus}) ↔ git(머지됨) → sdd ship 실행 권장\n"
+          warnings="${warnings}  ⚠ ${sid}: phase.md(${sstatus}) ↔ git(머지됨) → phase.md 상태를 Merged 로 정정 (active spec 이면 sdd ship)\n"
         fi
       done <<< "$non_merged"
     fi
@@ -1954,7 +1955,8 @@ _check_phase_all_merged() {
     fi
 
     local git_log_cache
-    git_log_cache="$(git -C "$SDD_ROOT" log --oneline "$base_branch" 2>/dev/null || true)"
+    # PR 머지 표식((#N) squash / Merge 커밋)이 있는 줄만 — spec/task 작성 커밋의 spec ID 언급은 머지가 아님
+    git_log_cache="$(git -C "$SDD_ROOT" log --oneline "$base_branch" 2>/dev/null | grep -E '\(#[0-9]+\)|^[0-9a-f]+ Merge' || true)"
 
     local all_in_git=1
     local non_merged_ids
