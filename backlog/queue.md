@@ -20,7 +20,7 @@
 
 > 아이디어·보류 항목 보관소. 실행 불가. 관련 항목이 쌓이면 Phase로, 단발이면 spec-x로 승격.
 
-- **`sdd doctor` wikilink 검사기가 `[[ADR-NNN]]` 을 못 찾음** — 검사가 `docs/decisions/ADR-NNN.md` 를 찾지만 실제 파일명은 `ADR-NNN-slug.md` 라 ADR 링크가 전부 고아로 집계됨(현재 65건 중 상당수). 접두 매칭(`ADR-NNN-*`) 으로 해소 필요. 문서 신선도 phase 후보(wiki freshness 검사 · 원본↔사본 drift 검사 · `docs/` 위치 규약 · spec-x 인제스트 중복 검증과 묶음). (2026-10-19)
+- ~~`sdd doctor` wikilink 검사기가 `[[ADR-NNN]]` 을 못 찾음~~ → ✓ **phase-28** phase-FF `wikilink-adr-prefix` 로 해소 (접두 매칭, 고아 65→30. 잔여는 archive 된 spec 참조·예시 플레이스홀더). 2026-10-20
 - **turbo 모드 deprecate 검토** — auto 도입 후 turbo 와 메커니즘이 겹침(둘 다 Plan Accept 생략 + post-commit-verify). 차이는 attended/unattended 단 하나라 `auto ≈ turbo + 무인 안전망`. turbo 의 고유 니치(사람 옆 + 질문받기 + 비가역 경고)가 *별도 모드*까지 가치 있는지 재검토. ADR-009 는 "attended vs unattended 는 질적으로 다른 축"이라 남겼으나 거버넌스 단순화 방향과 충돌. deprecate 시 ADR-009 갱신 + `sdd mode` 정리 필요. (2026-06-22 0.20.0 릴리스 중 사용자 제기)
 - **check-irreversible fail-open 일관성 (phase-25 W2)** — state/jq 부재 시 mode 빈 문자열 → `_sr_default=warn` → auto 인데 비가역 명령 통과(정지망 off). hook 별 fail-safe 방향 제각각. auto 면 state 불명 시 block 으로 통일 검토. (2026-06-22 phase-25 회고)
 - **settings permissions 미러 잔재 (phase-25 W3)** — `.claude/settings.json` allow/ask 의 `git push:*` 가 `settings.json.fragment` 엔 없음(SSOT 깨짐, mode-toggle round-trip 잔재). fragment 기준 정리 또는 sync 테스트로 고정. (phase-25 이전부터 존재)
@@ -33,21 +33,21 @@
 - **stale-ADR 오탐 제외 패턴 `^@` 과광범위 가능성 (phase-27 회고 W5)** — `_drift_stale_adr` 의 `^@` 조건이 npm 스코프 패키지(`@scope/pkg@ver`)보다 넓은 클래스(예: 모노레포 path alias `@app/foo/bar.ts`)까지 제외해, 그런 alias 를 쓰는 다운스트림 프로젝트에서 진짜 깨진 경로를 stale 미검출할 위험. 회귀 테스트 없음. (phase-FF stale-adr-fp-fix 회고, 2026-07-05)
 - **ADR 템플릿 footgun** — `adr.md` 템플릿이 `type:`/`status:` frontmatter 줄에 인라인 주석(`# decision | invariant | ...`)으로 허용값 안내 → 저자가 안 지우면 phase16 integration 의 type-closure 검사가 주석째 읽어 'out-of-closure' 적발(ADR-009 에서 실제 발생, spec-24-01 에서 수습). 허용값 힌트를 frontmatter 줄 밖으로 이동 검토
 - **`sdd phase done` (및 state_set 호출부 전반) state 파일 부재 시 exit 1** — `.claude/state/current.json` 없으면 queue 갱신만 되고 state 리셋에서 죽는 부분 실패. graceful 처리(파일 없으면 자동 생성 또는 skip) 필요. 2026-06-01 도그푸딩 중 발견
-- **릴리스 절차에 self `update.sh` re-sync 단계 검토** — version 만 올리고 자기 자신에 install 재실행을 안 하면 도그푸딩 `.harness-kit/`·`.claude/` 설치본이 `sources/` 원본보다 drift (0.15.x 에서 실제 발생, update.sh 로 수습). `docs/release-strategy.md` 에 self re-sync 또는 drift 검사 게이트 추가 검토
+- **릴리스 절차에 self `update.sh` re-sync 단계 검토** — version 만 올리고 자기 자신에 install 재실행을 안 하면 도그푸딩 `.harness-kit/`·`.claude/` 설치본이 `sources/` 원본보다 drift (0.15.x 에서 실제 발생, update.sh 로 수습). `docs/release-strategy.md` 에 self re-sync 또는 drift 검사 게이트 추가 검토 — **부분 해소**: spec-28-02 로 `sdd doctor`/`status` 가 원본↔사본 drift 를 감지(경고). 릴리스 절차 문서의 re-sync 단계 명시는 미처리
 - **GitHub #167/#168** — stale ADR 오탐(npm/IAM) + docs integrity 도구군(ADR index 생성·integrity check·archive 잔여 감지). 둘 다 `sdd doctor`/stale 검사 영역 — 묶어서 doctor 강화 phase 로 승격 권장
 - (phase-16 W9) ADR 승격 가이드 ROI metric — *측정 누적 (3 개월+) 선행 필요*. phase-17 종료 후 spec 의 ADR 승격 ratio 데이터 보고 결정
-- `tests/test-uninstall-cmd-list.sh` Scenario 1 pre-existing FAIL — `find sources/commands -name 'hk-*.md'` 가 `hk.md` (no dash) 를 제외하는 반면 install.sh 는 `*.md` 로 모두 포함. 글롭 패턴 통일 필요 (phase-17 의 `hk.md` 도입 시점부터 노출됨)
+- ~~`tests/test-uninstall-cmd-list.sh` Scenario 1 pre-existing FAIL~~ → ✓ 해소 확인 (2026-10-20 전체 테스트 PASS 84 / FAIL 0)
 - 거버넌스 문서 단어 수 한계 초과 — `sdd doctor` 7000w soft-warn 인데 현재 7786w (constitution+agent.md). 하드 한도 8000 은 미만이나 여유 적음. rule-prune(§13) 또는 상세의 ADR 이관 검토 (spec-23-01 에서 +106w 누적)
 - **root CLAUDE.md 슬림화** — 릴리스 전략 등 저빈도 내용을 `docs/release-strategy.md` 로 분리, root 는 포인터만. 항상-온 컨텍스트 토큰 절감 (Claude Code harness 기사 인사이트 #1) → phase-19 spec-19-03 에서 처리
 - **권한 프롬프트 줄이기 (settings)** — governed 모드에서 git/gh/jq 등 명령마다 권한 다이얼로그가 떠 불편. `/fewer-permission-prompts` 로 자주 쓰는 read-only/git 명령을 `.claude/settings.json` 허용목록에 추가. (2026-06-14 사용자 요청, 차후 진행)
-- **기존 테스트 5건 pre-existing FAIL** — `test-drift-stale-adr`(ADR-003 stale path), `test-pr-merge-detect`, `test-update-stateful`, `test-version-bump`, `test-wiki-structure`(missing spec-19-01 walkthrough 참조). main 에서도 동일 실패 — extend 무관. 묶어서 테스트 그린화 spec-x 로 정리 권장 (2026-06-14 phase-22 작업 중 확인)
+- ~~기존 테스트 5건 pre-existing FAIL~~ → ✓ 해소 확인 (2026-10-20 전체 테스트 PASS 84 / FAIL 0)
 - **분기별 governance prune protocol** — 거버넌스 ratchet 누적 방지. `/hk-governance-refresh` 또는 sdd 진단에 "rule age > 6mo" 경고. 모델 진화에 맞춰 stale rule 제거 메커니즘 부재 (기사 인사이트 #2) → phase-19 spec-19-03 에서 처리
 - **하위 디렉토리 CLAUDE.md** — `sources/CLAUDE.md` (키트 원본 시점) / `specs/CLAUDE.md` (작업 로그 시점) 분리로 두 시점 혼동 방지 (기사 인사이트 #3)
 - **LSP/MCP 활용 가이드** — agent.md §6.5 (Static Analysis First) 확장. 적용 대상 프로젝트가 LSP 지원 언어일 때 grep 대신 심볼 기반 정의/참조 추적 권장 (기사 인사이트 #4)
 - **queue.md 파생 파일 전환** — 다중 사용자/디바이스 환경에서 queue.md merge conflict 를 줄이기 위해 active/done 등을 파생 파일로 분리하는 리팩터링 아이디어 (2026-05-28 드래프트 미착수, 통합 테스트 필요)
 - **lefthook 네이티브 hook 통합** — install 시 `.git/hooks/pre-commit` append 대신 `lefthook.yml` 에 harness 검사를 등록하는 방식. lefthook install 이 디스패처를 재생성하면 append 블록이 덮이는 fragility 해소 (issue #161 제안 #2). bash YAML 편집 비용·사용자 파일 침습으로 보류 — lefthook 타깃 수요 누적 시 승격
 - ~~모델 오케스트레이션 3-tier + 디렉터 모드~~ → **phase-20** (director-mode) 승격 — 설계 문서 `backlog/phase-20.md` + [[ADR-006]] 초안. 2026-06-03
-- **`sdd ship` base-mode 갭 (우선순위 상향)** — base 브랜치 모드인데 `sdd ship` 이 spec 을 PR *전에* 즉시 `Merged` 표시 + state 리셋(non-base 동작). base 모드에선 spec PR 이 base 에 머지된 *후* Merged 가 맞음. spec-20-01 도그푸딩 중 발견(2026-06-03). `sdd ship` 에 base 모드 분기 필요(PR 까지만, Merged 는 base 머지 신호 후). systemic: phase done/specx done 등 다른 state 전이도 base 모드 정합성 점검 권장. **phase-27 한 phase 안에서만 3회(spec-27-01/02/03) 반복 발생, 매번 별도 수동 보정 커밋 필요** — "1-2회 toil"에서 "구조적 방치"로 넘어간 신호 (phase-27 회고, 2026-07-05). 기존 git-merge 교차확인 로직(`_status_diagnose`) 재사용 가능해 phase-FF 급 크기로 추정 — 다음 phase 최우선 후보
+- ~~`sdd ship` base-mode 갭~~ → **won't fix** (2026-10-19 결정, phase-28). `sdd ship` = PR 생성 시점에 Merged 표시로 확정. PR 반려는 드물고, 정확성을 위한 post-merge 보정 커밋이 오히려 toil. 연관 `_status_diagnose` 오탐은 phase-28 phase-FF `diagnose-msg-fix` 에서 교정 (PR 머지 표식 `(#N)` 만 머지로 간주)
 
 **[phase-17 으로 promote 된 항목 — 처리 진행 중]**:
 - ~~접근성 개선~~ → phase-17 **spec-17-02** (accessibility-install-and-entry)
