@@ -34,9 +34,9 @@
 
 ## Task 3: 도그푸딩 사본 동기화
 
-- [ ] `cp sources/bin/sdd .harness-kit/bin/sdd`
-- [ ] 본 저장소 `sdd doctor` → drift 0 확인, 변조 후 감지 확인(복구)
-- [ ] Commit: `chore(spec-28-02): sync dogfood copy of sdd`
+- [x] `cp sources/bin/sdd .harness-kit/bin/sdd`
+- [x] 본 저장소 `sdd doctor` → drift 0 확인, 변조 후 감지 확인(복구)
+- [x] Commit: `chore(spec-28-02): sync dogfood copy of sdd`
 
 ---
 
