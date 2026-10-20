@@ -5,7 +5,7 @@ linked:
   - "[[wiki/purpose]]"
   - "[[wiki/decisions]]"
   - "[[wiki/patterns]]"
-updated: 2026-10-19
+updated: 2026-10-20
 ---
 
 # Wiki Index

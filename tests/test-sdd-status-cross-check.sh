@@ -194,6 +194,28 @@ else
 fi
 
 # ─────────────────────────────────────────────────────────
+# Check 4: spec/task 작성 커밋(머지 아님)만 있으면 "머지됨" 오탐 없음 (phase-28 diagnose-msg-fix)
+# ─────────────────────────────────────────────────────────
+echo ""
+echo "Check 4: PR 머지 표식 없는 spec 커밋 → 머지됨 오탐 없음"
+
+F4="$(make_fixture)"
+trap "rm -rf '$F1' '$F2' '$F3' '$F4'" EXIT
+cp "$F2/.claude/state/current.json" "$F4/.claude/state/current.json"
+cp "$F2/backlog/phase-1.md" "$F4/backlog/phase-1.md"
+git -C "$F4" add -A
+git -C "$F4" commit -m "setup" -q
+git -C "$F4" commit --allow-empty -m "docs(spec-1-001): spec/task 작성" -q
+
+status_out4=$(cd "$F4" && bash .harness-kit/bin/sdd status 2>&1)
+
+if echo "$status_out4" | grep -q "spec-1-001.*git(머지됨)"; then
+  fail "spec 작성 커밋만으로 머지됨 오탐 — 출력: $status_out4"
+else
+  ok "PR 머지 표식 없는 커밋은 머지됨으로 보지 않음"
+fi
+
+# ─────────────────────────────────────────────────────────
 # 결과 요약
 # ─────────────────────────────────────────────────────────
 echo ""
