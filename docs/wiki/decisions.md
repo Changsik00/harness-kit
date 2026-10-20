@@ -15,6 +15,7 @@ sources:
   - archive/specs/spec-x-kit-update-notify/walkthrough.md
   - archive/specs/spec-x-doctor-hookspath-lefthook/walkthrough.md
   - archive/specs/spec-x-harness-footguns/walkthrough.md
+  - docs/decisions/ADR-004-phase-ff-first-class.md
   - docs/decisions/ADR-005-context-orchestration.md
   - docs/decisions/ADR-006-director-mode.md
   - docs/decisions/ADR-007-extend-opt-in.md
@@ -33,8 +34,9 @@ linked:
   - "[[ADR-001]]"
   - "[[ADR-002]]"
   - "[[ADR-003]]"
+  - "[[ADR-004]]"
   - "[[RCA-001]]"
-updated: 2026-10-19
+updated: 2026-10-20
 ---
 
 # 핵심 결정 증류
@@ -194,6 +196,18 @@ spec-x demote는 phase가 끝난 후 잔재일 때만.
 **왜**: 충돌 원인이 사용자의 hooksPath 설정이라 harness 가 직접 고칠 수 없다. 자동 수정/네이티브 통합은 사용자 환경을 침범한다. 소음 방지를 위해 두 조건이 동시 성립할 때만 경고한다 ([[spec-13-02]] graceful degradation 결).
 
 출처: spec-x-doctor-hookspath-lefthook walkthrough §결정 기록
+
+---
+
+## [[ADR-004]] — phase-FF 를 phase 내 1급 작업 모드로 (2026-06-01)
+
+**결정**: phase 내 작업은 항목별로 크기에 맞는 모드를 고른다. 실질적·불확실한 작업은 full Spec, 작고 명확하고 가역적인 1–2 commit 은 **phase-FF** — phase base 브랜치에 spec 산출물 없이 직접 커밋한다. phase-FF 는 재조정 fallback 이 아니라 착수 시점의 1급 선택지이며, 승인된 phase plan 이 항목 실행을 위임하므로 항목별 재승인은 없다. "phase 안이면 무조건 spec" 편향과 FF 회피용 bundle 을 금지한다.
+
+**왜**: ceremony 고정비(5개 md + Plan Accept + PR + 리뷰, 약 6–8천 토큰)가 작업 크기와 무관하게 붙어 3줄 변경에도 문서 반복이 토큰 대부분을 차지했다(spec-15-05 실측). phase base 브랜치는 main 이 아니라 직접 커밋이 main 보호 불변식을 깨지 않으므로 ceremony 의 안전 근거가 약하다.
+
+**대가**: per-spec 리뷰 입자도 상실(phase-ship PR 이 커짐). 완화 — 결정 로그를 phase.md "결정 기록" 에 누적. base 브랜치 모드 전제.
+
+출처: ADR-004 · constitution §3.1 · agent.md §11.4
 
 ---
 

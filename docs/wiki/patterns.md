@@ -23,7 +23,7 @@ linked:
   - "[[wiki/decisions]]"
   - "[[ADR-002]]"
   - "[[RCA-001]]"
-updated: 2026-10-19
+updated: 2026-10-20
 ---
 
 # 반복 패턴 증류
@@ -202,6 +202,19 @@ bash e2e 가 증명하는 범위(기계적 보장)와 증명하지 못하는 범
 
 ---
 
+### pin-list-to-source-directory
+검사기·설치기가 다루는 파일 목록을 하드코딩하지 않고 원본 디렉토리와 같음을 테스트로 고정한다.
+
+- **왜**: spec-x-doctor-template-sync 에서 doctor.sh 가 *유령*(없는 plan.md 체크)과 *누락*(있는 phase-ship.md 미체크)을 동시에 갖고 있었다. 1줄 수정이 아니라 `doctor 목록 == sources/templates/*.md` invariant 를 테스트에 박아야 재발이 막힌다.
+- **출처**: spec-x-doctor-template-sync walkthrough §발견 사항 · spec-15-05 (디렉토리 glob)
+- **적용**: 원본↔사본 drift 검사(spec-28-02)도 같은 계열.
+
+### fix-the-check-location-not-the-data
+테스트가 실패하면 코드/데이터를 고치기 전에 *검사 위치·전제*가 낡았는지 본다. 파일이 삭제가 아니라 *이동*된 경우 정답은 검사 경로를 옮기는 것이다.
+
+- **출처**: spec-x-fix-failing-tests walkthrough §발견 사항 (CLAUDE.md→release-strategy.md 이동, no-gh 시뮬레이션 PATH 오염, 메타-러너 `set -e` 침묵 종료)
+- **부수**: 전체 스위트를 재실행하는 메타-러너 검사는 첫 nested 실패에서 침묵 종료해 숨은 실패를 끌고 온다 — test 단일 책임으로 분리.
+
 ## ❌ Anti-Patterns
 
 ### ceremony-over-work
@@ -314,3 +327,17 @@ CLAUDE.md 처럼 매 세션 자동 로드되는 컨텍스트에 "현재 단계/P
 - **왜 위험**: spec-24-04 의 전제가 틀려 논블로킹을 산문 한 줄에만 의존하게 됐다. 이후 spec-25-01 이 정정했다.
 - **출처**: spec-25-01 walkthrough §발견 사항
 - **대안**: 공식 문서와 라이브 spike 로 먼저 반증을 시도한다(settings.json hook 은 hot-reload 되어 spike 가 싸다).
+
+### test-passes-for-the-wrong-reason
+존재 여부나 느슨한 grep 만으로 통과하는 테스트(위양성). 구현이 망가져도 초록이다.
+
+- **왜 위험**: spec-x-hook-bypass-fix Test 10 이 hook 파일 존재 + `grep -qi pre-commit` 만으로 통과했다. spec-x-drift-stale-adr-glob 에서는 오탐이 baseline 테스트의 무결성까지 침식했다.
+- **출처**: spec-x-hook-bypass-fix · spec-x-drift-stale-adr-glob walkthrough §발견 사항
+- **대안**: 구체적 패턴으로 단언하고, 구현을 망가뜨려 테스트가 빨개지는지 확인한다(spec-25-02 칸0 의 동기).
+
+### implicit-invariant-in-callers
+"phase 가 null 일 때만 spec 이 spec-x" 같은 불변식을 호출자마다 챙기게 둔다. 같은 정책을 두 훅(pre-commit, check-plan-accept)에 따로 구현하는 것도 동형이다.
+
+- **왜 위험**: 한쪽만 고치면 어긋난다(spec-x-hook-allow-ff-when-no-spec: 훅 정책 불일치로 `--no-verify` 가 나왔다).
+- **출처**: spec-x-sdd-state-guard · spec-x-hook-allow-ff-when-no-spec walkthrough §발견 사항
+- **대안**: 가드를 helper 한 곳(`state guard`, `_lib.sh`)으로 올려 invariant 를 가시화한다.

@@ -3,7 +3,7 @@ kind: catalog
 sources: []
 linked:
   - "[[wiki/index]]"
-updated: 2026-10-19
+updated: 2026-10-20
 ---
 
 # Wiki Ingest Log
@@ -20,6 +20,11 @@ updated: 2026-10-19
 ```
 
 ---
+
+### 2026-10-20 — ADR-004 보강 + spec-x 중복 검증 증분 인제스트
+- **대상**: ADR-004, spec-x walkthrough 27건 검토 (5월 일괄 인제스트가 인용한 7건 제외, 이름 미인용 33건 중 발견 사항이 있는 것)
+- **갱신된 wiki 페이지**: decisions.md, patterns.md
+- **추가된 내용 요약**: ADR-004 결정 요약 1건(freshness 검사가 적발한 누락). 패턴 2건(pin-list-to-source-directory, fix-the-check-location-not-the-data), 안티패턴 2건(test-passes-for-the-wrong-reason, implicit-invariant-in-callers). 나머지 spec-x 는 일회성 수정·문구 정리라 증류 가치 낮아 제외.
 
 ### 2026-10-19 — phase 20~27 아카이브 인제스트 (25 walkthrough)
 
