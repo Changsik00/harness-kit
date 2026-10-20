@@ -5,6 +5,26 @@ harness-kit의 주요 변경 사항을 버전별로 정리합니다.
 
 ---
 
+## [0.22.0] — 2026-10-21
+
+> **docs-freshness (phase-28)** — 문서 낡음·원본↔사본 drift 를 `sdd doctor`/`status` 가 감지 + 검사기 오탐 교정.
+
+### Added
+- **wiki 신선도 검사 (phase-28)** — wiki `decisions.md`/`patterns.md` 에 없는 ADR, 마지막 인제스트 이후 archive 된 walkthrough ≥5 를 `sdd doctor`(W-4)·`sdd status` 진단이 `/hk-wiki-ingest` 안내와 함께 경고. (#233)
+- **원본↔사본 drift 검사 (phase-28)** — 키트 저장소에서 `sources/` 원본과 설치 사본(`.harness-kit/`, `.claude/commands/`)을 `cmp` 비교, 불일치·사본 누락 파일을 경고. 다운스트림은 침묵. (#234)
+- **`docs/assumption-registry.md`** — 하네스 구성요소가 전제하는 "모델이 못 하는 것"과 완화 신호, 모델 매핑 변경 시 재검토 트리거. (#181, #231)
+- **`docs/README.md`** — docs/ 위치 규약과 기존 문서 분류. (#235)
+
+### Fixed
+- **`sdd config models` SSOT** — `.harness-kit/harness.config.json` 을 우선 읽도록 통일(루트 파일 폴백 유지). (#231)
+- **doctor wikilink 오탐** — `[[ADR-NNN]]`/`[[RCA-NNN]]` 을 slug 파일명(`ADR-NNN-slug.md`)으로 해소. (#235)
+- **status 진단 "머지됨" 오탐** — spec ID 단순 grep 대신 PR 머지 표식(`(#N)`/Merge)이 있는 커밋만 머지로 간주, 실행 불가한 "sdd ship 실행 권장" 문구 교체. (#235)
+
+### Changed
+- **wiki 갱신** — phase 20~27 및 ADR-004~009, spec-x 증분 인제스트. (#232, #235)
+
+---
+
 ## [0.21.0] — 2026-07-05
 
 > **docs-integrity (phase-27)** — ADR/backlog 문서 무결성 도구 3종(인덱스 생성·doctor 검사·status 가시성) + auto 안전망 잔여 마감(phase-26).
