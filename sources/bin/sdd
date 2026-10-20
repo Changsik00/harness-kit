@@ -2335,9 +2335,14 @@ cmd_archive() {
 }
 
 # ADR frontmatter 필드 하나를 추출 (예: id, type, date, status)
+# frontmatter 블록(첫 줄 `---` ~ 다음 `---`) 안에서만 읽고, 값 뒤 인라인 주석(`  # ...`)은 제외한다.
 _adr_field() {
   local file="$1" field="$2"
-  grep -m1 "^${field}:" "$file" 2>/dev/null | sed -E "s/^${field}:[[:space:]]*//"
+  awk -v f="$field" '
+    NR == 1 { if ($0 != "---") exit; next }
+    $0 == "---" { exit }
+    index($0, f ":") == 1 { sub(/^[^:]*:[ \t]*/, ""); sub(/[ \t]+#.*$/, ""); print; exit }
+  ' "$file" 2>/dev/null
 }
 
 # ADR 제목 추출 ("# ADR-NNN: <title>" 첫 매치)
