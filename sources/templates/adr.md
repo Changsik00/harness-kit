@@ -1,9 +1,10 @@
 ---
 id: ADR-{NNN}
-type: decision    # decision | invariant | convention | tradeoff
+type: decision
 date: YYYY-MM-DD
-status: proposed  # proposed | accepted | superseded | deprecated
+status: proposed
 ---
+<!-- type: decision | invariant | convention | tradeoff · status: proposed | accepted | superseded | deprecated -->
 
 # ADR-{NNN}: <한 줄 제목>
 
