@@ -2677,6 +2677,10 @@ cmd_doctor() {
            [ -f "$SDD_ROOT/docs/rca/${name}.md" ] || \
            [ -f "$wiki_dir/${name}.md" ]; then
           found=1
+        elif compgen -G "$SDD_ROOT/docs/decisions/${name}-*.md" >/dev/null 2>&1 || \
+             compgen -G "$SDD_ROOT/docs/rca/${name}-*.md" >/dev/null 2>&1; then
+          # [[ADR-NNN]] / [[RCA-NNN]] → slug 파일명 (ADR-NNN-slug.md) 접두 해소
+          found=1
         fi
         if [ "$found" -eq 0 ]; then
           orphan=$((orphan + 1))
