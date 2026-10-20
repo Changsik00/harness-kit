@@ -47,6 +47,7 @@ phase-27(docs-integrity)이 ADR 인덱스·무결성·archive 잔존을 도구�
 | ID | 슬러그 | 우선순위 | 상태 | 디렉토리 |
 |---|---|:---:|---|---|
 | `spec-28-01` | wiki-freshness-check | P? | Merged | `specs/spec-28-01-wiki-freshness-check/` |
+| `spec-28-02` | source-sync-drift | P? | Active | `specs/spec-28-02-source-sync-drift/` |
 <!-- sdd:specs:end -->
 
 > 상태 허용값: `Backlog` / `In Progress` / `Merged`

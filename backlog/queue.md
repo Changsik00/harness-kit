@@ -8,7 +8,7 @@
 ## 📦 진행 중 Phase
 
 <!-- sdd:active:start -->
-- **phase-28** — docs-freshness — 1 spec — 다음: (spec 없음)
+- **phase-28** — docs-freshness — 2 spec — 다음: spec-28-02-source-sync-drift
 <!-- sdd:active:end -->
 
 ## 📥 spec-x 대기
