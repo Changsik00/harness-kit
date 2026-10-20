@@ -6,6 +6,8 @@
 #   2. frontmatter 값의 인라인 주석(`type: decision   # ...`)은 값에서 제외된다
 #   3. doctor: type 이 폐쇄 어휘 밖이면 경고
 #   4. doctor: 어휘 안(주석 포함 템플릿 형태 포함)이면 침묵
+#   5. stale ADR: 모노레포 path alias(`@app/foo/bar.ts`) 는 존재하지 않으면 stale
+#   6. stale ADR: npm 스코프 패키지(`@scope/pkg`, `@x/y@1.0.0`)는 계속 제외
 #
 # bash 3.2+ compatible.
 
@@ -67,5 +69,25 @@ out=$(run_sdd "$F4" doctor)
 echo "$out" | grep -q "type 어휘 밖" && fail "valid types must be silent" "$out"
 echo "$out" | grep -q "ADR type 어휘 정상" || fail "should report closure OK" "$out"
 pass "case 4: valid type silent"
+
+adr_with_body() { # <dir> <body>
+  printf -- '---\nid: ADR-001\ntype: decision\ndate: 2026-01-01\nstatus: accepted\n---\n# ADR-001: t\n\n%s\n' "$2" > "$1/docs/decisions/ADR-001-t.md"
+  (cd "$1" && git add -A && git commit -q -m init)
+}
+run_status_drift() { (cd "$1" && HARNESS_DRIFT_FETCH=0 bash "$SDD" status 2>&1 || true); }
+
+# ─── Case 5: path alias is not excluded ───────────────────────────
+F5="$(new_fixture c5)"
+adr_with_body "$F5" 'alias 경로: `@app/foo/bar.ts`'
+out=$(run_status_drift "$F5")
+echo "$out" | grep -q "stale ADR" || fail "missing alias path should be reported stale" "$out"
+pass "case 5: path alias not excluded"
+
+# ─── Case 6: npm scoped packages stay excluded ────────────────────
+F6="$(new_fixture c6)"
+adr_with_body "$F6" '패키지: `@scope/pkg`, `@google-cloud/speech@6.7.1`, `roles/speech.editor`'
+out=$(run_status_drift "$F6")
+echo "$out" | grep -q "stale ADR" && fail "npm scoped packages must stay excluded" "$out"
+pass "case 6: npm scoped packages excluded"
 
 echo "PASS"
