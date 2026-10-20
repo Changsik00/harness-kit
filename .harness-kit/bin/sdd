@@ -629,6 +629,13 @@ _status_diagnose() {
     warnings="${warnings}  💡 ${wiki_fresh}\n"
   fi
 
+  # 3.7 원본↔사본 drift (spec-28-02 — doctor 와 헬퍼 공유)
+  local src_drift
+  src_drift=$(_source_sync_report || true)
+  if [ -n "$src_drift" ]; then
+    warnings="${warnings}  💡 ${src_drift}\n"
+  fi
+
   # archive 항목 수 표시
   local archive_spec_count=0
   if [ -d "$SDD_ROOT/archive/specs" ]; then
@@ -2452,6 +2459,37 @@ _backlog_completed_residue() {
   done
 }
 
+# 원본↔사본 drift (spec-28-02) — 키트 저장소(sources/bin/sdd + 사본 존재)에서만 동작.
+#   drift 가 있을 때만 한 줄 출력. 다운스트림(sources/ 없음)이면 침묵, 반환 1 (활성 아님).
+#   원본 파일 기준 순회: 사본과 다르거나 사본에 없으면 drift. 사본에만 있는 파일은 무시.
+_source_sync_report() {
+  [ -f "$SDD_ROOT/sources/bin/sdd" ] && [ -f "$SDD_ROOT/.harness-kit/bin/sdd" ] || return 1
+  local pair src dst f rel n=0 shown=0 list=""
+  for pair in \
+    "sources/bin:.harness-kit/bin" \
+    "sources/bin/lib:.harness-kit/bin/lib" \
+    "sources/hooks:.harness-kit/hooks" \
+    "sources/governance:.harness-kit/agent" \
+    "sources/templates:.harness-kit/agent/templates" \
+    "sources/commands:.claude/commands"; do
+    src="$SDD_ROOT/${pair%%:*}"; dst="$SDD_ROOT/${pair##*:}"
+    [ -d "$src" ] || continue
+    for f in "$src"/*; do
+      [ -f "$f" ] || continue
+      rel="${f#"$SDD_ROOT"/sources/}"
+      if ! cmp -s "$f" "$dst/$(basename "$f")" 2>/dev/null; then
+        n=$((n + 1))
+        if [ "$shown" -lt 5 ]; then
+          list="${list:+$list, }$rel"
+          shown=$((shown + 1))
+        fi
+      fi
+    done
+  done
+  [ "$n" -gt 0 ] && echo "원본↔사본 drift ${n}개: ${list} — update.sh 또는 cp 로 동기화"
+  return 0
+}
+
 # wiki 신선도 (spec-28-01) — 낡았을 때만 한 줄 출력, 최신이거나 전제(wiki/decisions/archive/git) 부재면 침묵.
 #   A: docs/decisions 의 ADR-NNN 이 wiki decisions.md / patterns.md 어디에도 없음 (index.md 는 인벤토리라 제외)
 #   B: log.md 마지막 인제스트 날짜 이후(당일 제외) archive/specs/*/walkthrough.md 가 git 에 추가/이동된 spec 수 >= 5
@@ -2704,8 +2742,20 @@ cmd_doctor() {
     fi
   }
 
+  _check_source_sync() {
+    local drift rc=0
+    drift=$(_source_sync_report) || rc=$?
+    [ "$rc" -eq 0 ] || return 0
+    if [ -n "$drift" ]; then
+      _doc_warn "$drift"
+    else
+      _doc_pass "원본↔사본 일치"
+    fi
+  }
+
   printf "\nwiki layer\n"
   _check_wiki_layer
+  _check_source_sync
   _check_gov_size
 
   # ── docs 무결성 (GitHub #168 제안 2, spec-27-02) ───────────────
