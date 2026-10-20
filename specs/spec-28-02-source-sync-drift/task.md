@@ -8,18 +8,18 @@
 ## Task 1: 브랜치 + 실패 테스트 (TDD Red)
 
 ### 1-1. 브랜치 생성
-- [ ] `git checkout -b spec-28-02-source-sync-drift`
+- [x] `git checkout -b spec-28-02-source-sync-drift`
 
 ### 1-2. 테스트 작성
-- [ ] `tests/test-source-sync-drift.sh` 작성 (임시 fixture)
+- [x] `tests/test-source-sync-drift.sh` 작성 (임시 fixture)
   - 케이스 1: 원본과 사본이 다른 파일이 있으면 doctor 가 경고하고 파일명을 보여준다
   - 케이스 2: 모두 일치하면 침묵(`원본↔사본 일치`)
   - 케이스 3: 사본에 없는 원본 파일도 drift 로 센다
   - 케이스 4: 사본에만 있는 파일은 무시한다
   - 케이스 5: `sources/` 가 없는 다운스트림 fixture 는 침묵하고 doctor 가 비정상 종료하지 않는다
   - 케이스 6: `sdd status` 진단에 한 줄이 나온다
-- [ ] 테스트 실행 → Fail 확인
-- [ ] Commit: `test(spec-28-02): add failing test for source-copy drift check`
+- [x] 테스트 실행 → Fail 확인
+- [x] Commit: `test(spec-28-02): add failing test for source-copy drift check`
 
 ---
 
