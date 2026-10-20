@@ -25,10 +25,10 @@
 
 ## Task 2: 헬퍼 구현 + doctor/status 통합 (TDD Green)
 
-- [ ] `_source_sync_report` 구현
-- [ ] `cmd_doctor` 연결 + `_status_diagnose` 연결
-- [ ] 케이스 1~6 Pass, `tests/test-wiki-freshness.sh` 회귀 없음
-- [ ] Commit: `feat(spec-28-02): add source-copy drift check to doctor and status`
+- [x] `_source_sync_report` 구현
+- [x] `cmd_doctor` 연결 + `_status_diagnose` 연결
+- [x] 케이스 1~6 Pass, `tests/test-wiki-freshness.sh` 회귀 없음
+- [x] Commit: `feat(spec-28-02): add source-copy drift check to doctor and status`
 
 ---
 
