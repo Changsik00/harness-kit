@@ -82,7 +82,7 @@ wiki 를 "무엇이 정리됐나" 가 아니라 **"지금 입장이 무엇이고
 | hook-claims-doc-fix (F1·F2) | README/헌법의 "테스트 미실행 커밋 물리적 차단" 을 실제(경고 + 사후 신뢰 검사)에 맞게 정정. hook 별 분류표(의도적 warn / 다른 층이 block / 승격 후보)를 CLAUDE.md #5 에 문서화. 일괄 block 승격은 하지 않음 | 문서 | 1–2 |
 | plan-accept-shared-fn (F3) | Plan Accept 판정(whitelist)을 `_lib.sh` 공유 함수로 통합. `pre-commit.sh` 와 `check-plan-accept.sh` 불일치 재발 방지 테스트 | 코드 | 2 |
 | sdd-hooks-all (F4) | `sdd hooks` 가 모드를 가진 hook 전부를 표시 | 코드 | 1–2 |
-| phase-03-06-disposition (F5) | phase-03~06 이 Planning 으로 archive 된 사유 조사 후 처분(흡수/폐기/이월) 기록. 이월 판단은 사용자 확인 | 문서 | 1 |
+| phase-03-06-disposition (F5) | phase-03~06 archive 파일의 상태를 실제(구현/철회/리서치 완료)로 정정하고 direction.md 에 셸 정책 번복·No-Go 결정을 기록 | 문서 | 1 |
 | wikilink-spec-ref (F6) | 고아 링크 검사기가 `[[spec-NN-NN]]` 을 `archive/specs/spec-NN-NN-*` 로 해소. `index.md` 의 `[[wiki/purpose]]` 정정. 회귀 테스트 | 코드+문서 | 2 |
 
 ## 🔎 발견 사항 triage (시범 결과, 코드 vs 문서)
@@ -93,7 +93,7 @@ wiki 를 "무엇이 정리됐나" 가 아니라 **"지금 입장이 무엇이고
 | F2 | warn→block 승격이 7개 hook 에서 미이행 | 승격 결정 기록 없음. `check-commit-msg` 는 heredoc 메시지에서 오탐 *없음*을 직접 확인(정정: 초안의 "오탐 가능" 추정은 틀렸음). 단 `grep` 줄 단위라 어느 줄이든 형식에 맞으면 통과(느슨함) | **문서화** (분류표), 일괄 승격 안 함. commit-msg 는 엄격화 후 승격 후보 | hook-claims-doc-fix |
 | F3 | Plan Accept 판정 이중 구현 | `pre-commit.sh`·`check-plan-accept.sh` 각자 whitelist. 정책 불일치 3회 반복 | **코드 수정** | plan-accept-shared-fn |
 | F4 | `sdd hooks` 11개 중 4개만 표시 | 출력 직접 확인 | **코드 수정** | sdd-hooks-all |
-| F5 | phase-03~06 Planning 채 archive | 흡수/폐기 기록 없음 | **문서 수정** (조사 후 사용자 확인) | phase-03-06-disposition |
+| F5 | phase-03~06 Planning 채 archive | **정정**: 초안의 "실행 기록 없음" 판단은 틀렸음 — spec 6개가 실행돼 walkthrough 존재. 실제 문제는 phase 파일 상태가 갱신되지 않은 것. 03-01 zsh 는 #59 에서 철회(bash 4.0+) → #77 에서 3.2+ 로 수렴, 05-01 은 멀티 에이전트 No-Go | **문서 수정** (상태 정정 완료 — 사용자 확인 불필요, 이월 판단 없음) | phase-03-06-disposition (완료) |
 | F6 | 고아 wikilink 30건 + `[[wiki/purpose]]` | 대부분 archive spec 참조, ADR 접두 문제와 같은 원인 | **검사기 수정 + 문서 수정** | wikilink-spec-ref |
 | F7 | 거버넌스 7,902w (soft 7,000w 초과) | 상한 상향이 되풀이됨 | **보류** (rule prune 은 큰 결정 — Icebox 유지, 페이지에 "미결" 기록) | threads.md (spec-30-03) |
 | F8 | 외부 검증(nextmarket-api) 근거가 저장소 밖 | 이 저장소로 확인 불가 | **사용자 입력 대기** — 확인되면 `direction.md` 반영 | pilot-pages-merge 이후 |

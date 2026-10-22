@@ -8,7 +8,7 @@
 | 항목 | 값 |
 |---|---|
 | **Phase ID** | `phase-04` |
-| **상태** | Planning |
+| **상태** | Done — spec-04-01 spec-review, 04-02 code-review 구현 (이후 hk-spec-critique·hk-code-review 로 개명) (2026-10-22 정정) |
 | **시작일** | — |
 | **목표 종료일** | — |
 | **소유자** | Dennis |
