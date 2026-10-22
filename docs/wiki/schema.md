@@ -63,7 +63,7 @@ updated: YYYY-MM-DD
 > `type:` → ADR/RCA 전용 (decision/invariant/failure-pattern/convention/tradeoff)
 > `kind:` → wiki 페이지 전용 (catalog/synthesis)
 
-## [[wikilinks]] 컨벤션
+## wikilinks 컨벤션
 
 | 참조 대상 | 형식 | 예시 |
 |---|---|---|

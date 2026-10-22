@@ -2700,11 +2700,16 @@ cmd_doctor() {
              compgen -G "$SDD_ROOT/docs/rca/${name}-*.md" >/dev/null 2>&1; then
           # [[ADR-NNN]] / [[RCA-NNN]] → slug 파일명 (ADR-NNN-slug.md) 접두 해소
           found=1
+        elif [ -d "$SDD_ROOT/archive/specs/${name}" ] || [ -d "$SDD_ROOT/specs/${name}" ] || \
+             compgen -G "$SDD_ROOT/archive/specs/${name}-*" >/dev/null 2>&1 || \
+             compgen -G "$SDD_ROOT/specs/${name}-*" >/dev/null 2>&1; then
+          # [[spec-NN-NN]] → spec 디렉토리 (spec-NN-NN-<slug>/), spec-x 는 정확한 디렉토리명 (phase-30 F6)
+          found=1
         fi
         if [ "$found" -eq 0 ]; then
           orphan=$((orphan + 1))
         fi
-      done < <(grep -oE '\[\[[^]]+\]\]' "$f" 2>/dev/null || true)
+      done < <(sed -E 's/`[^`]*`//g' "$f" 2>/dev/null | grep -oE '\[\[[^]]+\]\]' || true)  # 인라인 코드 안의 예시([[ADR-NNN]] 등)는 링크가 아님
     done
     if [ "$orphan" -gt 0 ]; then
       _doc_warn "${orphan}개 고아 wikilink 감지 (참조 대상 파일 없음)"
