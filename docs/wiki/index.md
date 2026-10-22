@@ -2,10 +2,10 @@
 kind: catalog
 sources: []
 linked:
-  - "[[wiki/purpose]]"
+  - "[[wiki/schema]]"
   - "[[wiki/decisions]]"
   - "[[wiki/patterns]]"
-updated: 2026-10-20
+updated: 2026-10-22
 ---
 
 # Wiki Index
@@ -16,7 +16,7 @@ updated: 2026-10-20
 
 | 파일 | kind | 설명 |
 |---|---|---|
-| [[wiki/purpose]] | catalog | wiki 목적·스키마·컨벤션 |
+| [[wiki/schema]] | catalog | wiki 스키마·컨벤션·Ingest/Query/Lint 규칙 |
 | [[wiki/index]] | catalog | 이 문서 — 전체 카탈로그 |
 | [[wiki/log]] | catalog | 인제스트 이벤트 이력 |
 | [[wiki/decisions]] | synthesis | 핵심 결정 증류 (ADR·RCA 합성) |
@@ -46,5 +46,5 @@ updated: 2026-10-20
 
 - 설계 결정 맥락 → [[wiki/decisions]]
 - 반복 패턴 / 함정 → [[wiki/patterns]]
-- wiki 작동 방식 → [[wiki/purpose]]
+- wiki 작동 방식 → [[wiki/schema]]
 - 최근 인제스트 이력 → [[wiki/log]]

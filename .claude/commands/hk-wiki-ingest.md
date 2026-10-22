@@ -4,6 +4,8 @@ description: wiki 레이어 증분 갱신 — archive된 spec의 walkthrough를 
 
 `sdd archive` 후 이 명령으로 `docs/wiki/` 를 최신 상태로 유지합니다.
 
+> 무엇을 쓰고 버릴지는 `docs/wiki/schema.md` §Ingest 를 먼저 읽고 따른다 (결론 한 줄 + 출처, 일회성 수정은 제외).
+
 ## 1. 인제스트 범위 결정
 
 먼저 `docs/wiki/log.md` 의 마지막 항목 날짜를 확인합니다.
