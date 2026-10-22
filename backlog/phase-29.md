@@ -63,6 +63,9 @@ phase-27(docs-integrity)이 ADR 인덱스·무결성 검사를 도입했고, pha
 | 작업 구성 | spec 1개 묶음 / 항목별 phase-FF | **phase-FF 4건** | 모두 1–2 commit, 같은 영역, 가역적 (ADR-004) |
 | phase-25/26 후속 3건 | phase 에 포함 / 해소 확인 후 정리 | **정리** | 0.21.0 에서 해소, 테스트로 고정돼 있음 (착수 점검 2026-10-21) |
 | Stop-hook 검증 게이트 (#181 제안 2) | 본 phase / 별도 | **별도 phase** | auto 정지규칙과 정합 설계 필요 — 큰 설계 건 |
+| wiki 개편 (phase 주제 외) | 살린다 / 줄인다 | **살린다 — phase-FF 2커밋** | 에이전트가 wiki 를 읽는 경로가 없어 증류 비용이 낭비됨. `purpose.md` → `schema.md`(Ingest/Query/Lint 규칙) |
+| wiki 질의 규칙 위치 | agent.md / CLAUDE.fragment | **CLAUDE.fragment** | governance 가 이미 7000w 상한 초과(7902w), fragment 는 항상 로드됨 |
+| fragment 150w 상한 | 상한 완화 / 패턴 요약 축약 | **패턴 요약 축약** | `test-two-tier-loading` 상한 유지, 질의 규칙 우선 |
 
 ## 🧪 통합 테스트 시나리오 (간결)
 
