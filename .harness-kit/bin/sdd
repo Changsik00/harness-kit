@@ -455,8 +455,9 @@ _drift_stale_adr() {
       echo "$token" | grep -qE '^(https?:|git@)' && continue
       # 2-1) glob 패턴(설명용 예시)은 리터럴 파일이 아님 → 제외
       echo "$token" | grep -q '[*?]' && continue
-      # 2-2) npm 스코프 패키지(@scope/pkg@ver) / IAM role(roles/x.y) 는 파일 경로가 아님 → 제외 (GitHub #167)
-      echo "$token" | grep -qE '^@|@[0-9]|^roles/' && continue
+      # 2-2) npm 스코프 패키지(@scope/pkg, @scope/pkg@ver) / IAM role(roles/x.y) 는 파일 경로가 아님 → 제외 (GitHub #167)
+      #      '^@' 는 슬래시가 정확히 1개인 `@scope/pkg` 형태로 한정 — 모노레포 alias(`@app/foo/bar.ts`)는 경로로 검사
+      echo "$token" | grep -qE '^@[^/]+/[^/]+$|@[0-9]|^roles/' && continue
       # 3) 확장자 또는 끝 슬래시 보유
       echo "$token" | grep -qE '\.[a-zA-Z0-9]+$|/$' || continue
       # 4) 존재하면 skip
@@ -2335,9 +2336,14 @@ cmd_archive() {
 }
 
 # ADR frontmatter 필드 하나를 추출 (예: id, type, date, status)
+# frontmatter 블록(첫 줄 `---` ~ 다음 `---`) 안에서만 읽고, 값 뒤 인라인 주석(`  # ...`)은 제외한다.
 _adr_field() {
   local file="$1" field="$2"
-  grep -m1 "^${field}:" "$file" 2>/dev/null | sed -E "s/^${field}:[[:space:]]*//"
+  awk -v f="$field" '
+    NR == 1 { if ($0 != "---") exit; next }
+    $0 == "---" { exit }
+    index($0, f ":") == 1 { sub(/^[^:]*:[ \t]*/, ""); sub(/[ \t]+#.*$/, ""); print; exit }
+  ' "$file" 2>/dev/null
 }
 
 # ADR 제목 추출 ("# ADR-NNN: <title>" 첫 매치)
@@ -2803,6 +2809,31 @@ cmd_doctor() {
     fi
   }
 
+  # ADR `type:` 값이 constitution §6.4 폐쇄 어휘 안인지 (phase-29). 값이 없으면(frontmatter 없음) 건너뜀 —
+  # 그 경우는 _check_adr_frontmatter 가 이미 FAIL 로 보고한다. 경고만(exit 0).
+  _check_adr_type_closure() {
+    local adr_dir="$SDD_ROOT/docs/decisions"
+    [ -d "$adr_dir" ] || return 0
+    local bad=0 bad_list="" adr type
+    for adr in "$adr_dir"/ADR-*.md; do
+      [ -f "$adr" ] || continue
+      type=$(_adr_field "$adr" "type")
+      [ -z "$type" ] && continue
+      case "$type" in
+        decision|invariant|convention|tradeoff) ;;
+        *)
+          bad=$((bad + 1))
+          bad_list="${bad_list}${bad_list:+, }$(basename "$adr" .md)(${type})"
+          ;;
+      esac
+    done
+    if [ "$bad" -gt 0 ]; then
+      _doc_warn "ADR type 어휘 밖 ${bad}개: ${bad_list} — decision/invariant/convention/tradeoff 중 하나"
+    else
+      _doc_pass "ADR type 어휘 정상"
+    fi
+  }
+
   # cmd_adr_index --check 는 drift 시 exit 1 하므로 서브셸로 격리해 doctor 를
   # 통째로 종료시키지 않는다 (spec-27-01 재사용).
   _check_adr_index_drift() {
@@ -2831,6 +2862,7 @@ cmd_doctor() {
   printf "\ndocs 무결성\n"
   _check_adr_id_uniqueness
   _check_adr_frontmatter
+  _check_adr_type_closure
   _check_adr_index_drift
   _check_backlog_residue
 

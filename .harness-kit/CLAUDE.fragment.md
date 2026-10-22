@@ -10,12 +10,14 @@
 
 상세: `.harness-kit/agent/constitution.md` · `agent.md`.
 
-## 검증된 패턴 (요약 — 상세·출처 → `docs/wiki/patterns.md`)
+## 검증된 패턴 · wiki 질의
 
-- **right-size**: 1-2 commit 은 FF/phase-FF, full ceremony 금지. phase 안이라고 무조건 spec 금지 (ADR-004).
-- **phase-FF (1급)**: 활성 phase(base 브랜치) 작은 항목 → spec 없이 직접 커밋, phase-ship PR 에서 리뷰.
-- **bundle**: 같은 테마 소규모 3개+ 는 한 spec 으로 — 단 FF 회피용 억지 묶기 금지.
-- **drift 재검증**: phase plan 은 draft — 다음 spec 전 직전 변경 영향 검토 (ADR-002).
+"왜 이렇게 결정했나"·유사 작업 여부·spec/plan 착수 전엔 `archive/` 를 뒤지기 전에 `docs/wiki/decisions.md`·`patterns.md` 를 먼저 읽는다 (규칙 → `docs/wiki/schema.md`).
+
+- **right-size**: 1-2 commit 은 FF/phase-FF (ADR-004).
+- **phase-FF**: 활성 phase 작은 항목 → spec 없이 직접 커밋.
+- **bundle**: 같은 테마 소규모 3개+ 는 한 spec (억지 묶기 금지).
+- **drift 재검증**: 다음 spec 전 직전 변경 영향 검토 (ADR-002).
 
 <!-- hk-extend:serena BEGIN -->
 ## 확장 우선 — serena (LSP 코드 인텔리전스, opt-in)

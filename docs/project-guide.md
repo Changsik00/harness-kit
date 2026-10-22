@@ -26,4 +26,4 @@
 - `docs/design/` — 설계 근거 (Harness Engineering Review 등)
 - `docs/decisions/` — ADR (`README.md` 는 `sdd adr-index` 가 frontmatter 로부터 자동 생성)
 - `docs/rca/` — RCA (반복 실패 패턴 기록, agent.md §10)
-- `docs/wiki/` — 아카이브된 spec walkthrough 를 증류한 synthesis 페이지 (`/hk-wiki-ingest`)
+- `docs/wiki/` — 아카이브된 spec walkthrough 를 증류한 synthesis 페이지 (`/hk-wiki-ingest`). 운영 규칙(Ingest/Query/Lint) → `docs/wiki/schema.md`

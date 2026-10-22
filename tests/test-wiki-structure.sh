@@ -39,7 +39,7 @@ fi
 # ─────────────────────────────────────────────
 echo ""
 echo "▶ Check 2: 필수 wiki 파일 존재"
-for f in purpose.md index.md log.md decisions.md patterns.md; do
+for f in schema.md index.md log.md decisions.md patterns.md; do
   check
   if [ -f "$WIKI_DIR/$f" ]; then
     pass "$f 존재"
@@ -53,7 +53,7 @@ done
 # ─────────────────────────────────────────────
 echo ""
 echo "▶ Check 3: wiki 파일 frontmatter 유효성 (kind / sources / updated)"
-for f in purpose.md index.md log.md decisions.md patterns.md; do
+for f in schema.md index.md log.md decisions.md patterns.md; do
   filepath="$WIKI_DIR/$f"
   [ -f "$filepath" ] || continue
 
@@ -84,7 +84,7 @@ done
 # ─────────────────────────────────────────────
 echo ""
 echo "▶ Check 4: wiki 파일 kind 값 유효 (catalog | synthesis)"
-for f in purpose.md index.md log.md decisions.md patterns.md; do
+for f in schema.md index.md log.md decisions.md patterns.md; do
   filepath="$WIKI_DIR/$f"
   [ -f "$filepath" ] || continue
   check
@@ -180,6 +180,27 @@ for f in \
 do
   [ -f "$f" ] && check_sources_paths "$f"
 done
+
+# ─────────────────────────────────────────────
+# 검증 7: schema.md 에이전트 운영 규칙 + 질의 규칙 연결
+# ─────────────────────────────────────────────
+echo ""
+echo "▶ Check 7: schema.md Ingest/Query/Lint 규칙 + 에이전트 조각의 wiki 질의 규칙"
+for h in "## Ingest" "## Query" "## Lint"; do
+  check
+  if grep -q "^$h" "$WIKI_DIR/schema.md" 2>/dev/null; then
+    pass "schema.md — '$h' 섹션 존재"
+  else
+    fail "schema.md — '$h' 섹션 없음"
+  fi
+done
+check
+if grep -q "wiki/schema.md" "$ROOT/sources/claude-fragments/CLAUDE.fragment.md" \
+   && grep -q "wiki/decisions.md" "$ROOT/sources/claude-fragments/CLAUDE.fragment.md"; then
+  pass "CLAUDE.fragment — wiki 질의 규칙(schema/decisions) 참조"
+else
+  fail "CLAUDE.fragment — wiki 질의 규칙 없음"
+fi
 
 # ─────────────────────────────────────────────
 # 결과
