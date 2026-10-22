@@ -21,6 +21,8 @@ updated: 2026-10-22
 | [[wiki/log]] | catalog | 인제스트 이벤트 이력 |
 | [[wiki/decisions]] | synthesis | 핵심 결정 증류 (ADR·RCA 합성) |
 | [[wiki/patterns]] | synthesis | good pattern + anti-pattern 증류 |
+| [[wiki/direction]] | synthesis | **(시범)** 방향 — 원칙 대비 현황·연혁·반복 이슈 |
+| [[wiki/components/hooks]] | synthesis | **(시범)** 컴포넌트 — hooks 현재 설계·변경 이력·반복·미결 |
 
 ## ADR 인벤토리
 
