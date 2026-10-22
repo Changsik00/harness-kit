@@ -1996,8 +1996,19 @@ _check_phase_all_merged() {
 cmd_hooks() {
   local sub="${1:-status}"; shift || true
 
-  # hook 목록과 기본 모드 (공백 구분 문자열)
-  local hook_data="BRANCH:block:check-branch.sh PLAN_ACCEPT:warn:check-plan-accept.sh TEST_PASSED:warn:check-test-passed.sh STAGED_LINT:warn:check-staged-lint.sh"
+  # hook 목록과 기본 모드 — 하드코딩하지 않고 hook 파일의 `hook_resolve_mode "NAME" "default"` 선언에서 읽는다
+  # (phase-30 F4: 목록이 hook 추가를 따라가지 못해 11개 중 4개만 보이던 문제). 형식: NAME:default:file
+  # default 가 변수(`$...`)인 hook(모드별 차등)은 default 를 '모드별' 로 표시.
+  local hook_data="" _hf _hl _hn _hd
+  for _hf in "$SDD_ROOT"/.harness-kit/hooks/*.sh; do
+    [ -f "$_hf" ] || continue
+    _hl=$(grep -m1 '^[[:space:]]*hook_resolve_mode "' "$_hf" 2>/dev/null || true)
+    [ -n "$_hl" ] || continue
+    _hn=$(printf '%s' "$_hl" | sed -E 's/.*hook_resolve_mode "([A-Z_]+)".*/\1/')
+    _hd=$(printf '%s' "$_hl" | sed -E 's/.*hook_resolve_mode "[A-Z_]+" "([^"]*)".*/\1/')
+    case "$_hd" in '$'*) _hd="모드별" ;; esac
+    hook_data="${hook_data:+$hook_data }${_hn}:${_hd}:$(basename "$_hf")"
+  done
 
   case "$sub" in
     status|"")
@@ -2033,7 +2044,7 @@ cmd_hooks() {
       local target="${1:-}"
       if [ -z "$target" ]; then
         echo "사용법: sdd hooks $sub <hook-name>"
-        echo "  hook-name: BRANCH, PLAN_ACCEPT, TEST_PASSED, STAGED_LINT"
+        echo "  hook-name: sdd hooks 목록의 환경변수 이름 (예: BRANCH, PLAN_ACCEPT, TEST_PASSED)"
         exit 1
       fi
       local TARGET
