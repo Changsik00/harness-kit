@@ -8,6 +8,9 @@
 #   2. [[ADR-999]] with no such file → counted as orphan
 #   3. [[RCA-001]] with docs/rca/RCA-001-slug.md → no orphan
 #   4. Exact filename [[ADR-001-slug]] still resolves
+#   5. [[spec-NN-NN]] resolves to archive/specs/spec-NN-NN-<slug>/ (and specs/)
+#   6. [[spec-99-99]] with no such dir is still orphan
+#   7. [[...]] inside inline code (`[[ADR-NNN]]` examples) is ignored
 #
 # Throwaway fixtures. bash 3.2+ compatible.
 
@@ -29,6 +32,7 @@ new_fixture() { # <name> <wiki-body>
   echo '# Backlog Queue' > "$d/backlog/queue.md"
   echo '# adr' > "$d/docs/decisions/ADR-001-slug.md"
   echo '# rca' > "$d/docs/rca/RCA-001-slug.md"
+  mkdir -p "$d/archive/specs/spec-15-05-dedupe-lists" "$d/archive/specs/spec-x-some-fix"
   printf -- '---\nkind: synthesis\n---\n%s\n' "$2" > "$d/docs/wiki/decisions.md"
   (cd "$d" && git init -q && git config user.email t@t && git config user.name t && git add -A && git commit -q -m init)
   echo "$d"
@@ -57,5 +61,20 @@ F4="$(new_fixture c4 '[[ADR-001-slug]]')"
 out=$(run_doctor "$F4")
 echo "$out" | grep -q "고아 wikilink 감지" && fail "exact filename must resolve" "$out"
 pass "case 4: exact filename still resolves"
+
+F5="$(new_fixture c5 '[[spec-15-05]] [[spec-x-some-fix]]')"
+out=$(run_doctor "$F5")
+echo "$out" | grep -q "고아 wikilink 감지" && fail "[[spec-NN-NN]] / exact spec-x dir must resolve to archive/specs" "$out"
+pass "case 5: spec refs resolve to archive/specs"
+
+F6="$(new_fixture c6 '[[spec-99-99]]')"
+out=$(run_doctor "$F6")
+echo "$out" | grep -q "1개 고아 wikilink 감지" || fail "[[spec-99-99]] must still be orphan" "$out"
+pass "case 6: missing spec ref still orphan"
+
+F7="$(new_fixture c7 'example: `[[ADR-NNN]]` and `[[wiki/page-name]]`')"
+out=$(run_doctor "$F7")
+echo "$out" | grep -q "고아 wikilink 감지" && fail "links inside inline code must be ignored" "$out"
+pass "case 7: inline-code examples ignored"
 
 echo "PASS"
