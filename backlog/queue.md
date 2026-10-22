@@ -8,7 +8,7 @@
 ## 📦 진행 중 Phase
 
 <!-- sdd:active:start -->
-- **phase-29** — doctor-accuracy — 0/0 spec — (다음: 첫 spec 생성 대기)
+- **phase-30** — wiki-as-knowledge — 0/0 spec — (다음: 첫 spec 생성 대기)
 <!-- sdd:active:end -->
 
 ## 📥 spec-x 대기
@@ -137,6 +137,7 @@
 - **phase-26** — auto-safety-residue (auto 안전망 잔여) — completed 2026-06-30
 - **phase-27** — docs-integrity — completed 2026-07-05
 - **phase-28** — docs-freshness — completed 2026-10-20
+- **phase-29** — doctor-accuracy — completed 2026-10-22
 <!-- sdd:done:end -->
 
 ---
