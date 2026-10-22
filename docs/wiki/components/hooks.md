@@ -55,6 +55,20 @@ updated: 2026-10-22
 
 `permissions.deny` 가 별도 1층: `sudo`, `rm -rf /`·`~`, `git push --force`, `git clean -f`, `curl … | bash` 등 *never-justify* 명령을 settings 에서 직접 막는다. hook(`check-irreversible`)은 `reset --hard`·`rebase --onto` 같은 *맥락 의존* 명령을 맡는 2층 모델(spec-25-04).
 
+### 강제 수준 분류 (2026-10-22 처분)
+
+기본 모드가 왜 그 값인지의 분류. "승격 후보"는 *지금 승격하지 않는다* — 조건이 충족되면 별도 결정.
+
+| 분류 | hook | 근거 |
+|---|---|---|
+| 차단 (block) | check-branch, check-secrets, check-askquestion-auto(auto), check-irreversible(auto) | 결정론적이거나 fail-safe 방향이 명확 |
+| 다른 층이 차단 | check-plan-accept | edit 시점은 warn 이지만 git `pre-commit.sh` 가 Plan Accept 전 production staged 를 차단 |
+| 의도적 warn — 휴리스틱 | check-scope, check-diff-size, check-test-trust | 정확한 판정 불가(Proposed Changes 파싱, 500줄 임계, 정적 프록시). 오탐 비용 > 차단 이득 |
+| 의도적 warn — 구조적 | check-test-passed | 시각 기록(30분 창)만 보며 "이 변경이 테스트됐다"를 보장하지 못함. 헌법 TDD 의 red 커밋(실패 테스트 추가)과 충돌. docs/chore/style 은 면제 |
+| 의도적 warn — 환경 의존 | check-staged-lint | linter 가용성에 의존(shellcheck 미설치 등) |
+| 승격 후보 (조건부) | check-commit-msg | 결정론적이고 오탐 미관측(heredoc 포함 확인). 단 `grep` 이 줄 단위라 *어느 줄이든* 형식에 맞으면 통과 — **첫 줄만 검사하도록 엄격화한 뒤** 승격 검토 |
+| 승격 후보 (조건부) | check-task-checkbox | 결정론적. push 대상·task.md 부재 케이스 범위 검증 후 |
+
 ### 설계 규칙
 
 - **단계론**: 휴리스틱은 warn 으로 시작해 운영 후 승격. 결정론적·fail-safe 는 즉시 차단 가능, 모드별 fail-safe 방향이 다르면 모드 차등(CLAUDE.md #5, 0.20.0 정제).
@@ -80,8 +94,8 @@ updated: 2026-10-22
 
 1. **게이트 간 정책 불일치가 반복된다 (3회).** 0.8.0(pre-commit vs Edit 훅), spec-24-01(turbo: Edit 통과·pre-commit 차단), spec-24-02(edit vs commit 모드의 scope). 대응은 *함수 공유*와 *모드 일관 인식*으로 해왔으나, **Plan Accept 판정은 아직 두 곳에 따로 있다** — `pre-commit.sh` 의 whitelist `case` 와 `check-plan-accept.sh` 의 안전 경로 목록. spec-x-hook-allow-ff 가 "`_lib.sh` 로 통합 후보"라고 적은 뒤 처리 기록 없음. **상태: 미결.**
 2. **우회 경로가 계속 발견된다.** Bash 경유 편집(0.7.0), MCP/Serena 편집(24-02 → 커밋 시점 scope 가드), refspec `+` force push(0.20.0), `git -C` 변형(의도적 미감지로 고정). 대응 철학은 *좁게 감지 + 경계를 테스트로 고정*이므로 우회가 앞으로도 나오는 것은 설계상 예견됨. **상태: 수용(의도적).**
-3. **"경고로 시작해 승격"이 대부분 이행되지 않았다.** CLAUDE.md #5 는 휴리스틱 hook 을 1주 운영 후 차단으로 승격한다고 하나, 현재 기본 `block` 은 check-branch·check-secrets·askquestion(auto)·irreversible(auto) 뿐이고 plan-accept·test-passed·commit-msg·diff-size·task-checkbox·scope·staged-lint 는 도입(2026-04~05) 후에도 warn. 승격 *결정/기록*을 찾지 못했다(승격이 언급된 곳은 신규 hook 인 24~25 계열과, "차단 승격 없음"을 명시한 spec-x-harness-footguns 뿐). **상태: 미결 — 의도적 유지인지 방치인지 불명.**
-4. **README 주장과 기본값이 어긋난다 (판단).** README 는 hook 이 "main 브랜치 작업·Plan Accept 우회·테스트 미실행 커밋을 물리적으로 차단"한다고 쓴다. 실제로 main 작업은 block, Plan Accept 우회는 git `pre-commit` 이 block, **테스트 미실행 커밋(check-test-passed)은 기본 warn**. 이행/정정 중 하나가 필요하다. **상태: 미결.**
+3. **"경고로 시작해 승격"이 대부분 이행되지 않았다.** CLAUDE.md #5 는 휴리스틱 hook 을 1주 운영 후 차단으로 승격한다고 하나, 현재 기본 `block` 은 check-branch·check-secrets·askquestion(auto)·irreversible(auto) 뿐이고 나머지는 도입(2026-04~05) 후에도 warn. 승격 *결정/기록*을 찾지 못했다(승격이 언급된 곳은 신규 hook 인 24~25 계열과, "차단 승격 없음"을 명시한 spec-x-harness-footguns 뿐). **처분 (phase-30, 2026-10-22): 문서화.** 각 hook 이 왜 warn 인지를 위 §강제 수준 분류에 기록했다. 일괄 승격은 하지 않는다. 승격 후보는 check-commit-msg(엄격화 선행)·check-task-checkbox 두 개뿐.
+4. **README 주장과 기본값이 어긋났다.** README 는 hook 이 "테스트 미실행 커밋을 물리적으로 차단"한다고 썼으나 `check-test-passed` 는 기본 warn. **처분 (phase-30, 2026-10-22): 문서 수정.** block 으로 올리지 않는다 — TDD red 커밋과 구조적으로 충돌하고 시각 기록만으로는 보장이 안 된다. README 문구를 "차단(main·시크릿·Plan Accept 우회) / 경고(휴리스틱)" 로 정정했다.
 5. **`warn→block` 방침 번복의 영향 범위.** "승격" 대신 "모드 차등"을 택한 결정(spec-25-04 후속)이 attended 모드 hook 들에는 적용되지 않았다 — attended 에서 irreversible 은 계속 warn. 이 결정이 위 3번의 미승격을 *정당화*하는지는 기록돼 있지 않다.
 
 ## 기술 부채
