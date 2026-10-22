@@ -95,9 +95,19 @@ bash tests/run.sh
 
 ## 🏁 Phase Done 조건
 
-- [ ] phase-FF 4건 완료
-- [ ] 통합 테스트 시나리오 PASS
-- [ ] 성공 기준 측정 결과 기록
-- [ ] 사용자 최종 승인
+- [x] phase-FF 4건 완료 (+ 주제 외 wiki 개편 1건)
+- [x] 통합 테스트 시나리오 PASS
+- [x] 성공 기준 측정 결과 기록
+- [x] 사용자 최종 승인 (2026-10-22)
 
 ## 📊 검증 결과 (phase 완료 시 작성)
+
+| # | 기준 | 결과 | 증거 |
+|:---:|---|:---:|---|
+| 1 | frontmatter 밖 `id:` 무시 | ✅ PASS | `tests/test-adr-accuracy.sh` 케이스 1 |
+| 2 | `type:` 폐쇄 어휘 경고, 주석 제외 | ✅ PASS | 케이스 2, 3, 4 |
+| 3 | alias 경로 비제외, npm 스코프 제외 | ✅ PASS | 케이스 5, 6 |
+| 4 | 전체 테스트 회귀 0 | ✅ PASS | `tests/run.sh` 85/85 (`HARNESS_DRIFT_FETCH=0`) |
+
+- 통합 시나리오 1(ADR 검사기 정확도): `test-adr-accuracy` 6/6 PASS.
+- 알려진 이슈: `test-sdd-status-cross-check` 가 원격 fetch 대기로 멈출 수 있음 (`HARNESS_DRIFT_FETCH=0` 으로 통과).
