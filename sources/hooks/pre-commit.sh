@@ -55,18 +55,19 @@ active_spec="$(jq -r '.spec // empty' "$STATE_FILE" 2>/dev/null || echo "")"
 [ -z "$active_spec" ] && exit 0
 
 # Plan Accept 전 — staged 파일 중 whitelist 외 파일 있으면 차단
+# whitelist 는 check-plan-accept.sh 와 공유 (_plan_accept_paths.sh). 파일이 없으면 모두 차단(fail-safe).
+if [ -f "$HARNESS_HOOKS/_plan_accept_paths.sh" ]; then
+  # shellcheck source=_plan_accept_paths.sh
+  . "$HARNESS_HOOKS/_plan_accept_paths.sh"
+else
+  hk_plan_accept_safe_path() { return 1; }
+fi
 blocked=0
 while IFS= read -r f; do
   [ -z "$f" ] && continue
-  case "$f" in
-    .harness-kit/*|docs/*|backlog/*|specs/*|.claude/*|\
-    .gitignore|README.md|CLAUDE.md|version.json) continue ;;
-    *.md) continue ;;
-    *)
-      echo "⛔ [plan-accept] Plan Accept 전 production 코드 커밋 차단: $f" >&2
-      blocked=1
-      ;;
-  esac
+  hk_plan_accept_safe_path "$f" && continue
+  echo "⛔ [plan-accept] Plan Accept 전 production 코드 커밋 차단: $f" >&2
+  blocked=1
 done < <(git -C "$HARNESS_ROOT" diff --cached --name-only 2>/dev/null)
 
 if [ "$blocked" -eq 1 ]; then

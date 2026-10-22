@@ -36,6 +36,7 @@ _inject_state() {
   fi
   cp "$ROOT/sources/hooks/_lib.sh"          "$repo/.harness-kit/hooks/"
   cp "$ROOT/sources/hooks/check-staged-lint.sh" "$repo/.harness-kit/hooks/"
+  cp "$ROOT/sources/hooks/_plan_accept_paths.sh" "$repo/.harness-kit/hooks/"
   cp "$HOOK"                                "$repo/.harness-kit/hooks/pre-commit.sh"
   chmod +x "$repo/.harness-kit/hooks/"*.sh
 }

@@ -27,21 +27,10 @@ case "$target" in
   *)  rel="$target" ;;
 esac
 
-# 안전 경로 화이트리스트
-case "$rel" in
-  .harness-kit/*|\
-  docs/*|docs|\
-  backlog/*|backlog|\
-  specs/*|specs|\
-  .claude/*|.claude|\
-  .gitignore|README.md|CLAUDE.md|version.json)
-    exit 0 ;;
-esac
-
-# *.md 는 항상 허용
-case "$rel" in
-  *.md) exit 0 ;;
-esac
+# 안전 경로 화이트리스트 (pre-commit.sh 와 공유 — _plan_accept_paths.sh)
+# shellcheck source=_plan_accept_paths.sh
+source "$HOOK_DIR/_plan_accept_paths.sh"
+hk_plan_accept_safe_path "$rel" && exit 0
 
 # Plan Accept 검사
 plan_accepted="$(hook_state planAccepted)"
