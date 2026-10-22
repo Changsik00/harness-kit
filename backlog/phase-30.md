@@ -91,8 +91,8 @@ wiki 를 "무엇이 정리됐나" 가 아니라 **"지금 입장이 무엇이고
 |---|---|---|---|---|
 | F1 | README "테스트 미실행 커밋 물리적 차단" 인데 `check-test-passed` 기본 warn | hook 은 `lastTestPass` 시각(30분 창)만 봄. 기록은 `sdd run-test`/수동. 헌법의 TDD red 커밋과 구조적 충돌, 시각 기록으로는 "이 변경이 테스트됐다" 보장 불가 | **문서 수정** (block 승격 안 함) | hook-claims-doc-fix |
 | F2 | warn→block 승격이 7개 hook 에서 미이행 | 승격 결정 기록 없음. `check-commit-msg` 는 heredoc 메시지에서 오탐 *없음*을 직접 확인(정정: 초안의 "오탐 가능" 추정은 틀렸음). 단 `grep` 줄 단위라 어느 줄이든 형식에 맞으면 통과(느슨함) | **문서화** (분류표), 일괄 승격 안 함. commit-msg 는 엄격화 후 승격 후보 | hook-claims-doc-fix |
-| F3 | Plan Accept 판정 이중 구현 | `pre-commit.sh`·`check-plan-accept.sh` 각자 whitelist. 정책 불일치 3회 반복 | **코드 수정** | plan-accept-shared-fn |
-| F4 | `sdd hooks` 11개 중 4개만 표시 | 출력 직접 확인 | **코드 수정** | sdd-hooks-all |
+| F3 | Plan Accept 판정 이중 구현 | `pre-commit.sh`·`check-plan-accept.sh` 각자 whitelist. 정책 불일치 3회 반복 | **코드 수정** (완료) | plan-accept-shared-fn |
+| F4 | `sdd hooks` 11개 중 4개만 표시 | 출력 직접 확인 | **코드 수정** (완료) | sdd-hooks-all |
 | F5 | phase-03~06 Planning 채 archive | **정정**: 초안의 "실행 기록 없음" 판단은 틀렸음 — spec 6개가 실행돼 walkthrough 존재. 실제 문제는 phase 파일 상태가 갱신되지 않은 것. 03-01 zsh 는 #59 에서 철회(bash 4.0+) → #77 에서 3.2+ 로 수렴, 05-01 은 멀티 에이전트 No-Go | **문서 수정** (상태 정정 완료 — 사용자 확인 불필요, 이월 판단 없음) | phase-03-06-disposition (완료) |
 | F6 | 고아 wikilink 30건 + `[[wiki/purpose]]` | 대부분 archive spec 참조, ADR 접두 문제와 같은 원인 | **검사기 수정 + 문서 수정** | wikilink-spec-ref |
 | F7 | 거버넌스 7,902w (soft 7,000w 초과) | 상한 상향이 되풀이됨 | **보류** (rule prune 은 큰 결정 — Icebox 유지, 페이지에 "미결" 기록) | threads.md (spec-30-03) |

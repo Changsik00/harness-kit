@@ -42,7 +42,7 @@ updated: 2026-10-22
 | check-secrets | PreToolUse Bash + git pre-commit | **block** | staged 추가 라인(`+`)만 검사. 듀얼 모드는 `HARNESS_GIT_HOOK_MODE=1` 명시 신호 |
 | check-askquestion-auto | PreToolUse AskUserQuestion | **block** | auto 모드에서만 발동 |
 | check-irreversible | PreToolUse Bash | **auto=block / attended=warn** | 모드 불명이면 block(fail-safe). 환경변수 이름은 `STOP_RULES` |
-| check-plan-accept | PreToolUse Edit·Write | warn | turbo·auto 는 통과 |
+| check-plan-accept | PreToolUse Edit·Write | warn | turbo·auto 는 통과. 허용 경로는 `_plan_accept_paths.sh` 공유 |
 | check-scope | PreToolUse Edit·Write + git pre-commit | warn | edit 모드는 turbo/auto 통과, commit 모드는 모드 무관 경고 |
 | check-test-passed | PreToolUse Bash | warn | 최근 테스트 PASS 기록 없으면 commit 알림 |
 | check-commit-msg / check-diff-size / check-task-checkbox | PreToolUse Bash | warn | 형식·크기·체크박스 |
@@ -92,7 +92,7 @@ updated: 2026-10-22
 
 ## 반복·미결
 
-1. **게이트 간 정책 불일치가 반복된다 (3회).** 0.8.0(pre-commit vs Edit 훅), spec-24-01(turbo: Edit 통과·pre-commit 차단), spec-24-02(edit vs commit 모드의 scope). 대응은 *함수 공유*와 *모드 일관 인식*으로 해왔으나, **Plan Accept 판정은 아직 두 곳에 따로 있다** — `pre-commit.sh` 의 whitelist `case` 와 `check-plan-accept.sh` 의 안전 경로 목록. spec-x-hook-allow-ff 가 "`_lib.sh` 로 통합 후보"라고 적은 뒤 처리 기록 없음. **상태: 미결.**
+1. **게이트 간 정책 불일치가 반복됐다 (3회).** 0.8.0(pre-commit vs Edit 훅), spec-24-01(turbo: Edit 통과·pre-commit 차단), spec-24-02(edit vs commit 모드의 scope). 대응은 *함수 공유*와 *모드 일관 인식*. 남아 있던 Plan Accept 이중 구현(`pre-commit.sh` whitelist vs `check-plan-accept.sh` 안전 경로)은 **처분 (phase-30, 2026-10-22): 코드 수정** — `_plan_accept_paths.sh` 의 `hk_plan_accept_safe_path` 한 곳으로 통합하고 `tests/test-plan-accept-parity.sh` 가 두 게이트 판정 일치와 단일 출처를 고정한다. **상태: 해소.**
 2. **우회 경로가 계속 발견된다.** Bash 경유 편집(0.7.0), MCP/Serena 편집(24-02 → 커밋 시점 scope 가드), refspec `+` force push(0.20.0), `git -C` 변형(의도적 미감지로 고정). 대응 철학은 *좁게 감지 + 경계를 테스트로 고정*이므로 우회가 앞으로도 나오는 것은 설계상 예견됨. **상태: 수용(의도적).**
 3. **"경고로 시작해 승격"이 대부분 이행되지 않았다.** CLAUDE.md #5 는 휴리스틱 hook 을 1주 운영 후 차단으로 승격한다고 하나, 현재 기본 `block` 은 check-branch·check-secrets·askquestion(auto)·irreversible(auto) 뿐이고 나머지는 도입(2026-04~05) 후에도 warn. 승격 *결정/기록*을 찾지 못했다(승격이 언급된 곳은 신규 hook 인 24~25 계열과, "차단 승격 없음"을 명시한 spec-x-harness-footguns 뿐). **처분 (phase-30, 2026-10-22): 문서화.** 각 hook 이 왜 warn 인지를 위 §강제 수준 분류에 기록했다. 일괄 승격은 하지 않는다. 승격 후보는 check-commit-msg(엄격화 선행)·check-task-checkbox 두 개뿐.
 4. **README 주장과 기본값이 어긋났다.** README 는 hook 이 "테스트 미실행 커밋을 물리적으로 차단"한다고 썼으나 `check-test-passed` 는 기본 warn. **처분 (phase-30, 2026-10-22): 문서 수정.** block 으로 올리지 않는다 — TDD red 커밋과 구조적으로 충돌하고 시각 기록만으로는 보장이 안 된다. README 문구를 "차단(main·시크릿·Plan Accept 우회) / 경고(휴리스틱)" 로 정정했다.
@@ -100,8 +100,8 @@ updated: 2026-10-22
 
 ## 기술 부채
 
-- **`sdd hooks` 상태 표시가 4개만 보인다** (branch, plan-accept, test-passed, staged-lint). 실제 모드 가진 hook 은 11개 — 나머지(secrets, scope, commit-msg 등)의 현재 모드는 CLI 로 확인할 수 없다.
-- Plan Accept 판정 이중 구현 (위 1번).
+- ~~`sdd hooks` 가 4개만 표시~~ → **해소 (phase-30)**: hook 파일의 `hook_resolve_mode` 선언에서 전체 11개를 읽는다(`tests/test-sdd-hooks-all.sh`). 모드별 차등 hook 은 "모드별" 로 표시.
+- ~~Plan Accept 판정 이중 구현~~ → **해소 (phase-30)**: 위 반복·미결 1번.
 - hook 은 에이전트의 의도를 읽지 못한다 — askquestion 에서 routine 과 정지규칙 ① 을 구분하려고 stderr 지침으로 우회(spec-25-01). 구조적 한계로 수용.
 - 설치 경로 3중: `sources/hooks/` → `.harness-kit/hooks/` → `settings.json` 참조. 사본 불일치는 phase-28 의 drift 검사가 감시하나, `settings.json` 머지 결과는 검사 대상이 아니다.
 - shellcheck 미설치로 hook 스크립트 lint 가 건너뛰어진다.
