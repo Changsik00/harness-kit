@@ -7,6 +7,8 @@
 #   3. 코드에 hook 이 있는데 표에 없음 → 보고
 #   4. 마커 아래에 표가 없음 → 보고
 #   5. 알 수 없는 verify 키 → 보고
+#   6. frontmatter sources:/covers: 경로가 존재하지 않음 → 보고
+#   7. 페이지 크기 상한 초과 → 보고
 #   8. wiki 없음 / 마커·components 없음 → 침묵
 #
 # 임시 git repo 만 사용 (실제 repo 는 변경하지 않음). bash 3.2+ 호환.
@@ -100,6 +102,30 @@ d="$(new_fixture bad-key)"
 printf -- '---\nkind: synthesis\nsources: []\n---\n# x\n\n<!-- verify: no-such-key -->\n| a |\n|---|\n| b |\n' > "$d/docs/wiki/components/hooks.md"
 out="$(run_doctor "$d")"
 case "$out" in *"wiki 사실 불일치"*"알 수 없는 verify 키"*"no-such-key"*) pass "알 수 없는 키 보고" ;; *) fail "미보고" "$out" ;; esac
+
+echo ""
+echo "▶ Case 6: sources:/covers: 경로 존재 확인 (path-exists)"
+d="$(new_fixture bad-path)"
+printf -- '---\nkind: synthesis\nsources:\n  - docs/decisions/ghost.md\n  - .harness-kit/hooks/check-branch.sh\ncovers:\n  - sources/nowhere/\n---\n# x\n' > "$d/docs/wiki/components/other.md"
+out="$(run_doctor "$d")"
+case "$out" in *"wiki 사실 불일치"*"존재하지 않는 경로"*"ghost.md"*"nowhere"*) pass "없는 경로 2개 보고" ;; *) fail "미보고" "$out" ;; esac
+case "$out" in *"check-branch.sh 존재"*) fail "존재하는 경로를 오보고" "$out" ;; *) pass "존재하는 경로는 보고 안 함" ;; esac
+d="$(new_fixture ok-path)"
+printf -- '---\nkind: synthesis\nsources:\n  - .harness-kit/hooks/check-branch.sh\ncovers:\n  - .harness-kit/hooks/\n---\n# x\n' > "$d/docs/wiki/components/other.md"
+out="$(run_doctor "$d")"
+case "$out" in *"wiki 사실 불일치"*) fail "존재하는 경로인데 보고" "$out" ;; *) pass "존재하는 경로 침묵" ;; esac
+
+echo ""
+echo "▶ Case 7: 페이지 크기 상한 (components 200 / direction 150 / threads 300)"
+d="$(new_fixture too-big)"
+{ printf -- '---\nkind: synthesis\nsources: []\n---\n'; i=0; while [ "$i" -lt 210 ]; do echo "줄 $i"; i=$((i+1)); done; } > "$d/docs/wiki/components/big.md"
+{ printf -- '---\nkind: synthesis\nsources: []\n---\n'; i=0; while [ "$i" -lt 160 ]; do echo "줄 $i"; i=$((i+1)); done; } > "$d/docs/wiki/direction.md"
+out="$(run_doctor "$d")"
+case "$out" in *"크기 상한 초과"*"big.md"*"direction.md"*) pass "components/direction 초과 보고" ;; *) fail "미보고" "$out" ;; esac
+{ printf -- '---\nkind: synthesis\nsources: []\n---\n'; i=0; while [ "$i" -lt 250 ]; do echo "줄 $i"; i=$((i+1)); done; } > "$d/docs/wiki/threads.md"
+rm "$d/docs/wiki/components/big.md" "$d/docs/wiki/direction.md"
+out="$(run_doctor "$d")"
+case "$out" in *"wiki 사실 불일치"*) fail "threads 250줄(<=300)인데 보고" "$out" ;; *) pass "threads 상한 이내 침묵" ;; esac
 
 echo ""
 echo "▶ Case 8: wiki 없음 / 마커 없음 → 침묵"

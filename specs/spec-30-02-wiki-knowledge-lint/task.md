@@ -24,8 +24,8 @@
 ## Task 2: `path-exists` + 크기 상한
 
 ### 2-1. 테스트 (Red)
-- [ ] Case 6 (존재하지 않는 `sources:` 경로), Case 7 (크기 상한 초과) 추가 → Fail
-- [ ] Commit: `test(spec-30-02): add failing test for path-exists and size cap`
+- [x] Case 6 (존재하지 않는 `sources:` 경로), Case 7 (크기 상한 초과) 추가 → Fail
+- [x] Commit: `test(spec-30-02): add failing test for path-exists and size cap`
 
 ### 2-2. 구현 (Green)
 - [ ] frontmatter `sources:`/`covers:` 파서 + 경로 존재 검사, 크기 상한 검사 추가 → 사본 `cp`
