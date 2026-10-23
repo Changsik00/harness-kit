@@ -56,8 +56,8 @@
 - [x] Commit: `test(spec-30-01): add failing test for legacy log banner`
 
 ### 4-2. 구현 (Green)
-- [ ] `decisions.md`·`patterns.md` 상단 배너, `index.md` 3층 안내 행 (`updated`/`log.md` 는 건드리지 않음 — 인제스트 이벤트가 아님)
-- [ ] 테스트 Pass + `bash tests/run.sh` 전체 → Commit: `docs(spec-30-01): demote decisions and patterns to source logs`
+- [x] `decisions.md`·`patterns.md` 상단 배너, `index.md` 3층 안내 행 (`updated`/`log.md` 는 건드리지 않음 — 인제스트 이벤트가 아님)
+- [x] 테스트 Pass + `bash tests/run.sh` 전체 → Commit: `docs(spec-30-01): demote decisions and patterns to source logs`
 
 ---
 

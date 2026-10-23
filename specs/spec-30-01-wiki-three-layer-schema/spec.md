@@ -74,6 +74,9 @@ schema.md 를 3층 구조 + 페이지 템플릿 + 갱신(in-place, 이력 보존
 #### [NEW] `sources/templates/wiki-component.md` (+ 사본 `.harness-kit/agent/templates/wiki-component.md`)
 컴포넌트 페이지 템플릿 (요구사항 2). `install.sh` 의 templates glob 으로 자동 설치됨.
 
+#### [MODIFY] `doctor.sh`
+필수 템플릿 목록(`for f in queue.md ...`)에 `wiki-component.md` 추가. `tests/test-doctor-templates.sh` 가 목록↔실제 템플릿 일치를 강제하므로 템플릿 추가의 필연적 결과 (Task 4 에서 발견, 계획 외 1줄 보정).
+
 #### [MODIFY] `docs/wiki/schema.md`
 3층 정의, 페이지 종류별 frontmatter(`covers`), 갱신·충돌·출처·verify 마커·크기 상한 규약, Ingest/Query/Lint 절 개정. "운영 규칙 1~5" 중 append-only 문구 제거.
 

@@ -19,10 +19,12 @@ updated: 2026-10-22
 | [[wiki/schema]] | catalog | wiki 스키마·컨벤션·Ingest/Query/Lint 규칙 |
 | [[wiki/index]] | catalog | 이 문서 — 전체 카탈로그 |
 | [[wiki/log]] | catalog | 인제스트 이벤트 이력 |
-| [[wiki/decisions]] | synthesis | 핵심 결정 증류 (ADR·RCA 합성) |
-| [[wiki/patterns]] | synthesis | good pattern + anti-pattern 증류 |
-| [[wiki/direction]] | synthesis | **(시범)** 방향 — 원칙 대비 현황·연혁·반복 이슈 |
-| [[wiki/components/hooks]] | synthesis | **(시범)** 컴포넌트 — hooks 현재 설계·변경 이력·반복·미결 |
+| [[wiki/decisions]] | synthesis | 결정 **출처별 로그(격하)** — 상세 근거용, 현재 입장은 direction/components |
+| [[wiki/patterns]] | synthesis | 패턴 **출처별 로그(격하)** — good pattern + anti-pattern |
+| [[wiki/direction]] | synthesis | 방향 층 — 원칙 대비 현황·연혁·반복 이슈 |
+| [[wiki/components/hooks]] | synthesis | 구현 층 — hooks 현재 설계·변경 이력·반복·미결 |
+
+> **3층 구조**: 방향(`direction.md`) / 구현(`components/<name>.md`) / 이슈 스레드(`threads.md`, 작성 예정). 현재 입장은 이 3층에서 읽고, `decisions.md`·`patterns.md` 는 출처별 로그로 쓴다. 양식·규약 → [[wiki/schema]].
 
 ## ADR 인벤토리
 
@@ -46,7 +48,8 @@ updated: 2026-10-22
 
 ## 빠른 참조
 
-- 설계 결정 맥락 → [[wiki/decisions]]
-- 반복 패턴 / 함정 → [[wiki/patterns]]
+- 지금 입장·방향 → [[wiki/direction]], 컴포넌트별 → `components/`
+- 결정의 상세 근거(출처별 로그) → [[wiki/decisions]]
+- 반복 패턴 / 함정 로그 → [[wiki/patterns]]
 - wiki 작동 방식 → [[wiki/schema]]
 - 최근 인제스트 이력 → [[wiki/log]]
