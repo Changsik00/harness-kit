@@ -157,6 +157,14 @@ wiki 와 raw 가 충돌하면 raw(ADR·코드) 가 우선이며, 충돌을 발�
 
 ## Lint — 건강 상태 점검
 
-`sdd doctor` 의 `wiki layer` 섹션이 구조를 점검한다: 고아 `[[wikilink]]`, stale ADR/RCA(90일+), 신선도(wiki 에 없는 ADR, 마지막 인제스트 이후 archive 누적). 경고는 차단하지 않고 `/hk-wiki-ingest` 를 안내한다.
+세 층으로 역할을 나눈다. **코드와 대조할 수 있는 것은 도구가, 판단이 필요한 것은 사람/LLM 이 본다.**
 
-신선도는 "인제스트했는가" 만 재며 지식이 *맞는가* 는 재지 못한다. `verify` 마커 사실 검증과 의미 lint(모순·대체됐는데 현재형인 주장·장기 보류)는 spec-30-02 에서 추가된다.
+| 층 | 무엇을 | 어떻게 | 비고 |
+|---|---|---|---|
+| **사실 검증** (주) | `<!-- verify: <키> -->` 표가 코드와 일치하나, frontmatter `sources:`/`covers:` 경로가 존재하나, 크기 상한 이내인가 | `sdd doctor` W-5 / `sdd status` 진단 (결정론, 경고) | 코드가 사실의 출처 — 어긋나면 wiki 가 틀린 것. 지원 키: `hooks-defaults` |
+| **신선도** (보조 신호) | wiki 에 없는 ADR, 마지막 인제스트 이후 archive 누적 | `sdd doctor` W-4 ("wiki 낡음(보조)") | "인제스트했는가" 만 잴 뿐 "맞는가" 는 재지 못한다. 운영 파일(index/log/schema) 외 wiki 전체에서 ADR 언급을 찾는다 |
+| **의미 lint** | 모순 · 대체됐는데 현재형인 주장 · 장기 보류/반복 · 출처 없는 주장 · verify 마커 누락 | `/hk-wiki-lint` (LLM, 보고서만 — 수정하지 않음) | 오탐 가능 → `(추정)` 표시, 사용자가 판단 후 규약 2 로 갱신 |
+
+구조 점검(고아 `[[wikilink]]`, stale ADR/RCA 90일+)은 `sdd doctor` 의 `wiki layer` 섹션이 계속 맡는다. 모든 경고는 차단하지 않는다(hook 단계론).
+
+`verify` 키는 `sources/bin/sdd` 의 `_wiki_verify_page` 레지스트리에 등록된 것만 유효하다. 알 수 없는 키는 오타로 보고된다.

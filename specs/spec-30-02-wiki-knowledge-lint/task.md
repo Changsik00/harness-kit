@@ -65,9 +65,9 @@
 - [x] Commit: `test(spec-30-02): add failing test for wiki-lint command contract`
 
 ### 5-2. 구현 (Green)
-- [ ] `sources/commands/hk-wiki-lint.md` 작성 → `.claude/commands/` 사본, `schema.md` Lint 절 개정
-- [ ] `doctor.sh`/설치 목록에 커맨드 등록이 필요한지 확인(예: 커맨드 목록 테스트 `test-uninstall-cmd-list`) 후 반영
-- [ ] 전체 `bash tests/run.sh` PASS → Commit: `feat(spec-30-02): add hk-wiki-lint semantic lint command`
+- [x] `sources/commands/hk-wiki-lint.md` 작성 → `.claude/commands/` 사본, `schema.md` Lint 절 개정
+- [x] `doctor.sh`/설치 목록에 커맨드 등록이 필요한지 확인(예: 커맨드 목록 테스트 `test-uninstall-cmd-list`) 후 반영
+- [x] 전체 `bash tests/run.sh` PASS → Commit: `feat(spec-30-02): add hk-wiki-lint semantic lint command`
 
 ---
 
