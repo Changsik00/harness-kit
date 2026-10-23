@@ -8,7 +8,7 @@
 ## 📦 진행 중 Phase
 
 <!-- sdd:active:start -->
-- **phase-30** — wiki-as-knowledge — 1 spec — 다음: spec-30-01-wiki-three-layer-schema
+- **phase-30** — wiki-as-knowledge — 1 spec — 다음: (spec 없음)
 <!-- sdd:active:end -->
 
 ## 📥 spec-x 대기
