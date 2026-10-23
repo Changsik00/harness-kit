@@ -117,4 +117,26 @@ out=$(run_status "$F1")
 echo "$out" | grep -q "wiki 낡음" || fail "status 진단 should surface freshness line" "$out"
 pass "case 6: sdd status surfaces freshness line"
 
+# ─── Case 7: 신호 A 는 wiki 전체에서 ADR 언급을 찾는다 (spec-30-02) ──
+F7="$(new_fixture c7)"
+write_adr "$F7" ADR-001; write_adr "$F7" ADR-002
+write_wiki "$F7" 2026-01-10
+mkdir -p "$F7/docs/wiki/components"
+printf -- '---\nkind: synthesis\nsources: []\n---\n# hooks\n[[ADR-002]] 로 결정됨\n' > "$F7/docs/wiki/components/hooks.md"
+commit_at "$F7" "2026-01-10T12:00:00" "init"
+out=$(run_doctor "$F7")
+echo "$out" | grep -q "wiki 낡음" && fail "ADR mentioned in a component page must count as reflected" "$out"
+pass "case 7: ADR mentioned only in components/ is reflected"
+
+# index.md 는 인벤토리라 여전히 제외
+F8="$(new_fixture c8)"
+write_adr "$F8" ADR-001; write_adr "$F8" ADR-002
+write_wiki "$F8" 2026-01-10
+printf '[[ADR-002]]\n' >> "$F8/docs/wiki/index.md"
+commit_at "$F8" "2026-01-10T12:00:00" "init"
+out=$(run_doctor "$F8")
+echo "$out" | grep -q "ADR-002" || fail "index.md mention must not count as reflected" "$out"
+echo "$out" | grep -q "wiki 낡음(보조)" || fail "freshness warning must be labelled as secondary signal" "$out"
+pass "case 8: index.md excluded; warning labelled (보조)"
+
 echo "PASS"

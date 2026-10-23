@@ -5,8 +5,8 @@ sources:
   - archive/specs/spec-17-04-governance-test-coherence/walkthrough.md
   - docs/decisions/ADR-002-planning-economy.md
   - docs/rca/RCA-001-sdd-ship-spec-add-missing.md
-  - specs/spec-19-01-wiki-layer-bootstrap/walkthrough.md
-  - specs/spec-19-03-doctor-wiki-slim/walkthrough.md
+  - archive/specs/spec-19-01-wiki-layer-bootstrap/walkthrough.md
+  - archive/specs/spec-19-03-doctor-wiki-slim/walkthrough.md
   - archive/specs/spec-14-03-gitignore-idempotent/walkthrough.md
   - archive/specs/spec-14-04-marker-append-guard/walkthrough.md
   - archive/specs/spec-15-01-upgrade-danger-audit/walkthrough.md

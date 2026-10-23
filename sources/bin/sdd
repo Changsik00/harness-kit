@@ -631,6 +631,13 @@ _status_diagnose() {
     warnings="${warnings}  💡 ${wiki_fresh}\n"
   fi
 
+  # 3.65 wiki 사실 검증 (spec-30-02 — doctor 와 헬퍼 공유)
+  local wiki_verify
+  wiki_verify=$(_wiki_verify_report || true)
+  if [ -n "$wiki_verify" ]; then
+    warnings="${warnings}  💡 ${wiki_verify}\n"
+  fi
+
   # 3.7 원본↔사본 drift (spec-28-02 — doctor 와 헬퍼 공유)
   local src_drift
   src_drift=$(_source_sync_report || true)
@@ -2510,7 +2517,7 @@ _source_sync_report() {
 }
 
 # wiki 신선도 (spec-28-01) — 낡았을 때만 한 줄 출력, 최신이거나 전제(wiki/decisions/archive/git) 부재면 침묵.
-#   A: docs/decisions 의 ADR-NNN 이 wiki decisions.md / patterns.md 어디에도 없음 (index.md 는 인벤토리라 제외)
+#   A: docs/decisions 의 ADR-NNN 이 wiki 어디에도 없음 (운영 파일 index/log/schema 제외 — spec-30-02: 인제스트 단위가 컴포넌트 페이지로 바뀜)
 #   B: log.md 마지막 인제스트 날짜 이후(당일 제외) archive/specs/*/walkthrough.md 가 git 에 추가/이동된 spec 수 >= 5
 _wiki_freshness_report() {
   local wiki_dir="$SDD_ROOT/docs/wiki" dec_dir="$SDD_ROOT/docs/decisions"
@@ -2524,7 +2531,8 @@ _wiki_freshness_report() {
       [ -f "$f" ] || continue
       id=$(basename "$f" | grep -oE '^ADR-[0-9]+' || true)
       [ -n "$id" ] || continue
-      if ! grep -qE "${id}([^0-9]|$)" "$wiki_dir/decisions.md" "$wiki_dir/patterns.md" 2>/dev/null; then
+      # spec-30-02: 인제스트가 로그(decisions/patterns)를 더 이상 편집하지 않으므로 운영 파일(index/log/schema) 외 wiki 전체에서 찾는다
+      if ! grep -rqE --exclude=index.md --exclude=log.md --exclude=schema.md "${id}([^0-9]|$)" "$wiki_dir" 2>/dev/null; then
         n_missing=$((n_missing + 1))
         if [ "$shown" -lt 5 ]; then
           missing="${missing:+$missing, }$id"
@@ -2551,7 +2559,114 @@ _wiki_freshness_report() {
     fi
   fi
 
-  [ -n "$parts" ] && echo "wiki 낡음: ${parts} — /hk-wiki-ingest 로 갱신"
+  [ -n "$parts" ] && echo "wiki 낡음(보조): ${parts} — /hk-wiki-ingest 로 갱신"
+  return 0
+}
+
+# wiki 사실 검증 (spec-30-02) — 코드에서 기계 확인 가능한 wiki 표를 코드와 대조한다.
+#   페이지의 `<!-- verify: <키> -->` 마커(줄 맨 앞, 코드 펜스 밖) 바로 아래 표가 대상. 불일치가 있을 때만 한 줄 출력, 없으면 침묵.
+#   키 레지스트리: hooks-defaults. 사실의 출처는 코드이므로 불일치는 wiki 가 틀린 것으로 본다.
+_wiki_verify_hooks_defaults() { # <rel> <table-rows>
+  local rel="$1" table="$2" hdir="$SDD_ROOT/.harness-kit/hooks"
+  [ -d "$hdir" ] || return 0
+  local rows hf hn hl hd cell
+  # 표 → "첫칸<TAB>기본칸" (헤더의 '기본' 열 위치로 기본칸 선택, 구분선 제외)
+  rows=$(printf '%s\n' "$table" | awk -F'|' '
+    NR==1 { for (i=2;i<NF;i++) { c=$i; gsub(/^[ \t]+|[ \t]+$/,"",c); if (c=="기본") col=i } next }
+    /^\|[ \t]*:?-/ { next }
+    col { a=$2; b=$col; gsub(/^[ \t]+|[ \t]+$/,"",a); gsub(/^[ \t]+|[ \t]+$/,"",b); print a "\t" b }')
+  local decl_names=""
+  for hf in "$hdir"/*.sh; do
+    [ -f "$hf" ] || continue
+    hl=$(grep -m1 '^[[:space:]]*hook_resolve_mode "' "$hf" 2>/dev/null || true)
+    [ -n "$hl" ] || continue
+    hn=$(basename "$hf" .sh)
+    hd=$(printf '%s' "$hl" | sed -E 's/.*hook_resolve_mode "[A-Z_]+" "([^"]*)".*/\1/')
+    decl_names="$decl_names $hn"
+    cell=$(printf '%s\n' "$rows" | awk -F'\t' -v n="$hn" 'index($1,n) { print $2; exit }')
+    if ! printf '%s\n' "$rows" | awk -F'\t' -v n="$hn" 'index($1,n) { f=1 } END { exit !f }'; then
+      echo "$rel: 표에 없는 hook: $hn"
+      continue
+    fi
+    case "$hd" in
+      '$'*) printf '%s' "$cell" | grep -qE 'auto=|attended=|모드별' \
+              || echo "$rel: $hn 기본 '$cell' ≠ 선언(모드별)" ;;
+      *)    printf '%s' "$cell" | grep -qw -- "$hd" \
+              || echo "$rel: $hn 기본 '$cell' ≠ 선언 '$hd'" ;;
+    esac
+  done
+  # 표에는 있는데 코드에 없는 check-* hook
+  local tok
+  for tok in $(printf '%s\n' "$rows" | cut -f1 | grep -oE 'check-[a-z-]+' | sort -u || true); do
+    [ -f "$hdir/$tok.sh" ] || echo "$rel: 코드에 없는 hook: $tok"
+  done
+  return 0
+}
+
+_wiki_verify_page() { # <abs-file>
+  local f="$1" rel="${1#$SDD_ROOT/}" line ln key table
+  while IFS= read -r line; do
+    [ -n "$line" ] || continue
+    ln="${line%%:*}"
+    key=$(printf '%s' "${line#*:}" | sed -E 's/^<!-- verify:[[:space:]]*([^[:space:]]+)[[:space:]]*-->.*/\1/')
+    table=$(awk -v s="$ln" 'NR>s { if ($0 ~ /^\|/) { print; next } exit }' "$f")
+    if [ -z "$table" ]; then
+      echo "$rel: verify 마커($key) 아래에 표 없음"
+      continue
+    fi
+    case "$key" in
+      hooks-defaults) _wiki_verify_hooks_defaults "$rel" "$table" ;;
+      *) echo "$rel: 알 수 없는 verify 키: $key" ;;
+    esac
+  done < <(awk '/^```/ { fence = !fence; next } !fence && /^<!-- verify:/ { print NR ":" $0 }' "$f")
+  return 0
+}
+
+# frontmatter sources:/covers: 경로 존재 + 페이지 크기 상한 (spec-30-02)
+_wiki_verify_meta() { # <abs-file>
+  local f="$1" rel="${1#$SDD_ROOT/}" wrel="${1#$SDD_ROOT/docs/wiki/}" item missing="" n=0 cap lines
+  while IFS= read -r item; do
+    [ -n "$item" ] || continue
+    case "$item" in *://*|"["*|*"<"*) continue ;; esac
+    if [ ! -e "$SDD_ROOT/$item" ]; then
+      n=$((n + 1))
+      [ "$n" -le 3 ] && missing="${missing:+$missing, }$item"
+    fi
+  done < <(awk '
+    NR==1 && /^---/ { fm=1; next }
+    fm && /^---/ { exit }
+    fm && /^[A-Za-z_]+:/ { cur = ($1=="sources:" || $1=="covers:") ? 1 : 0; next }
+    fm && cur && /^[[:space:]]+-[[:space:]]/ { sub(/^[[:space:]]+-[[:space:]]+/, ""); gsub(/["'"'"']/, ""); sub(/[[:space:]]+$/, ""); print }
+  ' "$f")
+  [ "$n" -gt 0 ] && echo "$rel: 존재하지 않는 경로 ${n}개: ${missing}"
+  case "$wrel" in
+    components/*.md) cap=200 ;;
+    direction.md)    cap=150 ;;
+    threads.md)      cap=300 ;;
+    *)               cap="" ;;
+  esac
+  if [ -n "$cap" ]; then
+    lines=$(wc -l < "$f" | tr -d ' ')
+    [ "$lines" -gt "$cap" ] && echo "$rel: 크기 상한 초과 ${lines}줄 (>${cap})"
+  fi
+  return 0
+}
+
+_wiki_verify_report() {
+  local wiki_dir="$SDD_ROOT/docs/wiki"
+  [ -d "$wiki_dir" ] || return 0
+  local f all="" out
+  while IFS= read -r f; do
+    [ -f "$f" ] || continue
+    out=$( { _wiki_verify_page "$f"; _wiki_verify_meta "$f"; } || true)
+    [ -n "$out" ] && all="${all:+$all
+}$out"
+  done < <(find "$wiki_dir" -name '*.md' | sort)
+  [ -n "$all" ] || return 0
+  local n shown
+  n=$(printf '%s\n' "$all" | wc -l | tr -d ' ')
+  shown=$(printf '%s\n' "$all" | head -5 | paste -sd';' - | sed 's/;/; /g')
+  echo "wiki 사실 불일치 ${n}건: ${shown} — 코드가 사실의 출처, wiki 페이지를 정정"
   return 0
 }
 
@@ -2749,6 +2864,15 @@ cmd_doctor() {
       _doc_warn "$fresh"
     else
       _doc_pass "wiki 최신 (미반영 ADR 없음, 인제스트 이후 archive 5개 미만)"
+    fi
+
+    # W-5: wiki 사실 검증 (spec-30-02)
+    local verify
+    verify=$(_wiki_verify_report)
+    if [ -n "$verify" ]; then
+      _doc_warn "$verify"
+    else
+      _doc_pass "wiki 사실 검증 OK"
     fi
   }
 
