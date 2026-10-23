@@ -8,7 +8,7 @@
 ## 📦 진행 중 Phase
 
 <!-- sdd:active:start -->
-- **phase-30** — wiki-as-knowledge — 1 spec — 다음: (spec 없음)
+- **phase-30** — wiki-as-knowledge — 2 spec — 다음: spec-30-02-wiki-knowledge-lint
 <!-- sdd:active:end -->
 
 ## 📥 spec-x 대기
