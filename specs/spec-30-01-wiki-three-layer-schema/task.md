@@ -65,14 +65,14 @@
 
 ### 🚦 Pre-Push Quality Gate
 
-- [ ] **전체 테스트 실행** → 모두 PASS
-- [ ] `sdd doctor` 에서 wikilink·ADR·원본↔사본 경고 없음 확인
+- [x] **전체 테스트 실행** → 모두 PASS
+- [x] `sdd doctor` 에서 wikilink·ADR·원본↔사본 경고 없음 확인
 
 ### 📝 산출물 작성
 
-- [ ] **walkthrough.md 작성** (수동 검증 시나리오 1 결과 또는 이월 명시, ADR 후보 처리 포함)
-- [ ] **pr_description.md 작성**
-- [ ] Commit: `docs(spec-30-01): ship walkthrough and pr description`
+- [x] **walkthrough.md 작성** (수동 검증 시나리오 1 결과 또는 이월 명시, ADR 후보 처리 포함)
+- [x] **pr_description.md 작성**
+- [x] Commit: `docs(spec-30-01): ship walkthrough and pr description`
 
 ### 🚀 Push & PR
 
