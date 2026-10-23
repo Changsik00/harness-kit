@@ -28,6 +28,8 @@ updated: 2026-10-20
 
 # 반복 패턴 증류
 
+> **출처별 로그 (격하).** 이 페이지는 패턴을 출처 단위로 쌓은 기록이다. 삭제하지 않지만 *현재 입장*은 여기가 아니라 `direction.md`·`components/<name>.md` 에서 읽는다 (규약 → [[wiki/schema]]).
+
 > phase-08~18에서 반복 확인된 good pattern과 anti-pattern.
 > 각 패턴에 최초 확인 출처 태그.
 

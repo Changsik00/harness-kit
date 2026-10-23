@@ -8,7 +8,7 @@
 ## 📦 진행 중 Phase
 
 <!-- sdd:active:start -->
-- **phase-30** — wiki-as-knowledge — 0/0 spec — (다음: 첫 spec 생성 대기)
+- **phase-30** — wiki-as-knowledge — 1 spec — 다음: (spec 없음)
 <!-- sdd:active:end -->
 
 ## 📥 spec-x 대기
