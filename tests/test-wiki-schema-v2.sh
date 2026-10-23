@@ -7,7 +7,9 @@ set -euo pipefail
 #   1. 컴포넌트 페이지 템플릿
 #   2. schema.md 규약 문구
 #   4. 시범 페이지 섹션·크기 상한
+#   3. /hk-wiki-ingest 계약
 #   5. verify 마커
+#   7. CLAUDE fragment 조회 순서
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
@@ -87,6 +89,30 @@ for page in "$ROOT"/docs/wiki/components/*.md; do
   done
   lines="$(wc -l < "$page" | tr -d ' ')"
   if [ "$lines" -le 200 ]; then pass "$name ${lines}줄 (<=200)"; else fail "$name ${lines}줄 (>200)"; fi
+done
+
+# ─────────────────────────────────────────────
+echo ""
+echo "▶ Case 3: /hk-wiki-ingest 계약"
+ING="$ROOT/sources/commands/hk-wiki-ingest.md"
+ING_COPY="$ROOT/.claude/commands/hk-wiki-ingest.md"
+for phrase in "covers" "Proposed Changes" "사용자 확인" "변경 이력" "제자리" "threads.md"; do
+  if grep -qF -- "$phrase" "$ING"; then pass "hk-wiki-ingest — '$phrase'"; else fail "hk-wiki-ingest — '$phrase' 없음"; fi
+done
+for phrase in "삭제하거나 교체하지 않는다" "섹션 하단에 추가"; do
+  if grep -qF -- "$phrase" "$ING"; then fail "hk-wiki-ingest — 구 규약 문구 잔존: '$phrase'"; else pass "hk-wiki-ingest — 구 규약 문구 없음: '$phrase'"; fi
+done
+if [ -f "$ING_COPY" ] && cmp -s "$ING" "$ING_COPY"; then pass "사본 .claude/commands/ 와 동일"; else fail "사본 없음 또는 원본과 다름"; fi
+
+# ─────────────────────────────────────────────
+echo ""
+echo "▶ Case 7: CLAUDE fragment 조회 순서"
+for frag in "$ROOT/sources/claude-fragments/CLAUDE.fragment.md" "$ROOT/.harness-kit/CLAUDE.fragment.md"; do
+  fname="${frag#$ROOT/}"
+  line="$(grep -F 'docs/wiki/' "$frag" | grep -F 'schema.md' | head -1 || true)"
+  for phrase in "direction.md" "components/" "threads.md"; do
+    case "$line" in *"$phrase"*) pass "$fname — '$phrase'" ;; *) fail "$fname — 질의 문구에 '$phrase' 없음" ;; esac
+  done
 done
 
 # ─────────────────────────────────────────────

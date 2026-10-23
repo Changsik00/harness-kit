@@ -38,9 +38,9 @@
 ## Task 3: `/hk-wiki-ingest` 개정 + fragment 조회 순서
 
 ### 3-1. 테스트 (Red)
-- [ ] Case 3 (ingest 문구·원본/사본 동일), Case 7 (fragment 조회 순서) 추가 → Fail
-- [ ] `tests/test-wiki-ingest.sh`·`test-wiki-structure.sh` 가 기존 문구에 의존하는지 확인하고 필요 시 함께 갱신
-- [ ] Commit: `test(spec-30-01): add failing test for ingest contract`
+- [x] Case 3 (ingest 문구·원본/사본 동일), Case 7 (fragment 조회 순서) 추가 → Fail
+- [x] `tests/test-wiki-ingest.sh`·`test-wiki-structure.sh` 가 기존 문구에 의존하는지 확인하고 필요 시 함께 갱신
+- [x] Commit: `test(spec-30-01): add failing test for ingest contract`
 
 ### 3-2. 구현 (Green)
 - [ ] `sources/commands/hk-wiki-ingest.md` 재작성 → `.claude/commands/` 사본 `cp`
