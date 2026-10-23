@@ -9,6 +9,7 @@ set -euo pipefail
 #   4. 시범 페이지 섹션·크기 상한
 #   3. /hk-wiki-ingest 계약
 #   5. verify 마커
+#   6. decisions/patterns 격하 배너 + index 안내
 #   7. CLAUDE fragment 조회 순서
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
@@ -103,6 +104,26 @@ for phrase in "삭제하거나 교체하지 않는다" "섹션 하단에 추가"
   if grep -qF -- "$phrase" "$ING"; then fail "hk-wiki-ingest — 구 규약 문구 잔존: '$phrase'"; else pass "hk-wiki-ingest — 구 규약 문구 없음: '$phrase'"; fi
 done
 if [ -f "$ING_COPY" ] && cmp -s "$ING" "$ING_COPY"; then pass "사본 .claude/commands/ 와 동일"; else fail "사본 없음 또는 원본과 다름"; fi
+
+# ─────────────────────────────────────────────
+echo ""
+echo "▶ Case 6: decisions/patterns 격하 배너 (내용 불감소)"
+# 격하 전 줄 수(320/343) 이상이어야 한다 — 배너만 추가, 삭제 없음
+for pair in "decisions.md:320" "patterns.md:343"; do
+  f="${pair%%:*}"; base="${pair##*:}"
+  page="$ROOT/docs/wiki/$f"
+  if grep -qF "출처별 로그" "$page" && grep -qF "direction.md" "$page"; then
+    pass "$f — 격하 배너(출처별 로그 → direction)"
+  else
+    fail "$f — 격하 배너 없음"
+  fi
+  lines="$(wc -l < "$page" | tr -d ' ')"
+  if [ "$lines" -ge "$base" ]; then pass "$f — ${lines}줄 (>=${base}, 삭제 없음)"; else fail "$f — ${lines}줄 (<${base}, 내용이 줄었음)"; fi
+done
+INDEX="$ROOT/docs/wiki/index.md"
+for phrase in "3층" "threads.md" "출처별 로그"; do
+  if grep -qF -- "$phrase" "$INDEX"; then pass "index.md — '$phrase'"; else fail "index.md — '$phrase' 없음"; fi
+done
 
 # ─────────────────────────────────────────────
 echo ""

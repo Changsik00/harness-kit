@@ -52,8 +52,8 @@
 ## Task 4: 기존 페이지 격하·안내 정합
 
 ### 4-1. 테스트 (Red)
-- [ ] Case 6 (decisions/patterns 격하 배너, 줄 수 불감소) 추가 → Fail
-- [ ] Commit: `test(spec-30-01): add failing test for legacy log banner`
+- [x] Case 6 (decisions/patterns 격하 배너, 줄 수 불감소) 추가 → Fail
+- [x] Commit: `test(spec-30-01): add failing test for legacy log banner`
 
 ### 4-2. 구현 (Green)
 - [ ] `decisions.md`·`patterns.md` 상단 배너, `index.md` 3층 안내 행 (`updated`/`log.md` 는 건드리지 않음 — 인제스트 이벤트가 아님)
