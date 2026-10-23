@@ -49,8 +49,8 @@
 ## Task 4: 신선도 신호 A 교정 + 문구 격하
 
 ### 4-1. 테스트 (Red)
-- [ ] Case 10 (components 에만 언급된 ADR 은 미반영 아님) 추가, `tests/test-wiki-freshness.sh` 를 새 정의에 맞게 조정 → Fail
-- [ ] Commit: `test(spec-30-02): add failing test for freshness signal A over whole wiki`
+- [x] Case 10 (components 에만 언급된 ADR 은 미반영 아님) 추가, `tests/test-wiki-freshness.sh` 를 새 정의에 맞게 조정 → Fail
+- [x] Commit: `test(spec-30-02): add failing test for freshness signal A over whole wiki`
 
 ### 4-2. 구현 (Green)
 - [ ] `_wiki_freshness_report` 신호 A 대상을 `docs/wiki/` 전체(index.md 제외)로, 출력 문구를 "(보조)" 로 → 사본 `cp`
