@@ -8,12 +8,12 @@
 ## Task 1: 마커 파서 + `hooks-defaults` 검증기
 
 ### 1-1. 브랜치 생성
-- [ ] `git checkout -b spec-30-02-wiki-knowledge-lint`
+- [x] `git checkout -b spec-30-02-wiki-knowledge-lint`
 
 ### 1-2. 테스트 (Red)
-- [ ] `tests/test-wiki-verify.sh` 작성 — Case 1~5, 8 (일치 침묵 / 기본값 변경 감지 / 표에 없는 hook / 마커 아래 표 없음 / 알 수 없는 키 / wiki 없음 침묵). fixture 는 임시 repo 에 hook 선언 파일 + wiki 페이지 구성
-- [ ] 실행 → Fail 확인
-- [ ] Commit: `test(spec-30-02): add failing test for hooks-defaults verification`
+- [x] `tests/test-wiki-verify.sh` 작성 — Case 1~5, 8 (일치 침묵 / 기본값 변경 감지 / 표에 없는 hook / 마커 아래 표 없음 / 알 수 없는 키 / wiki 없음 침묵). fixture 는 임시 repo 에 hook 선언 파일 + wiki 페이지 구성
+- [x] 실행 → Fail 확인
+- [x] Commit: `test(spec-30-02): add failing test for hooks-defaults verification`
 
 ### 1-3. 구현 (Green)
 - [ ] `sources/bin/sdd` 에 `_wiki_verify_report` + `_wiki_verify_hooks_defaults` + 키 레지스트리 추가 → 사본 `cp`
