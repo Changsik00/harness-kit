@@ -9,6 +9,7 @@
 #   5. 알 수 없는 verify 키 → 보고
 #   6. frontmatter sources:/covers: 경로가 존재하지 않음 → 보고
 #   7. 페이지 크기 상한 초과 → 보고
+#   9. 본 저장소 실측 → 불일치 0건 / status 진단 노출
 #   8. wiki 없음 / 마커·components 없음 → 침묵
 #
 # 임시 git repo 만 사용 (실제 repo 는 변경하지 않음). bash 3.2+ 호환.
@@ -140,6 +141,15 @@ d="$(new_fixture no-marker)"
 printf -- '---\nkind: synthesis\nsources: []\n---\n# x\n\n표 없음, 마커 없음\n' > "$d/docs/wiki/components/hooks.md"
 out="$(run_doctor "$d")"
 case "$out" in *"wiki 사실 불일치"*) fail "마커 없는데 보고" "$out" ;; *) pass "마커 없음 침묵" ;; esac
+
+echo ""
+echo "▶ Case 9: 본 저장소 실측 + status 진단"
+out="$(cd "$ROOT" && bash "$SDD" doctor 2>&1 || true)"
+case "$out" in *"wiki 사실 검증 OK"*) pass "본 저장소 wiki 사실 불일치 0건" ;; *) fail "본 저장소에 불일치 있음" "$(printf '%s\n' "$out" | grep '사실')" ;; esac
+d="$(new_fixture status-line)"
+printf 'hook_resolve_mode "BRANCH" "warn"\n' > "$d/.harness-kit/hooks/check-branch.sh"
+out="$(cd "$d" && bash "$SDD" status --no-drift 2>&1 || true)"
+case "$out" in *"wiki 사실 불일치"*"check-branch"*) pass "sdd status 진단에 노출" ;; *) fail "status 진단에 없음" "$out" ;; esac
 
 echo ""
 echo "✓ wiki 사실 검증 PASS"

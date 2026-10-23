@@ -36,8 +36,8 @@
 ## Task 3: doctor / status 연결 + 본 저장소 실측
 
 ### 3-1. 테스트 (Red)
-- [ ] Case 9 (본 저장소 실측 0건), doctor 출력에 W-5 노출 확인 케이스 추가 → Fail (연결 전)
-- [ ] Commit: `test(spec-30-02): add failing test for doctor wiring and repo measurement`
+- [x] Case 9 (본 저장소 실측 0건), doctor 출력에 W-5 노출 확인 케이스 추가 → Fail (연결 전)
+- [x] Commit: `test(spec-30-02): add failing test for doctor wiring and repo measurement`
 
 ### 3-2. 구현 (Green)
 - [ ] doctor wiki layer 에 W-5 추가, `_status_diagnose` 연결 → 사본 `cp`
