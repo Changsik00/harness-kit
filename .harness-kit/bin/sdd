@@ -631,6 +631,13 @@ _status_diagnose() {
     warnings="${warnings}  💡 ${wiki_fresh}\n"
   fi
 
+  # 3.65 wiki 사실 검증 (spec-30-02 — doctor 와 헬퍼 공유)
+  local wiki_verify
+  wiki_verify=$(_wiki_verify_report || true)
+  if [ -n "$wiki_verify" ]; then
+    warnings="${warnings}  💡 ${wiki_verify}\n"
+  fi
+
   # 3.7 원본↔사본 drift (spec-28-02 — doctor 와 헬퍼 공유)
   local src_drift
   src_drift=$(_source_sync_report || true)
@@ -2555,6 +2562,83 @@ _wiki_freshness_report() {
   return 0
 }
 
+# wiki 사실 검증 (spec-30-02) — 코드에서 기계 확인 가능한 wiki 표를 코드와 대조한다.
+#   페이지의 `<!-- verify: <키> -->` 마커(줄 맨 앞, 코드 펜스 밖) 바로 아래 표가 대상. 불일치가 있을 때만 한 줄 출력, 없으면 침묵.
+#   키 레지스트리: hooks-defaults. 사실의 출처는 코드이므로 불일치는 wiki 가 틀린 것으로 본다.
+_wiki_verify_hooks_defaults() { # <rel> <table-rows>
+  local rel="$1" table="$2" hdir="$SDD_ROOT/.harness-kit/hooks"
+  [ -d "$hdir" ] || return 0
+  local rows hf hn hl hd cell
+  # 표 → "첫칸<TAB>기본칸" (헤더의 '기본' 열 위치로 기본칸 선택, 구분선 제외)
+  rows=$(printf '%s\n' "$table" | awk -F'|' '
+    NR==1 { for (i=2;i<NF;i++) { c=$i; gsub(/^[ \t]+|[ \t]+$/,"",c); if (c=="기본") col=i } next }
+    /^\|[ \t]*:?-/ { next }
+    col { a=$2; b=$col; gsub(/^[ \t]+|[ \t]+$/,"",a); gsub(/^[ \t]+|[ \t]+$/,"",b); print a "\t" b }')
+  local decl_names=""
+  for hf in "$hdir"/*.sh; do
+    [ -f "$hf" ] || continue
+    hl=$(grep -m1 '^[[:space:]]*hook_resolve_mode "' "$hf" 2>/dev/null || true)
+    [ -n "$hl" ] || continue
+    hn=$(basename "$hf" .sh)
+    hd=$(printf '%s' "$hl" | sed -E 's/.*hook_resolve_mode "[A-Z_]+" "([^"]*)".*/\1/')
+    decl_names="$decl_names $hn"
+    cell=$(printf '%s\n' "$rows" | awk -F'\t' -v n="$hn" 'index($1,n) { print $2; exit }')
+    if ! printf '%s\n' "$rows" | awk -F'\t' -v n="$hn" 'index($1,n) { f=1 } END { exit !f }'; then
+      echo "$rel: 표에 없는 hook: $hn"
+      continue
+    fi
+    case "$hd" in
+      '$'*) printf '%s' "$cell" | grep -qE 'auto=|attended=|모드별' \
+              || echo "$rel: $hn 기본 '$cell' ≠ 선언(모드별)" ;;
+      *)    printf '%s' "$cell" | grep -qw -- "$hd" \
+              || echo "$rel: $hn 기본 '$cell' ≠ 선언 '$hd'" ;;
+    esac
+  done
+  # 표에는 있는데 코드에 없는 check-* hook
+  local tok
+  for tok in $(printf '%s\n' "$rows" | cut -f1 | grep -oE 'check-[a-z-]+' | sort -u || true); do
+    [ -f "$hdir/$tok.sh" ] || echo "$rel: 코드에 없는 hook: $tok"
+  done
+  return 0
+}
+
+_wiki_verify_page() { # <abs-file>
+  local f="$1" rel="${1#$SDD_ROOT/}" line ln key table
+  while IFS= read -r line; do
+    [ -n "$line" ] || continue
+    ln="${line%%:*}"
+    key=$(printf '%s' "${line#*:}" | sed -E 's/^<!-- verify:[[:space:]]*([^[:space:]]+)[[:space:]]*-->.*/\1/')
+    table=$(awk -v s="$ln" 'NR>s { if ($0 ~ /^\|/) { print; next } exit }' "$f")
+    if [ -z "$table" ]; then
+      echo "$rel: verify 마커($key) 아래에 표 없음"
+      continue
+    fi
+    case "$key" in
+      hooks-defaults) _wiki_verify_hooks_defaults "$rel" "$table" ;;
+      *) echo "$rel: 알 수 없는 verify 키: $key" ;;
+    esac
+  done < <(awk '/^```/ { fence = !fence; next } !fence && /^<!-- verify:/ { print NR ":" $0 }' "$f")
+  return 0
+}
+
+_wiki_verify_report() {
+  local wiki_dir="$SDD_ROOT/docs/wiki"
+  [ -d "$wiki_dir" ] || return 0
+  local f all="" out
+  while IFS= read -r f; do
+    [ -f "$f" ] || continue
+    out=$(_wiki_verify_page "$f" || true)
+    [ -n "$out" ] && all="${all:+$all
+}$out"
+  done < <(find "$wiki_dir" -name '*.md' | sort)
+  [ -n "$all" ] || return 0
+  local n shown
+  n=$(printf '%s\n' "$all" | wc -l | tr -d ' ')
+  shown=$(printf '%s\n' "$all" | head -5 | paste -sd';' - | sed 's/;/; /g')
+  echo "wiki 사실 불일치 ${n}건: ${shown} — 코드가 사실의 출처, wiki 페이지를 정정"
+  return 0
+}
+
 cmd_doctor() {
   local fail=0 warn=0
 
@@ -2749,6 +2833,15 @@ cmd_doctor() {
       _doc_warn "$fresh"
     else
       _doc_pass "wiki 최신 (미반영 ADR 없음, 인제스트 이후 archive 5개 미만)"
+    fi
+
+    # W-5: wiki 사실 검증 (spec-30-02)
+    local verify
+    verify=$(_wiki_verify_report)
+    if [ -n "$verify" ]; then
+      _doc_warn "$verify"
+    else
+      _doc_pass "wiki 사실 검증 OK"
     fi
   }
 

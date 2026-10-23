@@ -16,8 +16,8 @@
 - [x] Commit: `test(spec-30-02): add failing test for hooks-defaults verification`
 
 ### 1-3. 구현 (Green)
-- [ ] `sources/bin/sdd` 에 `_wiki_verify_report` + `_wiki_verify_hooks_defaults` + 키 레지스트리 추가 → 사본 `cp`
-- [ ] 테스트 Pass → Commit: `feat(spec-30-02): verify wiki hook table against hook declarations`
+- [x] `sources/bin/sdd` 에 `_wiki_verify_report` + `_wiki_verify_hooks_defaults` + 키 레지스트리 추가 → 사본 `cp`
+- [x] 테스트 Pass → Commit: `feat(spec-30-02): verify wiki hook table against hook declarations`
 
 ---
 
