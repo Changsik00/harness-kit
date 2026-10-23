@@ -2517,7 +2517,7 @@ _source_sync_report() {
 }
 
 # wiki 신선도 (spec-28-01) — 낡았을 때만 한 줄 출력, 최신이거나 전제(wiki/decisions/archive/git) 부재면 침묵.
-#   A: docs/decisions 의 ADR-NNN 이 wiki decisions.md / patterns.md 어디에도 없음 (index.md 는 인벤토리라 제외)
+#   A: docs/decisions 의 ADR-NNN 이 wiki 어디에도 없음 (운영 파일 index/log/schema 제외 — spec-30-02: 인제스트 단위가 컴포넌트 페이지로 바뀜)
 #   B: log.md 마지막 인제스트 날짜 이후(당일 제외) archive/specs/*/walkthrough.md 가 git 에 추가/이동된 spec 수 >= 5
 _wiki_freshness_report() {
   local wiki_dir="$SDD_ROOT/docs/wiki" dec_dir="$SDD_ROOT/docs/decisions"
@@ -2531,7 +2531,8 @@ _wiki_freshness_report() {
       [ -f "$f" ] || continue
       id=$(basename "$f" | grep -oE '^ADR-[0-9]+' || true)
       [ -n "$id" ] || continue
-      if ! grep -qE "${id}([^0-9]|$)" "$wiki_dir/decisions.md" "$wiki_dir/patterns.md" 2>/dev/null; then
+      # spec-30-02: 인제스트가 로그(decisions/patterns)를 더 이상 편집하지 않으므로 운영 파일(index/log/schema) 외 wiki 전체에서 찾는다
+      if ! grep -rqE --exclude=index.md --exclude=log.md --exclude=schema.md "${id}([^0-9]|$)" "$wiki_dir" 2>/dev/null; then
         n_missing=$((n_missing + 1))
         if [ "$shown" -lt 5 ]; then
           missing="${missing:+$missing, }$id"
@@ -2558,7 +2559,7 @@ _wiki_freshness_report() {
     fi
   fi
 
-  [ -n "$parts" ] && echo "wiki 낡음: ${parts} — /hk-wiki-ingest 로 갱신"
+  [ -n "$parts" ] && echo "wiki 낡음(보조): ${parts} — /hk-wiki-ingest 로 갱신"
   return 0
 }
 

@@ -125,7 +125,7 @@ mkdir -p "$F7/docs/wiki/components"
 printf -- '---\nkind: synthesis\nsources: []\n---\n# hooks\n[[ADR-002]] 로 결정됨\n' > "$F7/docs/wiki/components/hooks.md"
 commit_at "$F7" "2026-01-10T12:00:00" "init"
 out=$(run_doctor "$F7")
-echo "$out" | grep -q "미반영 ADR" && fail "ADR mentioned in a component page must count as reflected" "$out"
+echo "$out" | grep -q "wiki 낡음" && fail "ADR mentioned in a component page must count as reflected" "$out"
 pass "case 7: ADR mentioned only in components/ is reflected"
 
 # index.md 는 인벤토리라 여전히 제외

@@ -53,8 +53,8 @@
 - [x] Commit: `test(spec-30-02): add failing test for freshness signal A over whole wiki`
 
 ### 4-2. 구현 (Green)
-- [ ] `_wiki_freshness_report` 신호 A 대상을 `docs/wiki/` 전체(index.md 제외)로, 출력 문구를 "(보조)" 로 → 사본 `cp`
-- [ ] Pass → Commit: `fix(spec-30-02): search whole wiki for ADR mentions in freshness check`
+- [x] `_wiki_freshness_report` 신호 A 대상을 `docs/wiki/` 전체(index.md 제외)로, 출력 문구를 "(보조)" 로 → 사본 `cp`
+- [x] Pass → Commit: `fix(spec-30-02): search whole wiki for ADR mentions in freshness check`
 
 ---
 
