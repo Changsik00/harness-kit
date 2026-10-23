@@ -8,17 +8,17 @@
 ## Task 1: 컴포넌트 페이지 템플릿 + 계약 테스트 골격
 
 ### 1-1. 브랜치 생성
-- [ ] `git checkout -b spec-30-01-wiki-three-layer-schema`
+- [x] `git checkout -b spec-30-01-wiki-three-layer-schema`
 
 ### 1-2. 테스트 작성 (TDD Red)
-- [ ] `tests/test-wiki-schema-v2.sh` 작성 — Case 1 (템플릿 존재·필수 섹션 6개·frontmatter 필드·원본/사본 동일) 먼저, Case 2~7 은 이후 task 에서 추가
-- [ ] 테스트 실행 → Fail 확인
-- [ ] Commit: `test(spec-30-01): add failing test for wiki component template`
+- [x] `tests/test-wiki-schema-v2.sh` 작성 — Case 1 (템플릿 존재·필수 섹션 6개·frontmatter 필드·원본/사본 동일) 먼저, Case 2~7 은 이후 task 에서 추가
+- [x] 테스트 실행 → Fail 확인
+- [x] Commit: `test(spec-30-01): add failing test for wiki component template`
 
 ### 1-3. 구현 (TDD Green)
-- [ ] `sources/templates/wiki-component.md` 작성 + `.harness-kit/agent/templates/` 사본
-- [ ] 테스트 실행 → Pass 확인
-- [ ] Commit: `feat(spec-30-01): add wiki component page template`
+- [x] `sources/templates/wiki-component.md` 작성 + `.harness-kit/agent/templates/` 사본
+- [x] 테스트 실행 → Pass 확인
+- [x] Commit: `feat(spec-30-01): add wiki component page template`
 
 ---
 
