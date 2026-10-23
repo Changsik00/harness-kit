@@ -47,6 +47,7 @@ wiki 를 "무엇이 정리됐나" 가 아니라 **"지금 입장이 무엇이고
 <!-- sdd:specs:start -->
 | ID | 슬러그 | 우선순위 | 상태 | 디렉토리 |
 |---|---|:---:|---|---|
+| `spec-30-01` | wiki-three-layer-schema | P? | Active | `specs/spec-30-01-wiki-three-layer-schema/` |
 <!-- sdd:specs:end -->
 
 > 상태 허용값: `Backlog` / `In Progress` / `Merged`
