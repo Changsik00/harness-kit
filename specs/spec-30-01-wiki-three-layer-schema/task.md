@@ -29,9 +29,9 @@
 - [x] Commit: `test(spec-30-01): add failing test for schema v2 contract`
 
 ### 2-2. 구현 (Green)
-- [ ] `docs/wiki/schema.md` 재작성 (Ingest/Query/Lint 절 포함)
-- [ ] `docs/wiki/components/hooks.md` hook 표 위 `verify` 마커 부착 (direction.md 는 기계 검증 표가 없으면 생략)
-- [ ] 테스트 Pass → Commit: `docs(spec-30-01): rewrite wiki schema as 3-layer with in-place update`
+- [x] `docs/wiki/schema.md` 재작성 (Ingest/Query/Lint 절 포함)
+- [x] `docs/wiki/components/hooks.md` hook 표 위 `verify` 마커 부착 (direction.md 는 기계 검증 표가 없으면 생략)
+- [x] 테스트 Pass → Commit: `docs(spec-30-01): rewrite wiki schema as 3-layer with in-place update`
 
 ---
 

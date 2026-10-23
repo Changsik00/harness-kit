@@ -36,6 +36,7 @@ updated: 2026-10-22
 
 모드: `block`(exit 2, 차단) / `warn`(stderr 경고, 통과) / `off`. 전환은 `HARNESS_HOOK_MODE_<NAME>` 환경변수, 글로벌 `HARNESS_HOOK_MODE` (`_lib.sh` `hook_resolve_mode`).
 
+<!-- verify: hooks-defaults -->
 | hook | 걸리는 곳 | 기본 | 비고 |
 |---|---|---|---|
 | check-branch | PreToolUse Bash | **block** | main 에서 commit/push 차단 |
