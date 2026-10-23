@@ -40,9 +40,9 @@
 - [x] Commit: `test(spec-30-02): add failing test for doctor wiring and repo measurement`
 
 ### 3-2. 구현 (Green)
-- [ ] doctor wiki layer 에 W-5 추가, `_status_diagnose` 연결 → 사본 `cp`
-- [ ] 본 저장소 첫 실행에서 불일치가 나오면 **문서(hooks.md)를 코드에 맞게 정정**
-- [ ] Pass → Commit: `feat(spec-30-02): wire wiki fact verification into doctor and status`
+- [x] doctor wiki layer 에 W-5 추가, `_status_diagnose` 연결 → 사본 `cp`
+- [x] 본 저장소 첫 실행에서 불일치가 나오면 **문서(hooks.md)를 코드에 맞게 정정**
+- [x] Pass → Commit: `feat(spec-30-02): wire wiki fact verification into doctor and status`
 
 ---
 

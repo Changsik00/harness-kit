@@ -5,7 +5,7 @@ sources:
   - docs/decisions/ADR-002-planning-economy.md
   - docs/decisions/ADR-003-wiki-frontmatter-schema.md
   - docs/rca/RCA-001-sdd-ship-spec-add-missing.md
-  - specs/spec-19-01-wiki-layer-bootstrap/walkthrough.md
+  - archive/specs/spec-19-01-wiki-layer-bootstrap/walkthrough.md
   - archive/specs/spec-08-02-phase-base-branch/walkthrough.md
   - archive/specs/spec-13-02-pr-merge-detect/walkthrough.md
   - archive/specs/spec-15-05-dedupe-hardcoded-lists/walkthrough.md
