@@ -1,10 +1,10 @@
 ---
-description: wiki 레이어 증분 갱신 — archive된 spec의 walkthrough를 읽고 docs/wiki/ 페이지를 갱신한다
+description: wiki 레이어 증분 갱신 — archive된 spec이 바꾼 컴포넌트 페이지만 제자리에서 갱신한다
 ---
 
-`sdd archive` 후 이 명령으로 `docs/wiki/` 를 최신 상태로 유지합니다.
+`sdd archive` 후 이 명령으로 `docs/wiki/` 를 최신 상태로 유지합니다. 갱신 **단위는 walkthrough 가 아니라 영향받은 컴포넌트 페이지**입니다.
 
-> 무엇을 쓰고 버릴지는 `docs/wiki/schema.md` §Ingest 를 먼저 읽고 따른다 (결론 한 줄 + 출처, 일회성 수정은 제외).
+> 규약은 `docs/wiki/schema.md` 를 먼저 읽고 따른다 (3층 구조 · 제자리 갱신 + 변경 이력 · 충돌 시 사용자 확인 · 출처 필수 · 크기 상한). 컴포넌트 페이지 양식: `.harness-kit/agent/templates/wiki-component.md`.
 
 ## 1. 인제스트 범위 결정
 
@@ -37,7 +37,6 @@ git log --format="%ad %s" --date=short -- archive/specs/*/walkthrough.md | head 
 ```
 📋 인제스트 대상 (마지막 인제스트: YYYY-MM-DD 이후)
   - archive/specs/spec-XX-XX-slug/walkthrough.md
-  - archive/specs/spec-XX-XX-slug/walkthrough.md
   ...
   총 N개
 
@@ -46,47 +45,61 @@ git log --format="%ad %s" --date=short -- archive/specs/*/walkthrough.md | head 
 
 대상이 없으면 `이미 최신 상태입니다. 인제스트할 항목 없음.` 으로 종료합니다.
 
-## 3. walkthrough 읽기 및 wiki 갱신
+## 3. 영향 컴포넌트 결정 (기계적 매핑)
 
-각 walkthrough.md를 순서대로 읽고 다음을 추출합니다:
+각 대상 spec 의 `spec.md` 에서 **Proposed Changes** 의 파일 경로를 모으고, `docs/wiki/components/*.md` 의 frontmatter `covers:` 접두와 매칭해 영향 컴포넌트를 정합니다. 한 경로가 여러 컴포넌트에 걸릴 수 있습니다.
 
-- **📌 결정 기록** 섹션 → `docs/wiki/decisions.md` 갱신 후보
-- **🔍 발견 사항** 섹션 → `docs/wiki/patterns.md` 갱신 후보
-- **🚧 이월 항목** 섹션 → 메모만 (실행 불가 — `backlog/queue.md` 이미 반영됨)
+- 매칭된 컴포넌트 → 4단계로
+- **어느 `covers:` 에도 맞지 않는 항목** → 임의로 분류하지 말고 사용자에게 묻는다: `새 컴포넌트 페이지 / direction.md / 버림`
+- 프로젝트 방향·원칙에 관한 변화(예: 정책 번복, No-Go 결정)는 `direction.md` 후보
 
-**갱신 원칙**:
-- 기존 내용을 **삭제하거나 교체하지 않는다** — 항상 증분 추가
-- 이미 동일한 패턴/결정이 있으면 중복 추가하지 않고 "출처" 태그만 보강
-- 합성 시 원문 인용: `출처: spec-XX-XX walkthrough §결정 기록`
+## 4. 영향 컴포넌트 페이지 갱신
 
-`docs/wiki/decisions.md` 에 새 결정이 있으면 해당 섹션 하단에 추가합니다.
-`docs/wiki/patterns.md` 에 새 패턴이 있으면 해당 섹션 하단에 추가합니다.
+영향받은 컴포넌트 페이지만 읽고, 각 spec 의 walkthrough(📌 결정 기록 · 🔍 발견 사항)와 ADR 에서 **현재 설계가 바뀐 것 / 번복 / 반복 / 보류**를 추려 반영합니다. 🚧 이월 항목은 메모만(`backlog/queue.md` 에 이미 있음), `기술 부채`·`반복·미결` 에는 *결정을 미룬 것*만 옮깁니다.
 
-## 4. log.md 갱신
+**갱신 원칙** (상세는 schema.md):
+- **제자리 갱신**: 현재 서술을 고친다. 낡은 문장 옆에 새 문장을 덧붙여 모순을 쌓지 않는다.
+- **변경 이력 보존**: 주장이 바뀌면 덮어쓰기 *전에* `## 변경 이력` 에 `날짜 · 이전 → 현재 · 이유 · 출처` 를 한 줄 남긴다. 이력은 지우지 않는다.
+- **충돌은 사용자 확인 후 반영**: 새 근거가 기존 "현재 설계" 주장과 모순되면 임의로 덮어쓰지 않는다. (기존 주장 / 새 근거 / 제안 갱신)을 보여 주고 확인받는다. 확인 전에는 `## 반복·미결` 에 `⚠ 충돌 대기: <한 줄>` 로만 기록한다.
+- **출처 필수**: 모든 사실 주장에 출처(경로·spec·ADR)를 단다. 확인하지 못한 것은 `(미확인)`. 해석은 "판단" 표시.
+- **원문 확인**: 코드/설정에 대한 주장은 walkthrough 의 서술을 믿지 말고 현재 파일에서 직접 확인한다 (시범에서 요약 서술이 사실과 달랐던 사례가 있음).
+- 같은 내용이 이미 있으면 추가하지 않고 출처만 보강한다.
+- 코드에서 기계적으로 확인 가능한 표·목록은 바로 위에 `<!-- verify: <키> -->` 마커를 유지한다.
+- 페이지가 크기 상한(components 200줄 / direction 150줄 / threads 300줄)을 넘으면 오래된 변경 이력을 한 줄 요약으로 압축한다.
+- frontmatter `sources:` 보강, `updated:` 를 오늘 날짜로.
+
+## 5. threads.md 반영
+
+번복(이전 입장이 뒤집힘), 반복(같은 문제 재발), 미결(결정을 미룸)이 **둘 이상의 컴포넌트에 걸치거나 오래 이어진** 경우 `docs/wiki/threads.md` 에 스레드 항목을 추가·갱신합니다(상태 · 경과 · 관련 페이지). 파일이 아직 없으면 사용자에게 만들지 묻습니다.
+
+> `docs/wiki/decisions.md`·`patterns.md` 는 **출처별 로그(격하)** 입니다. 이 명령은 더 이상 이 두 파일을 직접 편집하지 않습니다. 새 항목을 로그에도 남기고 싶으면 사용자가 요청할 때만 추가합니다.
+
+## 6. log.md 갱신
 
 `docs/wiki/log.md` 에 인제스트 이벤트를 **맨 위 항목으로** 추가합니다 (최신 우선):
 
 ```markdown
 ### YYYY-MM-DD — <이벤트 제목>
 - **대상**: <처리한 spec 목록>
-- **갱신된 wiki 페이지**: decisions.md, patterns.md (갱신 없으면 생략)
-- **추가된 내용 요약**: <1~3줄>
+- **갱신된 wiki 페이지**: components/hooks.md, direction.md (갱신 없으면 생략)
+- **변경 요약**: <1~3줄 — 바뀐 입장은 "이전 → 현재" 로>
+- **충돌 대기**: <있으면 목록, 없으면 생략>
 ```
 
-## 5. index.md 카탈로그 갱신 (선택)
+`docs/wiki/index.md` 의 "최근 인제스트" 항목과 새 페이지 행도 갱신합니다.
 
-`docs/wiki/index.md` 의 "최근 인제스트" 항목을 현재 날짜로 업데이트합니다.
-
-## 6. 결과 보고
+## 7. 결과 보고
 
 ```
 ✅ wiki 인제스트 완료
 
   처리된 spec: N개
   갱신된 페이지:
-    - docs/wiki/decisions.md (+K항목)
-    - docs/wiki/patterns.md (+M항목)
+    - docs/wiki/components/<name>.md (현재 설계 +a, 변경 이력 +b)
+    - docs/wiki/threads.md (스레드 +c)
     - docs/wiki/log.md (이벤트 추가)
+  ⚠ 충돌 대기: K건  (사용자 확인 필요)
+  분류 보류: M건  (사용자 선택 필요)
 
   커밋 여부: 변경사항을 커밋하시겠습니까? [Y/n]
 ```

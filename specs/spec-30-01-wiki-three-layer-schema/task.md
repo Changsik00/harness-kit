@@ -43,9 +43,9 @@
 - [x] Commit: `test(spec-30-01): add failing test for ingest contract`
 
 ### 3-2. 구현 (Green)
-- [ ] `sources/commands/hk-wiki-ingest.md` 재작성 → `.claude/commands/` 사본 `cp`
-- [ ] `sources/claude-fragments/CLAUDE.fragment.md` 수정 → `.harness-kit/CLAUDE.fragment.md` 사본 `cp`
-- [ ] 테스트 Pass (`test-source-sync-drift` 포함) → Commit: `feat(spec-30-01): revise wiki ingest to component-based in-place update`
+- [x] `sources/commands/hk-wiki-ingest.md` 재작성 → `.claude/commands/` 사본 `cp`
+- [x] `sources/claude-fragments/CLAUDE.fragment.md` 수정 → `.harness-kit/CLAUDE.fragment.md` 사본 `cp`
+- [x] 테스트 Pass (`test-source-sync-drift` 포함) → Commit: `feat(spec-30-01): revise wiki ingest to component-based in-place update`
 
 ---
 

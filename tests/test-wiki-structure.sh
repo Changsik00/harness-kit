@@ -196,8 +196,8 @@ for h in "## Ingest" "## Query" "## Lint"; do
 done
 check
 if grep -q "wiki/schema.md" "$ROOT/sources/claude-fragments/CLAUDE.fragment.md" \
-   && grep -q "wiki/decisions.md" "$ROOT/sources/claude-fragments/CLAUDE.fragment.md"; then
-  pass "CLAUDE.fragment — wiki 질의 규칙(schema/decisions) 참조"
+   && grep -q "direction.md" "$ROOT/sources/claude-fragments/CLAUDE.fragment.md"; then
+  pass "CLAUDE.fragment — wiki 질의 규칙(schema/direction) 참조"
 else
   fail "CLAUDE.fragment — wiki 질의 규칙 없음"
 fi

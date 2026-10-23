@@ -12,7 +12,7 @@
 
 ## 검증된 패턴 · wiki 질의
 
-"왜 이렇게 결정했나"·유사 작업 여부·spec/plan 착수 전엔 `archive/` 를 뒤지기 전에 `docs/wiki/decisions.md`·`patterns.md` 를 먼저 읽는다 (규칙 → `docs/wiki/schema.md`).
+"지금 어떻게 돼 있나·왜 이렇게 결정했나"·유사 작업 여부·spec/plan 착수 전엔 `archive/` 를 뒤지기 전에 `docs/wiki/` 를 먼저 읽는다: 현재 입장은 `direction.md`·`components/<name>.md`, 번복·미결은 `threads.md`, 출처별 상세 근거는 `decisions.md`·`patterns.md` (규칙 → `docs/wiki/schema.md`).
 
 - **right-size**: 1-2 commit 은 FF/phase-FF (ADR-004).
 - **phase-FF**: 활성 phase 작은 항목 → spec 없이 직접 커밋.
