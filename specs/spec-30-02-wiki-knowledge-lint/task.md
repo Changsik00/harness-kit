@@ -75,15 +75,15 @@
 
 ### 🚦 Pre-Push Quality Gate
 
-- [ ] **전체 테스트 실행** → 모두 PASS
-- [ ] `sdd doctor` 사실 검증 불일치 0건 확인
-- [ ] 수동 검증: 임시 복사본에서 hook 기본값 변경 → W-5 경고, `/hk-wiki-lint` 실행 결과 확인
+- [x] **전체 테스트 실행** → 모두 PASS
+- [x] `sdd doctor` 사실 검증 불일치 0건 확인
+- [x] 수동 검증: 임시 복사본에서 hook 기본값 변경 → W-5 경고, `/hk-wiki-lint` 실행 결과 확인
 
 ### 📝 산출물 작성
 
-- [ ] **walkthrough.md 작성**
-- [ ] **pr_description.md 작성**
-- [ ] Commit: `docs(spec-30-02): ship walkthrough and pr description`
+- [x] **walkthrough.md 작성**
+- [x] **pr_description.md 작성**
+- [x] Commit: `docs(spec-30-02): ship walkthrough and pr description`
 
 ### 🚀 Push & PR
 
