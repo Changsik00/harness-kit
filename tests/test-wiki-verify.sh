@@ -10,6 +10,7 @@
 #   6. frontmatter sources:/covers: 경로가 존재하지 않음 → 보고
 #   7. 페이지 크기 상한 초과 → 보고
 #   9. 본 저장소 실측 → 불일치 0건 / status 진단 노출
+#  10. /hk-wiki-lint 커맨드 계약 + schema Lint 절 역할 분담
 #   8. wiki 없음 / 마커·components 없음 → 침묵
 #
 # 임시 git repo 만 사용 (실제 repo 는 변경하지 않음). bash 3.2+ 호환.
@@ -150,6 +151,23 @@ d="$(new_fixture status-line)"
 printf 'hook_resolve_mode "BRANCH" "warn"\n' > "$d/.harness-kit/hooks/check-branch.sh"
 out="$(cd "$d" && bash "$SDD" status --no-drift 2>&1 || true)"
 case "$out" in *"wiki 사실 불일치"*"check-branch"*) pass "sdd status 진단에 노출" ;; *) fail "status 진단에 없음" "$out" ;; esac
+
+echo ""
+echo "▶ Case 10: /hk-wiki-lint 커맨드 계약 + schema Lint 절"
+LINT="$ROOT/sources/commands/hk-wiki-lint.md"
+LINT_COPY="$ROOT/.claude/commands/hk-wiki-lint.md"
+if [ -f "$LINT" ]; then
+  for phrase in "모순" "대체" "미결" "출처" "verify" "수정하지 않는다" "(추정)" "sdd doctor"; do
+    if grep -qF -- "$phrase" "$LINT"; then pass "hk-wiki-lint — '$phrase'"; else fail "hk-wiki-lint — '$phrase' 없음" ""; fi
+  done
+else
+  fail "sources/commands/hk-wiki-lint.md 없음" ""
+fi
+if [ -f "$LINT_COPY" ] && cmp -s "$LINT" "$LINT_COPY"; then pass "사본 .claude/commands/ 와 동일"; else fail "사본 없음 또는 원본과 다름" ""; fi
+SCHEMA="$ROOT/docs/wiki/schema.md"
+for phrase in "사실 검증" "의미 lint" "/hk-wiki-lint" "보조 신호"; do
+  if grep -qF -- "$phrase" "$SCHEMA"; then pass "schema.md Lint — '$phrase'"; else fail "schema.md Lint — '$phrase' 없음" ""; fi
+done
 
 echo ""
 echo "✓ wiki 사실 검증 PASS"

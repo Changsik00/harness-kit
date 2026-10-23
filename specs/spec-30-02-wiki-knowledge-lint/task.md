@@ -61,8 +61,8 @@
 ## Task 5: `/hk-wiki-lint` 커맨드 + schema Lint 절
 
 ### 5-1. 테스트 (Red)
-- [ ] `test-wiki-verify.sh` 에 계약 케이스 추가: 커맨드 원본·사본 존재/동일, 5개 점검 항목 문구, "수정 금지(보고서만)" 문구, schema.md Lint 절에 역할 분담 문구 → Fail
-- [ ] Commit: `test(spec-30-02): add failing test for wiki-lint command contract`
+- [x] `test-wiki-verify.sh` 에 계약 케이스 추가: 커맨드 원본·사본 존재/동일, 5개 점검 항목 문구, "수정 금지(보고서만)" 문구, schema.md Lint 절에 역할 분담 문구 → Fail
+- [x] Commit: `test(spec-30-02): add failing test for wiki-lint command contract`
 
 ### 5-2. 구현 (Green)
 - [ ] `sources/commands/hk-wiki-lint.md` 작성 → `.claude/commands/` 사본, `schema.md` Lint 절 개정
