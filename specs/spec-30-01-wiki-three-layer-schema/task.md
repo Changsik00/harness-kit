@@ -25,8 +25,8 @@
 ## Task 2: schema.md 개정 (3층·갱신·충돌·verify 마커·크기 상한)
 
 ### 2-1. 테스트 (Red)
-- [ ] Case 2 (schema 문구 존재 / append-only 문구 부재), Case 4 (시범 페이지 섹션·크기 상한), Case 5 (hooks.md verify 마커) 추가 → Fail
-- [ ] Commit: `test(spec-30-01): add failing test for schema v2 contract`
+- [x] Case 2 (schema 문구 존재 / append-only 문구 부재), Case 4 (시범 페이지 섹션·크기 상한), Case 5 (hooks.md verify 마커) 추가 → Fail
+- [x] Commit: `test(spec-30-01): add failing test for schema v2 contract`
 
 ### 2-2. 구현 (Green)
 - [ ] `docs/wiki/schema.md` 재작성 (Ingest/Query/Lint 절 포함)
