@@ -2621,13 +2621,43 @@ _wiki_verify_page() { # <abs-file>
   return 0
 }
 
+# frontmatter sources:/covers: 경로 존재 + 페이지 크기 상한 (spec-30-02)
+_wiki_verify_meta() { # <abs-file>
+  local f="$1" rel="${1#$SDD_ROOT/}" wrel="${1#$SDD_ROOT/docs/wiki/}" item missing="" n=0 cap lines
+  while IFS= read -r item; do
+    [ -n "$item" ] || continue
+    case "$item" in *://*|"["*|*"<"*) continue ;; esac
+    if [ ! -e "$SDD_ROOT/$item" ]; then
+      n=$((n + 1))
+      [ "$n" -le 3 ] && missing="${missing:+$missing, }$item"
+    fi
+  done < <(awk '
+    NR==1 && /^---/ { fm=1; next }
+    fm && /^---/ { exit }
+    fm && /^[A-Za-z_]+:/ { cur = ($1=="sources:" || $1=="covers:") ? 1 : 0; next }
+    fm && cur && /^[[:space:]]+-[[:space:]]/ { sub(/^[[:space:]]+-[[:space:]]+/, ""); gsub(/["'"'"']/, ""); sub(/[[:space:]]+$/, ""); print }
+  ' "$f")
+  [ "$n" -gt 0 ] && echo "$rel: 존재하지 않는 경로 ${n}개: ${missing}"
+  case "$wrel" in
+    components/*.md) cap=200 ;;
+    direction.md)    cap=150 ;;
+    threads.md)      cap=300 ;;
+    *)               cap="" ;;
+  esac
+  if [ -n "$cap" ]; then
+    lines=$(wc -l < "$f" | tr -d ' ')
+    [ "$lines" -gt "$cap" ] && echo "$rel: 크기 상한 초과 ${lines}줄 (>${cap})"
+  fi
+  return 0
+}
+
 _wiki_verify_report() {
   local wiki_dir="$SDD_ROOT/docs/wiki"
   [ -d "$wiki_dir" ] || return 0
   local f all="" out
   while IFS= read -r f; do
     [ -f "$f" ] || continue
-    out=$(_wiki_verify_page "$f" || true)
+    out=$( { _wiki_verify_page "$f"; _wiki_verify_meta "$f"; } || true)
     [ -n "$out" ] && all="${all:+$all
 }$out"
   done < <(find "$wiki_dir" -name '*.md' | sort)

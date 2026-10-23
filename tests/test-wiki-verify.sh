@@ -121,7 +121,7 @@ d="$(new_fixture too-big)"
 { printf -- '---\nkind: synthesis\nsources: []\n---\n'; i=0; while [ "$i" -lt 210 ]; do echo "줄 $i"; i=$((i+1)); done; } > "$d/docs/wiki/components/big.md"
 { printf -- '---\nkind: synthesis\nsources: []\n---\n'; i=0; while [ "$i" -lt 160 ]; do echo "줄 $i"; i=$((i+1)); done; } > "$d/docs/wiki/direction.md"
 out="$(run_doctor "$d")"
-case "$out" in *"크기 상한 초과"*"big.md"*"direction.md"*) pass "components/direction 초과 보고" ;; *) fail "미보고" "$out" ;; esac
+case "$out" in *"big.md"*"크기 상한 초과"*"direction.md"*"크기 상한 초과"*) pass "components/direction 초과 보고" ;; *) fail "미보고" "$out" ;; esac
 { printf -- '---\nkind: synthesis\nsources: []\n---\n'; i=0; while [ "$i" -lt 250 ]; do echo "줄 $i"; i=$((i+1)); done; } > "$d/docs/wiki/threads.md"
 rm "$d/docs/wiki/components/big.md" "$d/docs/wiki/direction.md"
 out="$(run_doctor "$d")"

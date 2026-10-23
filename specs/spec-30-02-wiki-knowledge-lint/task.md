@@ -28,8 +28,8 @@
 - [x] Commit: `test(spec-30-02): add failing test for path-exists and size cap`
 
 ### 2-2. 구현 (Green)
-- [ ] frontmatter `sources:`/`covers:` 파서 + 경로 존재 검사, 크기 상한 검사 추가 → 사본 `cp`
-- [ ] Pass → Commit: `feat(spec-30-02): check wiki source paths and page size caps`
+- [x] frontmatter `sources:`/`covers:` 파서 + 경로 존재 검사, 크기 상한 검사 추가 → 사본 `cp`
+- [x] Pass → Commit: `feat(spec-30-02): check wiki source paths and page size caps`
 
 ---
 
